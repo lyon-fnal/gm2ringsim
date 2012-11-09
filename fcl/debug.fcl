@@ -1,0 +1,70 @@
+process_name:myProcessName
+
+source: {
+  module_type: EmptyEvent
+  maxEvents:  1
+}
+
+services: {
+
+  message : {
+     debugModules : ["*"]
+     suppressInfo : []
+     
+     destinations : {
+       LogToConsole : {
+         type : "cout"
+         threshold : "INFO"
+         
+         categories : {
+           default : { limit : 50 }
+         }
+       }
+     }
+  }
+
+  user: {
+    DetectorHolder: {}
+    ActionHolder: {}
+    Material: {}
+
+    // Detector(s) for the simulation
+
+    // Action(s) for the simulation
+    ClockAction: {}
+
+    //PrimaryGeneratorAction: {
+//      name: "primary"
+//    }
+//    EventAction: {
+//      name: "event"
+//    }
+ 
+  } //user:
+} //services:
+
+outputs: {
+out1: {
+  module_type: RootOutput   
+  fileName: "gm2ringsimout.root"
+  }
+}
+
+physics: {
+  producers: {
+    artg4Main: {
+      module_type: artg4Main
+   //  enableVisualization: true
+   //   macroPath: ".:./macros"
+   //   visMacro: "vis.mac"
+   //   pauseAfterEvent: true
+    }
+
+  }
+
+  path1: [ artg4Main ]
+  stream1:  [ out1 ]
+
+  trigger_paths: [ path1 ]
+  end_paths: [ stream1 ]
+}
