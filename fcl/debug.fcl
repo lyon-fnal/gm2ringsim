@@ -27,13 +27,24 @@ services: {
     DetectorHolder: {}
     ActionHolder: {}
     Material: {}
+    PhysicsListHolder: {}
+//    Geometry: {}
 
     // Detector(s) for the simulation
 
     // Action(s) for the simulation
-    ClockAction: {}
+//    ClockAction: {}
 
-    //PrimaryGeneratorAction: {
+
+    PhysicsList: {}	
+    World: {
+	name: "BKworld"
+        category: "world"
+        mother_category: ""
+    }	
+	
+	   
+//PrimaryGeneratorAction: {
 //      name: "primary"
 //    }
 //    EventAction: {
@@ -54,10 +65,10 @@ physics: {
   producers: {
     artg4Main: {
       module_type: artg4Main
-   //  enableVisualization: true
-   //   macroPath: ".:./macros"
-   //   visMacro: "vis.mac"
-   //   pauseAfterEvent: true
+     enableVisualization: false
+      macroPath: ".:./macros"
+      visMacro: "vis.mac"
+      pauseAfterEvent: true
     }
 
   }
