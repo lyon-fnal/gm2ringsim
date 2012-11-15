@@ -2,8 +2,8 @@
 #include <iostream>
 gm2ringsim::SampleGeometry::SampleGeometry(std::string detName) :
   GeometryBase(detName),
-  sampleInt(p_.get<int>("sampleInt")),
-  sampleDouble(p_.get<double>("sampleDouble"))
+  sampleInt(p.get<int>("sampleInt")),
+  sampleDouble(p.get<double>("sampleDouble"))
 { }
 
 void gm2ringsim::SampleGeometry::Print(){

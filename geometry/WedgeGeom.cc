@@ -2,8 +2,8 @@
 #include <iostream>
 gm2ringsim::WedgeGeometry::WedgeGeometry(std::string detName) :
   GeometryBase(detName),
-  length(p_.get<int>("length")),
-  angle(p_.get<double>("angle"))
+  length(p.get<int>("length")),
+  angle(p.get<double>("angle"))
 { }
 
 void gm2ringsim::WedgeGeometry::Print(){
