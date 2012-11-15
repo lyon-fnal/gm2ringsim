@@ -1,5 +1,5 @@
-#ifndef BKGEOM_HH
-#define BKGEOM_HH
+#ifndef GEOMETRY_BASE_HH
+#define GEOMETRY_BASE_HH
 
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "artg4/services/Geometry_service.hh"
@@ -15,11 +15,11 @@ namespace gm2ringsim {
     ~GeometryBase() {}
 
     std::string Name;
-    fhicl::ParameterSet p_;
+    fhicl::ParameterSet p;
   };
 
 
 
 }
 
-#endif // BKGEOM_HH
+#endif // GEOMETRY_BASE_HH
