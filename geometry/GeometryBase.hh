@@ -12,7 +12,7 @@ namespace gm2ringsim {
   struct GeometryBase { 
     
     GeometryBase(std::string detName);
-    ~GeometryBase() {}
+    virtual ~GeometryBase() {}
 
     std::string Name;
     fhicl::ParameterSet p;
