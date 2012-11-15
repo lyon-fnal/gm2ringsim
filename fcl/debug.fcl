@@ -27,8 +27,14 @@ services: {
     DetectorHolder: {}
     ActionHolder: {}
     Material: {}
+    RandomNumberGenerator: {}
     PhysicsListHolder: {}
-//    Geometry: {}
+    Geometry: {
+      Bot: 99
+      bkGeom: {
+       bottles: 98
+      }  
+    }
 
     // Detector(s) for the simulation
 
@@ -41,6 +47,10 @@ services: {
 	name: "BKworld"
         category: "world"
         mother_category: ""
+	bla: {
+         fun: 99
+        }
+
     }	
 	
 	   

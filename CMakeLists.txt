@@ -111,6 +111,8 @@ include(ArtMake)
 # Build these directories
 add_subdirectory( fcl )
 add_subdirectory( tmp )
+add_subdirectory( geometry )
+#add_subdirectory( calo )
 add_subdirectory( ups )
 add_subdirectory( test )
 add_subdirectory( actions )
