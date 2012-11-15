@@ -17,7 +17,9 @@
 #include "Geant4/G4LogicalVolume.hh"
 #include "Geant4/G4VPhysicalVolume.hh"
 
-#include "gm2ringsim/geometry/BKGeom.hh"
+#include "gm2ringsim/geometry/GeometryBase.hh"
+#include "gm2ringsim/geometry/SampleGeom.hh"
+#include "gm2ringsim/geometry/WedgeGeom.hh"
 
 #include <vector>
 
@@ -56,10 +58,12 @@ namespace gm2ringsim {
         // Hold on to the actual magnetic field
         double magFieldStrength_;
       //        ExN02MagneticField magField_;
+
         fhicl::ParameterSet bla_;
         fhicl::ParameterSet p_;
-      BKGeometry g_;
-      
+
+      WedgeGeometry wg_;
+      SampleGeometry sg_;
     };
 }
 

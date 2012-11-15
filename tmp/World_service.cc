@@ -18,8 +18,7 @@
 #include "Geant4/G4Colour.hh"
 
 //#include CHANGE_ME: Add include for detector Art hit header
-
-#include "gm2ringsim/geometry/BKGeom.hh"
+#include "gm2ringsim/geometry/SampleGeom.hh"
 
 // Constructor for the service (we'll hard code all parameters at first)
 gm2ringsim::World::World(fhicl::ParameterSet const & p, art::ActivityRegistry & ) :
@@ -31,11 +30,15 @@ gm2ringsim::World::World(fhicl::ParameterSet const & p, art::ActivityRegistry & 
     //magField_(),
     bla_( p.get<fhicl::ParameterSet>("bla") ),
     p_( p ),
-    g_()
+    wg_("WedgeGeometry"),
+    sg_("SampleGeometry")
+
+
 {
-
-  std::cout<<"Geometry was built in constructor with values from fhicl:\n\t\t bottles:"<<g_.bottles<<"\n\t\t mybot"<<g_.mybot<<std::endl;
-
+  sg_.Print();
+  wg_.Print();
+  std::cout<<"Manually, sg_.SampleInt is "<<sg_.sampleInt<<std::endl;
+  std::cout<<"Manually, sg_.SampleDouble is "<<sg_.sampleDouble<<std::endl;
 
   // Looking at ExN02MagneticField, I see that calling SetMagFieldValue does more than what is 
   // in the constructor if we passed in the strength directly. So we make a zero field at first, and then 

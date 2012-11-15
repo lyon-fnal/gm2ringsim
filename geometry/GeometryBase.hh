@@ -4,16 +4,18 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "artg4/services/Geometry_service.hh"
 
+#include "fhiclcpp/ParameterSet.h"
+
 #include <string>
 namespace gm2ringsim {
 
-  struct BKGeometry { 
+  struct GeometryBase { 
+    
+    GeometryBase(std::string detName);
+    ~GeometryBase() {}
 
-    BKGeometry() ;
-    BKGeometry(std::string detName);
-    ~BKGeometry() {}
-    int bottles;
-    int mybot;
+    std::string Name;
+    fhicl::ParameterSet p_;
   };
 
 
