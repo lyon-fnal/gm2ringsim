@@ -37,6 +37,7 @@ set(CMAKE_MODULE_PATH $ENV{GM2SOFTWARETOOLS_DIR}/Modules ${CMAKE_MODULE_PATH} )
 
 # Include the necessary macros
 include(CetCMakeEnv)
+include(FindUpsGeant4)
 
 # h3. Configure this product
 
@@ -59,6 +60,8 @@ cet_report_compiler_flags()
 # These are needed for Art stuff
 find_ups_product(gm2softwaretools v201209_02)
 find_ups_product(cetbuildtools v2_03_03)
+find_ups_product(xerces_c v3_1_1)
+find_ups_geant4( v4_9_5_p01)
 find_ups_product(cpp0x v1_03_14)
 find_ups_product(libsigcpp v2_2_10)
 find_ups_product(cppunit v1_12_1)
@@ -76,6 +79,7 @@ find_ups_boost( v1_50_0 filesystem
                         unit_test_framework
  )
 
+add_definitions(-DG4_STORE_TRAJECTORY -DG4VERBOSE -DG4UI_USE -DG4VIS_USE -DG4UI_USE_TCSH -DG4INTY_USE_XT -DG4VIS_USE_OPENGLX -DG4VIS_USE_OPENGL)
 
 # Make sure we have gcc
 cet_check_gcc()
