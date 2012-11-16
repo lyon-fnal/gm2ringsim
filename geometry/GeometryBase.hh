@@ -16,10 +16,13 @@ namespace gm2ringsim {
 
     std::string Name;
     fhicl::ParameterSet p;
+
   };
 
 
 
 }
 
+
 #endif // GEOMETRY_BASE_HH
+

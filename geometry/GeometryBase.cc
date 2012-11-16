@@ -14,4 +14,3 @@ gm2ringsim::GeometryBase::GeometryBase(std::string detName) :
   art::ServiceHandle <artg4::GeometryService> g;
   p = g->getDetParSet(detName);
 }
-

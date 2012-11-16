@@ -1,0 +1,96 @@
+process_name:myProcessName
+
+source: {
+  module_type: EmptyEvent
+  maxEvents:  1
+}
+
+services: {
+
+  message : {
+     debugModules : ["*"]
+     suppressInfo : []
+     
+     destinations : {
+       LogToConsole : {
+         type : "cout"
+         threshold : "INFO"
+         
+         categories : {
+           default : { limit : 50 }
+         }
+       }
+     }
+  }
+
+  user: {
+    DetectorHolder: {}
+    ActionHolder: {}
+    Material: {}
+    RandomNumberGenerator: {}
+    PhysicsListHolder: {}
+    Geometry: {
+          SampleGeometry: {
+         sampleInt : 97
+         sampleDouble : 97.333
+      }         
+         WedgeGeometry :{
+           length : 14
+           angle : 3.1415
+         }
+      
+    }
+
+    // Detector(s) for the simulation
+
+    // Action(s) for the simulation
+//    ClockAction: {}
+
+
+    PhysicsList: {}	
+    World: {
+	name: "BKworld"
+        category: "world"
+        mother_category: ""
+	bla: {
+         fun: 99
+        }
+
+    }	
+	
+	   
+//PrimaryGeneratorAction: {
+//      name: "primary"
+//    }
+//    EventAction: {
+//      name: "event"
+//    }
+ 
+  } //user:
+} //services:
+
+outputs: {
+out1: {
+  module_type: RootOutput   
+  fileName: "gm2ringsimout.root"
+  }
+}
+
+physics: {
+  producers: {
+    artg4Main: {
+      module_type: artg4Main
+     enableVisualization: false
+      macroPath: ".:./macros"
+      visMacro: "vis.mac"
+      pauseAfterEvent: true
+    }
+
+  }
+
+  path1: [ artg4Main ]
+  stream1:  [ out1 ]
+
+  trigger_paths: [ path1 ]
+  end_paths: [ stream1 ]
+}
