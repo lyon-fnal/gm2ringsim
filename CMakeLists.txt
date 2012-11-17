@@ -108,8 +108,6 @@ include(BuildPlugins)
 include(ArtMake)
 
 # Build these directories
-#add_subdirectory(  )
-add_subdirectory( geometry )
 add_subdirectory( fcl )
 add_subdirectory( ups )
 add_subdirectory( test )
