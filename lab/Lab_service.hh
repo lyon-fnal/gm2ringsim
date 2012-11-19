@@ -22,7 +22,7 @@
 #include "artg4/Core/DetectorBase.hh"
 
 // Within a namespace
-namespace gm2sim {
+namespace gm2ringsim {
 
     // The class
     class Lab : public artg4::DetectorBase {
@@ -44,11 +44,6 @@ namespace gm2sim {
 
         // Create the physical volumes
         virtual std::vector<G4VPhysicalVolume*> doPlaceToPVs( std::vector<G4LogicalVolume*>) override;
-
-        // Size of the lab
-        double lab_x_;
-        double lab_y_;
-        double lab_z_;
     };
 }
 

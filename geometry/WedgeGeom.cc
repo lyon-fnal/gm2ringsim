@@ -6,7 +6,7 @@ gm2ringsim::WedgeGeometry::WedgeGeometry(std::string detName) :
   angle(p.get<double>("angle"))
 { }
 
-void gm2ringsim::WedgeGeometry::Print(){
+void gm2ringsim::WedgeGeometry::print(){
   std::cout<<"\nPrinting Geometry for "<<Name<<std::endl;
   std::cout<<"\tlength: "<<length<<std::endl;
   std::cout<<"\tangle: "<<angle<<std::endl;

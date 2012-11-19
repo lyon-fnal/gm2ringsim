@@ -4,8 +4,8 @@
 #include "artg4/services/Geometry_service.hh"
 
 
-gm2ringsim::GeometryBase::GeometryBase(std::string detName) :
-  Name(detName),
+gm2ringsim::GeometryBase::GeometryBase(std::string const & detName) :
+  name(detName),
   p()
 {
   //std::cout<<"Inside GeometryBase(std::string)"<<std::endl;
