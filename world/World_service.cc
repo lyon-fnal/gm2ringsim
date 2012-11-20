@@ -19,9 +19,7 @@ gm2ringsim::World::World(fhicl::ParameterSet const & p, art::ActivityRegistry & 
                    p.get<std::string>("name", "world"),
                    p.get<std::string>("category", "world"),
                    p.get<std::string>("mother_category", ""))
-{
-  std::cout << "HI" << std::endl;
-}
+{}
 
 // Build the logical volumes
 std::vector<G4LogicalVolume *> gm2ringsim::World::doBuildLVs() {
