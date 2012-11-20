@@ -44,8 +44,7 @@ services: {
 
 
     PhysicsList: {}	
-    World: {
-    }	
+    World: {}	
 	
 	   
 //PrimaryGeneratorAction: {
