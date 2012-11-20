@@ -5,7 +5,7 @@
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 
-#include "artg4/services/Material_service.hh"
+#include "artg4/material/Materials.hh"
 
 #include "Geant4/G4Box.hh"
 #include "Geant4/G4VisAttributes.hh"
@@ -33,11 +33,8 @@ std::vector<G4LogicalVolume *> gm2ringsim::World::doBuildLVs() {
   // Make the big box
   G4Box* world_solid = new G4Box(myName(), g.world_x, g.world_y, g.world_z );
   
-  // Need materials
-  art::ServiceHandle<artg4::MaterialService> m;
-  
   // Make the logical volume
-  G4LogicalVolume* world_lv = new G4LogicalVolume(world_solid, m->newAir(), myName() );
+  G4LogicalVolume* world_lv = new G4LogicalVolume(world_solid, artg4Materials::Air(), myName() );
   
   // Set visualization attributes
   G4VisAttributes* worldVisAtt = new G4VisAttributes(G4Colour(1.0, 1.0, 1.0));
