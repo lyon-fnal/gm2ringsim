@@ -61,6 +61,7 @@ find_ups_product(gm2softwaretools v201209_02)
 find_ups_product(cetbuildtools v2_03_03)
 find_ups_product(cpp0x v1_03_14)
 find_ups_product(libsigcpp v2_2_10)
+find_ups_geant4( v4_9_5_p01)
 find_ups_product(cppunit v1_12_1)
 find_ups_product(clhep v2_1_2_4)
 find_ups_product(cetlib v1_03_14)
@@ -109,6 +110,7 @@ include(ArtMake)
 
 # Build these directories
 add_subdirectory( fcl )
+#add_subdirectory( tmp )
 add_subdirectory( ups )
 add_subdirectory( test )
 
