@@ -19,14 +19,16 @@ defaultqual e2
 
 product          version
 art              v1_02_04
+g4emlow          v6_23
 
 only_for_build  cetbuildtools v2_03_03
-only_for_build  gm2softwaretools v201209_02
+only_for_build  gm2softwaretools v201211
 
 # We now define allowed qualifiers and the corresponding qualifiers for the depdencies.
 # Make a table by adding columns before "notes". 
 #
-qualifier        art        notes
-e2:debug         e2:debug   
-e2:opt           e2:opt     
-e2:prof          e2:prof    
+qualifier        art       g4emlow  notes
+e2:debug         e2:debug   -nq- 
+e2:opt           e2:opt     -nq-
+e2:prof          e2:prof    -nq-
+

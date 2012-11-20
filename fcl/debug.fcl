@@ -30,6 +30,11 @@ services: {
     RandomNumberGenerator: {}
     PhysicsListHolder: {}
     Geometry: {
+      world: {
+        world_x: 50
+        world_y: 50
+        world_z: 50
+        }
     }
 
     // Detector(s) for the simulation
@@ -39,11 +44,7 @@ services: {
 
 
     PhysicsList: {}	
-    World: {
-	name: "BKworld"
-        category: "world"
-        mother_category: ""
-    }	
+    World: {}	
 	
 	   
 //PrimaryGeneratorAction: {
