@@ -25,15 +25,15 @@
 namespace gm2ringsim {
 
     // The class
-    class Lab : public artg4::DetectorBase {
+    class World : public artg4::DetectorBase {
 
     public:
 
         // Constructor
-        Lab(fhicl::ParameterSet const &, art::ActivityRegistry & );
+        World(fhicl::ParameterSet const &, art::ActivityRegistry & );
 
         // We always need a virtual destructor
-        virtual ~Lab() {};
+        virtual ~World() {};
 
     private:
 

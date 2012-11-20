@@ -17,10 +17,6 @@
 #include "Geant4/G4LogicalVolume.hh"
 #include "Geant4/G4VPhysicalVolume.hh"
 
-#include "gm2ringsim/geometry/GeometryBase.hh"
-#include "gm2ringsim/geometry/SampleGeom.hh"
-#include "gm2ringsim/geometry/WedgeGeom.hh"
-
 #include <vector>
 
 // Get the base class for the service
@@ -59,11 +55,6 @@ namespace gm2ringsim {
         double magFieldStrength_;
       //        ExN02MagneticField magField_;
 
-        fhicl::ParameterSet bla_;
-        fhicl::ParameterSet p_;
-
-      WedgeGeometry wg_;
-      SampleGeometry sg_;
     };
 }
 

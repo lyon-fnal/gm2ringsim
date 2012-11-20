@@ -30,15 +30,6 @@ services: {
     RandomNumberGenerator: {}
     PhysicsListHolder: {}
     Geometry: {
-          SampleGeometry: {
-         sampleInt : 97
-         sampleDouble : 97.333
-      }         
-         WedgeGeometry :{
-           length : 14
-           angle : 3.1415
-         }
-      
     }
 
     // Detector(s) for the simulation
@@ -49,13 +40,6 @@ services: {
 
     PhysicsList: {}	
     World: {
-	name: "BKworld"
-        category: "world"
-        mother_category: ""
-	bla: {
-         fun: 99
-        }
-
     }	
 	
 	   
