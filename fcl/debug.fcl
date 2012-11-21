@@ -70,7 +70,7 @@ physics: {
     artg4Main: {
       module_type: artg4Main
       enableVisualization: false
-      macroPath: ".:./macros"
+      macroPath: ".:./macros:../macros:../../macros"
       visMacro: "vis.mac"
       pauseAfterEvent: true
     }
