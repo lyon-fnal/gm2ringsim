@@ -51,7 +51,7 @@ PrimaryGeneratorAction: {
             name: "primary"	
 	    muonGasVerbosity : true
             g2GPS : {
-	      useMuonGasGun: true
+	      useMuonGasGun: false
       }
 
 }
