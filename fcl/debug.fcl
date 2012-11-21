@@ -46,9 +46,9 @@ services: {
     World: {}	
 	
 	   
-//PrimaryGeneratorAction: {
-//      name: "primary"
-//    }
+PrimaryGeneratorAction: {
+            name: "primary"
+       }
 //    EventAction: {
 //      name: "event"
 //    }
