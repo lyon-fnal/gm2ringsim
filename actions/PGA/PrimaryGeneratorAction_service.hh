@@ -45,11 +45,13 @@ namespace gm2ringsim
     G4double randTFromE989();
    
   private:
+    fhicl::ParameterSet par_g2GPS_;
     g2GeneralParticleSource* g2GPS_;
     G4ParticleGun* muonGasGun_;
     G4ParticleGun* inflectorGun_;
     bool muonGasVerbosity_;
-    
+
+
   }; // End PrimaryGeneratorAction class 
 }
 #endif

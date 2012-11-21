@@ -50,6 +50,10 @@ services: {
 PrimaryGeneratorAction: {
             name: "primary"	
 	    muonGasVerbosity : true
+            g2GPS : {
+	      useMuonGasGun: true
+      }
+
 }
 //    EventAction: {
 //      name: "event"

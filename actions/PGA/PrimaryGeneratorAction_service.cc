@@ -40,6 +40,7 @@ using std::endl;
 // Constructor
 gm2ringsim::PrimaryGeneratorAction::PrimaryGeneratorAction(fhicl::ParameterSet const& p, art::ActivityRegistry&) :
     artg4::PrimaryGeneratorActionBase(p.get<std::string>("name")),
+    par_g2GPS_ (p.get<fhicl::ParameterSet>("g2GPS"), fhicl::ParameterSet()),
     g2GPS_( 0 ),    // Must not intialize here because Geant isn't ready yet
     muonGasGun_ ( 0 ) ,
     inflectorGun_ ( 0 ),
