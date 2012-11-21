@@ -31,9 +31,10 @@ services: {
     PhysicsListHolder: {}
     Geometry: {
       world: {
-        world_x: 50
-        world_y: 50
-        world_z: 50
+        // Dimensions of the world (lab) in mm
+        world_x: 14000
+        world_y: 3500
+        world_z: 11000
         }
     }
 
