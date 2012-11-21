@@ -235,23 +235,24 @@ void gm2ringsim::PrimaryGeneratorAction::generatePrimaries(G4Event* evt) {
       muonGasGun_->SetParticlePolarization( G4ThreeVector( g2s.x(), g2s.y(), g2s.z() ) );
 
       if( muonGasVerbosity_ ) {
-	// Print some stuff                                                                                           
+	// Print some stuff                                                                                       
+
 	static int COUNT_PRIMARIES = 0;
-	G4cout << endl;
-	G4cout << "********************************************************************"<<endl;
-	printf("*  PRIMARY VERTEX: d%43s\n", ++COUNT_PRIMARIES, "*");
-	G4cout << "* ---------------------------------------------------------------- *" << endl;
-	//    printf("*           RANDOM NUMBER:% 11.3f%11s%8s    [0..1] *\n"      , randNum , "", "");                     
-	printf("*       RANDOM DECAY TIME:% 11.3f%11s%8s     [ns]  *\n"      , randT   , "", "");
-	printf("*         CYCLOTRON ANGLE:% 11.3f%11s%8s    [rad]  *\n"      , psiCRand, "", "");
-	printf("*         ANOMALOUS ANGLE:% 11.3f%11s%8s    [rad]  *\n"      , psiARand, "", "");
-	printf("*              SPIN ANGLE:% 11.3f%11s%8s    [rad]  *\n"      , psiSRand, "", "");
-	G4cout << "* ---------------------------------------------------------------- *" << endl;
-	printf("*  CARTESIAN   POSITION  :% 11.3f% 11.3f% 8.3f     [mm]  *\n", r.x(), r.y(), r.z());
-	printf("*              MOMENTUM  :% 11.3f% 11.3f% 8.3f   [MeV/c] *\n", p.x(), p.y(), p.z());
-	printf("*            POLARIZATION:% 11.3f% 11.3f% 8.3f      []   *\n", s.x(), s.y(), s.z());
-	G4cout << "********************************************************************" << endl;
-	G4cout << endl << endl << endl << endl;      
+	  G4cout << endl;
+	  G4cout << "********************************************************************" << endl;
+	  printf("*  PRIMARY VERTEX: %-6d%43s\n", ++COUNT_PRIMARIES, "*");
+	  G4cout << "* ---------------------------------------------------------------- *" << endl;
+	  //    printf("*           RANDOM NUMBER:% 11.3f%11s%8s    [0..1] *\n"      , randNum , "", "");         
+	  printf("*       RANDOM DECAY TIME:% 11.3f%11s%8s     [ns]  *\n"      , randT   , "", "");
+	  printf("*         CYCLOTRON ANGLE:% 11.3f%11s%8s    [rad]  *\n"      , psiCRand, "", "");
+	  printf("*         ANOMALOUS ANGLE:% 11.3f%11s%8s    [rad]  *\n"      , psiARand, "", "");
+	  printf("*              SPIN ANGLE:% 11.3f%11s%8s    [rad]  *\n"      , psiSRand, "", "");
+	  G4cout << "* ---------------------------------------------------------------- *" << endl;
+	  printf("*  CARTESIAN   POSITION  :% 11.3f% 11.3f% 8.3f     [mm]  *\n", r.x(), r.y(), r.z());
+	  printf("*              MOMENTUM  :% 11.3f% 11.3f% 8.3f   [MeV/c] *\n", p.x(), p.y(), p.z());
+	  printf("*            POLARIZATION:% 11.3f% 11.3f% 8.3f      []   *\n", s.x(), s.y(), s.z());
+	  G4cout << "********************************************************************" << endl;
+	  G4cout << endl << endl << endl << endl;      
       }
 
       //  FIRE                                                                                                        
