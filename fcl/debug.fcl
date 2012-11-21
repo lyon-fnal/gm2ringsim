@@ -48,8 +48,9 @@ services: {
 	
 	   
 PrimaryGeneratorAction: {
-            name: "primary"
-       }
+            name: "primary"	
+	    muonGasVerbosity : true
+}
 //    EventAction: {
 //      name: "event"
 //    }
@@ -68,7 +69,7 @@ physics: {
   producers: {
     artg4Main: {
       module_type: artg4Main
-     enableVisualization: false
+      enableVisualization: false
       macroPath: ".:./macros"
       visMacro: "vis.mac"
       pauseAfterEvent: true

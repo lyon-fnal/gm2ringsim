@@ -11,12 +11,14 @@
     @date 2012 Port to ART                                                                                
 */
 
+// Get the PGA header
 #include "gm2ringsim/actions/PGA/PrimaryGeneratorAction_service.hh"
+
+// ART includes
 #include "art/Framework/Services/Registry/ServiceMacros.h"
-#include "Geant4/G4ParticleTable.hh"
-#include "Geant4/G4ParticleDefinition.hh"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+// Geant includes
 #include "Geant4/G4Event.hh"
 #include "Geant4/G4GeneralParticleSource.hh"
 #include "Geant4/G4ParticleTable.hh"
@@ -24,6 +26,7 @@
 #include "Geant4/globals.hh"
 #include "Geant4/Randomize.hh"
 
+// g2migtrace helpers
 #include "gm2ringsim/actions/PGA/g2GeneralParticleSource.hh"
 #include "gm2ringsim/actions/PGA/g2PreciseValues.hh"
 
@@ -31,21 +34,16 @@
 
 #include <iostream>
 #include <cmath>
-using std::cout;
+
 using std::endl;
-
-
-// FIXME : Set this as a fhicl default 
-int muonGasVerbosity = 1; // @bug: Allow user to set via GUI    
-
-
 
 // Constructor
 gm2ringsim::PrimaryGeneratorAction::PrimaryGeneratorAction(fhicl::ParameterSet const& p, art::ActivityRegistry&) :
     artg4::PrimaryGeneratorActionBase(p.get<std::string>("name")),
     g2GPS_( 0 ),    // Must not intialize here because Geant isn't ready yet
     muonGasGun_ ( 0 ) ,
-    inflectorGun_ ( 0 ) 
+    inflectorGun_ ( 0 ),
+    muonGasVerbosity_ (p.get<bool>("muonGasVerbosity", 0))
 {}
 
 gm2ringsim::PrimaryGeneratorAction::~PrimaryGeneratorAction(){
@@ -67,74 +65,88 @@ void gm2ringsim::PrimaryGeneratorAction::initialize() {
 
 // EndOfPrimaryGeneratorAction
 void gm2ringsim::PrimaryGeneratorAction::generatePrimaries(G4Event* evt) {
-
+  
   if ( g2GPS_->GetMuonGasGun()){
-      mf::LogInfo("PGA") << "PrimaryGeneratorAction\n" << "\t MuonGasGun";
+    mf::LogInfo("PGA") << "PrimaryGeneratorAction: Using MuonGasGun";
       static G4double particleLifetime=0; // initialize
       static G4bool firstVertex = true;
-      if( firstVertex ){
-	G4String defaultParticle = "mu-";
-	G4String particle = g2GPS_ ->GetParticleDefinition()->GetParticleName();
-	if( g2GPS_ ->GetParticleDefinition()!=NULL && particle!=defaultParticle ){
-	  muonGasGun_ ->SetParticleDefinition( g2GPS_ ->GetParticleDefinition() );
-	} else {
-	  muonGasGun_ ->SetParticleDefinition( G4ParticleTable::GetParticleTable()->FindParticle(defaultParticle) );
-	}
-	particleLifetime = muonGasGun_ ->GetParticleDefinition()->GetPDGLifeTime();
-	//  G4cout << muonGasGun->GetParticleDefinition()->GetPDGLifeTime() << G4endl;         
-	muonGasGun_ ->GetParticleDefinition()->SetPDGLifeTime(0.);
-	//  G4cout << muonGasGun->GetParticleDefinition()->GetPDGLifeTime() << G4endl;
-	firstVertex = false;
+    if( firstVertex ){
+      G4String defaultParticle = "mu-";
+      G4String particle = g2GPS_ ->GetParticleDefinition()->GetParticleName();
+      if( g2GPS_ ->GetParticleDefinition()!=NULL && particle!=defaultParticle ){
+	muonGasGun_ ->SetParticleDefinition( g2GPS_ ->GetParticleDefinition() );
+      } else {
+	muonGasGun_ ->SetParticleDefinition( G4ParticleTable::GetParticleTable()->FindParticle(defaultParticle) );
       }
 
-      //  First, generate an initial transverse position in local storage-region (SR) coordinates.     
-      //  The coordinate system used here is the standard one found in accelerator physics texts,
-      //  i.e. "z" = longitudinal, "x" = radial, and "y" = vertical.
+      // Store PDGLifeTime and then define it to be 0 so we can decay the muons manually
+      particleLifetime = muonGasGun_ ->GetParticleDefinition()->GetPDGLifeTime();
+      muonGasGun_ ->GetParticleDefinition()->SetPDGLifeTime(0.);
+      firstVertex = false;
+    }
+    
+    //  First, generate an initial transverse position in local storage-region (SR) coordinates.     
+    //  The coordinate system used here is the standard one found in accelerator physics texts,
+    //  i.e. "z" = longitudinal, "x" = radial, and "y" = vertical.
+    
+    G4double randX_SR = 0.*mm; // radial
+    G4double randY_SR = 0.*mm; // vertical     
+
       
-      G4double randX_SR = 0.*mm; // radial
-      G4double randY_SR = 0.*mm; // vertical     
+      //FIXME: Is using G4RandGuass::shoot in this manner problematic?
+      // see: http://mu2e.fnal.gov/public/hep/computing/Random.shtml#fireShoot
+      // BK, Nov 2012
+
+      // see https://muon.npl.washington.edu/elog/g2/Simulation/85 for explanation
+      double E821_SingleGaussianWidth = 9.18770675965942;
       
       if( g2GPS_->GetMuonGasGunTransverseDistr()=="e989" ){
-	//  G4cout << "TRANSVERSE PROFILE: E989" << G4endl;                                                           
+	mf::LogInfo("PGA") << "TRANSVERSE PROFILE: E989";
 	G4double randRho_SR;
 	do{
-	  randX_SR = G4RandGauss::shoot( 0., 9.18770675965942 )*mm;
-	  randY_SR = G4RandGauss::shoot( 0., 9.18770675965942 )*mm;
+	  randX_SR = G4RandGauss::shoot( 0., E821_SingleGaussianWidth )*mm;
+	  randY_SR = G4RandGauss::shoot( 0., E821_SingleGaussianWidth )*mm;
 	  randRho_SR = std::sqrt( randX_SR*randX_SR + randY_SR*randY_SR );
 	} while( randRho_SR>45. );
 	
       } else if ( g2GPS_->GetMuonGasGunTransverseDistr()=="e821" ){
-	//  G4cout << "TRANSVERSE PROFILE: E821" << G4endl;
+	mf::LogInfo("PGA") << "TRANSVERSE PROFILE: E821";
 	G4double randRho_SR;
 	do{
 	  randX_SR = randXFromE821();
-	  randY_SR = G4RandGauss::shoot( 0., 9.18770675965942 )*mm;
+	  randY_SR = G4RandGauss::shoot( 0., E821_SingleGaussianWidth )*mm;
 	  randRho_SR = std::sqrt( randX_SR*randX_SR + randY_SR*randY_SR );
 	} while( randRho_SR>45. );
 	
       } else if ( g2GPS_->GetMuonGasGunTransverseDistr()=="uniform" ){
-	//  G4cout << "TRANSVERSE PROFILE: UNIFORM" << G4endl;
+	mf::LogInfo("PGA") << "TRANSVERSE PROFILE: UNIFORM";
 	G4double randRho_SR;
 	do{
 	  randX_SR = ( G4UniformRand()-0.5 )*90.*mm;
 	  randY_SR = ( G4UniformRand()-0.5 )*90.*mm;
-	    randRho_SR = std::sqrt( randX_SR*randX_SR + randY_SR*randY_SR );
-	  } while( randRho_SR>45. );
+	  randRho_SR = std::sqrt( randX_SR*randX_SR + randY_SR*randY_SR );
+	} while( randRho_SR>45. );
+	
+      } else if ( g2GPS_->GetMuonGasGunTransverseDistr()=="point" ){
+	mf::LogInfo("PGA") << "TRANSVERSE PROFILE: POINT";
 
-	} else if ( g2GPS_->GetMuonGasGunTransverseDistr()=="point" ){
-	//  G4cout << "TRANSVERSE PROFILE: POINT" << G4endl;
-	  randX_SR = 0.*mm;
-	  randY_SR = 0.*mm;
-
-	}
-
-
+	randX_SR = 0.*mm;
+	randY_SR = 0.*mm;
+	
+      }
+      else {
+	mf::LogInfo("PGA") << "NO TRANSVERSE PROFILE SPECIFIED.\n"
+	                   << "Using default values for randX_SR:"<<randX_SR
+			   << " and randY_SR:"<<randY_SR;
+	
+      }
+      
       //  Initialize {position, momentum, spin} vectors at 12 o'clock in standard global Cartesian
       //  coordinates.  NB: In a muonGas the momentum only depends on the radial coordinate.
 
       G4double rX = 0.;
       G4double rY = R_magic()+randX_SR; // 12 o'clock 
-      G4double rZ = 0.;
+      G4double rZ = randY_SR;  //0.;
       G4ThreeVector r = G4ThreeVector(rX,rY,rZ);
 
       G4double pX = eplus*c_light*B_magic()*( R_magic()+randX_SR ); // downstream
@@ -155,25 +167,30 @@ void gm2ringsim::PrimaryGeneratorAction::generatePrimaries(G4Event* evt) {
       
       
       if( g2GPS_->GetMuonGasGunLongitudinalDistr()=="e989" ){
-	//  G4cout << "LONGITUDINAL PROFILE: E989" << G4endl;
+	mf::LogInfo("PGA") << "LONGITUDINAL PROFILE: E989";
 	randT = randTFromE989();
-
+	
       } else if( g2GPS_->GetMuonGasGunLongitudinalDistr()=="e821" ){
-	//  G4cout << "LONGITUDINAL PROFILE: E821" << G4endl;
+	mf::LogInfo("PGA") << "LONGITUDINAL PROFILE: E821";
 	do{
 	  randT = G4RandGauss::shoot( 0., 25. )*ns;
 	} while( abs(randT)>50. );
 	randT += -50.;
-
+	
       } else if( g2GPS_->GetMuonGasGunLongitudinalDistr()=="uniform" ){
-	//  G4cout << "LONGITUDINAL PROFILE: UNIFORM" << G4endl;
+	mf::LogInfo("PGA") << "LONGITUDINAL PROFILE: UNIFORM";
 	randT = ( G4UniformRand()-1. )*100.*ns;
 
       } else if( g2GPS_->GetMuonGasGunLongitudinalDistr()=="uniformRing" ){
-	//  G4cout << "LONGITUDINAL PROFILE: UNIFORMRING" << G4endl;
+	mf::LogInfo("PGA") << "LONGITUDINAL PROFILE: UNIFORMRING";
 	randT = ( G4UniformRand()*CLHEP::twopi*R_magic()/(betaMagic()*c_light) );
 
       }
+      else {
+	mf::LogInfo("PGA") << "NO LOGITUDINAL PROFILE SPECIFIED.\n"
+	                   << "Using default value for randT:"<<randT;
+      }
+      
       
       //  Generate a random decay time by inverting Exp[ -t/gamma*tau ], and add it to the random tInitial from above.
       G4double randNum = G4UniformRand();
@@ -193,9 +210,11 @@ void gm2ringsim::PrimaryGeneratorAction::generatePrimaries(G4Event* evt) {
       G4double psiSRand = psiARand + psiCRand; // spin       
 
       //  Take into accound the position of the inflector exit in g2MIGTRACE (@Matthias Smith, 23 AUG '12)            
-      psiCRand += -5.33137595152413*deg;
-      psiARand += -5.33137595152413*deg;
-      psiSRand += -5.33137595152413*deg;
+      G4double inflectorAngle = -5.33137595152413*deg;
+      
+      psiCRand += inflectorAngle;
+      psiARand += inflectorAngle;
+      psiSRand += inflectorAngle;
 
       // Rotate the {position, momentum, spin} vectors clockwise by the appropriate amount.
       r.rotateZ( -psiCRand );
@@ -215,12 +234,12 @@ void gm2ringsim::PrimaryGeneratorAction::generatePrimaries(G4Event* evt) {
       muonGasGun_->SetParticleMomentum( G4ThreeVector( g2p.x(), g2p.y(), g2p.z() ) );
       muonGasGun_->SetParticlePolarization( G4ThreeVector( g2s.x(), g2s.y(), g2s.z() ) );
 
-      if( muonGasVerbosity ) {
+      if( muonGasVerbosity_ ) {
 	// Print some stuff                                                                                           
 	static int COUNT_PRIMARIES = 0;
 	G4cout << endl;
-	G4cout << "********************************************************************" << endl;
-	printf("*  PRIMARY VERTEX: %-6d%43s\n", ++COUNT_PRIMARIES, "*");
+	G4cout << "********************************************************************"<<endl;
+	printf("*  PRIMARY VERTEX: d%43s\n", ++COUNT_PRIMARIES, "*");
 	G4cout << "* ---------------------------------------------------------------- *" << endl;
 	//    printf("*           RANDOM NUMBER:% 11.3f%11s%8s    [0..1] *\n"      , randNum , "", "");                     
 	printf("*       RANDOM DECAY TIME:% 11.3f%11s%8s     [ns]  *\n"      , randT   , "", "");
@@ -237,17 +256,12 @@ void gm2ringsim::PrimaryGeneratorAction::generatePrimaries(G4Event* evt) {
 
       //  FIRE                                                                                                        
       muonGasGun_->GeneratePrimaryVertex( evt );
-      
   }  // end if g2GPS_->GetMuonGasGun()
   
   else {
-    
-    //  Standard run -- FIRE                                                                                        
+    //  Standard run -- FIRE                                                                            
     g2GPS_->GeneratePrimaryVertex( evt );
-    
   }
-  
-  //  muonGasGun_->GeneratePrimaryVertex(evt);
   
 } // generatePrimaries
 
