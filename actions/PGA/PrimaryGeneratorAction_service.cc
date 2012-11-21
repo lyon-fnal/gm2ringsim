@@ -40,7 +40,7 @@ using std::endl;
 // Constructor
 gm2ringsim::PrimaryGeneratorAction::PrimaryGeneratorAction(fhicl::ParameterSet const& p, art::ActivityRegistry&) :
     artg4::PrimaryGeneratorActionBase(p.get<std::string>("name")),
-    par_g2GPS_ (p.get<fhicl::ParameterSet>("g2GPS"), fhicl::ParameterSet()),
+    par_g2GPS_(p.get<fhicl::ParameterSet>("g2GPS", fhicl::ParameterSet())),
     g2GPS_( 0 ),    // Must not intialize here because Geant isn't ready yet
     muonGasGun_ ( 0 ) ,
     inflectorGun_ ( 0 ),
@@ -66,8 +66,8 @@ void gm2ringsim::PrimaryGeneratorAction::initialize() {
 
 // EndOfPrimaryGeneratorAction
 void gm2ringsim::PrimaryGeneratorAction::generatePrimaries(G4Event* evt) {
-  
-  if ( g2GPS_->GetMuonGasGun()){
+  if ( par_g2GPS_.get<bool>("useMuonGasGun", 0 )){
+      //  if ( g2GPS_->GetMuonGasGun()){
     mf::LogInfo("PGA") << "PrimaryGeneratorAction: Using MuonGasGun";
       static G4double particleLifetime=0; // initialize
       static G4bool firstVertex = true;
