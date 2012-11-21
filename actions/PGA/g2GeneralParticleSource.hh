@@ -39,7 +39,7 @@
 #include <vector>
 
 #include "Geant4/G4Event.hh"
-#include "gm2ringsim/actions/g2SingleParticleSource.hh"
+#include "gm2ringsim/actions/PGA/g2SingleParticleSource.hh"
 
 
 /** Provides a modified General Particle Source to include time

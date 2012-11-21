@@ -9,7 +9,7 @@
 
 #include "Geant4/G4Event.hh"
 #include "Geant4/Randomize.hh"
-#include "gm2ringsim/actions/g2GeneralParticleSource.hh"
+#include "gm2ringsim/actions/PGA/g2GeneralParticleSource.hh"
 
 g2GeneralParticleSource::g2GeneralParticleSource()
   : multiple_vertex(false), 

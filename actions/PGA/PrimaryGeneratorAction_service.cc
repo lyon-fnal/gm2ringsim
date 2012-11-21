@@ -11,7 +11,7 @@
     @date 2012 Port to ART                                                                                
 */
 
-#include "gm2ringsim/actions/PrimaryGeneratorAction_service.hh"
+#include "gm2ringsim/actions/PGA/PrimaryGeneratorAction_service.hh"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "Geant4/G4ParticleTable.hh"
 #include "Geant4/G4ParticleDefinition.hh"

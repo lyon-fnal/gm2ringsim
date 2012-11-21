@@ -30,7 +30,7 @@
 //FIXME //#include "Root/TNtuple.h"
 
 // Get the helper files
-//FIXME //#include "gm2ringsim/actions/g2GeneralParticleSource.hh"
+#include "gm2ringsim/actions/PGA/g2GeneralParticleSource.hh"
 
 
 namespace gm2ringsim
@@ -49,7 +49,7 @@ namespace gm2ringsim
    
   private:
     G4ParticleGun* particleGun_;
-    //FIXME //    g2GeneralParticleSource* g2GPS_;
+    g2GeneralParticleSource* g2GPS_;
     G4ParticleGun* muonGasGun_;
     G4ParticleGun* inflectorGun;
 

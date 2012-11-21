@@ -8,7 +8,7 @@
 
 #include "Geant4/Randomize.hh"
 
-#include "gm2ringsim/actions/g2SPSTimeDistribution.hh"
+#include "gm2ringsim/actions/PGA/g2SPSTimeDistribution.hh"
 
 g2SPSTimeDistribution::g2SPSTimeDistribution()
 {

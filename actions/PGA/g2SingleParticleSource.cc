@@ -18,9 +18,9 @@
 #include "Geant4/G4TrackingManager.hh"
 #include "Geant4/G4Track.hh"
 
-#include "gm2ringsim/actions/g2SingleParticleSource.hh"
+#include "gm2ringsim/actions/PGA/g2SingleParticleSource.hh"
 //#include "inflectorConstruction.hh"
-#include "inflectorGeometry.hh"
+#include "gm2ringsim/actions/PGA/inflectorGeometry.hh"
 
 g2SingleParticleSource::g2SingleParticleSource()
 {

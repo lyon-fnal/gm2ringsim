@@ -36,7 +36,7 @@
 #include "Geant4/G4SPSPosDistribution.hh"
 #include "Geant4/G4SPSAngDistribution.hh"
 #include "Geant4/G4SPSEneDistribution.hh"
-#include "gm2ringsim/actions/g2SPSTimeDistribution.hh"
+#include "gm2ringsim/actions/PGA/g2SPSTimeDistribution.hh"
 #include "Geant4/G4SPSRandomGenerator.hh"
 
 #include <vector>
