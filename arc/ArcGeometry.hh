@@ -13,12 +13,12 @@ namespace gm2ringsim {
     ArcGeometry(std::string const &);
     void print() const;
     
-    const G4double arc_rMin;
-    const G4double arc_rMax;
-    const G4double arc11_rExtension;
-    const G4double arc_z;
-    const G4double arc_Sphi;
-    const G4double arc_Dphi;
+    const double arc_rMin;
+    const double arc_rMax;
+    const double arc11_rExtension;
+    const double arc_z;
+    const double arc_Sphi;
+    const double arc_Dphi;
   };
 }
 

@@ -10,10 +10,10 @@
 
 #include "boost/format.hpp"
 
-#include "G4Tubs.hh"
-#include "G4PVPlacement.hh"
-#include "G4VisAttributes.hh"
-#include "G4UserLimits.hh"
+#include "Geant4/G4Tubs.hh"
+#include "Geant4/G4PVPlacement.hh"
+#include "Geant4/G4VisAttributes.hh"
+#include "Geant4/G4UserLimits.hh"
 
 
 // Constructor for the service 
@@ -24,18 +24,19 @@ gm2ringsim::Arc::Arc(fhicl::ParameterSet const & p, art::ActivityRegistry & ) :
                    p.get<std::string>("mother_category", "world"))
 {}
 
-G4LogicalVolume* gm2ringsim::Arc::makeAnArcLV(unsigned int arcNum) {
+G4LogicalVolume* gm2ringsim::Arc::makeAnArcLV(gm2ringsim::ArcGeometry const & g, unsigned int arcNum) {
   
   double extension = 0.0;
-  if ( arcNum == 11 ) extension = arc11_rExtension;
+  if ( arcNum == 11 ) extension = g.arc11_rExtension;
   
   // Make the tub (note use of auto)
-  auto arc_S = new G4Tubs("wall", g.arc_rMin,
+  G4Tubs* arc_S = new G4Tubs("wall",
+                             g.arc_rMin,
                              g.arc_rMax + extension,
-                             g.arc_Z, g.arc_Sphi, g.arc_Dphi );
+                             g.arc_z, g.arc_Sphi, g.arc_Dphi );
   
   // Make the logical volume
-  auto arc_L = new G4LogicalVolume(arc_S,
+  G4LogicalVolume* arc_L = new G4LogicalVolume(arc_S,
                                                artg4Materials::Vacuum(),
                                                "ArcSection"
                                                // ADD SPIN HERE
@@ -43,7 +44,7 @@ G4LogicalVolume* gm2ringsim::Arc::makeAnArcLV(unsigned int arcNum) {
   
   // Set visualization
   auto *ArcVisAtt = new G4VisAttributes(0);
-  arc_L -> SetVisAttributes(ArcVisAtt)
+  arc_L -> SetVisAttributes(ArcVisAtt);
   
   return arc_L;
 }
@@ -54,6 +55,8 @@ std::vector<G4LogicalVolume *> gm2ringsim::Arc::doBuildLVs() {
   // Get the geometry
   ArcGeometry g(myName());
   
+  g.print();
+  
   // Create the vector of logical volumes
   std::vector<G4LogicalVolume*> arcLVs;
 
@@ -61,7 +64,7 @@ std::vector<G4LogicalVolume *> gm2ringsim::Arc::doBuildLVs() {
   for ( unsigned int arcNumber = 0; arcNumber != 12; ++arcNumber ) {
     
     // Push this into the vector
-    arcLVs.push_back( makeAnArcLV(arcNumber) );
+    arcLVs.push_back( makeAnArcLV(g, arcNumber) );
   }
 
   return arcLVs;
@@ -81,21 +84,21 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Arc::doPlaceToPVs( std::vector<G4Lo
     // g2migtrace used sprintf. Let's use boost::format instead
     // (see http://www.boost.org/doc/libs/1_52_0/libs/format/doc/format.html )
     std::string arcLabel(
-      boost::format("ArcSection[%02d]" % arcNum).str()
+      boost::str( boost::format("ArcSection[%02d]") % arcNum )
     );
     
     // Make the physical volume
     arcPVs.push_back(
       new G4PVPlacement(
-          new G4RotationMatrix(0.0, pi/2, (arcNUm*pi)/6),
+          new G4RotationMatrix(0.0, pi/2, (arcNum*pi)/6),
           G4ThreeVector(),
           anArcLV,
           arcLabel,
-          motherLV,
+          motherLV[0],
           false,
           0
       )
-    )
+    );
     
     ++arcNum;
   }

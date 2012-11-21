@@ -21,8 +21,11 @@
 // Get the base class for the service
 #include "artg4/Core/DetectorBase.hh"
 
+
 // Within a namespace
 namespace gm2ringsim {
+
+    class ArcGeometry;
 
     // The class
     class Arc : public artg4::DetectorBase {
@@ -46,7 +49,7 @@ namespace gm2ringsim {
         virtual std::vector<G4VPhysicalVolume*> doPlaceToPVs( std::vector<G4LogicalVolume*>) override;
       
         // Convenience functions
-        G4LogicalVolume* gm2ringsim::Arc::makeAnArcLV(unsigned int);
+        G4LogicalVolume* makeAnArcLV(ArcGeometry const &, unsigned int);
 
 
     };
