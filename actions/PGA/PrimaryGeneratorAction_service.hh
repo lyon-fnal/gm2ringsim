@@ -27,7 +27,7 @@
 #include "Geant4/G4Event.hh"
 #include "Geant4/G4ParticleGun.hh"
 #include "Geant4/G4RotationMatrix.hh"
-//FIXME //#include "Root/TNtuple.h"
+//#include "root/TNtuple.h"
 
 // Get the helper files
 #include "gm2ringsim/actions/PGA/g2GeneralParticleSource.hh"
@@ -39,7 +39,7 @@ namespace gm2ringsim
   {
   public:
     PrimaryGeneratorAction(fhicl::ParameterSet const&, art::ActivityRegistry&);
-    virtual ~PrimaryGeneratorAction() { delete particleGun_; }
+    virtual ~PrimaryGeneratorAction();
     
     void initialize() override;
     void generatePrimaries( G4Event* ) override;
@@ -48,18 +48,17 @@ namespace gm2ringsim
 
    
   private:
-    G4ParticleGun* particleGun_;
     g2GeneralParticleSource* g2GPS_;
     G4ParticleGun* muonGasGun_;
-    G4ParticleGun* inflectorGun;
+    G4ParticleGun* inflectorGun_;
 
     //  NSF (30 AUG '12): Why is this here? 
-    G4RotationMatrix m_localToGlobalRot ;
-    G4ThreeVector m_yhatGlobal, m_caloCenterGlobal ;
-    //FIXME   //  TNtuple* m_nt ;
-    int m_ntCount, m_ntTot ;
-    float m_elex, m_eley, m_elez ;
-    float m_elpx, m_elpy, m_elpz ;
+    G4RotationMatrix m_localToGlobalRot_ ;
+    G4ThreeVector m_yhatGlobal_, m_caloCenterGlobal_ ;
+    //TNtuple* m_nt_ ;
+    int m_ntCount_, m_ntTot_ ;
+    float m_elex_, m_eley_, m_elez_ ;
+    float m_elpx_, m_elpy_, m_elpz_ ;
   };   
 }
 #endif
