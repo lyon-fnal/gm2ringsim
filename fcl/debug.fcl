@@ -35,6 +35,16 @@ services: {
         world_y: 3500
         world_z: 11000
         }
+      arc: {
+        // Dimensions for the arcs
+        arc_rMin : 6000.
+        arc_rMax : 7215.
+        arc11_rExtension : 1000.
+        arc_z : 200.
+        arc_Sphi : 0.   // Degrees
+        arc_Dphi : 30.  // Degrees
+
+      }
     }
 
     // Detector(s) for the simulation
