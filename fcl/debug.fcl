@@ -47,9 +47,14 @@ services: {
     World: {}	
 	
 	   
-//PrimaryGeneratorAction: {
-//      name: "primary"
-//    }
+PrimaryGeneratorAction: {
+            name: "primary"	
+	    muonGasVerbosity : true
+            g2GPS : {
+	      useMuonGasGun: false
+      }
+
+}
 //    EventAction: {
 //      name: "event"
 //    }
@@ -68,8 +73,8 @@ physics: {
   producers: {
     artg4Main: {
       module_type: artg4Main
-     enableVisualization: false
-      macroPath: ".:./macros"
+      enableVisualization: true
+      macroPath: ".:./macros:../macros:../../macros"
       visMacro: "vis.mac"
       pauseAfterEvent: true
     }
