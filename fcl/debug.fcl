@@ -35,6 +35,7 @@ services: {
     Geometry: {
       world: @local::world_geom
       arc:   @local::arc_geom
+      vac:   @lobal::vac_geom
     }
 
     // Detector(s) for the simulation

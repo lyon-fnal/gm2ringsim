@@ -6,7 +6,7 @@ arc_geom : {
   arc_rMax : 7215.
   arc11_rExtension : 1000.
   arc_z : 200.
-  arc_Sphi : 0.   // Degrees
-  arc_Dphi : 30.  // Degrees
+  arc_Sphi : 0.   // deg
+  arc_Dphi : 30.  // deg
 }
 END_PROLOG
