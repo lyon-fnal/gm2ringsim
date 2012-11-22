@@ -47,14 +47,18 @@ services: {
     World: {}	
 	
 	   
-PrimaryGeneratorAction: {
+    PrimaryGeneratorAction: {
             name: "primary"	
 	    muonGasVerbosity : true
             g2GPS : {
 	      useMuonGasGun: false
       }
 
-}
+    }
+
+//    StackingAction : { 
+//
+//    }
 //    EventAction: {
 //      name: "event"
 //    }
