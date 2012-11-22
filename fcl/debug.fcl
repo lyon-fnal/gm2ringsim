@@ -1,3 +1,7 @@
+#include "geom/world.fcl"
+#include "geom/arc.fcl"
+#include "geom/vac.fcl"
+
 process_name:myProcessName
 
 source: {
@@ -29,22 +33,8 @@ services: {
     RandomNumberGenerator: {}
     PhysicsListHolder: {}
     Geometry: {
-      world: {
-        // Dimensions of the world (lab) in mm
-        world_x: 14000
-        world_y: 3500
-        world_z: 11000
-        }
-      arc: {
-        // Dimensions for the arcs
-        arc_rMin : 6000.
-        arc_rMax : 7215.
-        arc11_rExtension : 1000.
-        arc_z : 200.
-        arc_Sphi : 0.   // Degrees
-        arc_Dphi : 30.  // Degrees
-
-      }
+      world: @local::world_geom
+      arc:   @local::arc_geom
     }
 
     // Detector(s) for the simulation
