@@ -2,6 +2,8 @@
 
 #include "gm2ringsim/vac/VacuumChamber_service.hh"
 
+#include "gm2ringsim/vac/VacGeometry.hh"
+
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 
 // Constructor for the service 
@@ -14,24 +16,18 @@ gm2ringsim::VacuumChamber::VacuumChamber(fhicl::ParameterSet const & p, art::Act
 
 // Build the logical volumes
 std::vector<G4LogicalVolume *> gm2ringsim::VacuumChamber::doBuildLVs() {
+  
+  VacGeometry g(myName());
+  g.print();
+  
+  return std::vector<G4LogicalVolume*> { 0 };
 
 }
 
 // Build the physical volumes
 std::vector<G4VPhysicalVolume *> gm2ringsim::VacuumChamber::doPlaceToPVs( std::vector<G4LogicalVolume*>) {
-
-}
-
-// CHANGE_ME: You can delete the below if this detector creates no data
-
-// Declare to Art what we are producing
-void gm2ringsim::VacuumChamber::doCallArtProduces(art::EDProducer * producer) {
-
-}
-
-// Actually add the data to the event
-void gm2ringsim::VacuumChamber::doFillEventWithArtHits(G4HCofThisEvent * hc) {
-    
+  
+  return std::vector<G4VPhysicalVolume*> { 0 };
 }
 
 using gm2ringsim::VacuumChamber;

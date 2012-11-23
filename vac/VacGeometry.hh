@@ -5,6 +5,8 @@
 
 #include "artg4/Core/GeometryBase.hh"
 
+#include "Geant4/globals.hh"
+
 #include <iostream>
 
 /** @class vacChamberConstruction
@@ -31,29 +33,34 @@ namespace gm2ringsim {
   struct VacGeometry : public artg4::GeometryBase {
     VacGeometry(std::string const &);
     
-    double inflectorExtension(unsigned int arcNum) const {
-      double ret = 0.0;
-      if (arcNum == 11) ret=inflectorExtensionVal;
-      return ret;
-    } 
-    
-    
+    double inflectorExtension(unsigned int) const;
+
     void print() const;
     
-    const double inflectorExtensionVal;
+    const double in = 25.4 * mm;
+    
+    const double inflectorExtensionValue;
     const double topBottomWall;
     const double outerWallThickness;
     const double torus_rmin;
-    const double torus_rmax[];
+    std::vector<double> torus_rmax;
     const double torus_sphi;
     const double torus_dphi;
-    
-    const double wallR[];
-    const double wallPhi[];
-    const double vacR[];
-    const double vacPhi[];
-    
-                         
+    const double phi_a;
+    const double phi_b;
+    std::vector<double> wallR;
+    std::vector<double> wallPhi;
+    std::vector<double> vacR;
+    std::vector<double> vacPhi;
+    const double phi_q_subtractor;
+    const bool set_phi_q;
+    const double phi_q;
+    std::vector<double> xz;
+    std::vector<double> ext;
+    const double tracker_sphi;
+    const double tracker_dphi;
+    const double turn_sphi;
+    const double turn_dphi;
   };
 }
 

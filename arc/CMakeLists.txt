@@ -1,10 +1,10 @@
-// Build the libraries
+# Build the libraries
 art_make( LIBRARIES "gm2ringsim_arc" "artg4_material" "${XERCESCLIB}" "${allG4Libs}")
 
-// Copy the headers
+# Copy the headers
 install_headers()
 
-// Copy the fcl
+# Copy the fcl
 # install all *.fcl files in the fcl/geom directory
 file(GLOB fcl_files *.fcl)
 install( FILES ${fcl_files}

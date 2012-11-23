@@ -4,6 +4,8 @@
 
 BEGIN_PROLOG
 vac_geom : {
+
+  // General values ---
   inflectorExtensionValue : 750
   topBottomWall: 78.65
   outerWallThickness: 9.65
@@ -12,7 +14,7 @@ vac_geom : {
   torus_sphi: 0   // deg
   torus_dphi: 30  // deg
   
-  // Outer scallop
+  // Outer scallop ---
   phi_a: 12.83  // deg
   phi_b: 2.68   // deg
   wallR: [275.542, 268.261, 276.624, 284.750] // in
@@ -20,18 +22,21 @@ vac_geom : {
   vacR: [275.916, 268.645, 276.707, 284.370] // in
   vacPhi: [0, 11.80, 11.92, 0.0] // deg
   
-  // Inner scallop
+  // Inner scallop ---
   phi_q_subtractor: 15 // deg
+
+  // If true then use phi_q; otherwise phi_q is a calculation
+  set_phi_q: false
   phi_q:  0 // deg
-  set_phi_q: false  // If true then use phi_q; otherwise phi_q is a calculation
+
   xz: [2.0, 2.0]  // in
   ext: [1.0, 1.0] // in
   
-  // Tracker
+  // Tracker ---
   tracker_sphi:  0.1 // deg
   tracker_dphi: 0.01 // deg
 
-  // Turn counter
+  // Turn counter ---
   turn_sphi: 24   // deg
   turn_dphi: 0.01 // deg  
 }

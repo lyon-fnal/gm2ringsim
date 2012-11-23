@@ -35,26 +35,17 @@ services: {
     Geometry: {
       world: @local::world_geom
       arc:   @local::arc_geom
-      vac:   @lobal::vac_geom
+      vac:   @local::vac_geom
     }
 
     // Detector(s) for the simulation
-
-    // Action(s) for the simulation
-//    ClockAction: {}
-
-
     PhysicsList: {}	
     World: {}	
-	
-	   
-//PrimaryGeneratorAction: {
-//      name: "primary"
-//    }
-//    EventAction: {
-//      name: "event"
-//    }
- 
+    Arc: {}
+    VacuumChamber: {}
+    
+    // Need to add a primary generator
+
   } //user:
 } //services:
 
