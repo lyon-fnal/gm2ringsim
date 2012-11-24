@@ -6,6 +6,9 @@
 #include "artg4/Core/GeometryBase.hh"
 
 #include "Geant4/globals.hh"
+#include "Geant4/G4TwoVector.hh"
+#include "CLHEP/Vector/TwoVector.h"
+
 
 #include <iostream>
 
@@ -37,6 +40,8 @@ namespace gm2ringsim {
 
     void print() const;
     
+    enum typeToBuild { wallRegion, vacuumRegion, nTypes };
+    
     const double in = 25.4 * mm;
     
     const double inflectorExtensionValue;
@@ -55,12 +60,25 @@ namespace gm2ringsim {
     const double phi_q_subtractor;
     const bool set_phi_q;
     const double phi_q;
-    std::vector<double> xz;
+    std::vector<double> zz;
     std::vector<double> ext;
     const double tracker_sphi;
     const double tracker_dphi;
     const double turn_sphi;
     const double turn_dphi;
+    
+    // The following constants are derived
+    const double ZachIsAwesome_Z;
+    std::vector<double> torus_z;
+    
+    G4TwoVector pt_a[2], pt_b[2], pt_c[2], pt_o[2], pt_d[2];
+    double xL[2], xS[2], z[2];
+    
+    G4TwoVector pt_p[2], pt_r[2];
+    double xI[2], xO[2];
+    
+    double track_rMin, track_rMax;
+    double turn_rMin, turn_rMax;
   };
 }
 

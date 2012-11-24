@@ -18,7 +18,7 @@ services: {
      destinations : {
        LogToConsole : {
          type : "cout"
-         threshold : "INFO"
+         threshold : "DEBUG"
          
          categories : {
            default : { limit : 50 }
@@ -60,7 +60,7 @@ physics: {
   producers: {
     artg4Main: {
       module_type: artg4Main
-     enableVisualization: false
+     enableVisualization: true
       macroPath: ".:./macros"
       visMacro: "vis.mac"
       pauseAfterEvent: true

@@ -15,6 +15,10 @@
 #include "Geant4/G4HCofThisEvent.hh"
 #include "Geant4/G4LogicalVolume.hh"
 #include "Geant4/G4VPhysicalVolume.hh"
+#include "Geant4/G4UnionSolid.hh"
+
+
+#include "gm2ringsim/vac/VacGeometry.hh"
 
 #include <vector>
 
@@ -44,6 +48,17 @@ namespace gm2ringsim {
 
         // Create the physical volumes
         virtual std::vector<G4VPhysicalVolume*> doPlaceToPVs( std::vector<G4LogicalVolume*>) override;
+      
+        // Some internal methods
+        G4UnionSolid* buildUnionSolid(const VacGeometry&, VacGeometry::typeToBuild, unsigned int);
+      
+        void makeWallLVs(std::vector<G4LogicalVolume*>&, const VacGeometry&);
+      
+        void makeVacuumPVs(std::vector<G4VPhysicalVolume*>&,
+                           std::vector<G4LogicalVolume*>&,
+                           const VacGeometry&);
+      
+        void makeTrackerPVs(std::vector<G4VPhysicalVolume*>&, const VacGeometry&);
 
     };
 }

@@ -29,7 +29,7 @@ vac_geom : {
   set_phi_q: false
   phi_q:  0 // deg
 
-  xz: [2.0, 2.0]  // in
+  zz: [2.0, 2.0]  // in
   ext: [1.0, 1.0] // in
   
   // Tracker ---
