@@ -20,7 +20,7 @@
 
 #include "gm2ringsim/actions/PGA/g2SingleParticleSource.hh"
 //#include "inflectorConstruction.hh"
-#include "gm2ringsim/actions/PGA/inflectorGeometry.hh"
+#include "gm2ringsim/inflector/inflectorGeometry.hh"
 
 g2SingleParticleSource::g2SingleParticleSource()
 {
