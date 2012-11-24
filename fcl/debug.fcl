@@ -40,21 +40,29 @@ services: {
     // Detector(s) for the simulation
 
     // Action(s) for the simulation
-//    ClockAction: {}
-
+    //    ClockAction: {}
+    StackingAction: {  
+          name: "stackingAction"
+	  minWavelength:250 //nm
+          maxWavelength:950  //nm
+    }
 
     PhysicsList: {}	
     World: {}	
 	
 	   
-PrimaryGeneratorAction: {
+    PrimaryGeneratorAction: {
             name: "primary"	
 	    muonGasVerbosity : true
             g2GPS : {
-	      useMuonGasGun: false
+	      useMuonGasGun: true
       }
 
-}
+    }
+
+//    StackingAction : { 
+//
+//    }
 //    EventAction: {
 //      name: "event"
 //    }
