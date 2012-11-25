@@ -181,7 +181,6 @@ void gm2ringsim::VacuumChamber::makeTrackerPVs(
   
   for(int arc=0; arc!=12; ++arc){
     // In ring, non-physical beam trackers
-    LOG_INFO("VAC") << "A " << g.track_rMax << "\n";
     G4Tubs *trackerTubs_S= new G4Tubs("trackerTubs",
                                       g.track_rMin,
                                       g.track_rMax,
@@ -215,7 +214,6 @@ void gm2ringsim::VacuumChamber::makeTrackerPVs(
     // In arcNumber 11, put a turnCounter at the inflector aperture
     // position
     if(arc == 11){
-      LOG_INFO("VAC") << "B " << g.turn_rMax << "\n";
       G4Tubs *turnCounterTubs_S = new G4Tubs("turnCounterTubs",
                                              g.turn_rMin,
                                              g.turn_rMax,
@@ -270,9 +268,7 @@ std::vector<G4LogicalVolume *> gm2ringsim::VacuumChamber::doBuildLVs() {
   makeVacuumPVs(vacs, walls, g);
   
   // Make the tracker volumes
-  LOG_DEBUG("VAC") << "Making tracker\n";
   makeTrackerPVs(vacs, g);
-  LOG_DEBUG("VAC") << "Done tracker\n";
   
   return walls;
 
