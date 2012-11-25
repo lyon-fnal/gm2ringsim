@@ -1,3 +1,5 @@
+#include "geom/inflector.fcl"
+
 process_name:myProcessName
 
 source: {
@@ -35,6 +37,9 @@ services: {
         world_y: 3500
         world_z: 11000
         }
+	
+       inflector: @local::inflector_geom
+ 
     }
 
     // Detector(s) for the simulation
@@ -49,7 +54,7 @@ services: {
 
     PhysicsList: {}	
     World: {}	
-	
+    Inflector:{}	
 	   
     PrimaryGeneratorAction: {
             name: "primary"	
@@ -81,7 +86,7 @@ physics: {
   producers: {
     artg4Main: {
       module_type: artg4Main
-      enableVisualization: true
+      enableVisualization: false
       macroPath: ".:./macros:../macros:../../macros"
       visMacro: "vis.mac"
       pauseAfterEvent: true

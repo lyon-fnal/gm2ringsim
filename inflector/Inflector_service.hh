@@ -21,6 +21,8 @@
 // Get the base class for the service
 #include "artg4/Core/DetectorBase.hh"
 
+#include "gm2ringsim/inflector/InflectorGeom.hh"
+
 // Within a namespace
 namespace gm2ringsim {
 
@@ -36,8 +38,8 @@ namespace gm2ringsim {
         virtual ~Inflector() {};
 
     private:
-
-        // Private overriden methods
+      InflectorGeom ig_;
+      // Private overriden methods
 
         // Create the logical volumes
         virtual std::vector<G4LogicalVolume*> doBuildLVs() override;

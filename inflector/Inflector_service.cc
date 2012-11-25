@@ -4,6 +4,7 @@
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 
+
 //#include CHANGE_ME: Add include for header for Art hit class
 
 // Constructor for the service 
@@ -11,11 +12,17 @@ gm2ringsim::Inflector::Inflector(fhicl::ParameterSet const & p, art::ActivityReg
   DetectorBase(p,
 	       p.get<std::string>("name", "inflector"),
 	       p.get<std::string>("category", "inflector"),
-	       p.get<std::string>("mother_category", "vac"))
-{}
+	       //	       p.get<std::string>("mother_category", "vac")),
+	       p.get<std::string>("mother_category", "world")),
+  ig_(myName())
+{
+  printf("In the Inflector service contsructor\n");
+ }
 
 // Build the logical volumes
 std::vector<G4LogicalVolume *> gm2ringsim::Inflector::doBuildLVs() {
+  
+  ig_.print();
   
   std::vector<G4LogicalVolume *> l_inflector;
   return l_inflector;

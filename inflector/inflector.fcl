@@ -1,0 +1,58 @@
+//Inflector geometry
+// 
+// Values are in mm unless otherwise specified
+BEGIN_PROLOG
+
+inflector_geom : {
+  inflectorTotalLength : 1700. //mm
+  inflectorTotalWidth : 97.3  //mm
+  inflectorTotalHeight : 141.6 //mm
+
+  apertureWidth : 18. //mm
+  apertureInnerHeight : 56. //mm
+  apertureOuterHeight : 32. //mm
+
+  flangeWidth : 1.5 //mm
+  equivalentAlWidth : 1.58 //mm
+  equivalentCuWidth : 0.39 //mm
+  equivalentNbTiWidth : 0.43 //mm
+
+
+  parWall_X : 0.52 //cm
+  parWall_Y : 44.5 //cm
+  parWall_Z : 6.9 //cm
+
+  perpWall_X : 0.58 //cm
+  perpWall_Y : 8.195 //cm 
+  perpWall_Z : 6.9 //cm
+
+  cryoWindow_X : 0.53 //cm
+  cryoWindow_Y : 1.46 //cm 
+  cryoWindow_Z : 3.5 //cm
+
+ cryoWindow_posZ : 0. 
+
+  perpWall_alpha : 0
+  perpWall_beta : 0
+  perpWall_gamma : 114. //deg
+
+  perpWall_posR : 724.65 //cm
+  perpWall_angle : 27.47 //deg  
+  perpWall_posZ : 0
+
+   muonRadiusToInnerCryoWindowEdge : 48 //mm
+  outerCryoWindowEdgeToOuterInflectorEdge : 4.2 //mm
+  outerInflectorEdgeToCenterBeamAperture : 23.8 //mm
+  centerBeamApertureToInflectorCenter : 24.85 //mm
+  
+  launchWidth : 2.5 //cm
+  
+  trackerThickness : 0.1 //mm
+    
+  cryo_angular : 2.55 //deg
+  cryo_rotation : 8.04 //deg
+
+
+
+}
+END_PROLOG
