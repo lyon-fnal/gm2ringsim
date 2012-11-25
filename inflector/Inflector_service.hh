@@ -36,9 +36,6 @@
 #include "gm2ringsim/actions/spinController.hh"
 
 #include <string>
-
-
-
 #include <vector>
 
 // Get the base class for the service
@@ -133,7 +130,17 @@ namespace gm2ringsim {
 
     private:
       InflectorGeom infGeom_;
+      G4int num_trackers;
+      G4MagneticField *inflectorMagField;
+      G4Mag_EqRhs *iEquation;
+      G4MagIntegratorStepper *iStepper;
+      G4ChordFinder *iChordFinder;
+      G4FieldManager *inflectorFieldManager, *launchFieldManager;
+      G4RotationMatrix *inflectorRotation;
+      G4double const epsilon;
+      G4int const vacuumInflectorSection;
       
+
       // Private overriden methods
 
         // Create the logical volumes
@@ -216,23 +223,18 @@ namespace gm2ringsim {
 
       G4VPhysicalVolume *vacPTR;
 
-      G4int num_trackers;
+
       std::vector<G4VPhysicalVolume*> tracker_physicals;
 
-      G4MagneticField *inflectorMagField;
-      G4Mag_EqRhs *iEquation;
-      G4MagIntegratorStepper *iStepper;
-      G4ChordFinder *iChordFinder;
-      G4FieldManager *inflectorFieldManager, *launchFieldManager;
+
+
 
       G4ThreeVector calc_position() const;
       G4RotationMatrix *calc_rotation();
 
-      G4RotationMatrix *inflectorRotation;
 
-      // Commented out const variables
-      //      G4double const epsilon;
-      //G4int const vacuumInflectorSection;
+
+
       G4bool initialBuild;
       G4double maxStepLength;
 

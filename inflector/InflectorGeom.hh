@@ -17,7 +17,7 @@ namespace gm2ringsim {
     void print() const;
 
     inflectorGeometry ig;
-    
+
     const double inflectorTotalLength;
     const double inflectorTotalWidth;
     const double inflectorTotalHeight;

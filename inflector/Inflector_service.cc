@@ -68,7 +68,20 @@ gm2ringsim::Inflector::Inflector(fhicl::ParameterSet const & p, art::ActivityReg
 	       p.get<std::string>("category", "inflector"),
 	       //	       p.get<std::string>("mother_category", "vac")),
 	       p.get<std::string>("mother_category", "world")),
-  infGeom_(myName())
+  infGeom_(myName()),
+  num_trackers(9), //FIXME: move to fhicl
+  inflectorMagField(0),
+  iEquation(0),
+  iStepper(0),
+  iChordFinder(0),
+  inflectorFieldManager(new G4FieldManager),
+  launchFieldManager(0),
+  // need a valid rotation matrix, since we swap them                         
+  inflectorRotation(new G4RotationMatrix()),
+// azimuthal span of one arc section                                        
+  epsilon(30.*degree),
+// Set the vacuum section that contains the inflector                       
+  vacuumInflectorSection(11)
 {
   printf("In the Inflector service contsructor\n");
  }
