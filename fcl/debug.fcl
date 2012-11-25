@@ -39,13 +39,39 @@ services: {
     }
 
     // Detector(s) for the simulation
+
+    // Action(s) for the simulation
+    //    ClockAction: {}
+    StackingAction: {  
+          name: "stackingAction"
+	  minWavelength:250 //nm
+          maxWavelength:950  //nm
+    }
+
     PhysicsList: {}	
     World: {}	
     Arc: {}
     VacuumChamber: {}
     
     // Need to add a primary generator
+	
+	   
+    PrimaryGeneratorAction: {
+            name: "primary"	
+	    muonGasVerbosity : true
+            g2GPS : {
+	      useMuonGasGun: true
+      }
 
+    }
+
+//    StackingAction : { 
+//
+//    }
+//    EventAction: {
+//      name: "event"
+//    }
+ 
   } //user:
 } //services:
 
