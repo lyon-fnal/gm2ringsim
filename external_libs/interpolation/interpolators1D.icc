@@ -1,0 +1,226 @@
+#ifndef G2MIGTRACE_INTERPOLATORS1D_ICC_INCLUDE
+#error Do not include 
+#endif// G2MIGTRACE_INTERPOLATORS1D_ICC_INCLUDE
+
+#include <cassert>
+
+/////////////////////////////////////////////////
+/////////////////////////////////////////////////
+///  uniform_linear_interpolator
+/////////////////////////////////////////////////
+/////////////////////////////////////////////////
+
+template<class Payload> template<class Iter> 
+uniform_linear_interpolator<Payload>::
+uniform_linear_interpolator(double xmin, double xmax, Iter databegin, Iter dataend) :
+  data_(databegin, dataend), xmin_(xmin), xmax_(xmax), 
+  dx_( (xmax_-xmin_)/(data_.size()-1) )
+{}
+
+template<class Payload> template<class PointIter, class DataIter>
+uniform_linear_interpolator<Payload>::
+uniform_linear_interpolator(PointIter xbegin, PointIter xend,
+			    DataIter databegin, DataIter dataend) :
+  data_(databegin, dataend),   
+  xmin_( *xbegin ), 
+  xmax_( *(xbegin+data_.size()-1) ),
+  dx_( (xmax_-xmin_)/(data_.size()-1) )
+{
+  assert(std::distance(xbegin,xend) == std::distance(databegin,dataend));
+}
+
+#if 0
+// Accessor needs to have an interator that returns the payload of
+// PairIter on iteration, and an iterator that returns the position ov
+// the PairIter on iteration.  How to do that?
+template<class Payload>
+template<class PairIter, template<class Iter> class Accessor> 
+uniform_linear_interpolator<Payload>::
+uniform_linear_interpolator(PairIter pbegin, PairIter pend) :
+  data_(), xmin_(), xmax_(), dx_()
+{}
+#endif
+
+template<class Payload>
+int uniform_linear_interpolator<Payload>::
+calc_offset(double at_x) const {
+  return (at_x-xmin_)/dx_;
+}
+
+
+template<class Payload>
+Payload uniform_linear_interpolator<Payload>::
+get_value(double at_x) const {
+
+  // FIXME!!!!  Need some kind of policy interface
+  // check if in range
+  if( at_x <= xmin_ ){
+    return data_[0];
+  } else if( at_x >= xmax_ ){
+    return data_[data_.size()-1];
+  }
+
+  // FIXME!
+  int const offset = calc_offset(at_x);
+  //  std::cout << "offset: " << offset << ' ';
+  double const t = (at_x - (xmin_+offset*dx_));
+  //  std::cout << "t: " << t << '\n';
+  Payload const p = (1.-t)*data_[offset] + t*data_[offset+1];
+  return p;
+}
+
+
+template<class Payload>
+Payload uniform_linear_interpolator<Payload>::
+get_derivative(double at_x) const {
+  //check if in range
+  if( at_x <= xmin_  ||  at_x >= xmax_ )
+    return 0.;
+
+  // use central difference where possible, one sided where necessary 
+    double upx = dx_, downx = dx_, thisdx = dx_*2.;
+  if( at_x - dx_ < xmin_ ){
+    downx = 0.;
+    thisdx = dx_;
+  } else if( at_x+dx_ > xmax_ ){
+    upx = 0.;
+    thisdx = dx_;
+  }
+
+  Payload const p = 
+    ( this->operator()(at_x+upx) - this->operator()(at_x-downx) )/ thisdx;
+  return p;
+}
+
+/////////////////////////////////////////////////
+/////////////////////////////////////////////////
+///  nonuniform_linear_interpolator
+/////////////////////////////////////////////////
+/////////////////////////////////////////////////
+
+/////////////////////////////////////////////////
+/////////////////////////////////////////////////
+///  quadratic_interpolator
+/////////////////////////////////////////////////
+/////////////////////////////////////////////////
+
+/////////////////////////////////////////////////
+/////////////////////////////////////////////////
+///  uniform_spline_interpolator
+/////////////////////////////////////////////////
+/////////////////////////////////////////////////
+
+template<class Payload> template<class Iter>
+uniform_spline_interpolator<Payload>::
+uniform_spline_interpolator(double xmin, double xmax, 
+			    Iter databegin, Iter dataend) : 
+  data_(databegin, dataend), xmin_(xmin), xmax_(xmax), 
+  dx_( (xmax_ - xmin_)/(data_.size()-1) ),
+  y2_(data_.size(), Payload())
+{
+  initialize();
+}
+
+template<class Payload> template<class PointIter, class DataIter>
+uniform_spline_interpolator<Payload>::
+uniform_spline_interpolator(PointIter xbegin, PointIter xend,
+			    DataIter databegin, DataIter dataend) : 
+  data_(databegin, dataend), 
+  xmin_(*xbegin), 
+  xmax_( *(xbegin+data_.size()-1) ), 
+  dx_( (xmax_ - xmin_)/(data_.size()-1) ),
+  y2_(data_.size(), Payload())
+{
+  assert(std::distance(xbegin,xend) == std::distance(databegin,dataend));
+  initialize();
+}
+
+
+template<class Payload> 
+void uniform_spline_interpolator<Payload>::
+initialize() {
+  // See Numerical Recipes, 3rd Edition, Section 3.3 for derivation
+  // and implementation notes.
+
+  std::vector<Payload> u(data_.size()-1, Payload());
+  typename std::vector<Payload>::size_type const n = data_.size();
+  //  std::cout << y2_.size() << '\n';
+  //  std::cout << u.size() << '\n';
+  // "natural" boundary conditions ... vanishing second derivative
+  y2_[0] = u[0] = Payload();
+
+  // Tridiagonal decomposition
+  double const sig = 0.5;
+  for(typename std::vector<Payload>::size_type i=1; i!=n-1; ++i){
+    Payload const p = sig*y2_[i-1]+2.; // FIXME
+    y2_[i] = (sig-1.0)/p; // FIXME
+    //    u[i] = (data_[i+1]-data_[i])/dx_ - (data_[i] - data_[i-1])/dx_;
+    u[i] = (data_[i+1]+data_[i-1]-2.*data_[i])/dx_;
+    u[i] = (3.*u[i]/dx_ - sig*u[i-1])/p;// FIXME
+  }
+  // "natural" boundary conditions ... vanishing second derivative
+  double const qn = 0.;
+  Payload const un = Payload();
+  y2_[n-1] = (un - qn*u[n-2])/(qn*y2_[n-2]+1.); // FIXME
+
+
+  // tridiagonal back-substitution
+  for(typename std::vector<Payload>::size_type k = n-2; k!=0; --k){
+    //    std::cout << k << '\n';
+    y2_[k] = y2_[k]*y2_[k+1]+u[k];
+  }
+  y2_[0] = y2_[0]*y2_[1]+u[0];
+}
+
+#if 0  
+// for instance!!
+template<> void uniform_spline_interpolator<std::vector<double> >::
+initialize() {
+
+}
+#endif
+
+template<class Payload> 
+int uniform_spline_interpolator<Payload>::
+calc_offset(double at_x) const {
+  return static_cast<int>((at_x-xmin_)/dx_);
+}
+
+
+template<class Payload> 
+Payload uniform_spline_interpolator<Payload>::
+get_value(double at_x) const {
+  if( at_x <= xmin_ ){
+    return data_[0];
+  } else if( at_x >= xmax_ ){
+    return data_[data_.size()-1];
+  }
+
+  int const offset = calc_offset(at_x);
+  double const a = (xmin_+(offset+1)*dx_ - at_x)/dx_;
+  double const b = 1.-a;//(at_x - (xmin_ + offset*dx_))/dx_;
+  Payload const p = a*data_[offset] + b*data_[offset+1] +
+    ( (a*(a*a-1.))*y2_[offset] + (b*(b*b-1.))*y2_[offset+1] )*dx_*dx_/6.;
+  return p;
+}
+
+template<class Payload> 
+Payload uniform_spline_interpolator<Payload>::
+get_derivative(double at_x) const {
+  if( at_x <= xmin_  ||  at_x >= xmax_)
+    return Payload();
+
+  int const offset = calc_offset(at_x);
+  double const a = (xmin_+(offset+1)*dx_ - at_x)/dx_;
+  double const b = 1.-a;//(at_x - (xmin_ + offset*dx_))/dx_;
+  Payload const p = (data_[offset+1] - data_[offset])/dx_ -
+    ( (3.*a*a-1.)*y2_[offset] - (3.*b*b-1.)*y2_[offset+1] )*dx_/6.;
+  return p;
+}
+
+/////////////////////////////////////////////////
+/////////////////////////////////////////////////
+///  nonuniform_spline_interpolator
+/////////////////////////////////////////////////
+/////////////////////////////////////////////////
+
