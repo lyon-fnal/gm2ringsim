@@ -54,7 +54,7 @@ services: {
 
     PhysicsList: {}	
     World: {}	
-    Inflector:{}	
+//    Inflector:{}	
 	   
     PrimaryGeneratorAction: {
             name: "primary"	
