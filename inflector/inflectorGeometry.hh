@@ -104,7 +104,7 @@ public:
   /** Gets the inflector cryostat thickness; not modifiable. */
   G4double cryostat_thickness() const { return cryostatThickness_; }
 
-private:
+public:
   inflectorGeometry();
   ~inflectorGeometry(){}
 
@@ -112,6 +112,7 @@ private:
   inflectorGeometry(inflectorGeometry const&);
   inflectorGeometry& operator=(inflectorGeometry const&);
 
+private:
   G4double delta_, gamma_, zeta_;
   G4double apertureDist_, ipLaunch_, oopLaunch_;
 

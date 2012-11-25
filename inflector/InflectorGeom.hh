@@ -7,6 +7,7 @@
 
 #include "artg4/Core/GeometryBase.hh"
 
+#include "gm2ringsim/inflector/inflectorGeometry.hh"
 #include <iostream>
 
 namespace gm2ringsim {
@@ -15,6 +16,8 @@ namespace gm2ringsim {
     InflectorGeom(std::string const &);
     void print() const;
 
+    inflectorGeometry ig;
+    
     const double inflectorTotalLength;
     const double inflectorTotalWidth;
     const double inflectorTotalHeight;

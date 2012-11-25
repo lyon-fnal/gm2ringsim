@@ -7,8 +7,11 @@
 #include <iostream>
 #include <sstream>
 
+#include "gm2ringsim/inflector/inflectorGeometry.hh"
+
 gm2ringsim::InflectorGeom::InflectorGeom(std::string const & detName) :
   GeometryBase(detName),
+  ig(),
   inflectorTotalLength( p.get<double>("inflectorTotalLength") * mm),
   inflectorTotalWidth( p.get<double>("inflectorTotalWidth") * mm),
   inflectorTotalHeight( p.get<double>("inflectorTotalHeight") * mm),
@@ -51,17 +54,17 @@ gm2ringsim::InflectorGeom::InflectorGeom(std::string const & detName) :
 
   inflectorMandrel_X(inflectorTotalHeight / 2),
   inflectorMandrel_Y(ig.mandrel_length() / 2),
-   inflectorMandrel_Z(inflectorTotalWidth / 2),
-
-   beamChannel1_X(apertureInnerHeight / 2),
-   beamChannel1_Y(ig.mandrel_length() / 2),
-   beamChannel1_Z((apertureWidth/2) / 2),
- beamChannel2_X1(apertureOuterHeight / 2),
-   beamChannel2_X2(apertureInnerHeight / 2),
-   beamChannel2_Y1(ig.mandrel_length() / 2),
-   beamChannel2_Y2(ig.mandrel_length() / 2),
-   beamChannel2_Z((apertureWidth/2) / 2),
-
+  inflectorMandrel_Z(inflectorTotalWidth / 2),
+  
+  beamChannel1_X(apertureInnerHeight / 2),
+  beamChannel1_Y(ig.mandrel_length() / 2),
+  beamChannel1_Z((apertureWidth/2) / 2),
+  beamChannel2_X1(apertureOuterHeight / 2),
+  beamChannel2_X2(apertureInnerHeight / 2),
+  beamChannel2_Y1(ig.mandrel_length() / 2),
+  beamChannel2_Y2(ig.mandrel_length() / 2),
+  beamChannel2_Z((apertureWidth/2) / 2),
+  
    window_X(inflectorTotalHeight / 2),
    window_Y(ig.window_thickness() / 2),
    window_Z(inflectorTotalWidth / 2),
@@ -76,10 +79,8 @@ gm2ringsim::InflectorGeom::InflectorGeom(std::string const & detName) :
    launch_Z(inflectorTotalWidth / 2),
    equivalentPlate_X(inflectorTotalHeight / 2),
    equivalentPlate_Z(inflectorTotalWidth / 2),
-
-
   trackerThickness( p.get<double>("trackerThickness") * mm),
- beamChannel2_offset((apertureWidth / 2)),
+  beamChannel2_offset((apertureWidth / 2)),
  beamChannel_offset(centerBeamApertureToInflectorCenter + beamChannel1_Z),
 
    windowPlacement((ig.mandrel_length() / 2) + (ig.window_thickness() / 2)),
@@ -157,8 +158,8 @@ void gm2ringsim::InflectorGeom::print() const {
     oss << " beamChannel1_Z=" <<beamChannel1_Z << "\n"; 
     oss << " beamChannel2_X1=" <<beamChannel2_X1 << "\n"; 
     oss << " beamChannel2_X2=" <<beamChannel2_X2 << "\n"; 
-    oss << " beamChannel2_Y1=" << beamChannel2_Y << "\n"; 
-    oss << " beamChannel2_Y2=" <<beamChannel2 << "\n"; 
+    oss << " beamChannel2_Y1=" << beamChannel2_Y1 << "\n"; 
+    oss << " beamChannel2_Y2=" <<beamChannel2_Y2 << "\n"; 
     oss << " beamChannel2_Z=" <<beamChannel2_Z << "\n"; 
     
     oss << " window_X=" <<window_X << "\n"; 
@@ -183,7 +184,7 @@ void gm2ringsim::InflectorGeom::print() const {
 
     oss << " windowPlacement=" <<windowPlacement << "\n"; 
     
-    oss << " eqAlPlacement=" <<eqAlPlacemen << "\n"; 
+    oss << " eqAlPlacement=" <<eqAlPlacement << "\n"; 
     oss << " eqCuPlacement=" <<eqCuPlacement << "\n"; 
 
     oss << " eqNbTiPlacement=" <<eqNbTiPlacement << "\n"; 
