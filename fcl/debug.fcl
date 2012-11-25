@@ -1,3 +1,7 @@
+#include "geom/world.fcl"
+#include "geom/arc.fcl"
+#include "geom/vac.fcl"
+
 process_name:myProcessName
 
 source: {
@@ -14,7 +18,7 @@ services: {
      destinations : {
        LogToConsole : {
          type : "cout"
-         threshold : "INFO"
+         threshold : "DEBUG"
          
          categories : {
            default : { limit : 50 }
@@ -29,26 +33,40 @@ services: {
     RandomNumberGenerator: {}
     PhysicsListHolder: {}
     Geometry: {
-      world: {
-        // Dimensions of the world (lab) in mm
-        world_x: 14000
-        world_y: 3500
-        world_z: 11000
-        }
+      world: @local::world_geom
+      arc:   @local::arc_geom
+      vac:   @local::vac_geom
     }
 
     // Detector(s) for the simulation
 
     // Action(s) for the simulation
-//    ClockAction: {}
-
+    //    ClockAction: {}
+    StackingAction: {  
+          name: "stackingAction"
+	  minWavelength:250 //nm
+          maxWavelength:950  //nm
+    }
 
     PhysicsList: {}	
     World: {}	
+    Arc: {}
+    VacuumChamber: {}
+    
+    // Need to add a primary generator
 	
 	   
-//PrimaryGeneratorAction: {
-//      name: "primary"
+    PrimaryGeneratorAction: {
+            name: "primary"	
+	    muonGasVerbosity : true
+            g2GPS : {
+	      useMuonGasGun: true
+      }
+
+    }
+
+//    StackingAction : { 
+//
 //    }
 //    EventAction: {
 //      name: "event"
@@ -68,7 +86,7 @@ physics: {
   producers: {
     artg4Main: {
       module_type: artg4Main
-     enableVisualization: false
+     enableVisualization: true
       macroPath: ".:./macros"
       visMacro: "vis.mac"
       pauseAfterEvent: true

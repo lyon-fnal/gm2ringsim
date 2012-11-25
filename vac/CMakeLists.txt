@@ -1,7 +1,7 @@
-# Build libraries
-art_make( LIBRARIES "gm2ringsim_world" "artg4_material" "${XERCESCLIB}" "${allG4Libs}")
+# Build the libraries
+art_make( LIBRARIES "gm2ringsim_vac" "artg4_material" "${XERCESCLIB}" "${allG4Libs}")
 
-# Copy headers
+# Copy the headers
 install_headers()
 
 # Copy the fcl

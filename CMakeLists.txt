@@ -116,6 +116,8 @@ include(ArtMake)
 
 add_subdirectory( fcl )
 add_subdirectory( world )
+add_subdirectory( arc )
+add_subdirectory( vac )
 #add_subdirectory( calo )
 add_subdirectory( ups )
 add_subdirectory( test )
