@@ -45,7 +45,7 @@
 #include "gm2ringsim/inflector/inflectorField.hh"
 #include "gm2ringsim/inflector/inflectorGeometry.hh"
 
-#include "gm2ringsim/actions/PGA/g2PreciseValues.hh"
+#include "gm2ringsim/common/g2PreciseValues.hh"
 
 #include <fstream>
 #include <sstream>

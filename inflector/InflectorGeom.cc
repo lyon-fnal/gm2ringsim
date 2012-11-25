@@ -1,7 +1,7 @@
 // Geometry for the inflector
 
 #include "gm2ringsim/inflector/InflectorGeom.hh"
-#include "gm2ringsim/actions/PGA/g2PreciseValues.hh"
+#include "gm2ringsim/common/g2PreciseValues.hh"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "Geant4/globals.hh"
 #include <iostream>
