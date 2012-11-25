@@ -1,6 +1,7 @@
-// Geometry for the world
+// Geometry for the inflector
 
 #include "gm2ringsim/inflector/InflectorGeom.hh"
+#include "gm2ringsim/actions/PGA/g2PreciseValues.hh"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "Geant4/globals.hh"
 #include <iostream>
@@ -27,19 +28,77 @@ gm2ringsim::InflectorGeom::InflectorGeom(std::string const & detName) :
   cryoWindow_X( p.get<double>("cryoWindow_X") * cm),
   cryoWindow_Y( p.get<double>("cryoWindow_Y") * cm),
   cryoWindow_Z( p.get<double>("cryoWindow_Z") * cm),
+// next two quantities already in proper units. Do not multiply again
+  cryoWindow_posX(-perpWall_X + cryoWindow_X), 
+  cryoWindow_posY(perpWall_Y - cryoWindow_Y),
   cryoWindow_posZ( p.get<double>("cryoWindow_posZ") * mm),
   perpWall_alpha( p.get<double>("perpWall_alpha") * mm),
   perpWall_beta( p.get<double>("perpWall_beta") * mm),
   perpWall_gamma( p.get<double>("perpWall_gamma") * deg),
   perpWall_posR( p.get<double>("perpWall_posR") * cm),
   perpWall_angle( p.get<double>("perpWall_angle") * deg),
+  perpWall_posX((perpWall_posR)*std::cos(perpWall_angle)),
+  perpWall_posY((perpWall_posR)*std::sin(perpWall_angle)),
   perpWall_posZ( p.get<double>("perpWall_posZ") * mm),
+  centerRingToMuonOrbit( R_magic()),
   muonRadiusToInnerCryoWindowEdge( p.get<double>("muonRadiusToInnerCryoWindowEdge") * mm),
   outerCryoWindowEdgeToOuterInflectorEdge( p.get<double>("outerCryoWindowEdgeToOuterInflectorEdge") * mm),
   outerInflectorEdgeToCenterBeamAperture( p.get<double>("outerInflectorEdgeToCenterBeamAperture") * mm),
   centerBeamApertureToInflectorCenter( p.get<double>("centerBeamApertureToInflectorCenter") * mm),
-  launchWidth( p.get<double>("launchWidth") * cm),
+  inflector_X((inflectorTotalHeight / 2) + 1*mm),
+  inflector_Y((inflectorTotalLength / 2) + 3*cm),
+  inflector_Z((inflectorTotalWidth / 2) + 1*mm),
+
+  inflectorMandrel_X(inflectorTotalHeight / 2),
+  inflectorMandrel_Y(ig.mandrel_length() / 2),
+   inflectorMandrel_Z(inflectorTotalWidth / 2),
+
+   beamChannel1_X(apertureInnerHeight / 2),
+   beamChannel1_Y(ig.mandrel_length() / 2),
+   beamChannel1_Z((apertureWidth/2) / 2),
+ beamChannel2_X1(apertureOuterHeight / 2),
+   beamChannel2_X2(apertureInnerHeight / 2),
+   beamChannel2_Y1(ig.mandrel_length() / 2),
+   beamChannel2_Y2(ig.mandrel_length() / 2),
+   beamChannel2_Z((apertureWidth/2) / 2),
+
+   window_X(inflectorTotalHeight / 2),
+   window_Y(ig.window_thickness() / 2),
+   window_Z(inflectorTotalWidth / 2),
+
+   flange_X(inflectorTotalHeight / 2),
+   flange_Y(flangeWidth / 2),
+   flange_Z(inflectorTotalWidth / 2),
+
+   launchWidth( p.get<double>("launchWidth") * cm),
+ launch_X(inflectorTotalHeight / 2),
+   launch_Y(launchWidth / 2),
+   launch_Z(inflectorTotalWidth / 2),
+   equivalentPlate_X(inflectorTotalHeight / 2),
+   equivalentPlate_Z(inflectorTotalWidth / 2),
+
+
   trackerThickness( p.get<double>("trackerThickness") * mm),
+ beamChannel2_offset((apertureWidth / 2)),
+ beamChannel_offset(centerBeamApertureToInflectorCenter + beamChannel1_Z),
+
+   windowPlacement((ig.mandrel_length() / 2) + (ig.window_thickness() / 2)),
+
+   eqAlPlacement((ig.mandrel_length() / 2) + ig.window_thickness()
+    + (equivalentAlWidth / 2)),
+
+   eqCuPlacement((ig.mandrel_length() / 2) + ig.window_thickness()
+    + equivalentAlWidth + (equivalentCuWidth /2 )),
+
+   eqNbTiPlacement((ig.mandrel_length() / 2) + ig.window_thickness()
+    + equivalentAlWidth + equivalentCuWidth + (equivalentNbTiWidth / 2)),
+
+   flangePlacement((ig.mandrel_length() / 2) + ig.window_thickness()
+    + ig.conductor_thickness() + (ig.window_thickness() / 2)),
+
+   launchPlacement((ig.mandrel_length() / 2) + (2*ig.window_thickness())
+    + ig.conductor_thickness() + (launchWidth / 2)),
+
   cryo_angular( p.get<double>("cryo_angular") * deg),
   cryo_rotation( p.get<double>("cryo_rotation") * deg)
 
@@ -69,21 +128,73 @@ void gm2ringsim::InflectorGeom::print() const {
   oss << "  cryoWindow_X=" << cryoWindow_X << "\n";
   oss << "  cryoWindow_Y=" << cryoWindow_Y << "\n";
   oss << "  cryoWindow_Z=" << cryoWindow_Z << "\n";
+  oss << "  cryoWindow_posX=" << cryoWindow_posX << "\n";
+  oss << "  cryoWindow_posY=" << cryoWindow_posY << "\n";
   oss << "  cryoWindow_posZ=" << cryoWindow_posZ << "\n";
   oss << "  perpWall_alpha=" << perpWall_alpha << "\n";
   oss << "  perpWall_beta=" << perpWall_beta << "\n";
   oss << "  perpWall_gamma=" << perpWall_gamma << "\n";
   oss << "  perpWall_posR=" << perpWall_posR << "\n";
   oss << "  perpWall_angle=" << perpWall_angle << "\n";
+  oss << "  perpWall_posX=" << perpWall_posX << "\n";
+  oss << "  perpWall_posY=" << perpWall_posY << "\n";
   oss << "  perpWall_posZ=" << perpWall_posZ << "\n";
+  oss << "  centerRingToMuonOrbit=" <<  centerRingToMuonOrbit << "\n";
   oss << "  muonRadiusToInnerCryoWindowEdge=" << muonRadiusToInnerCryoWindowEdge << "\n";
   oss << "  outerCryoWindowEdgeToOuterInflectorEdge=" << outerCryoWindowEdgeToOuterInflectorEdge << "\n";
   oss << "  outerInflectorEdgeToCenterBeamAperture=" << outerInflectorEdgeToCenterBeamAperture << "\n";
   oss << "  centerBeamApertureToInflectorCenter=" << centerBeamApertureToInflectorCenter << "\n";
-  oss << "  launchWidth=" << launchWidth << "\n";
-  oss << "  trackerThickness=" << trackerThickness << "\n";
-  oss << "  cryo_angular=" << cryo_angular << "\n";
-  oss << "  cryo_rotation=" << cryo_rotation << "\n";
+  oss << " inflector_X=" <<inflector_X << "\n";
+    oss << " inflector_Y=" <<inflector_Y << "\n";
+    oss << " inflector_Z=" << inflector_Z << "\n";
+
+    oss << " inflectorMandrel_X=" <<inflectorMandrel_X << "\n";
+    oss << " inflectorMandrel_Y=" << inflectorMandrel_Y<< "\n";
+    oss << " inflectorMandrel_Z =" <<inflectorMandrel_Z << "\n";
+
+    oss << " beamChannel1_X=" <<beamChannel1_X << "\n"; 
+    oss << " beamChannel1_Y=" <<beamChannel1_Y << "\n";
+    oss << " beamChannel1_Z=" <<beamChannel1_Z << "\n"; 
+    oss << " beamChannel2_X1=" <<beamChannel2_X1 << "\n"; 
+    oss << " beamChannel2_X2=" <<beamChannel2_X2 << "\n"; 
+    oss << " beamChannel2_Y1=" << beamChannel2_Y << "\n"; 
+    oss << " beamChannel2_Y2=" <<beamChannel2 << "\n"; 
+    oss << " beamChannel2_Z=" <<beamChannel2_Z << "\n"; 
+    
+    oss << " window_X=" <<window_X << "\n"; 
+    oss << " window_Y=" <<window_Y << "\n"; 
+    oss << " window_Z=" <<window_Z << "\n"; 
+
+    oss << " flange_X=" <<flange_X << "\n"; 
+    oss << " flange_Y=" <<flange_Y << "\n"; 
+    oss << " flange_Z=" <<flange_Z << "\n"; 
+
+
+    oss << " launchWidth=" <<launchWidth << "\n";
+   oss << "  launch_X=" <<launch_X << "\n"; 
+    oss << " launch_Y=" <<launch_Y << "\n"; 
+    oss << " launch_Z=" <<launch_Z << "\n"; 
+    oss << " equivalentPlate_X=" <<equivalentPlate_X << "\n"; 
+    oss << " equivalentPlate_Z=" <<equivalentPlate_Z << "\n"; 
+
+    oss << " trackerThickness=" << trackerThickness<< "\n";
+    oss << " beamChannel2_offset=" <<beamChannel2_offset << "\n"; 
+    oss << " beamChannel_offset=" <<beamChannel_offset << "\n"; 
+
+    oss << " windowPlacement=" <<windowPlacement << "\n"; 
+    
+    oss << " eqAlPlacement=" <<eqAlPlacemen << "\n"; 
+    oss << " eqCuPlacement=" <<eqCuPlacement << "\n"; 
+
+    oss << " eqNbTiPlacement=" <<eqNbTiPlacement << "\n"; 
+
+    oss << " flangePlacement=" <<flangePlacement << "\n"; 
+    
+    oss << " launchPlacement=" <<launchPlacement << "\n"; 
+    
+    oss << " cryo_angular=" <<cryo_angular << "\n";
+    oss << " cryo_rotation=" <<cryo_rotation << "\n";
+
   mf::LogInfo("CATEGORY") << oss.str();
 }
 
