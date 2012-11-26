@@ -1,4 +1,4 @@
-#include "field_point.hh"
+#include "gm2ringsim/fields/field_point.hh"
 
 #if 0
 double Point3D::distance_to(Point3D const& o){

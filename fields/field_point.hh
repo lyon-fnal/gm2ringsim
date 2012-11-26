@@ -6,9 +6,8 @@
     Provides a declaraiton for the  class template field_point.
 
     @sa field_point.icc
+
     - Kevin Lynch 2009
-    @author Brendan Kiburg
-    @date Nov 2012 artified
  */
 
 #include <cstring>
@@ -89,7 +88,7 @@ template<class T, class U>
 std::ostream& operator<<(std::ostream&, field_point<T,U> const&);
 
 #define FIELD_POINT_ICC_INCLUDE
-#include "field_point.icc"
+#include "gm2ringsim/fields/field_point.icc"
 #undef FIELD_POINT_ICC_INCLUDE
 
 #endif // FIELD_POINT_HH
