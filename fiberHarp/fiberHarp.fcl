@@ -1,0 +1,59 @@
+// FiberHarp geometry
+//
+// Values are in mm unless otherwise specified
+
+BEGIN_PROLOG
+fiberHarp_geom : {
+
+  // General values ---
+  fiberLength = 90*mm;
+  fiberRadius = 0.25*mm;
+  fiberSpacing = 13*mm;
+  supportLength = 90*mm;
+  supportWidth = 5*mm;
+  supportDepth = 15*mm;
+
+  G4int const nFibers = 7;
+
+  G4double const coll_z = .003175*m;
+ 
+
+
+  // with respect to vacuum chamber 
+
+
+  inflectorExtensionValue : 750
+  topBottomWall: 78.65
+  outerWallThickness: 9.65
+  torus_rmin: 277 // in
+  torus_rmax: [284.75, 284.37] // in
+  torus_sphi: 0   // deg
+  torus_dphi: 30  // deg
+  
+  // Outer scallop ---
+  phi_a: 12.83  // deg
+  phi_b: 2.68   // deg
+  wallR: [275.542, 268.261, 276.624, 284.750] // in
+  wallPhi: [0., 11.84, 11.96, 0]  // deg
+  vacR: [275.916, 268.645, 276.707, 284.370] // in
+  vacPhi: [0, 11.80, 11.92, 0.0] // deg
+  
+  // Inner scallop ---
+  phi_q_subtractor: 15 // deg
+
+  // If true then use phi_q; otherwise phi_q is a calculation
+  set_phi_q: false
+  phi_q:  0 // deg
+
+  zz: [2.0, 2.0]  // in
+  ext: [1.0, 1.0] // in
+  
+  // Tracker ---
+  tracker_sphi:  0.1 // deg
+  tracker_dphi: 0.01 // deg
+
+  // Turn counter ---
+  turn_sphi: 24   // deg
+  turn_dphi: 0.01 // deg  
+}
+END_PROLOG
