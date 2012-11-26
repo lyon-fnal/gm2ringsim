@@ -33,7 +33,7 @@
 #include "Geant4/G4FieldManager.hh"
 
 //#include "constructionMaterials.hh"
-#include "gm2ringsim/actions/spinController.hh"
+#include "gm2ringsim/common/spinController.hh"
 
 #include <string>
 #include <vector>
