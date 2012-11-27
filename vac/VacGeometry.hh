@@ -43,8 +43,6 @@ namespace gm2ringsim {
     
     enum typeToBuild { wallRegion, vacuumRegion, nTypes };
     
-    //    const double in = 25.4 * mm;
-    
     const double inflectorExtensionValue;
     const double topBottomWall;
     const double outerWallThickness;
