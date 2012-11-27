@@ -11,7 +11,7 @@ gm2ringsim::VacGeometry::VacGeometry(std::string const & detName) :
   inflectorExtensionValue( p.get<double>("inflectorExtensionValue") * mm),
   topBottomWall( p.get<double>("topBottomWall") * mm),
   outerWallThickness( p.get<double>("outerWallThickness") * mm),
-  torus_rmin( p.get<double>("torus_rmin") * in),
+  torus_rmin( p.get<double>("torus_rmin") * in), //from conversions.hh
   torus_rmax( p.get<std::vector<double>>("torus_rmax") ),
   torus_sphi( p.get<double>("torus_sphi") * deg),
   torus_dphi( p.get<double>("torus_dphi") * deg),
