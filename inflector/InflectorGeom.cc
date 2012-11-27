@@ -12,6 +12,8 @@
 gm2ringsim::InflectorGeom::InflectorGeom(std::string const & detName) :
   GeometryBase(detName),
   ig(),
+  num_trackers( p.get<int>("num_trackers")),
+  epsilon(p.get<double>("epsilon") * deg ),
   inflectorTotalLength( p.get<double>("inflectorTotalLength") * mm),
   inflectorTotalWidth( p.get<double>("inflectorTotalWidth") * mm),
   inflectorTotalHeight( p.get<double>("inflectorTotalHeight") * mm),
@@ -110,6 +112,8 @@ void gm2ringsim::InflectorGeom::print() const {
   // Use the MessageLogger (see https://cdcvs.fnal.gov/redmine/projects/novaart/wiki/Using_the_Framework#MessageLogger )
   mf::LogInfo("InflectorGeom") << "Inflector geometry is" ;
   std::ostringstream oss;
+  oss << "  num_trackers=" << num_trackers << "\n";
+  oss << "  epsilon=" <<epsilon << "\n";
   oss << "  inflectorTotalLength=" << inflectorTotalLength << "\n";
   oss << "  inflectorTotalWidth=" << inflectorTotalWidth << "\n";
   oss << "  inflectorTotalHeight=" << inflectorTotalHeight << "\n";

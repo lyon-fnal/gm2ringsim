@@ -4,6 +4,9 @@
 BEGIN_PROLOG
 
 inflector_geom : {
+  num_trackers : 9 
+  epsilon : 30. //deg
+
   inflectorTotalLength : 1700. //mm
   inflectorTotalWidth : 97.3  //mm
   inflectorTotalHeight : 141.6 //mm
@@ -40,7 +43,7 @@ inflector_geom : {
   perpWall_angle : 27.47 //deg  
   perpWall_posZ : 0
 
-   muonRadiusToInnerCryoWindowEdge : 48 //mm
+  muonRadiusToInnerCryoWindowEdge : 48 //mm
   outerCryoWindowEdgeToOuterInflectorEdge : 4.2 //mm
   outerInflectorEdgeToCenterBeamAperture : 23.8 //mm
   centerBeamApertureToInflectorCenter : 24.85 //mm
@@ -51,8 +54,6 @@ inflector_geom : {
     
   cryo_angular : 2.55 //deg
   cryo_rotation : 8.04 //deg
-
-
 
 }
 END_PROLOG

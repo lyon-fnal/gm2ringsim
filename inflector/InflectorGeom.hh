@@ -18,6 +18,9 @@ namespace gm2ringsim {
 
     inflectorGeometry ig;
 
+    const int num_trackers;
+    const double epsilon;
+
     const double inflectorTotalLength;
     const double inflectorTotalWidth;
     const double inflectorTotalHeight;

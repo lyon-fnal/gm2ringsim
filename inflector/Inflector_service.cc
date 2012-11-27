@@ -69,22 +69,97 @@ gm2ringsim::Inflector::Inflector(fhicl::ParameterSet const & p, art::ActivityReg
 	       //	       p.get<std::string>("mother_category", "vac")),
 	       p.get<std::string>("mother_category", "world")),
   infGeom_(myName()),
-  num_trackers(9), //FIXME: move to fhicl
-  inflectorMagField(0),
-  iEquation(0),
-  iStepper(0),
-  iChordFinder(0),
-  inflectorFieldManager(new G4FieldManager),
-  launchFieldManager(0),
+  num_trackers_(infGeom_.num_trackers),
+  inflectorMagField_(0),
+  iEquation_(0),
+  iStepper_(0),
+  iChordFinder_(0),
+  inflectorFieldManager_(new G4FieldManager),
+  launchFieldManager_(0),
   // need a valid rotation matrix, since we swap them                         
-  inflectorRotation(new G4RotationMatrix()),
+  inflectorRotation_(new G4RotationMatrix()),
 // azimuthal span of one arc section                                        
-  epsilon(30.*degree),
+  epsilon_(infGeom_.epsilon),
 // Set the vacuum section that contains the inflector                       
-  vacuumInflectorSection(11)
+  vacuumInflectorSection_(11), //FIXME: move to fhicl
+  // where we are in the construction timeline                                  
+  initialBuild_(true),
+  // Set the maximum step length via G4UserLimits.  This is currently           
+  // used to limiting the muons step size in the beam channel                   
+  maxStepLength_(5*mm),
+    // Set the defaults which control what components will be put into            
+  // the inflector assembly.  By default, both ends of the inflector            
+  // are completely closed, as in the real inflector.                           
+  useConductorEquivalent_(true),
+  useUpstreamWindow_(true),
+  useDownstreamWindow_(true),
+  useUpstreamConductor_(true),
+  useDownstreamConductor_(true),
+  useUpstreamEndFlange_(true),
+  useDownstreamEndFlange_(true),
+  mag_field_type_(VANISHING_FIELD),
+/** @bug The following fields should be moved to the field                    
+    implementation classes.                                                   
+    
+    The defaults necessary for the inflector field.  The values were          
+    obtained from an email from Wuzheng that can be found in                  
+    reference section.  They are apparently the values for the                
+    '00-'01 runs. */
+  conductorCurrent_(2724.*ampere),
+  fieldNormConst_(14246.5*gauss),
+  currentToMagFieldConversion_((5.23*gauss) / (1.0*ampere))
 {
-  printf("In the Inflector service contsructor\n");
- }
+  printf("In the Inflector service constructor\n");
+  
+  std::tr1::function<void(bool)> f =
+    std::tr1::bind(&Inflector::enable_spintracking, this,
+                   std::tr1::placeholders::_1);
+  
+  conn_ =
+    spinController::getInstance().connect(e_arc_is_parent, f);
+  
+}
+
+void gm2ringsim::Inflector::enable_spintracking(bool e){
+  if( spin_tracking_ == e )
+    return;
+  
+  spin_tracking_ = e;
+  
+  //FIXME: Add these 2 functions back in
+  RebuildEOM();
+  AssignFieldManager();
+}
+
+void gm2ringsim::Inflector::RebuildEOM(){
+
+  if( iEquation_ )
+    delete iEquation_;
+  if( iStepper_ )
+    delete iStepper_;
+  if( iChordFinder_ )
+    delete iChordFinder_;
+
+  // Create the equations of motion                                             
+  if( !spin_tracking_ ){
+    iEquation_ = new G4Mag_UsualEqRhs(inflectorMagField_);
+    iStepper_ = new G4ClassicalRK4(iEquation_);
+  } else {
+    iEquation_ = new G4Mag_SpinEqRhs(inflectorMagField_);
+    iStepper_ = new G4ClassicalRK4(iEquation_, 12);
+  }
+  // Create the chord finder that calculates curved trajectories                
+  iChordFinder_ = new G4ChordFinder(inflectorMagField_,
+                                   .01*mm, iStepper_);
+
+} // END RebuildEOM()
+
+void gm2ringsim::Inflector::AssignFieldManager(){
+  inflectorFieldManager_ -> SetDetectorField(inflectorMagField_);
+  inflectorFieldManager_ -> SetChordFinder(iChordFinder_);
+  inflector_L_ ->SetFieldManager(inflectorFieldManager_, true);
+  launchRegion_L_ ->SetFieldManager(launchFieldManager_, true);
+}
 
 // Build the logical volumes
 std::vector<G4LogicalVolume *> gm2ringsim::Inflector::doBuildLVs() {
