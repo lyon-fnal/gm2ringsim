@@ -4,8 +4,6 @@
 BEGIN_PROLOG
 
 inflector_geom : {
-  num_trackers : 9 
-  epsilon : 30. //deg
 
   inflectorTotalLength : 1700. //mm
   inflectorTotalWidth : 97.3  //mm
@@ -54,6 +52,19 @@ inflector_geom : {
     
   cryo_angular : 2.55 //deg
   cryo_rotation : 8.04 //deg
+
+  num_trackers : 9 
+  epsilon : 30. //deg
+  vacuumInflectorSection : 11 
+  maxStepLength : 5 //mm
+  useConductorEquivalent: true
+  useUpstreamWindow: true
+  useDownstreamWindow : true
+  useUpstreamConductor : true
+  useDownstreamConductor : true
+  useUpstreamEndFlange : true
+  useDownstreamEndFlange : true
+
 
 }
 END_PROLOG

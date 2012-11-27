@@ -78,25 +78,25 @@ gm2ringsim::Inflector::Inflector(fhicl::ParameterSet const & p, art::ActivityReg
   launchFieldManager_(0),
   // need a valid rotation matrix, since we swap them                         
   inflectorRotation_(new G4RotationMatrix()),
-// azimuthal span of one arc section                                        
+  // azimuthal span of one arc section                                        
   epsilon_(infGeom_.epsilon),
-// Set the vacuum section that contains the inflector                       
-  vacuumInflectorSection_(11), //FIXME: move to fhicl
+  // Set the vacuum section that contains the inflector                       
+  vacuumInflectorSection_(infGeom_.vacuumInflectorSection),
   // where we are in the construction timeline                                  
-  initialBuild_(true),
+  initialBuild_(true), // hopefully we won't need this anymore since geometry will be fixed
   // Set the maximum step length via G4UserLimits.  This is currently           
   // used to limiting the muons step size in the beam channel                   
-  maxStepLength_(5*mm),
+  maxStepLength_(infGeom_.maxStepLength),
     // Set the defaults which control what components will be put into            
   // the inflector assembly.  By default, both ends of the inflector            
   // are completely closed, as in the real inflector.                           
-  useConductorEquivalent_(true),
-  useUpstreamWindow_(true),
-  useDownstreamWindow_(true),
-  useUpstreamConductor_(true),
-  useDownstreamConductor_(true),
-  useUpstreamEndFlange_(true),
-  useDownstreamEndFlange_(true),
+  useConductorEquivalent_(infGeom_.useConductorEquivalent),
+  useUpstreamWindow_(infGeom_.useUpstreamWindow),
+  useDownstreamWindow_(infGeom_.useDownstreamWindow),
+  useUpstreamConductor_(infGeom_.useUpstreamConductor),
+  useDownstreamConductor_(infGeom_.useDownstreamConductor),
+  useUpstreamEndFlange_(infGeom_.useUpstreamEndFlange),
+  useDownstreamEndFlange_(infGeom_.useDownstreamEndFlange),
   mag_field_type_(VANISHING_FIELD),
 /** @bug The following fields should be moved to the field                    
     implementation classes.                                                   
@@ -107,30 +107,37 @@ gm2ringsim::Inflector::Inflector(fhicl::ParameterSet const & p, art::ActivityReg
     '00-'01 runs. */
   conductorCurrent_(2724.*ampere),
   fieldNormConst_(14246.5*gauss),
-  currentToMagFieldConversion_((5.23*gauss) / (1.0*ampere))
+  currentToMagFieldConversion_((5.23*gauss) / (1.0*ampere)),
+  spin_tracking_(false)//FIXME: Grab this from some master fhicl
+
 {
   printf("In the Inflector service constructor\n");
   
-  std::tr1::function<void(bool)> f =
+
+  //FIXME: No need for this binding. We can just grab spintracking from
+  //      the master fcl and set the spintracking variable accordingly,once.
+  /*  std::tr1::function<void(bool)> f =
     std::tr1::bind(&Inflector::enable_spintracking, this,
                    std::tr1::placeholders::_1);
   
   conn_ =
     spinController::getInstance().connect(e_arc_is_parent, f);
-  
+  */
 }
 
+/* We turn this off since we don't want to enable_spintracking after initializing
 void gm2ringsim::Inflector::enable_spintracking(bool e){
   if( spin_tracking_ == e )
     return;
   
   spin_tracking_ = e;
   
-  //FIXME: Add these 2 functions back in
   RebuildEOM();
   AssignFieldManager();
-}
+  }*/
 
+//FIXEME: Do we really need to rebuild? Let's make spin_tracking_ a const and 
+//        avoid all of these rebuilds...
 void gm2ringsim::Inflector::RebuildEOM(){
 
   if( iEquation_ )

@@ -62,20 +62,21 @@ namespace gm2ringsim {
       void setAperturePosition(G4double);
       /** Set the radial position of the downstream aperture. */
       void setApertureDistance(G4double);
-      /** Sets the vertical tilt angle of the inflector relative to the         
+      /** Sets the vertical tilt angle of the inflector relative to the
 	  symmetry plane of the ring. */
       void setInflectorTiltAngle(G4double);
-      /** Sets the horizontal swing angle of the inflector axis relative 
+      /** Sets the horizontal swing angle of the inflector axis relative
 	  to the ring tangent. */
       void setInflectorSwingAngle(G4double);
       
-      /** @bug Doesn't actually do anything useful, since we don't model                anything but an "average" plate.                                        
+      /** @bug Doesn't actually do anything useful, since we don't model
+	  anything but an "average" plate.                                        
       */
       void setConductorModelType(G4String);
-      /** Sets the upstream end (window, conductor, and flange)                 
+      /** Sets the upstream end (window, conductor, and flange)
 	  open/closed. */
       void setUpstreamEndType(G4String);
-      /** Sets the downstream end (window, conductor, and flange)               
+      /** Sets the downstream end (window, conductor, and flange)
 	  open/closed. */
       void setDownstreamEndType(G4String);
       /** Sets the presence of the upstream window. */
@@ -91,13 +92,13 @@ namespace gm2ringsim {
       /** Sets the presence of the downstream end flange. */
       void setDownstreamEndFlange(G4String);
 
-      /** Sets the field strength by setting the conductor current.            
-      @bug I don't think this does anything at all.                           
+      /** Sets the field strength by setting the conductor current.
+	  @bug I don't think this does anything at all.                           
       */
       void setConductorCurrent(G4double);
-      /** Sets the normalization constant that converts between conductor      
-      current and nominal central field value.                               
-      @bug I don't think this does anything at all.                           
+      /** Sets the normalization constant that converts between conductor
+	  current and nominal central field value.
+	  @bug I don't think this does anything at all.                           
       */
       void setFieldNormalizationConstant(G4double);
       /** Prints inflector status information. */
@@ -106,17 +107,20 @@ namespace gm2ringsim {
       void NumTrackers(G4int n);
       /** Gets the number of inflector beam aperture tracking volumes. */
       G4int NumTrackers() const { return num_trackers_; }
-
-      /** Sets the magnetic field model.                                              Options are "vanishing/none", "simple" or uniform, and "mapped"         
-      from Wuzheng Meng's detailed field maps.                                
+      
+      /** Sets the magnetic field model.
+	  Options are "vanishing/none", "simple" or uniform, and "mapped"
+	  from Wuzheng Meng's detailed field maps.                                
       */
       void setMagFieldType(G4String);
 
-      /** Regenerates the GPS Macros when the inflector geometry is             	  rebuilt. */
+      /** Regenerates the GPS Macros when the inflector geometry is
+	  rebuilt. */
       void GenerateGPSMacros();
 
-      /** Interface to the spinController to enable/disable spin tracking       	  in the magnetic field. */
-      void enable_spintracking(bool);
+      /** Interface to the spinController to enable/disable spin tracking
+       	  in the magnetic field. */
+      //      void enable_spintracking(bool);
 
 
 
@@ -142,7 +146,8 @@ namespace gm2ringsim {
       G4double conductorCurrent_;
       G4double fieldNormConst_;
       G4double currentToMagFieldConversion_;
-
+      bool const spin_tracking_;
+      
       // Private overriden methods from ART
       // Create the logical volumes
       virtual std::vector<G4LogicalVolume*> doBuildLVs() override;
@@ -230,7 +235,6 @@ namespace gm2ringsim {
       
       // inflectorMessenger *InflectorMessenger;
 
-      bool spin_tracking_;
       connection_t conn_;
       
 

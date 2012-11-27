@@ -18,9 +18,6 @@ namespace gm2ringsim {
 
     inflectorGeometry ig;
 
-    const int num_trackers;
-    const double epsilon;
-
     const double inflectorTotalLength;
     const double inflectorTotalWidth;
     const double inflectorTotalHeight;
@@ -118,7 +115,18 @@ namespace gm2ringsim {
     
     const double cryo_angular;
     const double cryo_rotation;
-    
+
+    const int num_trackers;
+    const double epsilon;
+    const int vacuumInflectorSection;
+    const double maxStepLength;
+    const bool useConductorEquivalent;
+    const bool useUpstreamWindow;
+    const bool useDownstreamWindow;
+    const bool useUpstreamConductor;
+    const bool useDownstreamConductor;
+    const bool useUpstreamEndFlange;
+    const bool useDownstreamEndFlange;
     
   };
 }

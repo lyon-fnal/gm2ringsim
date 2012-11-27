@@ -12,8 +12,6 @@
 gm2ringsim::InflectorGeom::InflectorGeom(std::string const & detName) :
   GeometryBase(detName),
   ig(),
-  num_trackers( p.get<int>("num_trackers")),
-  epsilon(p.get<double>("epsilon") * deg ),
   inflectorTotalLength( p.get<double>("inflectorTotalLength") * mm),
   inflectorTotalWidth( p.get<double>("inflectorTotalWidth") * mm),
   inflectorTotalHeight( p.get<double>("inflectorTotalHeight") * mm),
@@ -103,8 +101,19 @@ gm2ringsim::InflectorGeom::InflectorGeom(std::string const & detName) :
     + ig.conductor_thickness() + (launchWidth / 2)),
 
   cryo_angular( p.get<double>("cryo_angular") * deg),
-  cryo_rotation( p.get<double>("cryo_rotation") * deg)
-
+  cryo_rotation( p.get<double>("cryo_rotation") * deg),
+  num_trackers( p.get<int>("num_trackers")),
+  epsilon(p.get<double>("epsilon") * deg ),
+  vacuumInflectorSection(p.get<int>("vacuumInflectorSection")),
+  maxStepLength(p.get<double>("maxStepLength") * mm),
+  useConductorEquivalent(p.get<bool>("useConductorEquivalent")),
+  useUpstreamWindow(p.get<bool>("useUpstreamWindow")),
+  useDownstreamWindow(p.get<bool>("useDownstreamWindow")),
+  useUpstreamConductor(p.get<bool>("useUpstreamConductor")),
+  useDownstreamConductor(p.get<bool>("useDownstreamConductor")),
+  useUpstreamEndFlange(p.get<bool>("useUpstreamEndFlange")),
+  useDownstreamEndFlange(p.get<bool>("useDownstreamEndFlange"))
+								       
 {}
 
 void gm2ringsim::InflectorGeom::print() const {
@@ -112,8 +121,6 @@ void gm2ringsim::InflectorGeom::print() const {
   // Use the MessageLogger (see https://cdcvs.fnal.gov/redmine/projects/novaart/wiki/Using_the_Framework#MessageLogger )
   mf::LogInfo("InflectorGeom") << "Inflector geometry is" ;
   std::ostringstream oss;
-  oss << "  num_trackers=" << num_trackers << "\n";
-  oss << "  epsilon=" <<epsilon << "\n";
   oss << "  inflectorTotalLength=" << inflectorTotalLength << "\n";
   oss << "  inflectorTotalWidth=" << inflectorTotalWidth << "\n";
   oss << "  inflectorTotalHeight=" << inflectorTotalHeight << "\n";
@@ -199,6 +206,19 @@ void gm2ringsim::InflectorGeom::print() const {
     
     oss << " cryo_angular=" <<cryo_angular << "\n";
     oss << " cryo_rotation=" <<cryo_rotation << "\n";
+
+    oss << "  num_trackers=" << num_trackers << "\n";
+    oss << "  epsilon=" <<epsilon << "\n";
+    oss << "  vacuumInflectorSection=" <<vacuumInflectorSection << "\n";
+    
+    oss << "maxStepLength=" << maxStepLength << "\n";
+    oss << "useConductorEquivalent=" <<useConductorEquivalent << "\n";
+    oss << "useUpstreamWindow=" <<useUpstreamWindow << "\n";
+    oss << "useDownstreamWindow=" <<useDownstreamWindow << "\n";
+    oss << "useUpstreamConductor=" <<useUpstreamConductor << "\n";
+    oss << "useDownstreamConductor=" <<useDownstreamConductor << "\n";
+    oss << "useUpstreamEndFlange=" <<useUpstreamEndFlange << "\n";
+    oss << "useDownstreamEndFlange=" <<useDownstreamEndFlange << "\n";
 
   mf::LogInfo("CATEGORY") << oss.str();
 }
