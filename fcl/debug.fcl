@@ -86,7 +86,7 @@ physics: {
   producers: {
     artg4Main: {
       module_type: artg4Main
-      enableVisualization: false
+      enableVisualization: true
       macroPath: ".:./macros:../macros:../../macros"
       visMacro: "vis.mac"
       pauseAfterEvent: true
