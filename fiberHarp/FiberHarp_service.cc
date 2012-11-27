@@ -37,7 +37,7 @@ G4double const azimuthalPos[nHarps] = {2*deg, 4*deg, 2*deg, 4*deg};
 // implement a broken Y-sensing harp, and the absence of a harp.
 enum e_fiberHarp_type {HARP_X, HARP_Y, HARP_BROKEN_Y, HARP_OFF};
 
-G4int harpType[nHarps] = {HARP_OFF, HARP_OFF, HARP_OFF, HARP_OFF};
+G4int harpType[nHarps] = {HARP_X, HARP_Y, HARP_OFF, HARP_OFF};
 G4int cVacWallArray[nHarps] = {6,6,9,9};
 // END OF: THESE WILL GO INTO THE GEOMETRY SERVICE
 
@@ -215,14 +215,14 @@ G4LogicalVolume* gm2ringsim::FiberHarp::BuildFiberHarp(G4int harpNumber){
     } 
   }
   
+  */
+
   // Set the visualization attributes
   G4VisAttributes* FiberHarpsVisAtt = 
     new G4VisAttributes (G4Colour(1.0,.6,0.0,1.0));
 
   FiberHarpsVisAtt -> SetForceSolid(1);
   harp -> SetVisAttributes(FiberHarpsVisAtt);
-
-  */
 
   return harp;
 }  
