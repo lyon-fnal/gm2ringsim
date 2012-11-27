@@ -39,7 +39,14 @@ services: {
       vac:   @local::vac_geom
       inflector: @local::inflector_geom
      }
-
+     
+     RunSettings: {
+       SpinTracking: {
+         spinTrackingEnabled : true
+      }
+    }
+     
+     
     // Detector(s) for the simulation
 
     // Action(s) for the simulation
