@@ -6,6 +6,7 @@
 #include "artg4/Core/GeometryBase.hh"
 
 #include "Geant4/globals.hh"
+#include "gm2ringsim/common/conversions.hh"
 #include "Geant4/G4TwoVector.hh"
 #include "CLHEP/Vector/TwoVector.h"
 
@@ -42,7 +43,7 @@ namespace gm2ringsim {
     
     enum typeToBuild { wallRegion, vacuumRegion, nTypes };
     
-    const double in = 25.4 * mm;
+    //    const double in = 25.4 * mm;
     
     const double inflectorExtensionValue;
     const double topBottomWall;
