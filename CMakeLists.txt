@@ -124,6 +124,7 @@ add_subdirectory( common )
 add_subdirectory( ups )
 add_subdirectory( test )
 add_subdirectory( actions )
+add_subdirectory( fiberHarp )
 
 # Packaging facility
 include(UseCPack)
