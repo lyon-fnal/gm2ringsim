@@ -15,7 +15,9 @@ gm2ringsim::FiberHarpGeometry::FiberHarpGeometry(std::string detName) :
   supportDepth( p.get<double>("supportDepth") * mm),
   nFibers( p.get<double>("nFibers")),
   coll_z( p.get<double>("coll_z") * m)
-{ }
+  nHarps( p.get<int>("nHarps")),
+  azimuthalPos( p.get<std::vector<double>>("azimuthalPos"))
+{}
 
 
 void gm2ringsim::FiberHarpGeometry::print(){
@@ -30,6 +32,9 @@ void gm2ringsim::FiberHarpGeometry::print(){
   oss << "  supportDepth=" << supportDepth << "\n";
   oss << "  nFibers=" << nFibers << "\n";
   oss << "  coll_z=" << coll_z << "\n";
+  oss << "  nHarps=" << nHarps << "\n";
+  oss << "  azimuthalPos= "; for (auto entry : azimuthalPos) { oss << " " << entry; }; oss << "\n";
+
   mf::LogInfo("FiberHarpGeometry") << oss.str();
 }
 

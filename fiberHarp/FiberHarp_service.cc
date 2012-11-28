@@ -1,6 +1,8 @@
 // Implementation of FiberHarp
 
 #include "gm2ringsim/fiberHarp/FiberHarp_service.hh"
+#include "gm2ringsim/fiberHarp/FiberHarpGeometry.hh"
+
 #include "gm2ringsim/common/g2PreciseValues.hh"
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
@@ -46,7 +48,9 @@ gm2ringsim::FiberHarp::FiberHarp(fhicl::ParameterSet const & p, art::ActivityReg
   DetectorBase(p,
 	       p.get<std::string>("name", "fiberHarp"),
 	       p.get<std::string>("category", "fiberHarp"),
-	       p.get<std::string>("mother_category", "vac")){
+	       p.get<std::string>("mother_category", "vac")),
+  geom_(myName()){
+
 }
 
 // Build the logical volumes

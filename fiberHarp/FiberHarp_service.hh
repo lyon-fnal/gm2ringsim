@@ -35,6 +35,8 @@ namespace gm2ringsim {
     virtual ~FiberHarp() {};
     
   private:
+    FiberHarpGeometry geom_;
+
     G4LogicalVolume* BuildFiberHarp(G4int harpNumber);
       
     // Private overriden methods

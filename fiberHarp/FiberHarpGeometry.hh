@@ -18,7 +18,9 @@ namespace gm2ringsim{
     const double supportDepth;
     const int nFibers;
     const double coll_z;
-
+    const int nHarps;
+    std::vector<double> azimuthalPos;
+    
     void print();
   }; 
 }
