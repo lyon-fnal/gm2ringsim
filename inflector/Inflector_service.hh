@@ -42,6 +42,7 @@
 #include "artg4/Core/DetectorBase.hh"
 
 #include "gm2ringsim/inflector/InflectorGeom.hh"
+#include "gm2ringsim/actions/SpinTrackingSettings.hh"
 
 // Within a namespace
 namespace gm2ringsim {
@@ -125,6 +126,7 @@ namespace gm2ringsim {
 
 
     private:
+      SpinTrackingSettings sts_;
       InflectorGeom infGeom_;
       G4int num_trackers_;
       G4MagneticField *inflectorMagField_;

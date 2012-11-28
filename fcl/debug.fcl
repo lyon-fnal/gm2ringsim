@@ -39,13 +39,11 @@ services: {
       vac:   @local::vac_geom
       inflector: @local::inflector_geom
      }
-     
-     RunSettings: {
-       SpinTracking: {
-         spinTrackingEnabled : true
+    RunSettings : {
+      SpinTracking : {
+        spinTrackingEnabled : false
       }
     }
-     
      
     // Detector(s) for the simulation
 
@@ -61,7 +59,7 @@ services: {
     World: {}	
     Arc: {}
     VacuumChamber: {}
-    Inflector:{}	
+       Inflector:{}	
 	   
     PrimaryGeneratorAction: {
             name: "primary"	

@@ -68,6 +68,7 @@ gm2ringsim::Inflector::Inflector(fhicl::ParameterSet const & p, art::ActivityReg
 	       p.get<std::string>("category", "inflector"),
 	       //	       p.get<std::string>("mother_category", "vac")),
 	       p.get<std::string>("mother_category", "world")),
+  sts_("SpinTracking"), // This is what goes in the fcl file under the RunSettings service
   infGeom_(myName()),
   num_trackers_(infGeom_.num_trackers),
   inflectorMagField_(0),
@@ -108,7 +109,7 @@ gm2ringsim::Inflector::Inflector(fhicl::ParameterSet const & p, art::ActivityReg
   conductorCurrent_(2724.*ampere),
   fieldNormConst_(14246.5*gauss),
   currentToMagFieldConversion_((5.23*gauss) / (1.0*ampere)),
-  spin_tracking_(false)//FIXME: Grab this from some master fhicl
+  spin_tracking_(sts_.spinTrackingEnabled)//FIXME: Grab this from some master fhicl
 
 {
   printf("In the Inflector service constructor\n");
@@ -170,9 +171,9 @@ void gm2ringsim::Inflector::AssignFieldManager(){
 
 // Build the logical volumes
 std::vector<G4LogicalVolume *> gm2ringsim::Inflector::doBuildLVs() {
-  
+  sts_.print();
   infGeom_.print();
-  
+  std::cout<<"spin tracking enabled is :"<<spin_tracking_<<std::endl;
   std::vector<G4LogicalVolume *> l_inflector;
   return l_inflector;
 
