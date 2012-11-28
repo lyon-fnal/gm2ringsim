@@ -65,6 +65,10 @@ inflector_geom : {
   useUpstreamEndFlange : true
   useDownstreamEndFlange : true
 
+  conductorCurrent : 2724. // ampere
+  fieldNormConst : 14246.5 // gauss
+  currentToField_gauss : 5.23 //gauss
+  currentToField_amp   : 1.0 //ampere
 
 }
 END_PROLOG

@@ -128,6 +128,10 @@ namespace gm2ringsim {
     const bool useDownstreamConductor;
     const bool useUpstreamEndFlange;
     const bool useDownstreamEndFlange;
+
+    const double conductorCurrent;
+    const double fieldNormConst;
+    const double currentToMagFieldConversion;
     
   };
 }

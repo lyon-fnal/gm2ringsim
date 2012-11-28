@@ -106,9 +106,9 @@ gm2ringsim::Inflector::Inflector(fhicl::ParameterSet const & p, art::ActivityReg
     obtained from an email from Wuzheng that can be found in                  
     reference section.  They are apparently the values for the                
     '00-'01 runs. */
-  conductorCurrent_(2724.*ampere),
-  fieldNormConst_(14246.5*gauss),
-  currentToMagFieldConversion_((5.23*gauss) / (1.0*ampere)),
+  conductorCurrent_(infGeom_.conductorCurrent),//2724.*ampere),
+  fieldNormConst_(infGeom_.fieldNormConst),
+  currentToMagFieldConversion_(infGeom_.currentToMagFieldConversion),//(5.23*gauss) / (1.0*ampere)),
   spin_tracking_(sts_.spinTrackingEnabled)//FIXME: Grab this from some master fhicl
 
 {

@@ -112,8 +112,11 @@ gm2ringsim::InflectorGeom::InflectorGeom(std::string const & detName) :
   useUpstreamConductor(p.get<bool>("useUpstreamConductor")),
   useDownstreamConductor(p.get<bool>("useDownstreamConductor")),
   useUpstreamEndFlange(p.get<bool>("useUpstreamEndFlange")),
-  useDownstreamEndFlange(p.get<bool>("useDownstreamEndFlange"))
-								       
+  useDownstreamEndFlange(p.get<bool>("useDownstreamEndFlange")),
+  conductorCurrent(p.get<double>("conductorCurrent") * ampere),
+  fieldNormConst(p.get<double>("fieldNormConst") * gauss) ,
+  currentToMagFieldConversion((p.get<double>("currentToField_gauss") * gauss ) /
+			      (p.get<double>("currentToField_amp") * ampere ) )
 {}
 
 void gm2ringsim::InflectorGeom::print() const {
@@ -219,7 +222,9 @@ void gm2ringsim::InflectorGeom::print() const {
     oss << "useDownstreamConductor=" <<useDownstreamConductor << "\n";
     oss << "useUpstreamEndFlange=" <<useUpstreamEndFlange << "\n";
     oss << "useDownstreamEndFlange=" <<useDownstreamEndFlange << "\n";
-
+    oss << "conductorCurrent=" <<conductorCurrent <<"\n";
+    oss << "fieldNormConst=" << fieldNormConst << "\n";
+    oss << "currentToMagFieldConversion=" << currentToMagFieldConversion << "\n";
   mf::LogInfo("CATEGORY") << oss.str();
 }
 
