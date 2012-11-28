@@ -74,7 +74,7 @@ private:
 
 //FIXME: path not found
 //#include "gm2ringsim/external_libs/libkdtree++/kdtree++/kdtree.hpp"
-#include "field_point.hh"
+#include "gm2ringsim/fields/field_point.hh"
 
 #include "Geant4/G4ThreeVector.hh"
 
