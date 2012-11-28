@@ -7,8 +7,9 @@
 // Includes
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-
 #include "art/Framework/Core/EDProducer.h"
+
+#include "gm2ringsim/fiberHarp/FiberHarpGeometry.hh"
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
