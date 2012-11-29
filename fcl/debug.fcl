@@ -1,6 +1,7 @@
 #include "geom/world.fcl"
 #include "geom/arc.fcl"
 #include "geom/vac.fcl"
+#include "geom/inflector.fcl"
 
 process_name:myProcessName
 
@@ -36,8 +37,16 @@ services: {
       world: @local::world_geom
       arc:   @local::arc_geom
       vac:   @local::vac_geom
+      inflector: @local::inflector_geom
+     }
+     
+     RunSettings: {
+       SpinTracking: {
+         spinTrackingEnabled : true
+      }
     }
-
+     
+     
     // Detector(s) for the simulation
 
     // Action(s) for the simulation
@@ -52,9 +61,7 @@ services: {
     World: {}	
     Arc: {}
     VacuumChamber: {}
-    
-    // Need to add a primary generator
-	
+    Inflector:{}	
 	   
     PrimaryGeneratorAction: {
             name: "primary"	
@@ -86,8 +93,8 @@ physics: {
   producers: {
     artg4Main: {
       module_type: artg4Main
-     enableVisualization: true
-      macroPath: ".:./macros"
+      enableVisualization: true
+      macroPath: ".:./macros:../macros:../../macros"
       visMacro: "vis.mac"
       pauseAfterEvent: false
     }

@@ -1,0 +1,31 @@
+#ifndef FIELD_POINT_ICC_INCLUDE
+#error Do not include outside of field_point.hh!!
+#endif
+
+/** @file field_point.icc
+
+    Provides template implementations.  Do not even consider including
+    this directly anywhere.
+
+    - Kevin Lynch 2009
+*/
+
+
+template<class T, class U>
+bool operator==(field_point<T,U> const& lhs, 
+		field_point<T,U> const& rhs){
+  return lhs.pt() == rhs.pt(); 
+}
+
+template<class T, class U>
+std::ostream& operator<<(std::ostream& o, 
+			 field_point<T,U> const& fp){
+  o << '[' << fp.point() << ':' << fp.payload() << ']';
+  return o;
+}
+
+
+template<class T,class U> double 
+field_point<T,U>::distance_to(field_point<T,U> const& other){
+  return pt_.distance_to(other.pt_);
+}

@@ -1,0 +1,475 @@
+#ifndef NOW_INCLUDE_INTERPOLATORS2D_ICC
+#error Do not include interpolators2D.icc outside of twoD_interpolators.hh!!!!
+#endif
+
+#include <cassert>
+#include <cmath>
+
+////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
+///// uniform_xy_bilinear_interpolator
+////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
+
+
+template<class Payload> template<class Iter>
+uniform_xy_bilinear_interpolator<Payload>::
+uniform_xy_bilinear_interpolator(double xlow, double xhigh, int xn,
+				 double ylow, double yhigh, int yn,
+				 Iter databegin, Iter dataend) :
+  xlow_(xlow), xhigh_(xhigh), ylow_(ylow), yhigh_(yhigh),
+  xn_(xn), yn_(yn),
+  dx_( (xhigh_-xlow_)/(xn_-1) ), dy_( (yhigh_-ylow_)/(yn_-1) ),
+  data_(databegin,dataend)
+{
+  //  assert(data_.size() == xn_*yn_);
+}
+
+template<class Payload> 
+template <class XIter, class YIter, class DataIter>
+uniform_xy_bilinear_interpolator<Payload>::
+uniform_xy_bilinear_interpolator(XIter xbegin, XIter xend,
+				 YIter ybegin, YIter yend,
+				 DataIter databegin, DataIter dataend) :
+  xlow_(*xbegin), xhigh_( *(xbegin+std::distance(xbegin,xend)-1) ),
+  ylow_(*xbegin), yhigh_( *(ybegin+std::distance(ybegin,yend)-1) ),
+  xn_( std::distance(xbegin,xend) ), yn_( std::distance(ybegin,yend) ),
+  dx_( (xhigh_-xlow_)/(xn_-1) ), dy_( (yhigh_-ylow_)/(yn_-1) ),
+  data_(databegin,dataend)
+{
+  //  assert(data_.size() == xn_*yn_);
+}
+
+template<class Payload>
+int uniform_xy_bilinear_interpolator<Payload>::
+xoffset(double at_x) const {
+  return (at_x - xlow_)/dx_;
+}
+
+template<class Payload>
+int uniform_xy_bilinear_interpolator<Payload>::
+yoffset(double at_y) const {
+  return (at_y - ylow_)/dy_;
+}
+
+template<class Payload>
+Payload const& uniform_xy_bilinear_interpolator<Payload>::
+value_at(int xoff, int yoff) const {
+  return data_[xoff+yoff*xn_];
+}
+
+template<class Payload> 
+Payload uniform_xy_bilinear_interpolator<Payload>::
+operator()(double at_x, double at_y) const {
+  if( at_x < xlow_ )
+    at_x = xlow_;
+  else if( at_x > xhigh_ )
+    at_x = xhigh_;
+
+  if( at_y < ylow_ )
+    at_y = ylow_;
+  else if( at_y > yhigh_ )
+    at_y = yhigh_;
+
+  int const xoff = xoffset(at_x);
+  int const yoff = yoffset(at_y);
+
+  double const t = (at_x - (xlow_+xoff*dx_) )/dx_;
+  double const u = (at_y - (ylow_+yoff*dy_) )/dy_;
+
+  Payload const p = 
+    (1.-t)*(1.-u)*value_at(xoff, yoff) +
+    t*(1.-u)*value_at(xoff+1,yoff) +
+    (1.-t)*u*value_at(xoff, yoff+1) +
+    t*u*value_at(xoff+1,yoff+1);
+  return p;
+}
+
+template<class Payload> 
+Payload uniform_xy_bilinear_interpolator<Payload>::
+derivative_x(double at_x, double at_y) const {
+  if( at_x < xlow_  ||  at_x > xhigh_  ||
+      at_y < ylow_  ||  at_y > yhigh_ )
+    return Payload();
+  // use central differences, if possible
+  double upx = dx_, downx = dx_, thisdx = dx_*2.;
+  if( at_x - dx_ < xlow_ ){
+    downx = 0.;
+    thisdx = dx_;
+  } else if( at_x+dx_ > xhigh_ ){
+    upx = 0.;
+    thisdx = dx_;
+  }
+
+  Payload const p = 
+    ( this->operator()(at_x+upx, at_y) - this->operator()(at_x-downx,at_y) )/ thisdx;
+  return p;
+}
+
+template<class Payload> 
+Payload uniform_xy_bilinear_interpolator<Payload>::
+derivative_y(double at_x, double at_y) const {
+  if( at_x < xlow_  ||  at_x > xhigh_  ||
+      at_y < ylow_  ||  at_y > yhigh_ )
+    return Payload();
+  // use central differences, if possible
+  double upy = dy_, downy = dy_, thisdy = dy_*2.;
+  if( at_y - dy_ < ylow_ ){
+    downy = 0.;
+    thisdy = dy_;
+  } else if( at_y+dy_ > yhigh_ ){
+    upy = 0.;
+    thisdy = dy_;
+  }
+
+  Payload const p = 
+    ( this->operator()(at_x, at_y+upy) - this->operator()(at_x,at_y-downy) )/ thisdy;
+  return p;
+}
+
+template<class Payload> 
+Payload uniform_xy_bilinear_interpolator<Payload>::
+derivative_xy(double at_x, double at_y) const {
+  if( at_x < xlow_  ||  at_x > xhigh_  ||
+      at_y < ylow_  ||  at_y > yhigh_ )
+    return Payload();
+
+  // use central differences, if possible
+  double upx = dx_, downx = dx_, thisdx = dx_*2.;
+  if( at_x - dx_ < xlow_ ){
+    downx = 0.;
+    thisdx = dx_;
+  } else if( at_x+dx_ > xhigh_ ){
+    upx = 0.;
+    thisdx = dx_;
+  }
+  double upy = dy_, downy = dy_, thisdy = dy_*2.;
+  if( at_y - dy_ < ylow_ ){
+    downy = 0.;
+    thisdy = dy_;
+  } else if( at_y+dy_ > yhigh_ ){
+    upy = 0.;
+    thisdy = dy_;
+  }
+  
+  Payload const p = 
+    (
+     ( this->operator()(at_x+upx, at_y+upy) - this->operator()(at_x-downx,at_y+upy) ) -
+     ( this->operator()(at_x+upx, at_y-downy) - this->operator()(at_x-downx,at_y-downy) )
+     )/ (thisdx * thisdy);
+  return p;
+
+
+}
+////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
+///// uniform_xy_bicubic_interpolator
+////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
+
+
+template<class Payload> template<class Iter>
+uniform_xy_bicubic_interpolator<Payload>::
+uniform_xy_bicubic_interpolator(double xlow, double xhigh, int xn,
+				double ylow, double yhigh, int yn,
+				Iter databegin, Iter dataend) :
+  xlow_(xlow), xhigh_(xhigh), ylow_(ylow), yhigh_(yhigh),
+  xn_(xn), yn_(yn),
+  dx_( (xhigh_-xlow_)/(xn_-1) ), dy_( (yhigh_-ylow_)/(yn_-1) ),
+  data_(databegin,dataend),
+  data_x_(xn_*yn_, Payload()),
+  data_y_(xn_*yn_, Payload()),
+  data_xy_(xn_*yn_, Payload())
+{
+  //  assert(data_.size() == xn_*yn_);
+  initialize();
+}
+
+template<class Payload> 
+template <class XIter, class YIter, class DataIter>
+uniform_xy_bicubic_interpolator<Payload>::
+uniform_xy_bicubic_interpolator(XIter xbegin, XIter xend,
+				YIter ybegin, YIter yend,
+				DataIter databegin, DataIter dataend) :
+  xlow_(*xbegin), xhigh_( *(xbegin+std::distance(xbegin,xend)-1) ),
+  ylow_(*xbegin), yhigh_( *(ybegin+std::distance(ybegin,yend)-1) ),
+  xn_( std::distance(xbegin,xend) ), yn_( std::distance(ybegin,yend) ),
+  dx_( (xhigh_-xlow_)/(xn_-1) ), dy_( (yhigh_-ylow_)/(yn_-1) ),
+  data_(databegin,dataend),
+  data_x_(xn_*yn_, Payload()),
+  data_y_(xn_*yn_, Payload()),
+  data_xy_(xn_*yn_, Payload())
+{
+  //  assert(data_.size() == xn_*yn_);
+  initialize();
+}
+
+template <class Payload>
+template <class Iter, class Iterx, class Itery, class Iterxy>
+uniform_xy_bicubic_interpolator<Payload>::
+uniform_xy_bicubic_interpolator(double xlow, double xhigh, int xn,
+				double ylow, double yhigh, int yn,
+				Iter databegin, Iter dataend,
+				Iterx dataxbegin, Iterx dataxend,
+				Itery dataybegin, Itery datayend,
+				Iterxy dataxybegin, Iterxy dataxyend
+				) :
+  xlow_(xlow), xhigh_(xhigh), ylow_(ylow), yhigh_(yhigh),
+  xn_(xn), yn_(yn),
+  dx_( (xhigh_-xlow_)/(xn_-1) ), dy_( (yhigh_-ylow_)/(yn_-1) ),
+  data_(databegin,dataend),
+  data_x_(dataxbegin, dataxend),
+  data_y_(dataybegin, datayend),
+  data_xy_(dataxybegin, dataxyend)
+{
+  //  assert(data_.size() == xn_*yn_);
+  //  assert(data_.size() == data_x_.size());
+  //  assert(data_.size() == data_y_.size());
+  //  assert(data_.size() == data_xy_.size());
+}
+
+template<class Payload>
+template <class XIter, class YIter, class DataIter, class Iterx, class Itery, class Iterxy>
+uniform_xy_bicubic_interpolator<Payload>::
+uniform_xy_bicubic_interpolator(XIter xbegin, XIter xend,
+				YIter ybegin, YIter yend,
+				DataIter databegin, DataIter dataend,
+				Iterx dataxbegin, Iterx dataxend,
+				Itery dataybegin, Itery datayend,
+				Iterxy dataxybegin, Iterxy dataxyend
+				) :
+  xlow_(*xbegin), xhigh_( *(xbegin+std::distance(xbegin,xend)-1) ),
+  ylow_(*xbegin), yhigh_( *(ybegin+std::distance(ybegin,yend)-1) ),
+  xn_( std::distance(xbegin,xend) ), yn_( std::distance(ybegin,yend) ),
+  dx_( (xhigh_-xlow_)/(xn_-1) ), dy_( (yhigh_-ylow_)/(yn_-1) ),
+  data_(databegin,dataend),
+  data_x_(dataxbegin, dataxend),
+  data_y_(dataybegin, datayend),
+  data_xy_(dataxybegin, dataxyend)
+{
+  //  assert(data_.size() == xn_*yn_);
+  //  assert(data_.size() == data_x_.size());
+  //  assert(data_.size() == data_y_.size());
+  //  assert(data_.size() == data_xy_.size());
+}
+
+
+template<class Payload>
+int uniform_xy_bicubic_interpolator<Payload>::
+xoffset(double at_x) const {
+  return static_cast<int>((at_x - xlow_)/dx_);
+}
+
+template<class Payload>
+int uniform_xy_bicubic_interpolator<Payload>::
+yoffset(double at_y) const {
+  return static_cast<int>((at_y - ylow_)/dy_);
+}
+
+template<class Payload>
+int uniform_xy_bicubic_interpolator<Payload>::
+offset(double at_x, double at_y) const {
+  return xoffset(at_x) + yoffset(at_y)*xn_;
+}
+
+template<class Payload>
+Payload const& uniform_xy_bicubic_interpolator<Payload>::
+value_at(int xoff, int yoff) const {
+  return data_[xoff+yoff*xn_];
+}
+
+template<class Payload>
+void uniform_xy_bicubic_interpolator<Payload>::
+initialize() {
+  // initialize the derivative tables
+  for( int iy=0; iy!=yn_; ++iy){
+    for( int ix=0; ix!=xn_; ++ix){
+      double dx = 2.*dx_;
+      double dy = 2.*dy_;
+      int xp = ix+1, xm = ix-1, yp = iy+1, ym = iy-1;
+      if( ix == 0 ){
+	xm = ix;
+	dx = dx_;
+      } else if( ix == xn_-1 ) {
+	xp = ix;
+	dx = dx_;
+      }
+      if( iy == 0 ){
+	ym = iy;
+	dy = dy_;
+      } else if( iy == yn_-1 ) {
+	yp = iy;
+	dy = dy_;
+      }
+
+      data_x_[ix+iy*xn_] = (data_[xp+iy*xn_]-data_[xm+iy*xn_])/dx;
+      data_y_[ix+iy*xn_] = (data_[ix+yp*xn_]-data_[ix+ym*xn_])/dy;
+      data_xy_[ix+iy*xn_] = 
+	( 
+	 (data_[xp+yp*xn_] - data_[xm+yp*xn_]) -
+	 (data_[xp+ym*xn_] - data_[xm+ym*xn_])
+	  )/ (dx*dy);
+    }
+  }
+}
+
+namespace {
+  double weights[16][16] =
+    { 
+      /*
+      00,11,22,33,44,55,66,77,88,99,aa,bb,cc,dd,ee,ff
+      */
+      { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
+      { 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,},
+      {-3, 0, 0, 3, 0, 0, 0, 0,-2, 0, 0,-1, 0, 0, 0, 0,},
+      { 2, 0, 0,-2, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0,},
+      { 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
+      { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,},
+      { 0, 0, 0, 0,-3, 0, 0, 3, 0, 0, 0, 0,-2, 0, 0,-1,},
+      { 0, 0, 0, 0, 2, 0, 0,-2, 0, 0, 0, 0, 1, 0, 0, 1,},
+      {-3, 3, 0, 0,-2,-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
+      { 0, 0, 0, 0, 0, 0, 0, 0,-3, 3, 0, 0,-2,-1, 0, 0,},
+      { 9,-9, 9,-9, 6, 3,-3,-6, 6,-6,-3, 3, 4, 2, 1, 2,},
+      {-6, 6,-6, 6,-4,-2, 2, 4,-3, 3, 3,-3,-2,-1,-1,-2,},
+      { 2,-2, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
+      { 0, 0, 0, 0, 0, 0, 0, 0, 2,-2, 0, 0, 1, 1, 0, 0,},
+      {-6, 6,-6, 6,-3,-3, 3, 3,-4, 4, 2,-2,-2,-2,-1,-1,},
+      { 4,-4, 4,-4, 2, 2,-2,-2, 2,-2,-2, 2, 1, 1, 1, 1,},
+    };
+}
+
+template<class Payload>
+void uniform_xy_bicubic_interpolator<Payload>::
+do_calc(double at_x, double at_y) const {
+  if( at_x == result.x  &&  at_y == result.y )
+    return;
+  
+  result.x = at_x;
+  result.y = at_y;
+  
+  // limits!
+  if( at_x < xlow_ || at_x >= xhigh_ || at_y < ylow_ || at_y >= yhigh_ ){
+    result.val = result.deriv_x = result.deriv_y = result.deriv_xy = Payload();
+    return;
+  }
+  
+  // pick the points
+  //  std::cout << at_x << ' ' << at_y << ' 'a 
+  //	    << xoffset(at_x) << ' ' 
+  //	    << yoffset(at_y) << ' '
+  //	    << offset(at_x,at_y) << '\n';
+  int const off = offset(at_x, at_y);
+  int const offsets[] = { off, off+1,off+xn_+1, off+xn_ };
+  //  std::cout << at_x << ' ' << at_y << '\n';
+  //  std::cout << offsets[0] << ' '
+  //	    << offsets[1] << ' '
+  //	    << offsets[2] << ' '
+  //	    << offsets[3] << '\n';
+  //  std::cout << data_.size() << '\n';;
+  Payload data[4], data_x[4], data_y[4], data_xy[4];
+  for( int i=0; i!=4; ++i ){
+    data[i] = data_[offsets[i]];
+    data_x[i] = data_x_[offsets[i]];
+    data_y[i] = data_y_[offsets[i]];
+    data_xy[i] = data_xy_[offsets[i]];
+  }
+  // pack the preliminary table
+  Payload xvec[16];
+  for(int i=0; i!=4; ++i){
+    xvec[i] = data[i];
+    xvec[i+4] = data_x[i]*dx_;
+    xvec[i+8] = data_y[i]*dy_;
+    xvec[i+12] = data_xy[i]*dx_*dy_;
+  }
+  //  for(int i=0; i!=16; ++i)
+  //    std::cout << xvec[i] << ' ';
+  //  std::cout << '\n';
+  // FIXME ... it would be nice to collapse these loops
+  Payload cl[16];
+  //  std::cout << "cl: ";
+  for( int i=0; i!=16; ++i){
+    cl[i] = Payload();
+    for( int k=0; k!=16; ++k)
+      cl[i] += weights[i][k]*xvec[k];
+    //    std::cout << cl[i] << ' ';
+  }
+  //  std::cout << '\n';
+  int l=0;
+  Payload c[4][4];
+  for( int i=0; i!=4; ++i)
+    for( int j=0; j!=4; ++j){
+      c[i][j] = cl[l++];
+      //      std::cout << c[i][j] << ' ';
+    }
+  //  std::cout << '\n';
+
+  int const xoff = xoffset(at_x), yoff = yoffset(at_y);
+  double const t = (at_x - (xlow_+xoff*dx_))/dx_;
+  double const u = (at_y - (ylow_+yoff*dy_))/dy_;
+  //  if( t<0 || t>1 )
+  //    std::cout << "t: " << t << ' ' << at_x << ' ' << at_y << '\n';
+  //  if( u<0 || u>1 )
+  //    std::cout << "u: " << u << ' ' << at_x << ' ' << at_y << '\n';
+  // 
+  result.val = result.deriv_x = result.deriv_y = result.deriv_xy = Payload();
+  for( int i=3; i>=0; --i){
+    result.val = 
+      t*result.val + ((c[i][3]*u+c[i][2])*u+c[i][1])*u+c[i][0];
+    result.deriv_y =
+      t*result.deriv_y + (3.*c[i][3]*u+2.0*c[i][2])*u+c[i][1];
+    result.deriv_x = 
+      u*result.deriv_x + (3.*c[3][i]*t+2.0*c[2][i])*t+c[1][i];
+    //    result.deriv_xy =
+    //      t*result.deriv_xy + i*((3.*c[i][3]*u+2.0*c[i][2])*u+c[i][1] );
+  }
+  for( int i=1;i!=4;++i )
+    // this works
+    //    for( int j=1;j!=4;++j)
+    //      result.deriv_xy +=
+    //      i*j*std::pow(t,i-1)*std::pow(u,j-1)*c[i][j];
+    //
+    // this also works
+    result.deriv_xy += i*std::pow(t,i-1)*
+      ( (3.*c[i][3]*u+2.0*c[i][2])*u+c[i][1] );
+    //
+  //  for( int i=3; i>=0; --i )
+    // this works too, but needs a divide by t below ... which
+    //    actually means it doesn't work, because t might be zero,
+    //    and we can't affor a divide by zero error  :-)
+    //    result.deriv_xy += i*std::pow(t,i-1)*(
+    //    (3.*c[i][3]*u+2.0*c[i][2])*u+c[i][1] );
+  // dt/dx, du/dy
+  result.deriv_x /= dx_;
+  result.deriv_y /= dy_;
+  result.deriv_xy /= (dx_*dy_);
+}
+
+
+template<class Payload>
+Payload uniform_xy_bicubic_interpolator<Payload>::
+operator()(double at_x, double at_y) const {
+  do_calc(at_x, at_y);
+  return result.val;
+}
+
+template<class Payload>
+Payload uniform_xy_bicubic_interpolator<Payload>::
+derivative_x(double at_x, double at_y) const {
+  do_calc(at_x, at_y);
+  return result.deriv_x;
+}
+
+template<class Payload>
+Payload uniform_xy_bicubic_interpolator<Payload>::
+derivative_y(double at_x, double at_y) const {
+  do_calc(at_x, at_y);
+  return result.deriv_y;
+}
+
+template<class Payload>
+Payload uniform_xy_bicubic_interpolator<Payload>::
+derivative_xy(double at_x, double at_y) const {
+  do_calc(at_x, at_y);
+  return result.deriv_xy;
+}
+
