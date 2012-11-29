@@ -25,6 +25,14 @@ gm2ringsim::InflectorGeom::InflectorGeom(std::string const & detName) :
   parWall_X( p.get<double>("parWall_X") * cm),
   parWall_Y( p.get<double>("parWall_Y") * cm),
   parWall_Z( p.get<double>("parWall_Z") * cm),
+  parWall_alpha( p.get<double>("parWall_alpha") * degree),
+  parWall_beta( p.get<double>("parWall_beta") * degree),
+  parWall_gamma( p.get<double>("parWall_gamma") * degree),
+  parWall_posX( p.get<double>("parWall_posX_length") * cm * 
+		std::cos(parWall_gamma) ), // Assume this is based on parWall_gamma. In g2MIGTRACE, this was hard coded as cos(24*degree)
+  parWall_posY( p.get<double>("parWall_posY_length") * cm *
+		std::sin(parWall_gamma) ), // and sin(24*degree)
+  parWall_posZ( p.get<double>("parWall_posZ") * cm),
   perpWall_X( p.get<double>("perpWall_X") * cm),
   perpWall_Y( p.get<double>("perpWall_Y") * cm),
   perpWall_Z( p.get<double>("perpWall_Z") * cm),
@@ -137,6 +145,12 @@ void gm2ringsim::InflectorGeom::print() const {
   oss << "  parWall_X=" << parWall_X << "\n";
   oss << "  parWall_Y=" << parWall_Y << "\n";
   oss << "  parWall_Z=" << parWall_Z << "\n";
+  oss << "  parWall_alpha=" << parWall_alpha << "\n";
+  oss << "  parWall_beta=" << parWall_beta << "\n";
+  oss << "  parWall_gamma=" << parWall_gamma << "\n";
+  oss << "  parWall_posX=" << parWall_posX << "\n";
+  oss << "  parWall_posY=" << parWall_posY << "\n";
+  oss << "  parWall_posZ=" << parWall_posZ << "\n";
   oss << "  perpWall_X=" << perpWall_X << "\n";
   oss << "  perpWall_Y=" << perpWall_Y << "\n";
   oss << "  perpWall_Z=" << perpWall_Z << "\n";

@@ -149,6 +149,10 @@ std::vector<G4LogicalVolume *> gm2ringsim::Inflector::doBuildLVs() {
   //Build all the solids and logicals used in the inflector
   BuildCore_SandL();
   BuildPeripherals_SandL();
+  // Build the inflector cryostat walls.  These are essentially
+  // volumes that separate the "inflector chamber" from the storage
+  // vacuum chamber.
+  BuildCryostatWalls();
   
   
   
@@ -168,10 +172,6 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Inflector::doPlaceToPVs( std::vecto
   
   // Build the inflector physical volumes
   BuildInflector() ;//mother);
-
-  // Build the inflector cryostat walls.  These are essentially
-  // volumes that separate the "inflector chamber" from the storage
-  // vacuum chamber.
   BuildCryostatWalls();
 
   // Build volumes for tracking in the aperture
@@ -606,7 +606,95 @@ void gm2ringsim::Inflector::BuildInflector( ) {//std::vector<G4LogicalVolume*> m
 
   
 } //Inflector::BuildInflector() 
-void gm2ringsim::Inflector::BuildCryostatWalls(){ }
+
+void gm2ringsim::Inflector::BuildCryostatWalls_SandL(){
+  G4VSolid *parallelCryoWall_S = new G4Box("parallelCryoWall_S",
+					   infGeom_.parWall_X,
+					   infGeom_.parWall_Y,
+					   infGeom_.parWall_Z);
+  
+  parallelCryoWall_L_ = new G4LogicalVolume(parallelCryoWall_S,
+					    artg4Materials::Al(),
+					    "parallelCryoWall_L",
+					    0,
+					    0,
+					    0);
+  
+  
+  
+  G4VSolid *perpCryoWall_S = new G4Box("perpCryoWall_S",
+				       infGeom_.perpWall_X,
+				       infGeom_.perpWall_Y,
+				       infGeom_.perpWall_Z);
+  
+  G4VSolid *cryoWindowCutout_S = new G4Box("cryoWindowCutout_S",
+					   infGeom_.cryoWindow_X,
+					   infGeom_.cryoWindow_Y,
+					   infGeom_.cryoWindow_Z);
+  
+  G4Transform3D cryoWindowTransform(G4RotationMatrix(),
+				    G4ThreeVector(infGeom_.cryoWindow_posX,
+						  infGeom_.cryoWindow_posY,
+						  infGeom_.cryoWindow_posZ));
+  
+  G4VSolid *perpCryoWall_SS = new G4SubtractionSolid("perpCryoWall_SS",
+						     perpCryoWall_S,
+						     cryoWindowCutout_S,
+						     cryoWindowTransform);
+  
+  perpCryoWall_L_ = new G4LogicalVolume(perpCryoWall_SS,
+					artg4Materials::Al(),
+					"perpCryoWall_L",
+					0,
+					0,
+					0);
+  
+  
+  
+  G4VisAttributes *cryoVisAtt =
+    new G4VisAttributes(G4Colour(0.8,0.8,0.8,1.0));
+  cryoVisAtt -> SetForceSolid(1);
+  parallelCryoWall_L_->SetVisAttributes(cryoVisAtt);
+  perpCryoWall_L_->SetVisAttributes(cryoVisAtt);
+  
+  //FIXME: Add Sensitive Detectors
+  /*  ringSD *ring = SDHandleOwner::getInstance().getRingSD();
+      parallelCryoWall_L->SetSensitiveDetector(ring);
+      perpCryoWall_L->SetSensitiveDetector(ring);
+  */
+  
+} //Inflector::BuildCryostatWalls_SandL() 
+
+// Build the Cryostat Physical Volumes
+void gm2ringsim::Inflector::BuildCryostatWalls(){
+  std::cout<<"About to try to build the CryostatWalls\n";
+  /*parallelCryoWall_P_ = new G4PVPlacement(new G4RotationMatrix(0,0,0),
+					  G4ThreeVector(0,0,0),//new G4RotationMatrix(infGeom_.parWall_alpha,
+					  //		       infGeom_.parWall_beta,
+					  //		       infGeom_.parWall_gamma),
+					  //0,//G4ThreeVector(infGeom_.parWall_posX, 
+					  //		infGeom_.parWall_posY,
+					  //		infGeom_.parWall_posZ),
+					  parallelCryoWall_L_,
+					  "ParallelCryostatWall",
+					  vacPTR_, 
+					  false,
+					  0);
+  */
+  perpCryoWall_P_ = new G4PVPlacement(new G4RotationMatrix(infGeom_.perpWall_alpha,
+							   infGeom_.perpWall_beta,
+							   infGeom_.perpWall_gamma),
+				      G4ThreeVector(infGeom_.perpWall_posX,
+						   infGeom_.perpWall_posY,
+						   infGeom_.perpWall_posZ),
+				      perpCryoWall_L_,
+				      "PerpendicularCryostatWall",
+				      vacPTR_, 
+				      false,
+				      0);
+  
+ }
+
 void gm2ringsim::Inflector::BuildTrackingVolumes(){ }
 void gm2ringsim::Inflector::RebuildInflector(){ }
 void gm2ringsim::Inflector::DeleteInflector(){ }

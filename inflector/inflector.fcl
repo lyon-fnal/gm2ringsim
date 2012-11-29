@@ -23,6 +23,14 @@ inflector_geom : {
   parWall_Y : 44.5 //cm
   parWall_Z : 6.9 //cm
 
+  parWall_alpha : 0. //deg
+  parWall_beta : 0. //deg
+  parWall_gamma : 24. //deg
+
+  parWall_posX_length : 715. //cm
+  parWall_posY_length : 715. //cm
+  parWall_posZ : 0. //cm
+
   perpWall_X : 0.58 //cm
   perpWall_Y : 8.195 //cm 
   perpWall_Z : 6.9 //cm

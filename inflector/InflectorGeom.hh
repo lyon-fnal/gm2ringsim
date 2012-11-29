@@ -36,6 +36,16 @@ namespace gm2ringsim {
     const double parWall_X;
     const double parWall_Y;
     const double parWall_Z;
+    
+    const double parWall_alpha;
+    const double parWall_beta;
+    const double parWall_gamma;
+
+    const double parWall_posX;
+    const double parWall_posY;
+    const double parWall_posZ;
+    
+
 
     const double perpWall_X;
     const double perpWall_Y;

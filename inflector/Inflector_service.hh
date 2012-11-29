@@ -168,7 +168,9 @@ namespace gm2ringsim {
       void BuildCore_SandL(); // Solids and Logicals                       
       void BuildPeripherals_SandL(); // Solids and Logicals                
       void BuildInflector( ); //std::vector<G4LogicalVolume*>); // Physical Volumes                       
-      void BuildCryostatWalls();
+      void BuildCryostatWalls_SandL(); // Solids and Logicals
+      void BuildCryostatWalls(); // Physicsal Volumes
+      
       void BuildTrackingVolumes(); // all of the above                         
       void RebuildInflector();
       void DeleteInflector();
