@@ -96,7 +96,7 @@ physics: {
       enableVisualization: true
       macroPath: ".:./macros:../macros:../../macros"
       visMacro: "vis.mac"
-      pauseAfterEvent: true
+      pauseAfterEvent: false
     }
 
   }
@@ -107,3 +107,6 @@ physics: {
   trigger_paths: [ path1 ]
   end_paths: [ stream1 ]
 }
+
+// Override Arc display
+services.user.Geometry.arc.display : true

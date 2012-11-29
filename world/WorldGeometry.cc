@@ -9,7 +9,9 @@ gm2ringsim::WorldGeometry::WorldGeometry(std::string const & detName) :
   GeometryBase(detName),
   world_x(p.get<double>("world_x") * mm),
   world_y(p.get<double>("world_y") * mm),
-  world_z(p.get<double>("world_z") * mm)
+  world_z(p.get<double>("world_z") * mm),
+  display( p.get<bool>("display")),
+  worldColor( p.get<std::vector<double>>("worldColor"))
 {}
 
 void gm2ringsim::WorldGeometry::print() const {

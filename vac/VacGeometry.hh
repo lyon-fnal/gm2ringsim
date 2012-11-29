@@ -66,6 +66,18 @@ namespace gm2ringsim {
     const double turn_sphi;
     const double turn_dphi;
     
+    const bool displayWall;
+    const std::vector<double> wallColor;
+    
+    const bool displayVac;
+    const std::vector<double> vacColor;
+    
+    const bool displayTracker;
+    const std::vector<double> trackerColor;
+    
+    const bool displayTurnCounter;
+    const std::vector<double> turnCounterColor;
+    
     // The following constants are derived
     const double ZachIsAwesome_Z;
     std::vector<double> torus_z;
@@ -78,6 +90,8 @@ namespace gm2ringsim {
     
     double track_rMin, track_rMax;
     double turn_rMin, turn_rMax;
+    
+    
   };
 }
 
