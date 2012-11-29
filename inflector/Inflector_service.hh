@@ -167,7 +167,7 @@ namespace gm2ringsim {
       //Private Construction Methods
       void BuildCore_SandL(); // Solids and Logicals                       
       void BuildPeripherals_SandL(); // Solids and Logicals                
-      void BuildInflector(); // Physical Volumes                       
+      void BuildInflector( ); //std::vector<G4LogicalVolume*>); // Physical Volumes                       
       void BuildCryostatWalls();
       void BuildTrackingVolumes(); // all of the above                         
       void RebuildInflector();
@@ -177,6 +177,8 @@ namespace gm2ringsim {
       void RebuildFieldImpl();
       void RebuildEOM();
       void AssignFieldManager();
+
+      //void GetXYZ_zetaFree(G4double &, G4double &, G4double &) ;
 
       // All the detailed volumes
       /** @bug The construction process and member variables should be         
@@ -227,12 +229,13 @@ namespace gm2ringsim {
       G4LogicalVolume *launchRegion_L_;
       G4VPhysicalVolume *launchRegion_P_;
 
-      G4VPhysicalVolume *vacPTR_;
+      //G4VPhysicalVolume *vacPTR_;
+      G4LogicalVolume *vacPTR_; // Changed in ART since we only pass the mother LVs
 
 
       std::vector<G4VPhysicalVolume*> tracker_physicals_;
 
-      G4ThreeVector calc_position() const;
+      G4ThreeVector calc_position() const;//FIXME: should be const const;
       G4RotationMatrix *calc_rotation();
       
       // inflectorMessenger *InflectorMessenger;

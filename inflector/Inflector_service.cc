@@ -161,14 +161,13 @@ std::vector<G4LogicalVolume *> gm2ringsim::Inflector::doBuildLVs() {
 }
 
 // Build the physical volumes
-std::vector<G4VPhysicalVolume *> gm2ringsim::Inflector::doPlaceToPVs( std::vector<G4LogicalVolume*> //mother
-								      ) {
+std::vector<G4VPhysicalVolume *> gm2ringsim::Inflector::doPlaceToPVs( std::vector<G4LogicalVolume*> mother) {
   //  vacPTR = VacH.at(vacuumInflectorSection);
-  //vacPTR_ = mother.at(vacuumInflectorSection_);
+  vacPTR_ = mother.at(vacuumInflectorSection_);
   // FIXME Do I actually need vacPTR_ set before I build one of the logical volumes??
   
   // Build the inflector physical volumes
-  BuildInflector();
+  BuildInflector() ;//mother);
 
   // Build the inflector cryostat walls.  These are essentially
   // volumes that separate the "inflector chamber" from the storage
@@ -198,7 +197,7 @@ void gm2ringsim::Inflector::BuildCore_SandL() {
   
   inflector_L_ = new G4LogicalVolume(inflector_S,
 				     artg4Materials::Vacuum(),
-				     "inflector_L_");
+				     "inflector_L");
   
   // Create the long rectangular mandrel solid
   G4VSolid *inflectorMandrel_S = new G4Box("inflectorMandrel_S",
@@ -208,7 +207,7 @@ void gm2ringsim::Inflector::BuildCore_SandL() {
 
   inflectorMandrel_L_ = new G4LogicalVolume(inflectorMandrel_S,
 					    artg4Materials::Al6061(),
-					   "inflectorMandrel_L_");
+					   "inflectorMandrel_L");
 
 
    // Create 2 solids that will be G4Union'ed together to create the beam channel
@@ -235,24 +234,408 @@ void gm2ringsim::Inflector::BuildCore_SandL() {
 
   beamChannel_L_ = new G4LogicalVolume(beamChannel_US,
 				       artg4Materials::Vacuum(),
-				      "beamChannel_L_");
+				      "beamChannel_L");
   
   G4UserLimits *stepLimiter = new G4UserLimits(maxStepLength_);
   beamChannel_L_ -> SetUserLimits(stepLimiter);
 
   
+  G4VisAttributes *channelVisAtt = 
+    new G4VisAttributes(G4Colour(0.0,1.0,0.0,1.0));
+  channelVisAtt -> SetForceSolid(1);
+  beamChannel_L_ -> SetVisAttributes(channelVisAtt);
+  
+  G4VisAttributes *mandrelVisAtt = 
+    new G4VisAttributes(G4Colour(0.0,0.7,1.0,1.0));
+  mandrelVisAtt -> SetForceWireframe(1);
+  inflectorMandrel_L_ -> SetVisAttributes(mandrelVisAtt);
+  
+  /* //FIXME: This needs to move to the appropriate place
+     //       for producing the ROOT output
+  ringSD *ring = SDHandleOwner::getInstance().getRingSD();
+  beamChannel_L_->SetSensitiveDetector(ring);
+  inflectorMandrel_L_->SetSensitiveDetector(ring);
+  */
 
 }                                      
 
-void gm2ringsim::Inflector::BuildPeripherals_SandL(){ }
-void gm2ringsim::Inflector::BuildInflector(){ } 
+// Create the solids and logicals that physically bracket the
+// inflector mandrel upstream (US) and downstream (DS)
+void gm2ringsim::Inflector::BuildPeripherals_SandL(){
+
+  G4VSolid *window_S =  new G4Box("window_S", 
+				  infGeom_.window_X, 
+				  infGeom_.window_Y, 
+				  infGeom_.window_Z);
+  
+  window_DS_L_ = new G4LogicalVolume(window_S,
+				    artg4Materials::Al6061(),
+				    "window_DS_L",
+				    0,
+				    0,
+				    0);
+
+  /* //FIXME
+     ringSD *ring = SDHandleOwner::getInstance().getRingSD();
+     window_DS_L->SetSensitiveDetector(ring);
+  */
+
+  window_US_L_ = new G4LogicalVolume(window_S,
+				    artg4Materials::Al6061(),
+				    "window_US_L",
+				    0,
+				    0,
+				    0);
+
+  // FIXME  window_US_L->SetSensitiveDetector(ring);
+
+
+  G4VSolid *equivalentAl_S = new G4Box("equivalentAl_S",
+				      infGeom_.equivalentPlate_X,
+				      (infGeom_.equivalentAlWidth / 2),
+				      infGeom_.equivalentPlate_Z);
+  
+  G4VSolid *equivalentCu_S = new G4Box("equivalentCu_S",
+				      infGeom_.equivalentPlate_X,
+				      (infGeom_.equivalentCuWidth / 2),
+				      infGeom_.equivalentPlate_Z);
+  
+  G4VSolid *equivalentNbTi_S = new G4Box("equivalentNbTi_S",
+					infGeom_.equivalentPlate_X,
+					(infGeom_.equivalentNbTiWidth / 2),
+					infGeom_.equivalentPlate_Z);
+  
+  equivalentAl_DS_L_ = 
+    new G4LogicalVolume(equivalentAl_S,
+			artg4Materials::Al(),
+			"equivalentAl_DS_L",
+			0,
+			0,
+			0);
+  
+  //FIXME  equivalentAl_DS_L->SetSensitiveDetector(ring);
+  
+  equivalentAl_US_L_ = 
+    new G4LogicalVolume(equivalentAl_S,
+			artg4Materials::Al(),
+			"equivalentAl_US_L",
+			0,
+			0,
+			0);
+  
+  //FIXME  equivalentAl_US_L_->SetSensitiveDetector(ring);
+  
+  equivalentCu_DS_L_ = 
+    new G4LogicalVolume(equivalentCu_S,
+			artg4Materials::Cu(),
+			"equivalentCu_DS_L",
+			0,
+			0,
+			0);
+  
+  //FIXME  equivalentCu_DS_L->SetSensitiveDetector(ring);
+  
+  equivalentCu_US_L_ = 
+    new G4LogicalVolume(equivalentCu_S,
+			artg4Materials::Cu(),
+			"equivalentCu_US_L",
+			0,
+			0,
+			0);
+  
+  //FIXME  equivalentCu_US_L->SetSensitiveDetector(ring);
+  
+  equivalentNbTi_DS_L_ =
+    new G4LogicalVolume(equivalentNbTi_S,
+			artg4Materials::Cu(),
+			"equivalentNbTi_DS_L",
+			0,
+			0,
+			0);
+  
+  //FIXME  equivalentNbTi_DS_L->SetSensitiveDetector(ring);
+  
+  equivalentNbTi_US_L_ =
+    new G4LogicalVolume(equivalentNbTi_S,
+			artg4Materials::Cu(),
+			"equivalentNbTi_US_L",
+			0,
+			0,
+			0);
+  
+  //FIXME  equivalentNbTi_US_L->SetSensitiveDetector(ring);
+
+  G4VSolid *flange_S = new G4Box("flange_S", infGeom_.flange_X, 
+				 infGeom_.flange_Y, infGeom_.flange_Z);
+
+  endFlange_DS_L_ = 
+    new G4LogicalVolume(flange_S,
+			artg4Materials::Al6061(),
+			"endFlange_DS_L",
+			0,
+			0,
+			0);
+  
+  //FIXME endFlange_DS_L->SetSensitiveDetector(ring);
+  
+  endFlange_US_L_ = 
+    new G4LogicalVolume(flange_S,
+			artg4Materials::Al6061(),
+			"endFlange_US_L",
+			0,
+			0,
+			0);
+  
+  //FIXME  endFlange_US_L->SetSensitiveDetector(ring);
+
+  G4VSolid *launchRegion_S = new G4Box("lanchRegion_S", infGeom_.launch_X,
+				       infGeom_.launch_Y, infGeom_.launch_Z);
+  
+
+  //  In order to ensure that particle launched from the upstream
+  //  vertex do not see any of the storage field, thus ruining their
+  //  initial trajectory through the inflector, we need to create a
+  //  zero-field region upstream.  This is accomplished via the
+  //  "lanchRegion".
+  // 
+  //  Note: the implementation of the full inflector field may change
+  //  the need for this approach.  ZSH - 08 NOV 08
+  /** @bug May need the same rigamarole here for spin/not spin as well
+      ... still don't know if this can just be dispensed with, per
+      ZSH's comment. */
+
+  //FIXME: Do these need to use the private member variables instead of creating new ones??
+  // @note: in G2MIGTRACE, these were not set to the inflector private vars, but rather
+  //        new ones were created (iEquation,iStepper,iChordFinder)
+  G4UniformMagField* launchField
+    = new G4UniformMagField(G4ThreeVector(0., 0., 0.));
+  iEquation_ = new G4Mag_UsualEqRhs(launchField);
+  iStepper_ = new G4ClassicalRK4(iEquation_);
+  iChordFinder_ = new G4ChordFinder(launchField,1*mm,iStepper_);
+  launchFieldManager_ = new G4FieldManager(launchField, iChordFinder_);
+  
+  launchRegion_L_ = new G4LogicalVolume(launchRegion_S,
+					artg4Materials::Vacuum(),
+					"launchRegion_L",
+					launchFieldManager_,
+					0,
+					0);
+  
+  G4VisAttributes *windowVisAtt = 
+    new G4VisAttributes(G4Colour(1.0,0.0,0.0,1.0));
+  windowVisAtt -> SetForceSolid(1);
+  window_US_L_ -> SetVisAttributes(windowVisAtt);
+  window_DS_L_ -> SetVisAttributes(windowVisAtt);
+  
+  G4VisAttributes *alumEqVisAtt = 
+    new G4VisAttributes(G4Colour(0.5,0.5,0.5,1.0));
+  alumEqVisAtt -> SetForceWireframe(1);
+  equivalentAl_US_L_ -> SetVisAttributes(alumEqVisAtt);
+  equivalentAl_DS_L_ -> SetVisAttributes(alumEqVisAtt);
+
+  G4VisAttributes *copperEqVisAtt = 
+    new G4VisAttributes(G4Colour(1.0,0.6,0.0,1.0));
+  copperEqVisAtt -> SetForceSolid(1);
+  equivalentCu_US_L_ -> SetVisAttributes(copperEqVisAtt);
+  equivalentCu_DS_L_ -> SetVisAttributes(copperEqVisAtt);
+  
+  G4VisAttributes *NbTiEqVisAtt = 
+    new G4VisAttributes(G4Colour(0.0,1.0,1.0,1.0));
+  NbTiEqVisAtt -> SetForceWireframe(1);
+  equivalentNbTi_US_L_ -> SetVisAttributes(NbTiEqVisAtt);
+  equivalentNbTi_DS_L_ -> SetVisAttributes(NbTiEqVisAtt);
+  
+  G4VisAttributes *endFlangeVisAtt = 
+    new G4VisAttributes(G4Colour(1.0,0.0,1.0,1.0));
+  endFlangeVisAtt -> SetForceSolid(1);
+  endFlange_US_L_ -> SetVisAttributes(endFlangeVisAtt);
+  endFlange_DS_L_ -> SetVisAttributes(endFlangeVisAtt);
+
+  G4VisAttributes *launchVisAtt =
+    new G4VisAttributes(G4Colour(0.0,1.,0.,1.0));
+  launchVisAtt -> SetForceWireframe(1);
+  launchRegion_L_ -> SetVisAttributes(launchVisAtt);
+    
+
+
+}
+
+void gm2ringsim::Inflector::BuildInflector( ) {//std::vector<G4LogicalVolume*> mother){
+    //mother.at(0);
+  
+  // "inflector_S/L/P" volumes act as an imaginary "wrapper" for all
+  // the daughter volumes that make up the inflector.  It's dimensions
+  // are ~equal to the maximum dimensions of the inflector (so as to
+  // contain the subvolumes but nothing else) and it's material is
+  // vacuum.  This is done so that position and rotation calculations
+  // and implementation are done for only this single volume.  Since
+  // all subvolumes are daughters of this mother volume, they simply
+  // move with the mother automatically.
+  inflector_P_ = new G4PVPlacement(calc_rotation(),
+				   calc_position(),
+				   inflector_L_,
+				   "Inflector",
+				   vacPTR_ , //vacptr is LV in ART now -> GetLogicalVolume(),
+				   false,
+				   0);
+  
+  inflectorMandrel_P_ = new G4PVPlacement(0,
+					  G4ThreeVector(0., 0., 0.),
+					  inflectorMandrel_L_,
+					  "InflectorMandrel",
+					  inflector_L_,
+					  false,
+					  0);
+
+  beamChannel_P_ = new G4PVPlacement(0,
+				     G4ThreeVector(0., 0., infGeom_.beamChannel_offset),
+				     beamChannel_L_,
+				     "BeamChannel",
+				     inflectorMandrel_L_,
+				     false,
+				     0);
+  
+  if(useUpstreamWindow_)
+    window_US_P_ = new G4PVPlacement(0,
+				    G4ThreeVector(0., infGeom_.windowPlacement, 0.),
+				    window_US_L_,
+				    "UpstreamWindow",
+				    inflector_L_,
+				    false,
+				    0);
+
+  if(useUpstreamConductor_){
+    if(useConductorEquivalent_){
+      equivalentAl_US_P_ = new G4PVPlacement(0,
+					    G4ThreeVector(0., infGeom_.eqAlPlacement, 0.),
+					    equivalentAl_US_L_,
+					    "UpstreamEquivalentAl",
+					    inflector_L_,
+					    false,
+					    0);
+      
+      equivalentCu_US_P_ = new G4PVPlacement(0,
+					    G4ThreeVector(0., infGeom_.eqCuPlacement, 0.),
+					    equivalentCu_US_L_,
+					    "UpstreamEquivalentCu",
+					    inflector_L_,
+					    false,
+					    0);
+      
+      equivalentNbTi_US_P_ = new G4PVPlacement(0,
+					      G4ThreeVector(0., infGeom_.eqNbTiPlacement, 0.),
+					      equivalentNbTi_US_L_,
+					      "UpstreamEquivalentNbTi",
+					      inflector_L_,
+					      false,
+					      0);
+    }
+    else{/* NOT YET IMPLEMENTED -> FOR PHYSICAL CONDUCTOR WINDINGS*/}
+  }
+  
+
+
+  
+  if(useUpstreamEndFlange_)
+    endFlange_US_P_ = new G4PVPlacement(0,
+				       G4ThreeVector(0., infGeom_.flangePlacement, 0.),
+				       endFlange_US_L_,
+				       "UpstreamEndFlange",
+				       inflector_L_,
+				       false,
+				       0);
+  
+  if(useDownstreamWindow_)
+    window_DS_P_ = new G4PVPlacement(0,
+				    G4ThreeVector(0., -infGeom_.windowPlacement, 0.),
+				    window_DS_L_,
+				    "DownstreamWindow",
+				    inflector_L_,
+				    false,
+				    0);
+
+  
+ if(useDownstreamConductor_){
+    if(useConductorEquivalent_){
+      equivalentAl_DS_P_ = new G4PVPlacement(0,
+					    G4ThreeVector(0., -infGeom_.eqAlPlacement, 0.),
+					    equivalentAl_DS_L_,
+					    "DownstreamEquivalentAl",
+					    inflector_L_,
+					    false,
+					    0);
+      
+      equivalentCu_DS_P_ = new G4PVPlacement(0,
+					    G4ThreeVector(0., -infGeom_.eqCuPlacement, 0.),
+					    equivalentCu_DS_L_,
+					    "DownstreamEquivalentCu",
+					    inflector_L_,
+					    false,
+					    0);
+      
+      equivalentNbTi_DS_P_ = new G4PVPlacement(0,
+					      G4ThreeVector(0., -infGeom_.eqNbTiPlacement, 0.),
+					      equivalentNbTi_DS_L_,
+					      "DownstreamEquivalentNbTi",
+					      inflector_L_,
+					      false,
+					      0);
+    }
+    else{/* NOT YET IMPLEMENTED -> FOR PHYSICAL CONDUCTOR WINDINGS */}
+  }
+  
+ 
+  if(useDownstreamEndFlange_)
+    endFlange_DS_P_ = new G4PVPlacement(0,
+				       G4ThreeVector(0., -infGeom_.flangePlacement, 0.),
+				       endFlange_DS_L_,
+				       "DownstreamEndFlange",
+				       inflector_L_,
+				       false,
+				       0);
+
+  launchRegion_P_ = new G4PVPlacement(0,
+				     G4ThreeVector(0, infGeom_.launchPlacement, 0),
+				     launchRegion_L_,
+				     "LaunchRegion",
+				     inflector_L_,
+				     false,
+				     0);
+
+
+
+  
+} //Inflector::BuildInflector() 
 void gm2ringsim::Inflector::BuildCryostatWalls(){ }
 void gm2ringsim::Inflector::BuildTrackingVolumes(){ }
 void gm2ringsim::Inflector::RebuildInflector(){ }
 void gm2ringsim::Inflector::DeleteInflector(){ }
 
 void gm2ringsim::Inflector::BuildInflectorField(){ }
-void gm2ringsim::Inflector::RebuildFieldImpl(){ }
+
+/** @bug There should be some more indirection to enable simple
+    rebuild of the field without reload of the field maps, which are
+    f'ing big text files. */
+void gm2ringsim::Inflector::RebuildFieldImpl(){
+  if( inflectorMagField_ ){
+    delete inflectorMagField_;
+  }
+  
+  switch( mag_field_type_ ){
+  case VANISHING_FIELD:
+    inflectorMagField_ = new vanishingInflectorField;
+    break;
+  case SIMPLE_FIELD:
+    inflectorMagField_ = new simpleInflectorField(fieldNormConst_);
+    break;
+  case MAPPED_FIELD:
+    inflectorMagField_ = new mappedInflectorField();
+    break;
+  default:
+    G4cout << "An improper Inflector Field was set in Inflector::RebuildFieldImpl()!!\n";
+  }
+  
+ }
 
 
 //FIXME: Do we really need to rebuild? Let's make spin_tracking_ a const and 
@@ -360,6 +743,143 @@ void gm2ringsim::Inflector::GenerateGPSMacros(){}
 //void gm2ringsim::Inflector::doFillEventWithArtHits(G4HCofThisEvent * hc) {
 //    
 //}
+
+
+G4ThreeVector gm2ringsim::Inflector::calc_position() const  {
+  //FIXME: removed const temporarily //const {
+  // Calculate the EFFECTIVE aperture radius not the absolute radius
+  // (which would simply be 7.189 m).  We must ADD the distance that
+  // the beam channel is offset from the center of the inflector
+  // assembly in order to ensure that it is the BEAM CHANNEL center
+  // that is placed 77 mm from the storage orbit, and *not* the
+  // INFLECTOR ASSEMBLY center.
+
+  // This is subtle.  Think trigonometry with a side view of the
+  // inflector.  Since the inflector is rotated around it central
+  // point when "tilted", it must necessarily by translated so
+  // that the aperture ends up in it's original and correct
+  // location!   
+
+  // g2MIGTRACE:  inflectorGeometry const& ig = inflectorGeometry::getInstance();
+  inflectorGeometry const& ig = infGeom_.ig;
+  G4double const bco = infGeom_.beamChannel_offset - infGeom_.beamChannel1_Z;  
+  G4double const apRad = (R_magic() + ig.aperture_off()) + bco;
+  
+  // X,Y,Z here are not g2MIGTRACE global coordinates, because of the
+  // rotation in calc_rotation!
+
+  // FIXME : Make Inflector_option zeta_free: true
+  
+  G4double posX = 0;
+  G4double posY = 0;
+  G4double posZ = 0;
+
+  if (0) // GetfromFcl
+    {
+      posX =  apRad*cos(epsilon_ - ig.delta()) + 
+	ig.mandrel_half_length()*sin(epsilon_ - ig.delta() - ig.gamma());
+      
+      posY = apRad*sin(epsilon_ - ig.delta()) -
+	ig.mandrel_half_length()*cos(epsilon_ - ig.delta() - ig.gamma());
+      
+      posZ = 0.;
+    }
+  //GetXYZ_zetaFree(posX,posY,posZ);
+  
+  //FIXME: Zach rotation
+  if (0) 
+    {
+      // Calculate the position of the completly assembled inflector 
+      // what Zach wrote....
+      G4double changeInXandY = ig.mandrel_half_length()*(1. - cos(ig.zeta()));
+      G4double changeInZ = ig.mandrel_half_length() * sin(ig.zeta());
+      
+      posX = ( apRad*cos(epsilon_ - ig.delta()) ) 
+    + (ig.mandrel_half_length() - changeInXandY)*sin(epsilon_ - ig.delta() - ig.gamma());
+      posY = ( apRad*sin(epsilon_ - ig.delta()) ) 
+    - (ig.mandrel_half_length() - changeInXandY)*cos(epsilon_ - ig.delta() - ig.gamma());
+      posZ = changeInZ;
+    }
+
+  if(1){
+  // we need to rotate not around the upstream center of the
+  // inflector, but around the upstream BEAM CHANNEL.  So, we have to
+  // not only rotate, but we have to make a small shift to account for
+  // the offset rotation calculation.
+  G4double const radial_fixup = -bco*(1.-cos(ig.gamma()));
+  G4double const tangent_fixup = bco*sin(ig.gamma());
+
+  //G4double// const 
+    posX = apRad*cos(epsilon_ - ig.delta())
+    + ig.mandrel_half_length()*cos(ig.zeta())*sin(epsilon_ - ig.delta()- ig.gamma())
+    // fixups
+    +radial_fixup*cos(epsilon_) + tangent_fixup*sin(epsilon_)
+    ;
+  //G4double //const
+    posY =  apRad*sin(epsilon_ - ig.delta())
+    - ig.mandrel_half_length()*cos(ig.zeta())*cos(epsilon_ - ig.delta() - ig.gamma())
+    // fixups
+    +radial_fixup*sin(epsilon_)-tangent_fixup*cos(epsilon_)
+    ;
+  // G4double// const
+    posZ = ig.mandrel_half_length()*sin(ig.zeta());
+  }
+
+
+  G4ThreeVector const center(posX, posY, posZ);
+
+  return center;
+} // Inflector::calc_postiion()
+ 
+/*
+void gm2ringsim::Inflector::GetXYZ_zetaFree(G4double &posX, G4double &posY, G4double &posZ)  {
+ inflectorGeometry const& ig = infGeom_.ig;
+ G4double const bco = infGeom_.beamChannel_offset - infGeom_.beamChannel1_Z;
+ G4double const apRad = (R_magic() + ig.aperture_off()) + bco;
+  
+  posX =  apRad*cos(epsilon_ - ig.delta()) + 
+    ig.mandrel_half_length()*sin(epsilon_ - ig.delta() - ig.gamma());
+  
+  posY = apRad*sin(epsilon_ - ig.delta()) -
+    ig.mandrel_half_length()*cos(epsilon_ - ig.delta() - ig.gamma());
+  
+  posZ = 0.;
+}
+*/
+
+
+
+#include <utility>
+G4RotationMatrix* gm2ringsim::Inflector::calc_rotation() { 
+  // Calculate the rotation of the completely assembled inflector.  By
+  // default, the inflector is instantiated such that the "vertical"
+  // direction of the beam channel is parallel to the storage orbit.
+  // The three rotations below not only rotate the inflector correctly
+  // but also ensure that the beam channel is in its correct
+  // orientation relative to the storage orbit (ie, if you are looking
+  // upstream at the inflector, the channel looks like a "D")
+
+  // theta1: first rotate inflector to be *perpendicular* to a tangent 
+  //         to the storage orbit at desired inflector position 
+  // phi: rotate 90 degrees out of storage orbit plane
+  // theta2: Rotate 90 degree back into the plane, with beam channel now 
+  //         in correct the correct orientation
+  
+  // g2MIGTRACE:  inflectorGeometry const& ig = inflectorGeometry::getInstance();
+  // ART : 
+  inflectorGeometry const& ig = infGeom_.ig;
+  
+  G4double theta1 = (90*degree + epsilon_) - ig.delta() - ig.gamma();
+  G4double phi = -90*degree;
+  G4double theta2 = 90*degree + ig.zeta();
+
+  G4RotationMatrix temp(theta1, phi, theta2);
+
+  std::swap(temp, *inflectorRotation_);
+
+  return inflectorRotation_;
+}
+
 
 /* These function were previously implemented in g2MIGTRACE but were 
    not ported due to the fact that they only existed in order to 
