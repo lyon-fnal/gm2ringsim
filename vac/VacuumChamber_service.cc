@@ -3,6 +3,7 @@
 #include "gm2ringsim/vac/VacuumChamber_service.hh"
 
 #include "artg4/material/Materials.hh"
+#include "artg4/util/util.hh"
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 
@@ -117,20 +118,23 @@ void gm2ringsim::VacuumChamber::makeWallLVs(
     
     G4UnionSolid* us = buildUnionSolid(g, g.wallRegion, arcNum);
     
+    std::string wallName = artg4::addNumberToName("VacuumChamberWallLV", arcNum);
+
     G4LogicalVolume* wallLV = new G4LogicalVolume(
                                                   us,
                                                   artg4Materials::Al(),
-                                                  "vacChamber",
+                                                  wallName.c_str(),
                                                   0,
                                                   0);
     
-    G4VisAttributes *vacWallVisAtt =
-    new G4VisAttributes(G4Colour(0.5, 0.5, 0.5,1.0));
-    //      vacWallVisAtt -> SetForceSolid(1);
-    vacWallVisAtt -> SetForceWireframe(1);
-    vacWallVisAtt -> SetVisibility(1);
-    wallLV -> SetVisAttributes(vacWallVisAtt);
-    
+    // Set the attributes
+    artg4::setVisAtts( wallLV, g.displayWall, g.wallColor,
+                      [] (G4VisAttributes* att) {
+                              att->SetForceWireframe(1);
+                              att->SetVisibility(1);
+                      }
+    );
+
     walls.push_back(wallLV);
     
   }
@@ -145,29 +149,32 @@ void gm2ringsim::VacuumChamber::makeVacuumPVs(
     
     G4UnionSolid* us = buildUnionSolid(g, g.vacuumRegion, arcNum);
     
+    std::string lvName = artg4::addNumberToName("VacuumChamberLV", arcNum);
+    
     G4LogicalVolume* vacLV = new G4LogicalVolume(
                                                  us,
                                                  artg4Materials::Vacuum(),
-                                                 "vacChamber",
+                                                 lvName.c_str(),
                                                  0,
                                                  0);
     
+
+    // Set the attributes
+    artg4::setVisAtts( vacLV, g.displayVac, g.vacColor,
+                      [] (G4VisAttributes* att) {
+                        att->SetForceWireframe(1);
+                        att->SetVisibility(1);
+                      }
+    );
+
     
-    G4VisAttributes *vacWallVisAtt =
-    new G4VisAttributes(G4Colour(0.5, 0.5, 0.5,1.0));
-    vacWallVisAtt -> SetForceWireframe(1);
-    vacWallVisAtt -> SetVisibility(1);
-    vacLV -> SetVisAttributes(vacWallVisAtt);
-    
-    std::ostringstream name;
-    name << "VacuumChamberRegion[" << std::setfill('0') << std::setw(2)
-    << arcNum << ']';
+    std::string pvName = artg4::addNumberToName("VacuumChamberPV", arcNum);
     
     // We can make the physical volumes here
     vacs.push_back( new G4PVPlacement(0,
                                       G4ThreeVector(),
                                       vacLV,
-                                      name.str().c_str(),
+                                      pvName.c_str(),
                                       walls[arcNum],
                                       false,
                                       0)
@@ -187,25 +194,30 @@ void gm2ringsim::VacuumChamber::makeTrackerPVs(
                                       g.ZachIsAwesome_Z,
                                       g.tracker_sphi,
                                       g.tracker_dphi);
+
+    std::string ttLVName = artg4::addNumberToName("TrackerLV", arc);
+    
     G4LogicalVolume *trackerTubs_L =
     new G4LogicalVolume(trackerTubs_S,
                         artg4Materials::Vacuum(),
-                        "trackerTubs");
+                        ttLVName.c_str());
     
-    std::ostringstream name;
-    name << "TrackerTubs[" << std::setfill('0') << std::setw(2) << arc << ']';
+    std::string ttPVName = artg4::addNumberToName("TrackerPV", arc);
+
     new G4PVPlacement(new G4RotationMatrix(0,0,0),
                                            G4ThreeVector(0,0,0),
                                            trackerTubs_L,
-                                           name.str().c_str(),
+                                           ttPVName.c_str(),
                                            vacs[arc] -> GetLogicalVolume(),
                                            false,
                                            0);
-    
-    G4VisAttributes *tcbVisAtt =
-    new G4VisAttributes(G4Colour(1,0,0,1.0));
-    tcbVisAtt -> SetForceSolid(1);
-    trackerTubs_L -> SetVisAttributes(tcbVisAtt);
+
+    // Set the attributes
+    artg4::setVisAtts( trackerTubs_L, g.displayTracker, g.trackerColor,
+                      [] (G4VisAttributes* att) {
+                        att->SetForceSolid(1);
+                      }
+    );
     
     // TODO - handle sensitive detectors
     //trackerSD *tracker = SDHandleOwner::getInstance().getTrackerSD();
@@ -224,20 +236,22 @@ void gm2ringsim::VacuumChamber::makeTrackerPVs(
       G4LogicalVolume *turnCounterTubs_L =
       new G4LogicalVolume(turnCounterTubs_S,
                           artg4Materials::Vacuum(),
-                          "turnCounterTubs");
+                          "turnCounterLV");
       
       new G4PVPlacement(new G4RotationMatrix(0,0,0),
                                             G4ThreeVector(0,0,0),
                                             turnCounterTubs_L,
-                                            "turnCounterTubs",
+                                            "turnCounterPV",
                                             vacs[arc] -> GetLogicalVolume(),
                                             false,
                                             0);
       
-      G4VisAttributes *tcbVisAtt = 
-      new G4VisAttributes(G4Colour(1,0,0,1.0));
-      tcbVisAtt -> SetForceSolid(1);
-      turnCounterTubs_L -> SetVisAttributes(tcbVisAtt); 
+      // Set the attributes
+      artg4::setVisAtts( turnCounterTubs_L, g.displayTurnCounter, g.turnCounterColor,
+                        [] (G4VisAttributes* att) {
+                          att->SetForceSolid(1);
+                        }
+      );
       
       // TODO - handle sensitive detectors
       //turnCounterSD *tcsd = SDHandleOwner::getInstance().getTurnCounterSD();
@@ -280,13 +294,13 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::VacuumChamber::doPlaceToPVs( std::v
   std::vector<G4VPhysicalVolume*> wallPVs;
   
   for (unsigned int i = 0; i < 12; ++i) {
-    std::ostringstream name;
-    name << "VacuumChamberWall[" << std::setfill('0') << std::setw(2) << i << ']';
+    
+    std::string wallName = artg4::addNumberToName("VacuumChamberWallPV", i);
     
     wallPVs.push_back(new G4PVPlacement(0,
                                       G4ThreeVector(),
                                       lvs()[i],
-                                      name.str().c_str(),
+                                      wallName.c_str(),
                                       arcsLVs[i],
                                       false,
                                       0)

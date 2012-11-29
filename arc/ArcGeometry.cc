@@ -12,7 +12,9 @@ gm2ringsim::ArcGeometry::ArcGeometry(std::string const & detName) :
   arc11_rExtension( p.get<double>("arc11_rExtension") * mm),
   arc_z(            p.get<double>("arc_z")            * mm),
   arc_Sphi(         p.get<double>("arc_Sphi")         * deg),
-  arc_Dphi(         p.get<double>("arc_Dphi")         * deg)
+  arc_Dphi(         p.get<double>("arc_Dphi")         * deg),
+  display(          p.get<bool>("display")),
+  arcColor(         p.get<std::vector<double>>("arcColor"))
   {}
 
 void gm2ringsim::ArcGeometry::print() const {
