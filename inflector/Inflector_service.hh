@@ -56,7 +56,7 @@ namespace gm2ringsim {
         Inflector(fhicl::ParameterSet const &, art::ActivityRegistry & );
 
         // We always need a virtual destructor
-        virtual ~Inflector() {};
+      virtual ~Inflector() ;
 
       /** Sets the downstream aperture position in the azimuthal                
 	  direction. */
@@ -107,7 +107,7 @@ namespace gm2ringsim {
       /** Sets the number of inflector beam aperture tracking volumes. */
       void NumTrackers(G4int n);
       /** Gets the number of inflector beam aperture tracking volumes. */
-      G4int NumTrackers() const { return num_trackers_; }
+      G4int NumTrackers() const ; //return num_trackers_; }
       
       /** Sets the magnetic field model.
 	  Options are "vanishing/none", "simple" or uniform, and "mapped"
