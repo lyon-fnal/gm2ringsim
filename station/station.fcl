@@ -1,0 +1,10 @@
+// Station geometry
+BEGIN_PROLOG
+
+station_geom : {
+  // Dimensions for the stations
+ r: 210
+ v: 150
+ t: 150
+}
+END_PROLOG
