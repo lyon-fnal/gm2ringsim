@@ -5,6 +5,7 @@
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 
 #include "artg4/material/Materials.hh"
+#include "artg4/util/util.hh"
 
 #include "gm2ringsim/arc/ArcGeometry.hh"
 
@@ -35,17 +36,19 @@ G4LogicalVolume* gm2ringsim::Arc::makeAnArcLV(gm2ringsim::ArcGeometry const & g,
                              g.arc_rMax + extension,
                              g.arc_z, g.arc_Sphi, g.arc_Dphi );
   
+  // Give it a name
+  std::string arcName = artg4::addNumberToName("ArcSection", arcNum);
+  
   // Make the logical volume
   G4LogicalVolume* arc_L = new G4LogicalVolume(arc_S,
                                                artg4Materials::Vacuum(),
-                                               "ArcSection"
+                                               arcName.c_str()
                                                // ADD SPIN HERE
                                                );
   
   // Set visualization
-  auto *ArcVisAtt = new G4VisAttributes(0);
-  arc_L -> SetVisAttributes(ArcVisAtt);
-  
+  artg4::setVisAtts( arc_L, g.display, g.arcColor );
+    
   return arc_L;
 }
 

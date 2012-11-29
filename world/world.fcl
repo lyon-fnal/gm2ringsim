@@ -5,5 +5,8 @@ world_geom : {
   world_x: 14000
   world_y: 3500
   world_z: 11000
+  
+  display : true
+  worldColor : [ 1.0, 1.0, 1.0, 1.0 ]
 }
 END_PROLOG

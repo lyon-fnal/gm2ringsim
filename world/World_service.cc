@@ -6,11 +6,13 @@
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 
 #include "artg4/material/Materials.hh"
+#include "artg4/util/util.hh"
 
 #include "Geant4/G4Box.hh"
 #include "Geant4/G4VisAttributes.hh"
 #include "Geant4/G4Colour.hh"
 #include "Geant4/G4PVPlacement.hh"
+
 
 
 // Constructor for the service 
@@ -37,8 +39,7 @@ std::vector<G4LogicalVolume *> gm2ringsim::World::doBuildLVs() {
   G4LogicalVolume* world_lv = new G4LogicalVolume(world_solid, artg4Materials::Air(), myName() );
   
   // Set visualization attributes
-  G4VisAttributes* worldVisAtt = new G4VisAttributes(G4Colour(1.0, 1.0, 1.0));
-  world_lv->SetVisAttributes(worldVisAtt);
+  artg4::setVisAtts(world_lv, g.display, g.worldColor);
  
   // Make a vector with first element and return it
   return std::vector<G4LogicalVolume*> {world_lv};
