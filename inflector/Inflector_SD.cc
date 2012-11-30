@@ -16,7 +16,7 @@
 #include "Geant4/G4LorentzVector.hh"
 
 #include "gm2ringsim/inflector/inflectorHit.hh"
-#include "gm2ringsim/inflector/inflectorSD.hh"
+#include "gm2ringsim/inflector/inflector_SD.hh"
 //FIXME: Need to include the eventAction #include "eventAction.hh"
 
 inflectorSD::inflectorSD(G4String name) : 

@@ -97,14 +97,14 @@ physics: {
      //     afterEvent : ui   
      afterEvent: pause
 
-  }
+   }
+ }
 
   path1: [ artg4Main ]
   stream1:  [ out1 ]
 
   trigger_paths: [ path1 ]
   end_paths: [ stream1 ]
+
 }
 
-// Override Arc display
-services.user.Geometry.arc.display : true
