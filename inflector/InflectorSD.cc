@@ -1,7 +1,7 @@
-/** @file inflectorSD.cc
+/** @file InflectorSD.cc
 
-    Provides the member implementations of the inflectorSD and
-    inflectorSDMessenger classes.
+    Provides the member implementations of the InflectorSD and
+    InflectorSDMessenger classes.
 
     @author Kevin Lynch
     @date 2009
@@ -16,13 +16,13 @@
 #include "Geant4/G4LorentzVector.hh"
 
 #include "gm2ringsim/inflector/inflectorHit.hh"
-#include "gm2ringsim/inflector/inflector_SD.hh"
+#include "gm2ringsim/inflector/InflectorSD.hh"
 //FIXME: Need to include the eventAction #include "eventAction.hh"
 
-inflectorSD::inflectorSD(G4String name) : 
+InflectorSD::InflectorSD(G4String name) : 
   G4VSensitiveDetector( name ),
   printLevel(0), drawLevel(0),
-  tsdm_(new inflectorSDMessenger(this)) {
+  tsdm_(new InflectorSDMessenger(this)) {
   collectionName.insert( name );
 
   // Register with SDManager
@@ -34,10 +34,10 @@ inflectorSD::inflectorSD(G4String name) :
 // The destructor will never be called during the run of the program,
 // as SDs are never removed from the SDManager during the lifetime of
 // the program.
-inflectorSD::~inflectorSD(){
+InflectorSD::~InflectorSD(){
 }
 
-void inflectorSD::Initialize(G4HCofThisEvent* HCoTE){
+void InflectorSD::Initialize(G4HCofThisEvent* HCoTE){
 
   thisHC = new inflectorHitsCollection
     ( SensitiveDetectorName, collectionName[0]);
@@ -45,14 +45,14 @@ void inflectorSD::Initialize(G4HCofThisEvent* HCoTE){
   G4int const thisHCID = 
       G4SDManager::GetSDMpointer()->GetCollectionID(thisHC);
 
-  //  G4cout << "In inflectorSD::Initialize():\n";
+  //  G4cout << "In InflectorSD::Initialize():\n";
   //  G4cout << (int)thisHC << ' ' << thisHCID << '\n';
 
   // Add to HCoTE
   HCoTE->AddHitsCollection( thisHCID, thisHC );
 }
 
-G4bool inflectorSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){ 
+G4bool InflectorSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){ 
 
   if( thisStep->GetPreStepPoint()->GetPhysicalVolume() ==
       thisStep->GetPostStepPoint()->GetPhysicalVolume() )
@@ -65,7 +65,7 @@ G4bool inflectorSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){
 
 
 
-void inflectorSD::EndOfEvent(G4HCofThisEvent*) {
+void InflectorSD::EndOfEvent(G4HCofThisEvent*) {
   G4int n = thisHC->entries();
   
   // Output junk ...
@@ -87,13 +87,13 @@ void inflectorSD::EndOfEvent(G4HCofThisEvent*) {
 
 
 
-G4int inflectorSD::PrintLevel(G4int newLevel){
+G4int InflectorSD::PrintLevel(G4int newLevel){
   G4int temp = printLevel;
   printLevel = newLevel;
   return temp;
 }
 
-G4int inflectorSD::DrawLevel(G4int newLevel){
+G4int InflectorSD::DrawLevel(G4int newLevel){
   G4int temp = drawLevel;
   drawLevel = newLevel;
   return temp;
@@ -104,23 +104,23 @@ G4int inflectorSD::DrawLevel(G4int newLevel){
 //////////////////////////////////
 //////////////////////////////////
 
-inflectorSDMessenger::inflectorSDMessenger(inflectorSD *tsd) :
+InflectorSDMessenger::InflectorSDMessenger(InflectorSD *tsd) :
   tsd_(tsd) {
 
   topdir_ = new G4UIdirectory("/g2MIGTRACE/hits/");
   topdir_->SetGuidance("g2MIGTRACE specific control of Sensitive Detectors");
 
-  dir_ = new G4UIdirectory("/g2MIGTRACE/hits/inflectorSD/");
+  dir_ = new G4UIdirectory("/g2MIGTRACE/hits/InflectorSD/");
   dir_->SetGuidance("g2MIGTRACE specific control of tracking detectors");
 
   printLevelCmd_ = 
-    new G4UIcmdWithAnInteger("/g2MIGTRACE/hits/inflectorSD/printLevel", this);
+    new G4UIcmdWithAnInteger("/g2MIGTRACE/hits/InflectorSD/printLevel", this);
   printLevelCmd_->SetGuidance("Modify the print verbosity; 0 gives no output, greater than 0 gives printed output");
   printLevelCmd_->SetParameterName("Verbosity", true);
   printLevelCmd_->AvailableForStates(G4State_PreInit,G4State_Idle);
 
   drawLevelCmd_ = 
-    new G4UIcmdWithAnInteger("/g2MIGTRACE/hits/inflectorSD/drawLevel", this);
+    new G4UIcmdWithAnInteger("/g2MIGTRACE/hits/InflectorSD/drawLevel", this);
   drawLevelCmd_->SetGuidance("Modify the drawing verbosity; 0 gives no output, greater than 0 gives hit output");
   drawLevelCmd_->SetParameterName("Verbosity", true);
   drawLevelCmd_->AvailableForStates(G4State_PreInit,G4State_Idle);
@@ -128,13 +128,13 @@ inflectorSDMessenger::inflectorSDMessenger(inflectorSD *tsd) :
 }
 
 
-inflectorSDMessenger::~inflectorSDMessenger(){
+InflectorSDMessenger::~InflectorSDMessenger(){
   delete drawLevelCmd_;
   delete printLevelCmd_;
   delete dir_;
 }
 
-void inflectorSDMessenger::SetNewValue(G4UIcommand* cmd, G4String newval){ 
+void InflectorSDMessenger::SetNewValue(G4UIcommand* cmd, G4String newval){ 
   
   if( cmd == printLevelCmd_ ){
     if( 0 == newval.size() )

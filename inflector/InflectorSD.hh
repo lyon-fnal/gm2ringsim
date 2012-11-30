@@ -1,10 +1,10 @@
 #ifndef G2MIGTRACE_INFLECTORSD_HH
 #define G2MIGTRACE_INFLECTORSD_HH
 
-/** @file inflectorSD.hh
+/** @file InflectorSD.hh
 
     Provides declaration of a tracking sensitive detector,
-    inflectorSD, and a controlling messenger, inflectorSDMessenger. 
+    InflectorSD, and a controlling messenger, InflectorSDMessenger. 
 
     @author Kevin Lynch
     @date 2009
@@ -15,15 +15,15 @@
 #include "Geant4/G4HCofThisEvent.hh"
 #include "gm2ringsim/inflector/inflectorHit.hh"
 
-class inflectorSDMessenger;
+class InflectorSDMessenger;
 
 /** A sensitive detector similar to the trackerSD for tracking of
     particles inside the inflector beam aperture. */
-class inflectorSD : public G4VSensitiveDetector{
+class InflectorSD : public G4VSensitiveDetector{
 
 public:
-  inflectorSD(G4String name);
-  ~inflectorSD();
+  InflectorSD(G4String name);
+  ~InflectorSD();
   
   void Initialize(G4HCofThisEvent*);
   G4bool ProcessHits(G4Step*, G4TouchableHistory*);
@@ -39,7 +39,7 @@ private:
 
   G4int printLevel, drawLevel;
 
-  inflectorSDMessenger *tsdm_;
+  InflectorSDMessenger *tsdm_;
 };
 
 
@@ -48,23 +48,23 @@ private:
 #include "Geant4/G4UIdirectory.hh"
 #include "Geant4/G4UIcmdWithAnInteger.hh"
 
-/** A G4UImessenger interface to control the inflectorSD sensitive
+/** A G4UImessenger interface to control the InflectorSD sensitive
     detector class. 
 
     Provides the following commands:
-    - /g2MIGTRACE/hits/inflectorSD/printLevel
-    - /g2MIGTRACE/hits/inflectorSD/drawLevel
+    - /g2MIGTRACE/hits/InflectorSD/printLevel
+    - /g2MIGTRACE/hits/InflectorSD/drawLevel
 */
-class inflectorSDMessenger : public G4UImessenger {
+class InflectorSDMessenger : public G4UImessenger {
 
 public:
-  inflectorSDMessenger(inflectorSD *tsd);
-  ~inflectorSDMessenger();
+  InflectorSDMessenger(InflectorSD *tsd);
+  ~InflectorSDMessenger();
 
   void SetNewValue(G4UIcommand*,G4String);
 
 private:
-  inflectorSD *tsd_;
+  InflectorSD *tsd_;
 
   G4UIdirectory *topdir_;
   G4UIdirectory *dir_;

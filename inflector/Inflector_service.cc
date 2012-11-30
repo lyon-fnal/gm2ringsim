@@ -48,6 +48,7 @@
 
 #include "gm2ringsim/inflector/inflectorField.hh"
 #include "gm2ringsim/inflector/inflectorGeometry.hh"
+#include "gm2ringsim/inflector/Inflector_SD.hh"
 
 #include "gm2ringsim/common/g2PreciseValues.hh"
 
@@ -668,7 +669,10 @@ void gm2ringsim::Inflector::buildSensitiveDetectors(){
   SDman->ListTree();
   
   
+  G4String inflectorSDname = "InflectorSD";
+  InflectorSD* anInflectorSD = new InflectorSD(inflectorSDname);
   
+  SDman->AddNewDetector( anInflectorSD );
   
   
   /*
