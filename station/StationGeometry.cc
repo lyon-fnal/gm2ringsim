@@ -27,15 +27,11 @@ gm2ringsim::StationGeometry::StationGeometry(std::string const & detName) :
   for (auto& entry : theta_c ) { entry *= deg; }
     
   //Derived quantities
-  std::vector<double> theta_in;
-  std::vector<double> theta_c;
-  
-  theta_in[0] = theta_out[0] - 0.12*deg;
-  theta_in[1] = theta_out[1] - 0.12*deg;
-		
-  theta_c[0] = (theta_in[0] + theta_out[0])/2;
-  theta_c[1] = (theta_in[1] + theta_in[1])/2;
-  
+ 
+  for (unsigned int i = 0; i < 2; ++i ) {
+    theta_in[i] = (theta_out[i] - 0.12*deg);
+    theta_c[i] = (theta_in[i] + theta_out[i])/2;
+  }
 }
 
 void gm2ringsim::StationGeometry::print() {
@@ -47,6 +43,19 @@ void gm2ringsim::StationGeometry::print() {
 	oss << "  r_in=" << r_in << "\n";
 	oss << "  r_out=" << r_out << "\n";
 	oss << "  r_c=" << r_c << "\n";
+  
+  oss << "  window_angle=" << window_angle << "\n";
+  
+  oss << "  theta_out= "; for (auto entry : theta_out) { oss << " " << entry; }; oss << "\n";
+  oss << "  theta_in= "; for (auto entry : theta_in) { oss << " " << entry; }; oss << "\n";
+  oss << "  theta_c= "; for (auto entry : theta_c) { oss << " " << entry; }; oss << "\n";
+  
+  oss << "  t_offset=" << t_offset <<"\n";
+  oss << "  r_offset="<< r_offset << "\n";
+  oss << "  v_offset" << v_offset << "\n";
+  oss << "  t_rotation" << t_rotation << "\n";
+  oss << "  r_rotation" << r_rotation << "\n";
+  oss << "  v_rotation" << v_rotation << "\n";
 
 	
   mf::LogInfo("STATIONGEOMETRY") << oss.str();

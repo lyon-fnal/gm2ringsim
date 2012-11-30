@@ -3,6 +3,7 @@
 #include "geom/vac.fcl"
 #include "geom/inflector.fcl"
 #include "geom/station.fcl"
+
 process_name:myProcessName
 
 source: {
@@ -63,7 +64,7 @@ services: {
     Arc: {}
     VacuumChamber: {}
     Inflector:{}	
-    Station:{}
+    Station: {}
 	   
     PrimaryGeneratorAction: {
             name: "primary"	

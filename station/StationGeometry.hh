@@ -33,8 +33,8 @@ namespace gm2ringsim{
 
     //Derived constants
     double r_c;
-    std::vector<double> theta_in;
-    std::vector<double> theta_c;
+    double theta_in[2];
+    double theta_c[2];
     
   };
 

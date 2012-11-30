@@ -32,9 +32,9 @@ G4LogicalVolume* gm2ringsim::Station::makeStationLV(const StationGeometry& sg) {
                                                    artg4Materials::Vacuum(),
                                                    "station_L"
                                                    );
-  auto *StationVisAtt = new G4VisAttributes(0);
+  auto *StationVisAtt = new G4VisAttributes(G4Colour(0.5, 0.5, 1.5,1.0));
   station_L -> SetVisAttributes(StationVisAtt);
-  
+
   return station_L;
   
 }
@@ -78,6 +78,12 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Station::doPlaceToPVs( std::vector<
     G4ThreeVector window_edge(sg.r_out*std::cos(sg.theta_out[ stationNum % 2 ]),
                               sg.r_out*std::sin(sg.theta_out[ stationNum % 2 ]),
                               0.);
+    
+    std::cout<<"station number: "<<stationNum<<std::endl;
+    std::cout<<"theta_out[0]"<<sg.theta_out[0]<<std::endl;
+    std::cout<<"theta_in[0]"<<sg.theta_in[0]<<std::endl;
+    std::cout<<"theta_in[stationNum%2]: "<<sg.theta_in[ stationNum %2]<<std::endl;
+    
     G4ThreeVector unit_along(std::cos(sg.theta_in[ stationNum % 2 ] + sg.window_angle),
                              std::sin(sg.theta_in[ stationNum % 2 ] + sg.window_angle),
                              0.);
@@ -116,14 +122,14 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Station::doPlaceToPVs( std::vector<
     G4RotationMatrix *rot = new G4RotationMatrix(0,
                                                  0,
                                                  sg.theta_in[ stationNum % 2 ] + sg.window_angle - sg.v_rotation);
-    
+    std::cout<<"which arc? " << floor(stationNum/2)<<std::endl;
     stationPVs.push_back(
                      new G4PVPlacement(
                                        rot,
                                        pos,
                                        aStationLV,
                                        stationLabel,
-                                       arcs[ floor(stationNum/2)]->GetDaughter(0)->GetLogicalVolume(),
+                                       arcs[ floor(stationNum/2) ],
                                        false,
                                        0
                                        )
