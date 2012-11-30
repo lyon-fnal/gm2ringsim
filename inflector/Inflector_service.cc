@@ -43,6 +43,8 @@
 #include "Geant4/G4UserLimits.hh"
 #include "Geant4/G4UImanager.hh"
 #include "Geant4/G4UniformMagField.hh"
+#include "Geant4/G4SDManager.hh"
+
 
 #include "gm2ringsim/inflector/inflectorField.hh"
 #include "gm2ringsim/inflector/inflectorGeometry.hh"
@@ -147,17 +149,20 @@ std::vector<G4LogicalVolume *> gm2ringsim::Inflector::doBuildLVs() {
   // Get the pointer to the vacChamber section that contains the inflector
 
   //Build all the solids and logicals used in the inflector
-  BuildCore_SandL();
-  BuildPeripherals_SandL();
+  buildCore_SandL();
+  buildPeripherals_SandL();
   // Build the inflector cryostat walls.  These are essentially
   // volumes that separate the "inflector chamber" from the storage
   // vacuum chamber.
-  BuildCryostatWalls();
-  
+  buildCryostatWalls_SandL();
+
+  // Build the sensitive detectors for all logical volumes created above
+  buildSensitiveDetectors();
   
   
   sts_.print();
   infGeom_.print();
+  getInflectorInfo();
   std::cout<<"spin tracking enabled is :"<<spin_tracking_<<std::endl;
   std::vector<G4LogicalVolume *> l_inflector;
   return l_inflector;
@@ -168,27 +173,26 @@ std::vector<G4LogicalVolume *> gm2ringsim::Inflector::doBuildLVs() {
 std::vector<G4VPhysicalVolume *> gm2ringsim::Inflector::doPlaceToPVs( std::vector<G4LogicalVolume*> mother) {
   //  vacPTR = VacH.at(vacuumInflectorSection);
   vacPTR_ = mother.at(vacuumInflectorSection_);
-  // FIXME Do I actually need vacPTR_ set before I build one of the logical volumes??
   
   // Build the inflector physical volumes
-  BuildInflector() ;//mother);
-  BuildCryostatWalls();
-
+  buildInflector() ;//mother);
+  buildCryostatWalls();
+  
   // Build volumes for tracking in the aperture
-  BuildTrackingVolumes();
+  buildTrackingVolumes();
 
   // Automatically create the macros used by the g2GeneralParticleSource
-  GenerateGPSMacros();
+  generateGPSMacros();
 
   // Build the field
-  BuildInflectorField();
+  buildInflectorField();
 
   std::vector<G4VPhysicalVolume *> p_inflector;
   return p_inflector;
 
 }
 
-void gm2ringsim::Inflector::BuildCore_SandL() {
+void gm2ringsim::Inflector::buildCore_SandL() {
   
   G4VSolid *inflector_S = new G4Box("inflector_S",
 				     infGeom_.inflector_X,
@@ -261,7 +265,7 @@ void gm2ringsim::Inflector::BuildCore_SandL() {
 
 // Create the solids and logicals that physically bracket the
 // inflector mandrel upstream (US) and downstream (DS)
-void gm2ringsim::Inflector::BuildPeripherals_SandL(){
+void gm2ringsim::Inflector::buildPeripherals_SandL(){
 
   G4VSolid *window_S =  new G4Box("window_S", 
 				  infGeom_.window_X, 
@@ -456,12 +460,9 @@ void gm2ringsim::Inflector::BuildPeripherals_SandL(){
   launchVisAtt -> SetForceWireframe(1);
   launchRegion_L_ -> SetVisAttributes(launchVisAtt);
     
-
-
 }
 
-void gm2ringsim::Inflector::BuildInflector( ) {//std::vector<G4LogicalVolume*> mother){
-    //mother.at(0);
+void gm2ringsim::Inflector::buildInflector( ) { 
   
   // "inflector_S/L/P" volumes act as an imaginary "wrapper" for all
   // the daughter volumes that make up the inflector.  It's dimensions
@@ -486,7 +487,7 @@ void gm2ringsim::Inflector::BuildInflector( ) {//std::vector<G4LogicalVolume*> m
 					  inflector_L_,
 					  false,
 					  0);
-
+  
   beamChannel_P_ = new G4PVPlacement(0,
 				     G4ThreeVector(0., 0., infGeom_.beamChannel_offset),
 				     beamChannel_L_,
@@ -605,9 +606,9 @@ void gm2ringsim::Inflector::BuildInflector( ) {//std::vector<G4LogicalVolume*> m
 
 
   
-} //Inflector::BuildInflector() 
+} //Inflector::buildInflector() 
 
-void gm2ringsim::Inflector::BuildCryostatWalls_SandL(){
+void gm2ringsim::Inflector::buildCryostatWalls_SandL(){
   G4VSolid *parallelCryoWall_S = new G4Box("parallelCryoWall_S",
 					   infGeom_.parWall_X,
 					   infGeom_.parWall_Y,
@@ -619,8 +620,6 @@ void gm2ringsim::Inflector::BuildCryostatWalls_SandL(){
 					    0,
 					    0,
 					    0);
-  
-  
   
   G4VSolid *perpCryoWall_S = new G4Box("perpCryoWall_S",
 				       infGeom_.perpWall_X,
@@ -649,11 +648,10 @@ void gm2ringsim::Inflector::BuildCryostatWalls_SandL(){
 					0,
 					0);
   
-  
-  
   G4VisAttributes *cryoVisAtt =
     new G4VisAttributes(G4Colour(0.8,0.8,0.8,1.0));
   cryoVisAtt -> SetForceSolid(1);
+  
   parallelCryoWall_L_->SetVisAttributes(cryoVisAtt);
   perpCryoWall_L_->SetVisAttributes(cryoVisAtt);
   
@@ -663,48 +661,175 @@ void gm2ringsim::Inflector::BuildCryostatWalls_SandL(){
       perpCryoWall_L->SetSensitiveDetector(ring);
   */
   
-} //Inflector::BuildCryostatWalls_SandL() 
+} //Inflector::buildCryostatWalls_SandL() 
+
+void gm2ringsim::Inflector::buildSensitiveDetectors(){
+  G4SDManager* SDman = G4SDManager::GetSDMpointer();
+  SDman->ListTree();
+  
+  
+  
+  
+  /*
+  G4String trackerChamberSDname = "ExN02/TrackerChamberSD";
+  ExN02TrackerSD* aTrackerSD = new ExN02TrackerSD( trackerChamberSDname );
+  
+
+  SDman->AddNewDetector( aTrackerSD );
+  logicChamber->SetSensitiveDetector( aTrackerSD );
+  */
+} //Inflector::buildSensitiveDetectors()
+
 
 // Build the Cryostat Physical Volumes
-void gm2ringsim::Inflector::BuildCryostatWalls(){
+void gm2ringsim::Inflector::buildCryostatWalls(){
   std::cout<<"About to try to build the CryostatWalls\n";
-  /*parallelCryoWall_P_ = new G4PVPlacement(new G4RotationMatrix(0,0,0),
-					  G4ThreeVector(0,0,0),//new G4RotationMatrix(infGeom_.parWall_alpha,
-					  //		       infGeom_.parWall_beta,
-					  //		       infGeom_.parWall_gamma),
-					  //0,//G4ThreeVector(infGeom_.parWall_posX, 
-					  //		infGeom_.parWall_posY,
-					  //		infGeom_.parWall_posZ),
+  parallelCryoWall_P_ = new G4PVPlacement(new G4RotationMatrix(infGeom_.parWall_alpha,      
+					  		       infGeom_.parWall_beta,
+					  		       infGeom_.parWall_gamma),
+					  G4ThreeVector(infGeom_.parWall_posX, 
+					  		infGeom_.parWall_posY,
+					  		infGeom_.parWall_posZ),
 					  parallelCryoWall_L_,
 					  "ParallelCryostatWall",
 					  vacPTR_, 
 					  false,
 					  0);
-  */
+  
   perpCryoWall_P_ = new G4PVPlacement(new G4RotationMatrix(infGeom_.perpWall_alpha,
 							   infGeom_.perpWall_beta,
 							   infGeom_.perpWall_gamma),
 				      G4ThreeVector(infGeom_.perpWall_posX,
-						   infGeom_.perpWall_posY,
-						   infGeom_.perpWall_posZ),
+						    infGeom_.perpWall_posY,
+						    infGeom_.perpWall_posZ),
 				      perpCryoWall_L_,
 				      "PerpendicularCryostatWall",
 				      vacPTR_, 
 				      false,
 				      0);
   
+} // Inflector::buildCryostatWalls()
+
+void gm2ringsim::Inflector::buildTrackingVolumes(){
+  if(num_trackers_ < 2)
+    return;
+  G4Transform3D const 
+    joinBeamChannels(G4RotationMatrix(0,0,0),
+		     G4ThreeVector(0,0,-infGeom_.beamChannel2_offset));
+  
+  // FIXME: Need to ARTIZE this
+  //inflectorSD *infSD = SDHandleOwner::getInstance().getInflectorSD();
+  
+  std::ostringstream name;
+  
+  G4VisAttributes *tcbVisAtt = 
+    new G4VisAttributes(G4Colour(1,0,0,1.0));
+  tcbVisAtt -> SetForceSolid(1);  
+  
+  for(int i=0; i!=num_trackers_; ++i){
+    name.str("");
+    name << "InflectorTracker1_S["
+	 << std::setfill('0') 
+	 << std::setw(2)
+	 << i
+	 << "]";
+    G4Box *tbox = new G4Box(name.str().c_str(),
+			    infGeom_.beamChannel1_X,
+			    infGeom_.trackerThickness/2,
+			    infGeom_.beamChannel1_Z);
+    
+    
+    name.str(""); 
+    name << "InflectorTracker2_S["
+	 << std::setfill('0') 
+	 << std::setw(2)
+	 << i
+	 << "]";
+    G4Trd *ttrd = new G4Trd(name.str().c_str(),
+			    infGeom_.beamChannel2_X1, 
+			    infGeom_.beamChannel2_X2,
+			    infGeom_.trackerThickness/2,
+			    infGeom_.trackerThickness/2,
+			    infGeom_.beamChannel2_Z);
+        
+    name.str("");
+    name << "InflectorTracker_S["
+	 << std::setfill('0') 
+	 << std::setw(2)
+	 << i 
+	 << "]";
+    G4UnionSolid *sol = new G4UnionSolid(name.str().c_str(),
+					 tbox,
+					 ttrd,
+					 joinBeamChannels);
+
+    name.str("");
+    name << "InflectorTracker_L["
+	 << std::setfill('0') 
+	 << std::setw(2)
+	 << i
+	 << "]";
+
+    G4LogicalVolume *log = 
+      new G4LogicalVolume(sol,
+			  artg4Materials::Vacuum(),
+			  name.str().c_str(),
+			  inflectorFieldManager_,
+			  0,
+			  0);
+    log -> SetVisAttributes(tcbVisAtt);
+
+    // FIXME: Artize    log -> SetSensitiveDetector(infSD);
+
+    name.str("");
+    name << "InflectorTracker["
+	 << std::setfill('0') 
+	 << std::setw(2)
+	 << i
+	 << "]";
+    G4double const tIML = infGeom_.ig.mandrel_length() - infGeom_.trackerThickness;
+    G4PVPlacement *place =
+      new G4PVPlacement(0,
+			G4ThreeVector(0.,
+				      // i*tIML/(num_trackers-1) -tIML/2., 
+				      - i*tIML/(infGeom_.num_trackers-1) 
+				      + tIML/2., 
+				      0),
+			log,
+			name.str().c_str(),
+			beamChannel_L_,
+			false,
+			0);
+    
+    // FIXME: ARTize : tracker_physicals.push_back(place);
+    place->GetCopyNo(); // temporary to compile (cannot compile if place is unused)
+    //FIXME: place->GetCopyNo() can be removed
+  }
+  
  }
 
-void gm2ringsim::Inflector::BuildTrackingVolumes(){ }
-void gm2ringsim::Inflector::RebuildInflector(){ }
-void gm2ringsim::Inflector::DeleteInflector(){ }
+void gm2ringsim::Inflector::buildInflectorField(){
+  // There are THREE things we have to be concerned about here:
+  // 1) If we change something that affects the field (geometry, field
+  // normalization, etc.) we have to rebuild the Field instances, and
+  // hence the EOM, and reassign the FieldManager
+  // 2) If we change GEOMETRY, we will have to update the field, but
+  // we may NOT want to rebuild the underlying Field code (think of
+  // the mappedField implementation, which has to load around 30M of
+  // data files...
+  // 3) If we change ONLY the spin evolution, we have to rebuild the
+  // EOM and reassign the FieldManager
+  
+  rebuildFieldImpl();
+  rebuildEOM();
+  assignFieldManager();
 
-void gm2ringsim::Inflector::BuildInflectorField(){ }
+ }
 
 /** @bug There should be some more indirection to enable simple
     rebuild of the field without reload of the field maps, which are
     f'ing big text files. */
-void gm2ringsim::Inflector::RebuildFieldImpl(){
+void gm2ringsim::Inflector::rebuildFieldImpl(){
   if( inflectorMagField_ ){
     delete inflectorMagField_;
   }
@@ -720,7 +845,7 @@ void gm2ringsim::Inflector::RebuildFieldImpl(){
     inflectorMagField_ = new mappedInflectorField();
     break;
   default:
-    G4cout << "An improper Inflector Field was set in Inflector::RebuildFieldImpl()!!\n";
+    G4cout << "An improper Inflector Field was set in Inflector::rebuildFieldImpl()!!\n";
   }
   
  }
@@ -728,7 +853,7 @@ void gm2ringsim::Inflector::RebuildFieldImpl(){
 
 //FIXME: Do we really need to rebuild? Let's make spin_tracking_ a const and 
 //        avoid all of these rebuilds...
-void gm2ringsim::Inflector::RebuildEOM(){
+void gm2ringsim::Inflector::rebuildEOM(){
 
   if( iEquation_ )
     delete iEquation_;
@@ -736,7 +861,7 @@ void gm2ringsim::Inflector::RebuildEOM(){
     delete iStepper_;
   if( iChordFinder_ )
     delete iChordFinder_;
-
+  
   // Create the equations of motion                                             
   if( !spin_tracking_ ){
     iEquation_ = new G4Mag_UsualEqRhs(inflectorMagField_);
@@ -747,67 +872,164 @@ void gm2ringsim::Inflector::RebuildEOM(){
   }
   // Create the chord finder that calculates curved trajectories                
   iChordFinder_ = new G4ChordFinder(inflectorMagField_,
-                                   .01*mm, iStepper_);
+				    .01*mm, iStepper_);
+  
+} // END rebuildEOM()
 
-} // END RebuildEOM()
-
-void gm2ringsim::Inflector::AssignFieldManager(){
+void gm2ringsim::Inflector::assignFieldManager(){
   inflectorFieldManager_ -> SetDetectorField(inflectorMagField_);
   inflectorFieldManager_ -> SetChordFinder(iChordFinder_);
   inflector_L_ ->SetFieldManager(inflectorFieldManager_, true);
   launchRegion_L_ ->SetFieldManager(launchFieldManager_, true);
 }
 
-/** Sets the downstream aperture position in the azimuthal direction. */
-void gm2ringsim::Inflector::setAperturePosition(G4double){ }
-/** Set the radial position of the downstream aperture. */
-void gm2ringsim::Inflector::setApertureDistance(G4double){ }
-/** Sets the vertical tilt angle of the inflector relative to the
-    symmetry plane of the ring. */
-void gm2ringsim::Inflector::setInflectorTiltAngle(G4double){ }
-/** Sets the horizontal swing angle of the inflector axis relative
-    to the ring tangent. */
-void gm2ringsim::Inflector::setInflectorSwingAngle(G4double){ }
-	     
-/** @bug Doesn't actually do anything useful, since we don't model
-    anything but an "average" plate.                                        
-*/
-void gm2ringsim::Inflector::setConductorModelType(G4String){ }
-/** Sets the upstream end (window, conductor, and flange)
-    open/closed. */
-void gm2ringsim::Inflector::setUpstreamEndType(G4String){ }
-/** Sets the downstream end (window, conductor, and flange)
-    open/closed. */
-void gm2ringsim::Inflector::setDownstreamEndType(G4String){ }
-/** Sets the presence of the upstream window. */
-void gm2ringsim::Inflector::setUpstreamWindow(G4String){ }
-/** Sets the presence of the upstream conductor. */
-void gm2ringsim::Inflector::setUpstreamConductor(G4String){ }
-/** Sets the presence of the upstream end flange. */
-void gm2ringsim::Inflector::setUpstreamEndFlange(G4String){ }
-/** Sets the presence of the downstream window. */
-void gm2ringsim::Inflector::setDownstreamWindow(G4String){ }
-/** Sets the presence of the downstream conductor. */
-void gm2ringsim::Inflector::setDownstreamConductor(G4String){ }
-/** Sets the presence of the downstream end flange. */
-void gm2ringsim::Inflector::setDownstreamEndFlange(G4String){ }
 
-/** Sets the field strength by setting the conductor current.
-    @bug I don't think this does anything at all.                           
-*/
-void gm2ringsim::Inflector::setConductorCurrent(G4double){ }
-/** Sets the normalization constant that converts between conductor
-    current and nominal central field value.
-    @bug I don't think this does anything at all.                           
-*/
-void gm2ringsim::Inflector::setFieldNormalizationConstant(G4double){ }
 /** Prints inflector status information. */
-void gm2ringsim::Inflector::getInflectorInfo(){ }
+void gm2ringsim::Inflector::getInflectorInfo(){
+  
+  
+  G4cout << "\n\n\t\t        Inflector Information\n"
+	 << "    -------------------------------------------------------------\n\n";
+
+  G4cout<< std::setw(40) << "The Upstream Inflector End is:"
+	<< std::setw(20);
+  if(useUpstreamWindow_ && useUpstreamConductor_ && useUpstreamEndFlange_) 
+    G4cout << "COMPLETELY CLOSED\n";
+  else if(!useUpstreamWindow_ && !useUpstreamConductor_ && !useUpstreamEndFlange_) 
+    G4cout << "COMPLETELY OPEN\n";
+  else
+    G4cout << "PARTIALLY CLOSED\n";
+
+  G4cout<< std::setw(40) << "The Aluminum Window is:"
+	<< std::setw(20);
+  if(useUpstreamWindow_) 
+    G4cout << "ON\n";
+  else 
+    G4cout << "OFF\n";
+
+  G4cout << std::setw(40) << "The Superconductor is:"
+	 << std::setw(20);
+  if(useUpstreamConductor_)
+    G4cout << "ON\n";
+  else 
+    G4cout << "OFF\n";
+
+ G4cout << std::setw(40) << "The Aluminum End Flange is:"
+	 << std::setw(20);
+  if(useUpstreamEndFlange_)
+    G4cout << "ON\n";
+  else 
+    G4cout << "OFF\n";
+
+
+  G4cout << "\n";
+
+
+  G4cout<< std::setw(40) << "The Downstream Inflector End is:"
+	<< std::setw(20);
+  if(useUpstreamWindow_ && useUpstreamConductor_ && useUpstreamEndFlange_) 
+    G4cout << "COMPLETELY CLOSED\n";
+  else if(!useUpstreamWindow_ && !useUpstreamConductor_ && !useUpstreamEndFlange_) 
+    G4cout << "COMPLETELY OPEN\n";
+  else
+    G4cout << "PARTIALLY CLOSED\n";
+
+  G4cout << std::setw(40) << "The Aluminum Window is:"
+	 << std::setw(20);
+  if(useDownstreamWindow_) 
+    G4cout << "ON\n";
+  else 
+    G4cout << "OFF\n";
+
+  G4cout << std::setw(40) << "The Superconductor is:"
+	 << std::setw(20);
+  if(useDownstreamConductor_)
+    G4cout << "ON\n";
+  else 
+    G4cout << "OFF\n";
+  
+  G4cout << std::setw(40) << "The Aluminum End Flange is:"
+	 << std::setw(20);
+  if(useDownstreamEndFlange_)
+    G4cout << "ON\n";
+  else 
+    G4cout << "OFF\n";
+
+  G4cout << "\n";
+  
+  G4cout << std::setw(40) << "The Superconducting Windings are:"
+	 << std::setw(30);
+  if(useConductorEquivalent_)
+    G4cout << "EQUIVALENT MATERIAL PLATES\n";
+  else 
+    G4cout << "PHYSICALLY REALISTIC COIL WINDINGS\n";
+    
+  G4cout << "\n";
+
+  inflectorGeometry const& ig = infGeom_.ig ;//inflectorGeometry::getInstance();
+
+  G4cout << std::setw(40) << "Azimuthal Aperture Position:"
+	 << std::setw(15) << G4BestUnit(ig.delta(),"Angle");
+  if(ig.delta() == 6.*degree)
+    G4cout << "  (DEFAULT)";
+
+  G4cout << "\n";
+  
+  G4cout << std::setw(40) << "Radial Aperture Distance:"
+	 << std::setw(15) << G4BestUnit(ig.aperture_off(),"Length");
+  if(ig.aperture_off() == 77*mm)
+    G4cout << "  (DEFAULT)";
+
+  G4cout << "\n";
+
+  G4cout << std::setw(40) << "Tilt Angle:"
+	 << std::setw(15) << G4BestUnit(ig.zeta(),"Angle");
+  if(ig.zeta() == 0.*degree)
+    G4cout << "  (DEFAULT)";
+  
+  G4cout << "\n";
+  
+  G4cout << std::setw(40) << "Swing Angle:"
+	 << std::setw(15) << G4BestUnit(ig.gamma(),"Angle");
+  if(ig.gamma() == 2.4*milliradian)
+    G4cout << "  (DEFAULT)";
+
+  G4cout << "\n";
+
+
+  G4cout << "Inflector Field Type is ";
+  switch( mag_field_type_ ){
+  case VANISHING_FIELD:
+    G4cout << "vanishing\n";
+    break;
+  case SIMPLE_FIELD:
+    G4cout << "simple\n";
+    break;
+  case MAPPED_FIELD:
+    G4cout << "mapped\n";
+    break;
+  default:
+    G4cout << "failure!!!!\n";
+  }
+
+  G4cout << "There are currently " << num_trackers_ << " active tracking volumes.\n"; 
+
+  G4cout << "G2GPS Launch angles are:\n";
+  G4cout << "\tIn-plane: " << G4BestUnit(ig.inplane_angle(),"Angle") << '\n';
+  G4cout << "\tOut-of-plane: " << G4BestUnit(ig.outplane_angle(),"Angle") << '\n';
+
+  G4cout << '\n';    
+
+ }
+
 /** Sets the number of inflector beam aperture tracking volumes. */
-void gm2ringsim::Inflector::NumTrackers(G4int //n
-					){ }
+void gm2ringsim::Inflector::setNumTrackers(G4int //n
+					   ){ }
+
 /** Gets the number of inflector beam aperture tracking volumes. */
-G4int gm2ringsim::Inflector::NumTrackers() const { return num_trackers_; }
+G4int gm2ringsim::Inflector::getNumTrackers() const {
+  return num_trackers_; 
+}
 
 /** Sets the magnetic field model.
     Options are "vanishing/none", "simple" or uniform, and "mapped"
@@ -818,7 +1040,9 @@ void gm2ringsim::Inflector::setMagFieldType(G4String){ }
 /** Regenerates the GPS Macros when the inflector geometry is
     rebuilt. */
 
-void gm2ringsim::Inflector::GenerateGPSMacros(){}
+void gm2ringsim::Inflector::generateGPSMacros(){
+  // This will need to generate a fcl instead of a g2migtrace input file
+}
 
 // CHANGE_ME: You can delete the below if this detector creates no data
 
@@ -979,13 +1203,33 @@ G4RotationMatrix* gm2ringsim::Inflector::calc_rotation() {
       return;
   
       spin_tracking_ = e;
-      RebuildEOM();
-      AssignFieldManager();
+      rebuildEOM();
+      assignFieldManager();
     }
 
+void gm2ringsim::Inflector::rebuildInflector(){ }
+void gm2ringsim::Inflector::DeleteInflector(){ }
 
 
+void gm2ringsim::Inflector::setAperturePosition(G4double){ }
+void gm2ringsim::Inflector::setApertureDistance(G4double){ }
+void gm2ringsim::Inflector::setInflectorTiltAngle(G4double){ }
+void gm2ringsim::Inflector::setInflectorSwingAngle(G4double){ }
+void gm2ringsim::Inflector::setConductorModelType(G4String){ }
+void gm2ringsim::Inflector::setUpstreamEndType(G4String){ }
+void gm2ringsim::Inflector::setDownstreamEndType(G4String){ }
+void gm2ringsim::Inflector::setUpstreamWindow(G4String){ }
+void gm2ringsim::Inflector::setUpstreamConductor(G4String){ }
+void gm2ringsim::Inflector::setUpstreamEndFlange(G4String){ }
+void gm2ringsim::Inflector::setDownstreamWindow(G4String){ }
+void gm2ringsim::Inflector::setDownstreamConductor(G4String){ }
+void gm2ringsim::Inflector::setDownstreamEndFlange(G4String){ }
+void gm2ringsim::Inflector::setConductorCurrent(G4double){ }
+void gm2ringsim::Inflector::setFieldNormalizationConstant(G4double){ }
 */
+
+
+
 
 
 

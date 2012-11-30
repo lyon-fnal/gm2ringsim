@@ -52,62 +52,20 @@ namespace gm2ringsim {
 
     public:
 
-        // Constructor
-        Inflector(fhicl::ParameterSet const &, art::ActivityRegistry & );
-
-        // We always need a virtual destructor
-      virtual ~Inflector() ;
-
-      /** Sets the downstream aperture position in the azimuthal                
-	  direction. */
-      void setAperturePosition(G4double);
-      /** Set the radial position of the downstream aperture. */
-      void setApertureDistance(G4double);
-      /** Sets the vertical tilt angle of the inflector relative to the
-	  symmetry plane of the ring. */
-      void setInflectorTiltAngle(G4double);
-      /** Sets the horizontal swing angle of the inflector axis relative
-	  to the ring tangent. */
-      void setInflectorSwingAngle(G4double);
+      // Constructor
+      Inflector(fhicl::ParameterSet const &, art::ActivityRegistry & );
       
-      /** @bug Doesn't actually do anything useful, since we don't model
-	  anything but an "average" plate.                                        
-      */
-      void setConductorModelType(G4String);
-      /** Sets the upstream end (window, conductor, and flange)
-	  open/closed. */
-      void setUpstreamEndType(G4String);
-      /** Sets the downstream end (window, conductor, and flange)
-	  open/closed. */
-      void setDownstreamEndType(G4String);
-      /** Sets the presence of the upstream window. */
-      void setUpstreamWindow(G4String);
-      /** Sets the presence of the upstream conductor. */
-      void setUpstreamConductor(G4String);
-      /** Sets the presence of the upstream end flange. */
-      void setUpstreamEndFlange(G4String);
-      /** Sets the presence of the downstream window. */
-      void setDownstreamWindow(G4String);
-      /** Sets the presence of the downstream conductor. */
-      void setDownstreamConductor(G4String);
-      /** Sets the presence of the downstream end flange. */
-      void setDownstreamEndFlange(G4String);
-
-      /** Sets the field strength by setting the conductor current.
-	  @bug I don't think this does anything at all.                           
-      */
-      void setConductorCurrent(G4double);
-      /** Sets the normalization constant that converts between conductor
-	  current and nominal central field value.
-	  @bug I don't think this does anything at all.                           
-      */
-      void setFieldNormalizationConstant(G4double);
+      // We always need a virtual destructor
+      virtual ~Inflector() ;
+      
       /** Prints inflector status information. */
       void getInflectorInfo();
       /** Sets the number of inflector beam aperture tracking volumes. */
-      void NumTrackers(G4int n);
+      //void NumTrackers(G4int n); // was NumTrackers(G4int n); in g2migtrace
+      void setNumTrackers (G4int n);
+
       /** Gets the number of inflector beam aperture tracking volumes. */
-      G4int NumTrackers() const ; //return num_trackers_; }
+      G4int getNumTrackers() const ; //return num_trackers_; }
       
       /** Sets the magnetic field model.
 	  Options are "vanishing/none", "simple" or uniform, and "mapped"
@@ -116,13 +74,35 @@ namespace gm2ringsim {
       void setMagFieldType(G4String);
 
       /** Regenerates the GPS Macros when the inflector geometry is
-	  rebuilt. */
-      void GenerateGPSMacros();
+	  rebuilt. Not yet implemented int ART */
+      void generateGPSMacros(); //was GenerateGPSMacros() in g2mt
 
       /** Interface to the spinController to enable/disable spin tracking
        	  in the magnetic field. */
       //      void enable_spintracking(bool);
 
+      /*
+      //Obsolete public: g2MIGTRACE FUNCTIONS
+      
+      void setAperturePosition(G4double);
+      void setApertureDistance(G4double);
+      void setInflectorTiltAngle(G4double);
+      void setInflectorSwingAngle(G4double);
+      void setConductorModelType(G4String);
+      void setUpstreamEndType(G4String);
+      void setDownstreamEndType(G4String);
+      void setUpstreamWindow(G4String);
+      void setUpstreamConductor(G4String);
+      void setUpstreamEndFlange(G4String);
+      void setDownstreamWindow(G4String);
+      void setDownstreamConductor(G4String);
+      void setDownstreamEndFlange(G4String);
+      void setConductorCurrent(G4double);
+      void setFieldNormalizationConstant(G4double);
+
+      void RebuildInflector();
+      void DeleteInflector();
+      */
 
 
     private:
@@ -160,27 +140,29 @@ namespace gm2ringsim {
       // CHANGE_ME: Delete the next two functions if no hits
       
       // Tell Art what we'll produce
-      //        virtual void doCallArtProduces(art::EDProducer * producer) override;
+      // virtual void doCallArtProduces(art::EDProducer * producer) override;
       // Actually add the data to the event
-      //virtual void doFillEventWithArtHits(G4HCofThisEvent * hc) override;
+      // virtual void doFillEventWithArtHits(G4HCofThisEvent * hc) override;
       
       //Private Construction Methods
-      void BuildCore_SandL(); // Solids and Logicals                       
-      void BuildPeripherals_SandL(); // Solids and Logicals                
-      void BuildInflector( ); //std::vector<G4LogicalVolume*>); // Physical Volumes                       
-      void BuildCryostatWalls_SandL(); // Solids and Logicals
-      void BuildCryostatWalls(); // Physicsal Volumes
+      void buildCore_SandL(); // Solids and Logicals                       
+      void buildPeripherals_SandL(); // Solids and Logicals                
+
+      void buildCryostatWalls_SandL(); // Solids and Logicals
       
-      void BuildTrackingVolumes(); // all of the above                         
-      void RebuildInflector();
-      void DeleteInflector();
+      void buildSensitiveDetectors(); 
+      
+      void buildInflector( ); // Physical Volumes                       
+      void buildCryostatWalls(); // Physical Volumes
+      
 
-      void BuildInflectorField();
-      void RebuildFieldImpl();
-      void RebuildEOM();
-      void AssignFieldManager();
+      
+      void buildTrackingVolumes(); // all of the above                         
 
-      //void GetXYZ_zetaFree(G4double &, G4double &, G4double &) ;
+      void buildInflectorField();
+      void rebuildFieldImpl();
+      void rebuildEOM();
+      void assignFieldManager();
 
       // All the detailed volumes
       /** @bug The construction process and member variables should be         
@@ -231,19 +213,17 @@ namespace gm2ringsim {
       G4LogicalVolume *launchRegion_L_;
       G4VPhysicalVolume *launchRegion_P_;
 
-      //G4VPhysicalVolume *vacPTR_;
+      //G4VPhysicalVolume *vacPTR_; //Was a PV in g2MIGTRACE
       G4LogicalVolume *vacPTR_; // Changed in ART since we only pass the mother LVs
 
-
       std::vector<G4VPhysicalVolume*> tracker_physicals_;
-
-      G4ThreeVector calc_position() const;//FIXME: should be const const;
+      
+      G4ThreeVector calc_position() const;
       G4RotationMatrix *calc_rotation();
       
       // inflectorMessenger *InflectorMessenger;
 
       connection_t conn_;
-      
 
     };
 }
