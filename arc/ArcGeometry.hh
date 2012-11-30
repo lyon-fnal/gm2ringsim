@@ -19,6 +19,8 @@ namespace gm2ringsim {
     const double arc_z;
     const double arc_Sphi;
     const double arc_Dphi;
+    const bool display;
+    std::vector<double> arcColor;
   };
 }
 

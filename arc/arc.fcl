@@ -8,7 +8,11 @@ arc_geom : {
   arc_z : 200.
   arc_Sphi : 0.   // deg
   arc_Dphi : 30.  // deg
-
-
+  
+  // Visibility
+  display : false
+     // Color is R, G, B, Opacity
+     // Use green below
+  arcColor : [ 0.0, 1.0, 0.0, 1.0 ]
 }
 END_PROLOG
