@@ -48,7 +48,7 @@
 
 #include "gm2ringsim/inflector/inflectorField.hh"
 #include "gm2ringsim/inflector/inflectorGeometry.hh"
-#include "gm2ringsim/inflector/Inflector_SD.hh"
+#include "gm2ringsim/inflector/InflectorSD.hh"
 
 #include "gm2ringsim/common/g2PreciseValues.hh"
 
@@ -160,6 +160,10 @@ std::vector<G4LogicalVolume *> gm2ringsim::Inflector::doBuildLVs() {
   // Build the sensitive detectors for all logical volumes created above
   buildSensitiveDetectors();
   
+  printf("\n\n\n**************************************\n");
+  G4SDManager* SDman = G4SDManager::GetSDMpointer();
+  SDman->ListTree();
+  printf("\n ++++++++++++++++++++++++++++++++++++++\n\n\n\n");
   
   sts_.print();
   infGeom_.print();
@@ -171,12 +175,12 @@ std::vector<G4LogicalVolume *> gm2ringsim::Inflector::doBuildLVs() {
 }
 
 // Build the physical volumes
-std::vector<G4VPhysicalVolume *> gm2ringsim::Inflector::doPlaceToPVs( std::vector<G4LogicalVolume*> mother) {
-  //  vacPTR = VacH.at(vacuumInflectorSection);
-  vacPTR_ = mother.at(vacuumInflectorSection_);
+std::vector<G4VPhysicalVolume *> gm2ringsim::Inflector::doPlaceToPVs( std::vector<G4LogicalVolume*> vacLV) {
+  // 
+  vacPTR_ = vacLV.at(vacuumInflectorSection_);
   
   // Build the inflector physical volumes
-  buildInflector() ;//mother);
+  buildInflector() ;
   buildCryostatWalls();
   
   // Build volumes for tracking in the aperture
@@ -665,7 +669,7 @@ void gm2ringsim::Inflector::buildCryostatWalls_SandL(){
 } //Inflector::buildCryostatWalls_SandL() 
 
 void gm2ringsim::Inflector::buildSensitiveDetectors(){
-  G4SDManager* SDman = G4SDManager::GetSDMpointer();
+  /*  G4SDManager* SDman = G4SDManager::GetSDMpointer();
   SDman->ListTree();
   
   
@@ -673,7 +677,7 @@ void gm2ringsim::Inflector::buildSensitiveDetectors(){
   InflectorSD* anInflectorSD = new InflectorSD(inflectorSDname);
   
   SDman->AddNewDetector( anInflectorSD );
-  
+  */
   
   /*
   G4String trackerChamberSDname = "ExN02/TrackerChamberSD";
@@ -723,7 +727,14 @@ void gm2ringsim::Inflector::buildTrackingVolumes(){
 		     G4ThreeVector(0,0,-infGeom_.beamChannel2_offset));
   
   // FIXME: Need to ARTIZE this
+  G4SDManager* SDman = G4SDManager::GetSDMpointer();
+  SDman->ListTree();
+  G4String inflectorSDname = "InflectorSD";
+  InflectorSD* infSD = new InflectorSD(inflectorSDname);
+  SDman->AddNewDetector( infSD );
   //inflectorSD *infSD = SDHandleOwner::getInstance().getInflectorSD();
+  
+  //END FIXME
   
   std::ostringstream name;
   
@@ -784,7 +795,8 @@ void gm2ringsim::Inflector::buildTrackingVolumes(){
 			  0);
     log -> SetVisAttributes(tcbVisAtt);
 
-    // FIXME: Artize    log -> SetSensitiveDetector(infSD);
+    //FIXME: Artize
+    log -> SetSensitiveDetector(infSD);
 
     name.str("");
     name << "InflectorTracker["
