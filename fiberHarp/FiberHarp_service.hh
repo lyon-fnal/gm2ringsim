@@ -38,6 +38,7 @@ namespace gm2ringsim {
     
   private:
     FiberHarpGeometry geom_;
+    G4String harpSDname_;
     FiberHarpSD *harpSD_;
 
     G4LogicalVolume* BuildFiberHarp(G4int harpNumber);
@@ -52,11 +53,11 @@ namespace gm2ringsim {
     
     // CHANGE_ME: Delete the next two functions if no hits
     
-    //        // Tell Art what we'll produce
-    //        virtual void doCallArtProduces(art::EDProducer * producer) override;
-    //
-    //        // Actually add the data to the event
-    //        virtual void doFillEventWithArtHits(G4HCofThisEvent * hc) override;
+    // Tell Art what we'll produce
+    virtual void doCallArtProduces(art::EDProducer * producer) override;
+    
+    // Actually add the data to the event
+    virtual void doFillEventWithArtHits(G4HCofThisEvent * hc) override;
     
   };
 }

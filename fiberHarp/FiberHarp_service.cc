@@ -1,5 +1,7 @@
 // Implementation of FiberHarp
 #include "gm2ringsim/fiberHarp/FiberHarp_service.hh"
+#include "gm2ringsim/fiberHarp/FiberHarpHit.hh"
+#include "gm2ringsim/fiberHarp/FiberHarpRecord.hh"
 
 #include "gm2ringsim/common/g2PreciseValues.hh"
 
@@ -14,6 +16,7 @@
 #include "Geant4/G4PVPlacement.hh"
 #include "Geant4/G4VisAttributes.hh"
 #include "Geant4/G4RunManager.hh"
+#include "Geant4/G4SDManager.hh"
 
 // There are two types of harps: X sensing and Y sensing.  We will also
 // implement a broken Y-sensing harp, and the absence of a harp.
@@ -25,11 +28,12 @@ gm2ringsim::FiberHarp::FiberHarp(fhicl::ParameterSet const & p, art::ActivityReg
 	       p.get<std::string>("name", "fiberHarp"),
 	       p.get<std::string>("category", "fiberHarp"),
 	       p.get<std::string>("mother_category", "vac")),
-  geom_(myName())
+  geom_(myName()),
+  harpSDname_("fiberHarpSD")
 {
   // Let's prepare the sensitive detector, no registration with G4SDManager necessary as 
   // this is done in FiberHarpSD constructor
-  harpSD_ = new FiberHarpSD("fiberHarpSD");
+  harpSD_ = new FiberHarpSD(harpSDname_);
 }
 
 // Build the logical volumes
@@ -77,21 +81,46 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::FiberHarp::doPlaceToPVs(std::vector
 
 // CHANGE_ME: You can delete the below if this detector creates no data
 
-//// Declare to Art what we are producing
-//void gm2ringsim::FiberHarp::doCallArtProduces(art::EDProducer * producer) {
+// Declare to Art what we are producing
+void gm2ringsim::FiberHarp::doCallArtProduces(art::EDProducer * producer) {
+  producer->produces<FiberHarpRecordCollection>(category());
+}
 //
-//}
-//
-//// Actually add the data to the event
-//void gm2ringsim::FiberHarp::doFillEventWithArtHits(G4HCofThisEvent * hc) {
-//    
-//}
+// Actually add the data to the event
+void gm2ringsim::FiberHarp::doFillEventWithArtHits(G4HCofThisEvent *hc) {
+    std::unique_ptr<FiberHarpRecordCollection> myArtHits(new FiberHarpRecordCollection);
+  
+  // Find the collection ID for the hits
+  G4SDManager* fSDM = G4SDManager::GetSDMpointer();
+
+  // The string here is unfortunately a magic constant. It's the string used
+  // by the sensitive detector to identify the collection of hits.
+  G4int collectionID = fSDM->GetCollectionID(harpSDname_);
+  FiberHarpHitsCollection* myCollection = 
+    static_cast<FiberHarpHitsCollection*>(hc->GetHC(collectionID));
+
+  // Check whether the collection exists
+  if (NULL != myCollection) {
+    // Copy this hit into the Art hit
+    myArtHits->emplace_back( 14 );
+  } 
+  else {
+    throw cet::exception("FiberHarp") << "Null collection of Geant fiber harp hits"
+				      << ", aborting!" << std::endl;
+  }
+
+  // Now that we have our collection of artized hits, add them to the event.
+  // Get the event from the detector holder service
+  art::ServiceHandle<artg4::DetectorHolderService> detectorHolder;
+  art::Event & e = detectorHolder -> getCurrArtEvent();
+
+  // Put the hits into the event
+  e.put(std::move(myArtHits), category());
+
+}
 
 
 G4LogicalVolume* gm2ringsim::FiberHarp::BuildFiberHarp(G4int harpNumber){
-  printf("%d HAAAAAAAAAAAAAAAAAAALLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO\n", 
-	 harpNumber);
-
   if(geom_.harpType[harpNumber] == HARP_OFF){
     return 0;
   }
