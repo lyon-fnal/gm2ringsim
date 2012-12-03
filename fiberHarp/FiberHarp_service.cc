@@ -1,6 +1,4 @@
 // Implementation of FiberHarp
-#pragma GCC diagnostic ignored "-Wunused-variable"
-
 #include "gm2ringsim/fiberHarp/FiberHarp_service.hh"
 
 #include "gm2ringsim/common/g2PreciseValues.hh"
