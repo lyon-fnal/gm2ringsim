@@ -49,6 +49,8 @@
 #include "gm2ringsim/inflector/inflectorField.hh"
 #include "gm2ringsim/inflector/inflectorGeometry.hh"
 #include "gm2ringsim/inflector/InflectorSD.hh"
+#include "gm2ringsim/inflector/InflectorRecord.hh"
+#include "gm2ringsim/inflector/inflectorHit.hh"
 
 #include "gm2ringsim/common/g2PreciseValues.hh"
 
@@ -1064,14 +1066,49 @@ void gm2ringsim::Inflector::generateGPSMacros(){
 // CHANGE_ME: You can delete the below if this detector creates no data
 
 // Declare to Art what we are producing
-//void gm2ringsim::Inflector::doCallArtProduces(art::EDProducer * producer) {
-//
-//}
+void gm2ringsim::Inflector::doCallArtProduces(art::EDProducer * producer) {
+  producer->produces<InflectorRecordCollection>(category());
+}
 
 // Actually add the data to the event
-//void gm2ringsim::Inflector::doFillEventWithArtHits(G4HCofThisEvent * hc) {
-//    
-//}
+void gm2ringsim::Inflector::doFillEventWithArtHits(G4HCofThisEvent *hc) {
+   
+  std::unique_ptr<InflectorRecordCollection> myArtHits(new InflectorRecordCollection);
+
+  // Find the collection ID for the hits
+  G4SDManager* fSDM = G4SDManager::GetSDMpointer();
+
+  // The string here is unfortunately a magic constant. It's the string used       
+  // by the sensitive detector to identify the collection of hits.                 
+  G4int collectionID = fSDM->GetCollectionID("InflectorSD");
+  
+  inflectorHitsCollection* myCollection =
+    static_cast<inflectorHitsCollection*>(hc->GetHC(collectionID));
+  // Check whether the collection exists                                           
+  if (NULL != myCollection) {
+    std::vector<inflectorHit*> geantHits = *(myCollection->GetVector());
+
+    for ( auto e : geantHits ) {
+      e->Print();
+      // Copy this hit into the Art hit                                          
+      myArtHits->emplace_back( 17 );
+      //e->GetTrackID(), e->GetPos(), e->GetChamberNb(),
+      //e->GetEdep() );
+      }
+  }
+
+  else {
+    throw cet::exception("Inflector") << "Null collection of Geant tracker hits"
+				      << ", aborting!" << std::endl;
+  }
+  // Now that we have our collection of artized hits, add them to the event.
+  // Get the event from the detector holder service                                
+  art::ServiceHandle<artg4::DetectorHolderService> detectorHolder;
+  art::Event & e = detectorHolder -> getCurrArtEvent();
+
+  // Put the hits into the event                                                   
+  e.put(std::move(myArtHits), category());
+}
 
 
 G4ThreeVector gm2ringsim::Inflector::calc_position() const  {

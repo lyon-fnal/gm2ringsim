@@ -140,9 +140,9 @@ namespace gm2ringsim {
       // CHANGE_ME: Delete the next two functions if no hits
       
       // Tell Art what we'll produce
-      // virtual void doCallArtProduces(art::EDProducer * producer) override;
+      virtual void doCallArtProduces(art::EDProducer * producer) override;
       // Actually add the data to the event
-      // virtual void doFillEventWithArtHits(G4HCofThisEvent * hc) override;
+      virtual void doFillEventWithArtHits(G4HCofThisEvent * hc) override;
       
       //Private Construction Methods
       void buildCore_SandL(); // Solids and Logicals                       
