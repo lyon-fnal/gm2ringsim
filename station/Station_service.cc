@@ -81,13 +81,10 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Station::doPlaceToPVs( std::vector<
                               sg.r_out*std::sin(sg.theta_out[ stationNum % 2 ]),
                               0.);
     
-    std::cout<<"station number: "<<stationNum<<std::endl;
-    std::cout<<"theta_out[0]"<<sg.theta_out[0]<<std::endl;
-    std::cout<<"theta_in[0]"<<sg.theta_in[0]<<std::endl;
-    std::cout<<"theta_in[stationNum%2]: "<<sg.theta_in[ stationNum %2]<<std::endl;
+    int arc_position = stationNum % 2;
     
-    G4ThreeVector unit_along(std::cos(sg.theta_in[ stationNum % 2 ] + sg.window_angle),
-                             std::sin(sg.theta_in[ stationNum % 2 ] + sg.window_angle),
+    G4ThreeVector unit_along(std::cos(sg.theta_in[ arc_position ] + sg.window_angle),
+                             std::sin(sg.theta_in[ arc_position ] + sg.window_angle),
                              0.);
     
     G4ThreeVector unit_vertical(0,0,-1.); // OK ... yes, up :-(
@@ -124,14 +121,15 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Station::doPlaceToPVs( std::vector<
     G4RotationMatrix *rot = new G4RotationMatrix(0,
                                                  0,
                                                  sg.theta_in[ stationNum % 2 ] + sg.window_angle - sg.v_rotation);
-    std::cout<<"which arc? " << floor(stationNum/2)<<std::endl;
+
+    int arc_number = floor(stationNum/2);
     stationPVs.push_back(
                      new G4PVPlacement(
                                        rot,
                                        pos,
                                        aStationLV,
                                        stationLabel,
-                                       arcs[ floor(stationNum/2) ],
+                                       arcs[ arc_number ],
                                        false,
                                        0
                                        )
