@@ -30,6 +30,8 @@ namespace gm2ringsim{
     const double r_rotation;
     const double v_rotation;
     
+    const bool displayStation;
+    const std::vector<double> stationColor;
 
     //Derived constants
     double r_c;

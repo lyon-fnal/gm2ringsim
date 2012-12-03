@@ -18,6 +18,8 @@ station_geom : {
   r_rotation: 0 // deg
   v_rotation: 0 // deg
 
+  displayStation: true
+  stationColor : [0.5, 0.5, 1.5, 1.0]
 
 }
 END_PROLOG

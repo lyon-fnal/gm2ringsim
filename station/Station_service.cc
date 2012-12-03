@@ -1,7 +1,10 @@
 // Implementation of Station
 
 #include "gm2ringsim/station/Station_service.hh"
+
 #include "artg4/material/Materials.hh"
+#include "artg4/util/util.hh"
+
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 
 #include "Geant4/G4Box.hh"
@@ -32,9 +35,8 @@ G4LogicalVolume* gm2ringsim::Station::makeStationLV(const StationGeometry& sg) {
                                                    artg4Materials::Vacuum(),
                                                    "station_L"
                                                    );
-  auto *StationVisAtt = new G4VisAttributes(G4Colour(0.5, 0.5, 1.5,1.0));
-  station_L -> SetVisAttributes(StationVisAtt);
-
+  
+  artg4::setVisAtts(station_L, sg.displayStation, sg.stationColor);
   return station_L;
   
 }
