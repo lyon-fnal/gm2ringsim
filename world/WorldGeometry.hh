@@ -21,6 +21,10 @@ namespace gm2ringsim {
     
     const double world_x, world_y, world_z;
     
+    const bool display;
+    const std::vector<double> worldColor;
+
+    
   };
 }
 
