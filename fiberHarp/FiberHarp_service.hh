@@ -10,6 +10,7 @@
 #include "art/Framework/Core/EDProducer.h"
 
 #include "gm2ringsim/fiberHarp/FiberHarpGeometry.hh"
+#include "gm2ringsim/fiberHarp/FiberHarpSD.hh"
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -37,6 +38,7 @@ namespace gm2ringsim {
     
   private:
     FiberHarpGeometry geom_;
+    FiberHarpSD *harpSD_;
 
     G4LogicalVolume* BuildFiberHarp(G4int harpNumber);
       
