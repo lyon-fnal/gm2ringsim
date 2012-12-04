@@ -2,7 +2,7 @@
 #include "geom/arc.fcl"
 #include "geom/vac.fcl"
 #include "geom/inflector.fcl"
-#include "geom/fiberHarp.fcl"
+#include "geom/station.fcl"
 
 process_name:myProcessName
 
@@ -39,7 +39,7 @@ services: {
       arc:   @local::arc_geom
       vac:   @local::vac_geom
       inflector: @local::inflector_geom
-      fiberHarp: @local::fiberHarp_geom
+      station: @local::station_geom
      }
      
      RunSettings: {
@@ -59,30 +59,29 @@ services: {
           maxWavelength:950  //nm
     }
 
-    PhysicsList: {}
-    //    ClockAction: {}	
-    //    RunAction: {}
+    PhysicsList: {}	
     World: {}	
     Arc: {}
     VacuumChamber: {}
     Inflector:{}	
-    FiberHarp: {}	   
+    Station: {}
+	   
     PrimaryGeneratorAction: {
             name: "primary"	
 	    muonGasVerbosity : true
             g2GPS : {
 	      useMuonGasGun: true
-            } //g2GPS Parameter Set
-        } //PrimaryGeneratorAciton
+      }
 
-    EventAction: {
-      name: "event"
-    }//EventAction
-    
-    RunAction: {
-      name: "run"
-    }//RunAction
+    }
 
+//    StackingAction : { 
+//
+//    }
+//    EventAction: {
+//      name: "event"
+//    }
+ 
   } //user:
 } //services:
 
@@ -100,9 +99,9 @@ physics: {
       enableVisualization: true
       macroPath: ".:./macros:../macros:../../macros"
       visMacro: "vis.mac"
-      afterEvent: pause
-      //      pauseAfterEvent: true
+      pauseAfterEvent: true
     }
+
   }
 
   path1: [ artg4Main ]
@@ -111,6 +110,3 @@ physics: {
   trigger_paths: [ path1 ]
   end_paths: [ stream1 ]
 }
-
-// Override Arc display
-services.user.Geometry.arc.display : true
