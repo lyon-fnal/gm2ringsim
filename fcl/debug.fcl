@@ -57,7 +57,9 @@ services: {
           maxWavelength:950  //nm
     }
 
-    PhysicsList: {}	
+    PhysicsList: {}
+    //    ClockAction: {}	
+    //    RunAction: {}
     World: {}	
     Arc: {}
     VacuumChamber: {}
@@ -75,9 +77,9 @@ services: {
       name: "event"
     }//EventAction
     
-//    RunAction: {
-//      name: "run"
-//    }//RunAction
+    RunAction: {
+      name: "run"
+    }//RunAction
 
   } //user:
 } //services:
