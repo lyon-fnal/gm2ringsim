@@ -8,7 +8,7 @@
 /run/verbose 2
 #
 # Use this open statement to create an OpenGL view:
-#/vis/open OGL 600x600-0+0
+/vis/open OGL 600x600-0+0
 #
 # Use this open statement to create a .prim file suitable for
 # viewing in DAWN:
@@ -16,7 +16,7 @@
 #
 # Use this open statement to create a .heprep file suitable for
 # viewing in HepRApp:
-/vis/open HepRepFile
+#/vis/open HepRepFile
 #
 # Use this open statement to create a .wrl file suitable for
 # viewing in a VRML viewer:
