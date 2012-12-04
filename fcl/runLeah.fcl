@@ -1,0 +1,112 @@
+#include "geom/world.fcl"
+#include "geom/arc.fcl"
+#include "geom/vac.fcl"
+#include "geom/inflector.fcl"
+#include "geom/station.fcl"
+
+process_name:myProcessName
+
+source: {
+  module_type: EmptyEvent
+  maxEvents:  1
+}
+
+services: {
+
+  message : {
+     debugModules : ["*"]
+     suppressInfo : []
+     
+     destinations : {
+       LogToConsole : {
+         type : "cout"
+         threshold : "DEBUG"
+         
+         categories : {
+           default : { limit : 50 }
+         }
+       }
+     }
+  }
+
+  user: {
+    DetectorHolder: {}
+    ActionHolder: {}
+    RandomNumberGenerator: {}
+    PhysicsListHolder: {}
+    Geometry: {
+      world: @local::world_geom
+      arc:   @local::arc_geom
+      vac:   @local::vac_geom
+      inflector: @local::inflector_geom
+      station: @local::station_geom
+     }
+     
+     RunSettings: {
+       SpinTracking: {
+         spinTrackingEnabled : true
+      }
+    }
+     
+     
+    // Detector(s) for the simulation
+
+    // Action(s) for the simulation
+    //    ClockAction: {}
+    StackingAction: {  
+          name: "stackingAction"
+	  minWavelength:250 //nm
+          maxWavelength:950  //nm
+    }
+
+    PhysicsList: {}	
+    World: {}	
+    Arc: {}
+    VacuumChamber: {}
+    Inflector:{}	
+    Station: {}
+	   
+    PrimaryGeneratorAction: {
+            name: "primary"	
+	    muonGasVerbosity : true
+            g2GPS : {
+	      useMuonGasGun: true
+      }
+
+    }
+
+//    StackingAction : { 
+//
+//    }
+//    EventAction: {
+//      name: "event"
+//    }
+ 
+  } //user:
+} //services:
+
+outputs: {
+out1: {
+  module_type: RootOutput   
+  fileName: "gm2ringsimout.root"
+  }
+}
+
+physics: {
+  producers: {
+    artg4Main: {
+      module_type: artg4Main
+      enableVisualization: true
+      macroPath: ".:./macros:../macros:../../macros"
+      visMacro: "vis.mac"
+      pauseAfterEvent: true
+    }
+
+  }
+
+  path1: [ artg4Main ]
+  stream1:  [ out1 ]
+
+  trigger_paths: [ path1 ]
+  end_paths: [ stream1 ]
+}
