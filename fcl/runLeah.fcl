@@ -2,6 +2,7 @@
 #include "geom/arc.fcl"
 #include "geom/vac.fcl"
 #include "geom/inflector.fcl"
+#include "geom/station.fcl"
 
 process_name:myProcessName
 
@@ -38,6 +39,7 @@ services: {
       arc:   @local::arc_geom
       vac:   @local::vac_geom
       inflector: @local::inflector_geom
+      station: @local::station_geom
      }
      
      RunSettings: {
@@ -62,20 +64,24 @@ services: {
     Arc: {}
     VacuumChamber: {}
     Inflector:{}	
+    Station: {}
 	   
     PrimaryGeneratorAction: {
             name: "primary"	
 	    muonGasVerbosity : true
             g2GPS : {
 	      useMuonGasGun: true
-            } //g2GPS Parameter Set
-        } //PrimaryGeneratorAciton
+      }
 
-    EventAction: {
-      name: "event"
-    }//EventAction
+    }
 
-
+//    StackingAction : { 
+//
+//    }
+//    EventAction: {
+//      name: "event"
+//    }
+ 
   } //user:
 } //services:
 
@@ -93,8 +99,7 @@ physics: {
       enableVisualization: true
       macroPath: ".:./macros:../macros:../../macros"
       visMacro: "vis.mac"
-      afterEvent: pause
-      //      pauseAfterEvent: true
+      pauseAfterEvent: true
     }
 
   }
@@ -105,6 +110,3 @@ physics: {
   trigger_paths: [ path1 ]
   end_paths: [ stream1 ]
 }
-
-// Override Arc display
-services.user.Geometry.arc.display : true
