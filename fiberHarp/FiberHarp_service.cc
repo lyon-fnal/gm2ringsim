@@ -101,8 +101,17 @@ void gm2ringsim::FiberHarp::doFillEventWithArtHits(G4HCofThisEvent *hc) {
 
   // Check whether the collection exists
   if (NULL != myCollection) {
-    // Copy this hit into the Art hit
-    myArtHits->emplace_back( 14 );
+    std::vector<FiberHarpHit*> geantHits = *(myCollection->GetVector());
+    
+    for ( auto e : geantHits ) {
+      // Copy this hit into the Art hit
+      myArtHits->emplace_back( e->turnNum, e->harp,
+			       e->fiber, e->trackID,
+			       e->time, e->energy_dep,
+			       e->global_pos.getR(),
+			       e->global_pos.getTheta(),
+			       e->global_pos.y() );
+    }
   } 
   else {
     throw cet::exception("FiberHarp") << "Null collection of Geant fiber harp hits"
