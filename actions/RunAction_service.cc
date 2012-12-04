@@ -81,7 +81,7 @@ gm2ringsim::RunAction::RunAction(fhicl::ParameterSet const& p, art::ActivityRegi
   clockID_(CLOCK_REALTIME),
 #endif
   muonStorageCounter_(0),
-  logInfo_("ClockAction")
+  logInfo_("RunAction")
 { }
 
 void gm2ringsim::RunAction::beginOfRunAction(const G4Run *currentRun) {
