@@ -1,7 +1,21 @@
 // Header for the Event action
-
 #ifndef EVENTACTION_SERVICE_HH
 #define EVENTACTION_SERVICE_HH
+
+
+
+/** @file EventAction_service.hh
+
+    Provides the declaration of a User Event Action, as well as an
+    associated messenger. 
+
+    - Zach Hartwig 2005
+    - Kevin Lynch 2009
+
+    - Artified the g2migtrace eventAction code
+    - @author Brendan Kiburg
+    - @date   Dec 2012
+*/
 
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
