@@ -1,6 +1,15 @@
 #include "gm2ringsim/fiberHarp/FiberHarpGeometry.hh"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+/** @file FiberHarpGeometry.cc
+
+    Implements the geometry data for the fiber harps
+
+    @author Peter Winter
+    @date 2012
+*/
+
+
 #include "Geant4/globals.hh"
 
 #include <iostream>

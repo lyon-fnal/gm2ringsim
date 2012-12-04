@@ -77,10 +77,6 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::FiberHarp::doPlaceToPVs(std::vector
   return fiberPVs;
 }
 
-
-
-// CHANGE_ME: You can delete the below if this detector creates no data
-
 // Declare to Art what we are producing
 void gm2ringsim::FiberHarp::doCallArtProduces(art::EDProducer * producer) {
   producer->produces<FiberHarpRecordCollection>(category());

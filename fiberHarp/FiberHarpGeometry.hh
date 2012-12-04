@@ -1,6 +1,14 @@
 #ifndef FiberHarpGeometry_hh__
 #define FiberHarpGeometry_hh__
 
+/** @file FiberHarpGeometry.hh
+
+    Implements the geometry data for the fiber harps
+
+    @author Peter Winter
+    @date 2012
+*/
+
 #include "artg4/Core/GeometryBase.hh"
 
 #include <string>

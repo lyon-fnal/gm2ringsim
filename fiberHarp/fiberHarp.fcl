@@ -24,6 +24,6 @@ fiberHarp_geom : {
   harpType: [1, 2, 0, 0]
 	
   display : true
-  fiberHarpColor : [1.0,.6,0.0,1.0]
+  fiberHarpColor : [1.0,.6,0.,1.0]
 }
 END_PROLOG

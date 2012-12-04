@@ -55,7 +55,7 @@ FiberHarpHit::FiberHarpHit(G4Step *step) :
   }
 }
 
-void FiberHarpHit::Draw(){
+void FiberHarpHit::draw(){
 #ifdef G4VIS_USE
   G4VVisManager* pVVisManager = G4VVisManager::GetConcreteInstance();
   if(!pVVisManager)
@@ -72,7 +72,7 @@ void FiberHarpHit::Draw(){
 }
 
 
-void FiberHarpHit::Print(){
+void FiberHarpHit::print(){
   G4cout << " turnNum: " << turnNum
 	 << " harp: " << harp
 	 << " fiber: " << fiber

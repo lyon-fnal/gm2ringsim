@@ -39,39 +39,6 @@ private:
   FiberHarpHitsCollection *thisHC;
 
   G4int printLevel, drawLevel;
-
-  // TODO FiberHarpSDMessenger *hsdm_;
 };
-
-/* 
-#include "G4UImessenger.hh"
-#include "G4UIdirectory.hh"
-#include "G4UIcmdWithAnInteger.hh"
-
-// A G4UImessenger interface to control the FiberHarpSD.
-
-    Currently provides the following commands:
-    - /g2MIGTRACE/hits/FiberHarpSD/printLevel
-    - /g2MIGTRACE/hits/FiberHarpSD/drawLevel
-class FiberHarpSDMessenger : public G4UImessenger {
-
-public:
-  //FiberHarpSDMessenger(FiberHarpSD *rsd);
-  //~FiberHarpSDMessenger();
-
-  void SetNewValue(G4UIcommand*,G4String);
-
-private:
-  FiberHarpSD *rsd_;
-
-  G4UIdirectory *topdir_;
-  G4UIdirectory *dir_;
-  
-  G4UIcmdWithAnInteger *printLevelCmd_;
-  G4UIcmdWithAnInteger *drawLevelCmd_;
-
-};
-*/
-
 
 #endif // FiberHarpSD_hh

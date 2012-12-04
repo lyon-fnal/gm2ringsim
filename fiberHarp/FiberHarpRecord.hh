@@ -1,6 +1,14 @@
 #ifndef FiberHarpRecord_hh__
 #define FiberHarpRecord_hh__
 
+/** @file FiberHarpRecord.hh
+
+    Implements the fiber harp hit stored in the Art output file
+
+    @author Peter Winter
+    @date 2012
+*/
+
 #include <vector>
 
 #ifndef __GCCXML__ // Don't let ROOT see things it shouldn't see
