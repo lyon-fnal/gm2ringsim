@@ -68,17 +68,14 @@ services: {
 	    muonGasVerbosity : true
             g2GPS : {
 	      useMuonGasGun: true
-      }
+            } //g2GPS Parameter Set
+        } //PrimaryGeneratorAciton
 
-    }
+    EventAction: {
+      name: "event"
+    }//EventAction
 
-//    StackingAction : { 
-//
-//    }
-//    EventAction: {
-//      name: "event"
-//    }
- 
+
   } //user:
 } //services:
 
@@ -96,7 +93,8 @@ physics: {
       enableVisualization: true
       macroPath: ".:./macros:../macros:../../macros"
       visMacro: "vis.mac"
-      pauseAfterEvent: false
+      afterEvent: pause
+      //      pauseAfterEvent: true
     }
 
   }
