@@ -77,11 +77,12 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Station::doPlaceToPVs( std::vector<
     // g2migtrace used sprintf. Let's use boost::format instead
     // (see http://www.boost.org/doc/libs/1_52_0/libs/format/doc/format.html )
     std::string stationLabel( boost::str( boost::format("StationNumber[%02d]") % stationNum ));
-    G4ThreeVector window_edge(sg.r_out*std::cos(sg.theta_out[ stationNum % 2 ]),
-                              sg.r_out*std::sin(sg.theta_out[ stationNum % 2 ]),
+    int arc_position = stationNum % 2;
+
+    G4ThreeVector window_edge(sg.r_out*std::cos(sg.theta_out[ arc_position ]),
+                              sg.r_out*std::sin(sg.theta_out[ arc_position ]),
                               0.);
     
-    int arc_position = stationNum % 2;
     
     G4ThreeVector unit_along(std::cos(sg.theta_in[ arc_position ] + sg.window_angle),
                              std::sin(sg.theta_in[ arc_position ] + sg.window_angle),
