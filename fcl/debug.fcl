@@ -2,6 +2,7 @@
 #include "geom/arc.fcl"
 #include "geom/vac.fcl"
 #include "geom/inflector.fcl"
+#include "geom/fiberHarp.fcl"
 
 process_name:myProcessName
 
@@ -38,6 +39,7 @@ services: {
       arc:   @local::arc_geom
       vac:   @local::vac_geom
       inflector: @local::inflector_geom
+      fiberHarp: @local::fiberHarp_geom
      }
      
      RunSettings: {
@@ -62,7 +64,7 @@ services: {
     Arc: {}
     VacuumChamber: {}
     Inflector:{}	
-	   
+    FiberHarp: {}	   
     PrimaryGeneratorAction: {
             name: "primary"	
 	    muonGasVerbosity : true
@@ -96,7 +98,6 @@ physics: {
       afterEvent: pause
       //      pauseAfterEvent: true
     }
-
   }
 
   path1: [ artg4Main ]
