@@ -118,8 +118,8 @@ gm2ringsim::Inflector::Inflector(fhicl::ParameterSet const & p, art::ActivityReg
   conductorCurrent_(infGeom_.conductorCurrent),
   fieldNormConst_(infGeom_.fieldNormConst),
   currentToMagFieldConversion_(infGeom_.currentToMagFieldConversion),
-  spin_tracking_(sts_.spinTrackingEnabled)
-
+  spin_tracking_(sts_.spinTrackingEnabled),
+  inflectorSDname_("InflectorSD")
 {
   printf("In the Inflector service constructor\n");
   
@@ -731,8 +731,8 @@ void gm2ringsim::Inflector::buildTrackingVolumes(){
   // FIXME: Need to ARTIZE this
   G4SDManager* SDman = G4SDManager::GetSDMpointer();
   SDman->ListTree();
-  G4String inflectorSDname = "InflectorSD";
-  InflectorSD* infSD = new InflectorSD(inflectorSDname);
+  //  G4String inflectorSDname = "InflectorSD";
+  InflectorSD* infSD = new InflectorSD(inflectorSDname_);
   SDman->AddNewDetector( infSD );
   //inflectorSD *infSD = SDHandleOwner::getInstance().getInflectorSD();
   
@@ -1088,10 +1088,11 @@ void gm2ringsim::Inflector::doFillEventWithArtHits(G4HCofThisEvent *hc) {
   if (NULL != myCollection) {
     std::vector<inflectorHit*> geantHits = *(myCollection->GetVector());
 
+
     for ( auto e : geantHits ) {
       e->Print();
-      // Copy this hit into the Art hit                                          
-      myArtHits->emplace_back( 17 );
+      // Copy this hit into the Art hit                                         
+     myArtHits->emplace_back( 17 );
       //e->GetTrackID(), e->GetPos(), e->GetChamberNb(),
       //e->GetEdep() );
       }
