@@ -123,6 +123,9 @@ gm2ringsim::Inflector::Inflector(fhicl::ParameterSet const & p, art::ActivityReg
 {
   printf("In the Inflector service constructor\n");
   
+  // Let's prepare the sensitive detector, no registration with G4SDManager necessary as 
+  // this is done in FiberHarpSD constructor
+  inflectorSD_ = new InflectorSD(inflectorSDname_);
 
   //FIXME: No need for this binding. We can just grab spintracking from
   //      the master fcl and set the spintracking variable accordingly,once.
@@ -729,8 +732,8 @@ void gm2ringsim::Inflector::buildTrackingVolumes(){
   G4SDManager* SDman = G4SDManager::GetSDMpointer();
   SDman->ListTree();
   //  G4String inflectorSDname = "InflectorSD";
-  InflectorSD* infSD = new InflectorSD(inflectorSDname_);
-  SDman->AddNewDetector( infSD );
+  //InflectorSD* infSD = new InflectorSD(inflectorSDname_);
+  //  SDman->AddNewDetector( infSD );
   //inflectorSD *infSD = SDHandleOwner::getInstance().getInflectorSD();
   
   //END FIXME
