@@ -13,7 +13,7 @@
 #include "Geant4/G4VSensitiveDetector.hh"
 #include "Geant4/G4Step.hh"
 #include "Geant4/G4HCofThisEvent.hh"
-#include "gm2ringsim/inflector/inflectorHit.hh"
+#include "gm2ringsim/inflector/InflectorHit.hh"
 
 class InflectorSDMessenger;
 

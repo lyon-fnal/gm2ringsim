@@ -15,7 +15,7 @@
 #include "Geant4/G4StepPoint.hh"
 #include "Geant4/G4LorentzVector.hh"
 
-#include "gm2ringsim/inflector/inflectorHit.hh"
+#include "gm2ringsim/inflector/InflectorHit.hh"
 #include "gm2ringsim/inflector/InflectorSD.hh"
 //FIXME: Need to include the eventAction #include "eventAction.hh"
 

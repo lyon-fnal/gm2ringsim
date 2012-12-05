@@ -19,7 +19,7 @@
 #include "Geant4/G4TransportationManager.hh" 
 #include "Geant4/G4Navigator.hh" 
 
-#include "gm2ringsim/inflector/inflectorHit.hh"
+#include "gm2ringsim/inflector/InflectorHit.hh"
 //FIXME: do i need this?#include "g2UniqueObjectManager.rhh"
 
 G4Allocator<inflectorHit> inflectorHitAllocator;
