@@ -77,6 +77,8 @@ services: {
 
     EventAction: {
       name: "event"
+      // heartbeatFreq :  100
+      // heartbeatLength: 0
     }//EventAction
     
     RunAction: {
