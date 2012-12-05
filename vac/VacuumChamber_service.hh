@@ -17,6 +17,7 @@
 #include "Geant4/G4VPhysicalVolume.hh"
 #include "Geant4/G4UnionSolid.hh"
 
+#include "gm2ringsim/actions/muonStorageStatus/TurnCounter.hh"
 
 #include "gm2ringsim/vac/VacGeometry.hh"
 
@@ -40,7 +41,8 @@ namespace gm2ringsim {
         virtual ~VacuumChamber() {};
 
     private:
-
+      turnCounterSD turnSD_;
+      
         // Private overriden methods
 
         // Create the logical volumes
