@@ -40,38 +40,16 @@
 #include <boost/tokenizer.hpp>
 #include <boost/lexical_cast.hpp>
 
-
-#ifndef __MACH__
-namespace {
-  //  clockid_t const clkid = CLOCK_REALTIME;
-  //  clock_t const clkid = CLOCK_REALTIME;
-  
-  // make sure the RSM is initialized before we exit PreInit state, or
-  // the Messenger directories won't be populated correctly....
-  //FIXME: Address in ART rootStorageManager& rsm = rootStorageManager::getInstance();
-}
-#endif
-
-
 // Constructor
 gm2ringsim::EventAndRunAction::EventAndRunAction(fhicl::ParameterSet const& p, art::ActivityRegistry&) :
   artg4::EventActionBase(p.get<std::string>("name")),
   artg4::RunActionBase(p.get<std::string>("name")),
   muonStorageStatus_(muonTrackingStatus::trackingMuon),
-  //RunAction(currentRunAction), 
   hbFreq_(p.get<int>("heartbeatFreq",100)),
   hbLength_(p.get<int>("heartbeatLength",0)),
   //  ,eam_(new eventActionMessenger(this))
-  start_(), // These have different types on MAC and LINUX
-  end_(),   // but they are defined in the same relative order
-#ifdef __MACH__
-  cclock_(),
-  mts_(),
-#else
-  clockID_(CLOCK_REALTIME),
-#endif
   muonStorageCounter_(0),
-  logInfo_("RunAction")
+  logInfo_("EventAndRunAction")
 {}
   
 //beginOfEventAndRunAction
@@ -139,22 +117,12 @@ void gm2ringsim::EventAndRunAction::beginOfRunAction(const G4Run *currentRun) {
      << "  Aborting Run....\n";
      G4RunManager::GetRunManager()->AbortRun();
      }*/
-#ifdef __MACH__
-  mach_clock_get_start_time();
-#else 
-  clock_gettime(clockID_, &start_);
-#endif
 
 }   
 
 
    
 void gm2ringsim::EventAndRunAction::endOfRunAction(const G4Run *currentRun) {
-#ifdef __MACH__
-  mach_clock_get_end_time();
-#else 
-  clock_gettime(clockID_, &end_);
-#endif
   
   G4double totalEvents = currentRun -> GetNumberOfEvent();
   G4double captureEfficiency = (muonStorageCounter_*100.) / totalEvents;
@@ -167,9 +135,6 @@ void gm2ringsim::EventAndRunAction::endOfRunAction(const G4Run *currentRun) {
 	 <<"  Capture Efficiency : (" 
 	 << captureEfficiency << " +/- "
 	 << dcE << ")%\n\n";
-  
-  G4cout << "Elapsed time this run: "
-	 << clockDiff() << "sec\n";
   
   //FIXME: ARTIFY
   // No unique object manager or rootstoragemanager yet
@@ -185,47 +150,6 @@ void gm2ringsim::EventAndRunAction::endOfRunAction(const G4Run *currentRun) {
   void gm2ringsim::EventAndRunAction::incrementMuonStorageCounter()
   {++muonStorageCounter_;} 
     
-
-#ifdef __MACH__
-
-void gm2ringsim::EventAndRunAction::mach_clock_get_start_time(){
-  host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock_);
-  clock_get_time(cclock_, &start_);
-  mach_port_deallocate(mach_task_self(), cclock_); 
-}
-void gm2ringsim::EventAndRunAction::mach_clock_get_end_time(){
-  host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock_);
-  clock_get_time(cclock_, &end_);
-  mach_port_deallocate(mach_task_self(), cclock_); 
-}
-#endif
-
-
-double gm2ringsim::EventAndRunAction::clockDiff()
-{
-  // mach_timespec_t and timespec both have the internal vars:
-  // tv_nsec and tv_sec, so just let the compiler figure out the
-  // type of temp and do the same calculation. In the end, we just
-  // return a double
-
-#ifdef __MACH__
-  mach_timespec_t temp;
-#else
-  timespec temp;
-#endif
-  
-  if ((end_.tv_nsec-start_.tv_nsec)<0) {
-    temp.tv_sec = end_.tv_sec-start_.tv_sec-1;
-    temp.tv_nsec = 1000000000+end_.tv_nsec-start_.tv_nsec;
-  } else {
-    temp.tv_sec = end_.tv_sec-start_.tv_sec;
-    temp.tv_nsec = end_.tv_nsec-start_.tv_nsec;
-  }
-  return temp.tv_sec + temp.tv_nsec/1e9;
-}//EventAndRunAction::clockDiff()
-
-
-
 
 void gm2ringsim::EventAndRunAction::callArtProduces(art::EDProducer *producer){
   //FIXME: Need to figure out the right name with multiple base classes

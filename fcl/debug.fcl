@@ -52,7 +52,6 @@ services: {
     // Detector(s) for the simulation
 
     // Action(s) for the simulation
-    //    ClockAction: {}
     StackingAction: {  
           name: "stackingAction"
 	  minWavelength:250 //nm
@@ -60,8 +59,7 @@ services: {
     }
 
     PhysicsList: {}
-    //    ClockAction: {}	
-    //    RunAction: {}
+    ClockAction: {}	
     World: {}	
     Arc: {}
     VacuumChamber: {}

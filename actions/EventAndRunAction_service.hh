@@ -23,16 +23,6 @@
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-// This is necessary because the time libraries are implemented                               
-// differently on the MAC                                                                     
-#ifdef __MACH__
-#include <mach/clock.h>
-#include <mach/mach.h>
-#else
-#include <time.h>
-#endif
-
-
 // Geant stuff
 #include "Geant4/G4Run.hh"
 
@@ -106,36 +96,9 @@ namespace gm2ringsim
   private:
     //EventAction Stuff
     muonTrackingStatus::state muonStorageStatus_;
-    // convert this to ART service handle in the code
-    //runAction *RunAction_;
     int eventStatus_;
     G4int hbFreq_, hbLength_;
     
-    //RunAction Stuff
-    
-#ifdef __MACH__
-
-    mach_timespec_t start_;
-    mach_timespec_t end_;
-    
-    clock_serv_t cclock_;
-    mach_timespec_t mts_;
-    
-    void mach_clock_get_start_time();
-    void mach_clock_get_end_time();
-#else
-    // timespec values for the start and end of the run;
-    timespec start_;
-    timespec end_;
-    
-    clockid_t clockID_;
-    // A method to find the difference between two timespec values  
-    
-#endif
-    // The diff will use the internal variables rather than being passed
-    // variables, and I will protect against MAC/LINUX timespec types
-    double clockDiff();
-
     // COMMON to MAC and LINUX
     G4int muonStorageCounter_;  
     mf::LogInfo logInfo_;
