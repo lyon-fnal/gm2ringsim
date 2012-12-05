@@ -32,7 +32,6 @@ namespace gm2ringsim {
       vertically when the inflector is in the ring symmetry plane. */ 
     float y_inf;
     /** Inflector offset along the inflector beam aperture.
-
 	Increases in the downstream direction. */
     float z_inf;
     /** Momentum component parallel to the x_inf axis. */
@@ -53,17 +52,32 @@ namespace gm2ringsim {
     int volumeUID;
 
 
-    InflectorRecord(); // no intialization list
-    ~InflectorRecord();
+    InflectorRecord() :
+      x_inf(0.0), y_inf(0.0), z_inf(0.0),
+      px_inf(0.0),py_inf(0.0),pz_inf(0.0),
+      x_loc(0.0),y_loc(0.0),z_loc(0.0),
+      px_loc(0.0),py_loc(0.0),pz_loc(0.0),
+      time(0.0), trackID(0),volumeUID(0) {}
+    virtual ~InflectorRecord() {}
 
-    
+
+    //Root Shouldn't know about this
 #ifndef __GCCXML__
-    InflectorRecord(int);
+    InflectorRecord(float xInf, float yInf, float zInf, float pxInf, float pyInf,
+		    float pzInf, float xLoc, float yLoc, float zLoc, float pxLoc,
+		    float pyLoc, float pzLoc, float time_input, int trackID_input,
+		    int volumeUID_input ) :
+      x_inf(xInf), y_inf(yInf), z_inf(zInf),
+      px_inf(pxInf),py_inf(pyInf),pz_inf(pzInf),
+      x_loc(xLoc),y_loc(yLoc),z_loc(zLoc),
+      px_loc(pxLoc),py_loc(pyLoc),pz_loc(pzLoc),
+      time(time_input),
+      trackID(trackID_input),
+      volumeUID(volumeUID_input) 
+    { }
+#endif //__GCCXML__
 
-
-#endif
-
-  };
+  }; // end of InflectorRecord struct
   typedef std::vector<InflectorRecord> InflectorRecordCollection;
 } //namespace gm2ringsim
 

@@ -1080,21 +1080,27 @@ void gm2ringsim::Inflector::doFillEventWithArtHits(G4HCofThisEvent *hc) {
 
   // The string here is unfortunately a magic constant. It's the string used       
   // by the sensitive detector to identify the collection of hits.                 
-  G4int collectionID = fSDM->GetCollectionID("InflectorSD");
+  G4int collectionID = fSDM->GetCollectionID(inflectorSDname_);
   
   inflectorHitsCollection* myCollection =
     static_cast<inflectorHitsCollection*>(hc->GetHC(collectionID));
   // Check whether the collection exists                                           
   if (NULL != myCollection) {
     std::vector<inflectorHit*> geantHits = *(myCollection->GetVector());
-
-
+    
+    
     for ( auto e : geantHits ) {
       e->Print();
       // Copy this hit into the Art hit                                         
-      myArtHits->emplace_back( 1.0,2.0,3.0,1.0,2.0,3.0,
-			       1.0,2.0,3.0,1.0,2.0,3.0,
-			       1.0, 2, 3);
+      myArtHits->emplace_back( e->position.x(),e->position.y(),e->position.z(),
+			       e->local_position.x(),e->local_position.y(),
+			       e->local_position.z(),
+			       e->momentum.x(),e->momentum.y(),e->momentum.z(),
+			       e->local_momentum.x(),e->local_momentum.y(),
+			       e->local_momentum.z(),
+			       e->time,
+			       e->trackID,
+			       e->volumeUID);
       //e->GetTrackID(), e->GetPos(), e->GetChamberNb(),
       //e->GetEdep() );
       }
