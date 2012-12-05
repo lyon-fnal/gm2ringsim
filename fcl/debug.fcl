@@ -3,6 +3,7 @@
 #include "geom/vac.fcl"
 #include "geom/inflector.fcl"
 #include "geom/fiberHarp.fcl"
+#include "geom/station.fcl"
 
 process_name:myProcessName
 
@@ -40,6 +41,7 @@ services: {
       vac:   @local::vac_geom
       inflector: @local::inflector_geom
       fiberHarp: @local::fiberHarp_geom
+      station: @local::station_geom
      }
     RunSettings : {
       SpinTracking : {
@@ -65,6 +67,8 @@ services: {
     VacuumChamber: {}
     Inflector:{}	
     FiberHarp: {}	   
+    Station: {}
+
     PrimaryGeneratorAction: {
             name: "primary"	
 	    muonGasVerbosity : true
