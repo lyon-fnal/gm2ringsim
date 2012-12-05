@@ -23,7 +23,7 @@
 #include "artg4/actionBase/EventActionBase.hh"
 
 #include "Geant4/G4Event.hh"
-
+#include "gm2ringsim/actions/EventRecord.hh"
 
 #include <tr1/memory>
 
@@ -42,7 +42,10 @@ namespace gm2ringsim
     virtual ~EventAction() {};
     void beginOfEventAction (const G4Event*) override;
     void endOfEventAction( const G4Event* ) override;
-
+    /*
+    void callArtProduces(art::EDProducer * producer) override;
+    void fillEventWithArtStuff(art::Event & e) override;
+    */
     
     /** Setter for successful storage. */
     void successfulStorage();

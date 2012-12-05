@@ -5,6 +5,8 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "artg4/services/ActionHolder_service.hh"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
+#include "gm2ringsim/actions/RunAction_service.hh"
+#include "gm2ringsim/actions/EventRecord.hh"
 
 #include "Geant4/globals.hh"
 
@@ -19,7 +21,6 @@
 //FIXME: include
 //#include "turnCounter.hh"
 
-#include "EventAction_service.hh"
 //#include "runAction.hh"
 
 //#include "rootStorageManager.hh"
@@ -31,9 +32,6 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/lexical_cast.hpp>
-
-
-
 
 // Constructor
 gm2ringsim::EventAction::EventAction(fhicl::ParameterSet const& p, art::ActivityRegistry&) :
@@ -74,7 +72,7 @@ void gm2ringsim::EventAction::endOfEventAction(const G4Event* ){//evt) {
   //FIXME: NOTHING other than the G4cout was commented out.
   // All needs to be reimplemented in ART
 
-// store junk in Root file
+  // store junk in Root file
   //FIXME: Need to bypass rootStorageManager and 
   // directly shove this into the ART eventRecord
   //rootStorageManager & rsm = rootStorageManager::getInstance();
@@ -96,12 +94,29 @@ void gm2ringsim::EventAction::endOfEventAction(const G4Event* ){//evt) {
   //rsm.fill_trees(currentEvent);
 }   
 
-    
+/*
+void gm2ringsim::EventAction::callArtProduces(art::EDProducer *producer){
+  producer->produces<EventRecordCollection*>(myName());
+}
+
+void gm2ringsim::EventAction::fillEventWithArtStuff(art::Event &e) {
+  std::unique_ptr< EventRecordCollection > myArtHits(new EventRecordCollection);
+  myArtHits->emplace_back( true,10,1);
+  e.put(std::move(myArtHits),myName());
+}
+*/
+
 /** Setter for successful storage. */
 void gm2ringsim::EventAction::successfulStorage() {
   muonStorageStatus_ = muonTrackingStatus::storedMuon;
   //FIXME: Deal with RunAction in ART
   //RunAction -> incrementMuonStorageCounter();
+  
+  //Get an ActionService Handle
+  /*  art::ServiceHandle<gm2ringsim::RunAction> runAction;
+  runAction->incrementMuonStorageCounter();
+  */
+
   setEventStatus(kStored);
 } 
 

@@ -82,7 +82,8 @@ gm2ringsim::RunAction::RunAction(fhicl::ParameterSet const& p, art::ActivityRegi
 #endif
   muonStorageCounter_(0),
   logInfo_("RunAction")
-{ }
+{ 
+}
 
 void gm2ringsim::RunAction::beginOfRunAction(const G4Run *currentRun) {
   // Initialization per run
