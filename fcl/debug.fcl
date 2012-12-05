@@ -77,16 +77,19 @@ services: {
             } //g2GPS Parameter Set
         } //PrimaryGeneratorAciton
 
-    RunAction: {
-      name: "run"
-    }//RunAction
+      EventAndRunAction: {
+        name: "eventAndRun"
+      }//EventAndRunAction
+//    RunAction: {
+//      name: "run"
+//    }//RunAction
 
 
-    EventAction: {
-      name: "event"
-      // heartbeatFreq :  100
-      // heartbeatLength: 0
-    }//EventAction
+//    EventAction: {
+//      name: "event"
+//      // heartbeatFreq :  100
+//      // heartbeatLength: 0
+//    }//EventAction
     
 
   } //user:

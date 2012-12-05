@@ -25,7 +25,7 @@ namespace gm2ringsim{
     int EventStatus; 
     
     EventRecord() : muWasStored(false), lastTurn(0), EventStatus(-1) {}
-    ~EventRecord();
+    ~EventRecord() {}
     
 #ifndef __GCCXML__
     EventRecord(bool stored,int turn, int status) :
