@@ -50,7 +50,7 @@
 #include "gm2ringsim/inflector/inflectorGeometry.hh"
 #include "gm2ringsim/inflector/InflectorSD.hh"
 #include "gm2ringsim/inflector/InflectorRecord.hh"
-#include "gm2ringsim/inflector/inflectorHit.hh"
+#include "gm2ringsim/inflector/InflectorHit.hh"
 
 #include "gm2ringsim/common/g2PreciseValues.hh"
 
