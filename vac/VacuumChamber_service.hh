@@ -17,11 +17,12 @@
 #include "Geant4/G4VPhysicalVolume.hh"
 #include "Geant4/G4UnionSolid.hh"
 
-#include "gm2ringsim/actions/muonStorageStatus/TurnCounter.hh"
+#include "gm2ringsim/actions/muonStorageStatus/TurnCounterSD.hh"
 
 #include "gm2ringsim/vac/VacGeometry.hh"
 
 #include <vector>
+
 
 // Get the base class for the service
 #include "artg4/Core/DetectorBase.hh"
@@ -29,25 +30,26 @@
 // Within a namespace
 namespace gm2ringsim {
 
-    // The class
-    class VacuumChamber : public artg4::DetectorBase {
-
+  // The class
+  class VacuumChamber : public artg4::DetectorBase {
+    
     public:
-
-        // Constructor
-        VacuumChamber(fhicl::ParameterSet const &, art::ActivityRegistry & );
-
-        // We always need a virtual destructor
-        virtual ~VacuumChamber() {};
-
-    private:
-      turnCounterSD turnSD_;
-      
-        // Private overriden methods
-
-        // Create the logical volumes
-        virtual std::vector<G4LogicalVolume*> doBuildLVs() override;
-
+    
+      // Constructor
+      VacuumChamber(fhicl::ParameterSet const &, art::ActivityRegistry & );
+     
+    // We always need a virtual destructor
+    virtual ~VacuumChamber() {};
+     
+  private:
+    G4String turnCounterSDName_;
+    turnCounterSD turnSD_;
+    
+    // Private overriden methods
+    
+    // Create the logical volumes
+    virtual std::vector<G4LogicalVolume*> doBuildLVs() override;
+    
         // Create the physical volumes
         virtual std::vector<G4VPhysicalVolume*> doPlaceToPVs( std::vector<G4LogicalVolume*>) override;
       

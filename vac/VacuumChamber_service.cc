@@ -18,9 +18,11 @@
 // Constructor for the service 
 gm2ringsim::VacuumChamber::VacuumChamber(fhicl::ParameterSet const & p, art::ActivityRegistry & ) :
     DetectorBase(p,
-                   p.get<std::string>("name", "vac"),
-                   p.get<std::string>("category", "vac"),
-                   p.get<std::string>("mother_category", "arc"))
+		 p.get<std::string>("name", "vac"),
+		 p.get<std::string>("category", "vac"),
+		 p.get<std::string>("mother_category", "arc")),
+    turnCounterSDName_("turnCounter"),
+    turnSD_(turnCounterSDName_)
 {}
 
 G4UnionSolid* gm2ringsim::VacuumChamber::buildUnionSolid(const VacGeometry& g, VacGeometry::typeToBuild which, unsigned int arc) {
