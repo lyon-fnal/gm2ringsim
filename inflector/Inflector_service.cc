@@ -415,9 +415,6 @@ void gm2ringsim::Inflector::buildPeripherals_SandL(){
       ... still don't know if this can just be dispensed with, per
       ZSH's comment. */
 
-  //FIXME: Do these need to use the private member variables instead of creating new ones??
-  // @note: in G2MIGTRACE, these were not set to the inflector private vars, but rather
-  //        new ones were created (iEquation,iStepper,iChordFinder)
   G4UniformMagField* launchField
     = new G4UniformMagField(G4ThreeVector(0., 0., 0.));
   iEquation_ = new G4Mag_UsualEqRhs(launchField);
@@ -1101,10 +1098,8 @@ void gm2ringsim::Inflector::doFillEventWithArtHits(G4HCofThisEvent *hc) {
 			       e->time,
 			       e->trackID,
 			       e->volumeUID);
-      //e->GetTrackID(), e->GetPos(), e->GetChamberNb(),
-      //e->GetEdep() );
-      }
-  }
+    } //loop over geantHits
+  } //if we have a myCollection
 
   else {
     throw cet::exception("Inflector") << "Null collection of Geant tracker hits"
