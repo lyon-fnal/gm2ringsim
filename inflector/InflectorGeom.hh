@@ -15,7 +15,8 @@ namespace gm2ringsim {
   struct InflectorGeom : public artg4::GeometryBase {
     InflectorGeom(std::string const &);
     void print() const;
-
+    
+    
     inflectorGeometry ig;
     
     const double inflectorTotalLength;
@@ -35,6 +36,16 @@ namespace gm2ringsim {
     const double parWall_X;
     const double parWall_Y;
     const double parWall_Z;
+    
+    const double parWall_alpha;
+    const double parWall_beta;
+    const double parWall_gamma;
+
+    const double parWall_posX;
+    const double parWall_posY;
+    const double parWall_posZ;
+    
+
 
     const double perpWall_X;
     const double perpWall_Y;
@@ -115,7 +126,22 @@ namespace gm2ringsim {
     
     const double cryo_angular;
     const double cryo_rotation;
-    
+
+    const int num_trackers;
+    const double epsilon;
+    const int vacuumInflectorSection;
+    const double maxStepLength;
+    const bool useConductorEquivalent;
+    const bool useUpstreamWindow;
+    const bool useDownstreamWindow;
+    const bool useUpstreamConductor;
+    const bool useDownstreamConductor;
+    const bool useUpstreamEndFlange;
+    const bool useDownstreamEndFlange;
+
+    const double conductorCurrent;
+    const double fieldNormConst;
+    const double currentToMagFieldConversion;
     
   };
 }

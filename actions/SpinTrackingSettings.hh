@@ -15,7 +15,7 @@ namespace gm2ringsim {
     SpinTrackingSettings(std::string const &);
     void print() const;
 
-    const bool spinTrackingEnabled;
+    bool spinTrackingEnabled;
     
   };
 }

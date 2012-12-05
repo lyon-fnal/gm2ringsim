@@ -3,6 +3,7 @@
 #include "geom/vac.fcl"
 #include "geom/inflector.fcl"
 #include "geom/fiberHarp.fcl"
+#include "geom/station.fcl"
 
 process_name:myProcessName
 
@@ -40,14 +41,13 @@ services: {
       vac:   @local::vac_geom
       inflector: @local::inflector_geom
       fiberHarp: @local::fiberHarp_geom
+      station: @local::station_geom
      }
-     
-     RunSettings: {
-       SpinTracking: {
-         spinTrackingEnabled : true
+    RunSettings : {
+      SpinTracking : {
+        spinTrackingEnabled : false
       }
     }
-     
      
     // Detector(s) for the simulation
 
@@ -67,6 +67,8 @@ services: {
     VacuumChamber: {}
     Inflector:{}	
     FiberHarp: {}	   
+    Station: {}
+
     PrimaryGeneratorAction: {
             name: "primary"	
 	    muonGasVerbosity : true
@@ -104,17 +106,17 @@ physics: {
       enableVisualization: true
       macroPath: ".:./macros:../macros:../../macros"
       visMacro: "vis.mac"
-      afterEvent: pause
-      //      pauseAfterEvent: true
-    }
-  }
+     //     afterEvent : ui   
+     afterEvent: pause
+
+   }
+ }
 
   path1: [ artg4Main ]
   stream1:  [ out1 ]
 
   trigger_paths: [ path1 ]
   end_paths: [ stream1 ]
+
 }
 
-// Override Arc display
-services.user.Geometry.arc.display : true
