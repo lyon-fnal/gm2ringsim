@@ -1092,7 +1092,9 @@ void gm2ringsim::Inflector::doFillEventWithArtHits(G4HCofThisEvent *hc) {
     for ( auto e : geantHits ) {
       e->Print();
       // Copy this hit into the Art hit                                         
-     myArtHits->emplace_back( 17 );
+      myArtHits->emplace_back( 1.0,2.0,3.0,1.0,2.0,3.0,
+			       1.0,2.0,3.0,1.0,2.0,3.0,
+			       1.0, 2, 3);
       //e->GetTrackID(), e->GetPos(), e->GetChamberNb(),
       //e->GetEdep() );
       }
