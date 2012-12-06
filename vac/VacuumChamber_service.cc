@@ -228,6 +228,9 @@ void gm2ringsim::VacuumChamber::makeTrackerPVs(
     
     // TODO - handle sensitive detectors
     //trackerSD *tracker = SDHandleOwner::getInstance().getTrackerSD();
+    // Brendan: Now the trackerSD_ is grabbed from the SDManager in the constructor
+    // using a function in util.hh. We could also rever to the SDHandleOwner if preferred
+    // simply by copying the SDHandleOwner class over
     trackerTubs_L->SetSensitiveDetector( trackerSD_ );
     
     // In arcNumber 11, put a turnCounter at the inflector aperture
