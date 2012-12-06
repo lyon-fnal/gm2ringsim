@@ -5,10 +5,10 @@
 
 #include "art/Persistency/Common/Wrapper.h"
 
-#include "TrackArtHit.hh"
+#include "TrackingActionArtRecord.hh"
 
 // Template the vector (no typedef)
-template class std::vector< gm2ringsim::TrackArtHit >;
+template class std::vector< gm2ringsim::TrackingActionArtRecord >;
 
 // Template the wrapper for the vector (typedef okay)
-template class art::Wrapper< gm2ringsim::TrackArtHitCollection >;
+template class art::Wrapper< gm2ringsim::TrackingActionArtRecordCollection >;
