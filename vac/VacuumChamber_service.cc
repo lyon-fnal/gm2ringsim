@@ -14,14 +14,21 @@
 #include "Geant4/G4PVPlacement.hh"
 #include "Geant4/G4VisAttributes.hh"
 #include "Geant4/G4UserLimits.hh"
+#include "Geant4/G4SDManager.hh"
 
 // Constructor for the service 
 gm2ringsim::VacuumChamber::VacuumChamber(fhicl::ParameterSet const & p, art::ActivityRegistry & ) :
-    DetectorBase(p,
-                   p.get<std::string>("name", "vac"),
-                   p.get<std::string>("category", "vac"),
-                   p.get<std::string>("mother_category", "arc"))
-{}
+  DetectorBase(p,
+	       p.get<std::string>("name", "vac"),
+	       p.get<std::string>("category", "vac"),
+	       p.get<std::string>("mother_category", "arc")),
+  turnCounterSDName_("turnCounter"),
+  trackerSDName_("tracker")
+{
+  //creates or gets the turnCounterSD depending on whether it exists or not.
+  artg4::getSensitiveDetector(turnCounterSDName_,turnSD_);
+  artg4::getSensitiveDetector(trackerSDName_,trackerSD_);
+}
 
 G4UnionSolid* gm2ringsim::VacuumChamber::buildUnionSolid(const VacGeometry& g, VacGeometry::typeToBuild which, unsigned int arc) {
   
@@ -221,7 +228,10 @@ void gm2ringsim::VacuumChamber::makeTrackerPVs(
     
     // TODO - handle sensitive detectors
     //trackerSD *tracker = SDHandleOwner::getInstance().getTrackerSD();
-    //trackerTubs_L->SetSensitiveDetector( tracker );
+    // Brendan: Now the trackerSD_ is grabbed from the SDManager in the constructor
+    // using a function in util.hh. We could also rever to the SDHandleOwner if preferred
+    // simply by copying the SDHandleOwner class over
+    trackerTubs_L->SetSensitiveDetector( trackerSD_ );
     
     // In arcNumber 11, put a turnCounter at the inflector aperture
     // position
@@ -253,9 +263,9 @@ void gm2ringsim::VacuumChamber::makeTrackerPVs(
                         }
       );
       
-      // TODO - handle sensitive detectors
+      // Unnecessary in ART since the turnCounters are managed by SDManager
       //turnCounterSD *tcsd = SDHandleOwner::getInstance().getTurnCounterSD();
-      //turnCounterTubs_L->SetSensitiveDetector( tcsd );
+      turnCounterTubs_L->SetSensitiveDetector( turnSD_ );
     }
   }
 }

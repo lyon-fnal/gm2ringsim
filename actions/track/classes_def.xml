@@ -1,0 +1,9 @@
+<!-- classes_def.xml created by Tasha Arvanitis, July 2012 -->
+
+<lcgdict>
+    <!-- No typedefs here! -->
+    <class name="gm2ringsim::TrackArtHit"/>
+    <class name="std::vector< gm2ringsim::TrackArtHit >"/>
+    <class name="art::Wrapper< std::vector< gm2ringsim::TrackArtHit > >"/>
+
+</lcgdict>
