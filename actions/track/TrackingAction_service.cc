@@ -16,7 +16,7 @@ using std::string;
 gm2ringsim::TrackingAction::TrackingAction(fhicl::ParameterSet const & p, 
 					      art::ActivityRegistry &)
   : TrackingActionBase(p.get<string>("name","TrackingAction")),
-    myArtHits_(new TrackArtHitCollection),
+    myArtHits_(new TrackingActionArtRecordCollection),
     logInfo_("TrackingAction")
 { }
 
@@ -37,7 +37,7 @@ preUserTrackingAction(const G4Track * currentTrack)
   }
   
   // Create a hit
-  TrackArtHit tr;
+  TrackingActionArtRecord tr;
   
   // Fill it based on the track.
   tr.trackType = std::string(currentTrack->GetDefinition()->GetParticleName());
@@ -75,7 +75,7 @@ preUserTrackingAction(const G4Track * currentTrack)
 // Tell Art what we produce
 void gm2ringsim::TrackingAction::callArtProduces(art::EDProducer * producer)
 {
-  producer -> produces<TrackArtHitCollection>();
+  producer -> produces<TrackingActionArtRecordCollection>();
 }
 
 // Add our collection to the Art event.

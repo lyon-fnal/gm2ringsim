@@ -31,7 +31,7 @@
 #include "artg4/actionBase/TrackingActionBase.hh"
 
 // Other includes
-#include "gm2ringsim/actions/track/TrackArtHit.hh"
+#include "gm2ringsim/actions/track/TrackingActionArtRecord.hh"
 #include "Geant4/G4Track.hh"
 
 namespace gm2ringsim {
@@ -57,7 +57,7 @@ namespace gm2ringsim {
 
   private:
     // Our collection of track hits
-    std::unique_ptr<TrackArtHitCollection> myArtHits_;
+    std::unique_ptr<TrackingActionArtRecordCollection> myArtHits_;
 
     // A message logger for this action
     mf::LogInfo logInfo_;
