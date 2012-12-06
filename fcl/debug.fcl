@@ -52,7 +52,6 @@ services: {
     // Detector(s) for the simulation
 
     // Action(s) for the simulation
-    //    ClockAction: {}
     StackingAction: {  
           name: "stackingAction"
 	  minWavelength:250 //nm
@@ -60,11 +59,10 @@ services: {
     }
 
     PhysicsList: {}
-    //    ClockAction: {}	
-    //    RunAction: {}
     TrackingAction : {
           name : "trackingAction"
     }
+    ClockAction: {}	
     World: {}	
     Arc: {}
     VacuumChamber: {}
@@ -80,13 +78,20 @@ services: {
             } //g2GPS Parameter Set
         } //PrimaryGeneratorAciton
 
-    EventAction: {
-      name: "event"
-    }//EventAction
+      MuonStorageStatusAction: { 
+        name: "MuonStorageStatusAction"
+      }//MuonStorageStatusAction
+//    RunAction: {
+//      name: "run"
+//    }//RunAction
+
+
+//    EventAction: {
+//      name: "event"
+//      // heartbeatFreq :  100
+//      // heartbeatLength: 0
+//    }//EventAction
     
-    RunAction: {
-      name: "run"
-    }//RunAction
 
   } //user:
 } //services:
