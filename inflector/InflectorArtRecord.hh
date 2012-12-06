@@ -1,7 +1,7 @@
-#ifndef INFLECTORRECORD_HH
-#define INFLECTORRECORD_HH
+#ifndef INFLECTORARTRECORD_HH
+#define INFLECTORARTRECORD_HH
 
-/** @file InflectorRecord.h
+/** @file InflectorArtRecord.h
 
     Provides the declaration of the Root storable inflector tracking
     record class inflectorRecord.
@@ -17,7 +17,7 @@
 
 namespace gm2ringsim {
 
-  struct InflectorRecord {
+  struct InflectorArtRecord {
     /** Inflector offset coordinate from the aperture central axis in
 	the "most radial" direction.
 	
@@ -52,18 +52,18 @@ namespace gm2ringsim {
     int volumeUID;
 
 
-    InflectorRecord() :
+    InflectorArtRecord() :
       x_inf(0.0), y_inf(0.0), z_inf(0.0),
       px_inf(0.0),py_inf(0.0),pz_inf(0.0),
       x_loc(0.0),y_loc(0.0),z_loc(0.0),
       px_loc(0.0),py_loc(0.0),pz_loc(0.0),
       time(0.0), trackID(0),volumeUID(0) {}
-    virtual ~InflectorRecord() {}
+    virtual ~InflectorArtRecord() {}
 
 
     //Root Shouldn't know about this
 #ifndef __GCCXML__
-    InflectorRecord(float xInf, float yInf, float zInf, float pxInf, float pyInf,
+    InflectorArtRecord(float xInf, float yInf, float zInf, float pxInf, float pyInf,
 		    float pzInf, float xLoc, float yLoc, float zLoc, float pxLoc,
 		    float pyLoc, float pzLoc, float time_input, int trackID_input,
 		    int volumeUID_input ) :
@@ -77,8 +77,8 @@ namespace gm2ringsim {
     { }
 #endif //__GCCXML__
 
-  }; // end of InflectorRecord struct
-  typedef std::vector<InflectorRecord> InflectorRecordCollection;
+  }; // end of InflectorArtRecord struct
+  typedef std::vector<InflectorArtRecord> InflectorArtRecordCollection;
 } //namespace gm2ringsim
 
 #endif

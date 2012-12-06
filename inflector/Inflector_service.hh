@@ -42,6 +42,7 @@
 #include "artg4/Core/DetectorBase.hh"
 
 #include "gm2ringsim/inflector/InflectorGeom.hh"
+#include "gm2ringsim/inflector/InflectorSD.hh"
 #include "gm2ringsim/actions/SpinTrackingSettings.hh"
 
 // Within a namespace
