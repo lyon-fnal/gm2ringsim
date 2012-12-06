@@ -47,7 +47,7 @@
 #include "Geant4/G4SDManager.hh"
 
 
-#include "gm2ringsim/inflector/inflectorField.hh"
+#include "gm2ringsim/inflector/InflectorField.hh"
 #include "gm2ringsim/inflector/inflectorGeometry.hh"
 #include "gm2ringsim/inflector/InflectorSD.hh"
 #include "gm2ringsim/inflector/InflectorArtRecord.hh"
