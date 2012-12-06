@@ -43,7 +43,7 @@ namespace gm2ringsim {
      
   private:
     G4String turnCounterSDName_;
-    turnCounterSD turnSD_;
+    turnCounterSD *turnSD_;
     
     // Private overriden methods
     

@@ -14,16 +14,20 @@
 #include "Geant4/G4PVPlacement.hh"
 #include "Geant4/G4VisAttributes.hh"
 #include "Geant4/G4UserLimits.hh"
+#include "Geant4/G4SDManager.hh"
 
 // Constructor for the service 
 gm2ringsim::VacuumChamber::VacuumChamber(fhicl::ParameterSet const & p, art::ActivityRegistry & ) :
-    DetectorBase(p,
-		 p.get<std::string>("name", "vac"),
-		 p.get<std::string>("category", "vac"),
-		 p.get<std::string>("mother_category", "arc")),
-    turnCounterSDName_("turnCounter"),
-    turnSD_(turnCounterSDName_)
-{}
+  DetectorBase(p,
+	       p.get<std::string>("name", "vac"),
+	       p.get<std::string>("category", "vac"),
+	       p.get<std::string>("mother_category", "arc")),
+  turnCounterSDName_("turnCounter")
+{
+  //creates or gets the turnCounterSD depending on whether it exists or not.
+  artg4::getSensitiveDetector(turnCounterSDName_,turnSD_);
+
+}
 
 G4UnionSolid* gm2ringsim::VacuumChamber::buildUnionSolid(const VacGeometry& g, VacGeometry::typeToBuild which, unsigned int arc) {
   
@@ -255,9 +259,9 @@ void gm2ringsim::VacuumChamber::makeTrackerPVs(
                         }
       );
       
-      // TODO - handle sensitive detectors
+      // Unnecessary in ART since the turnCounters are managed by SDManager
       //turnCounterSD *tcsd = SDHandleOwner::getInstance().getTurnCounterSD();
-      //turnCounterTubs_L->SetSensitiveDetector( tcsd );
+      turnCounterTubs_L->SetSensitiveDetector( turnSD_ );
     }
   }
 }
