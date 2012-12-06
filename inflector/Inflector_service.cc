@@ -28,6 +28,7 @@
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 
 #include "artg4/material/Materials.hh"
+#include "artg4/util/util.hh"
 
 //Geant4
 #include "Geant4/G4PVPlacement.hh"
@@ -49,7 +50,7 @@
 #include "gm2ringsim/inflector/inflectorField.hh"
 #include "gm2ringsim/inflector/inflectorGeometry.hh"
 #include "gm2ringsim/inflector/InflectorSD.hh"
-#include "gm2ringsim/inflector/InflectorRecord.hh"
+#include "gm2ringsim/inflector/InflectorArtRecord.hh"
 #include "gm2ringsim/inflector/InflectorHit.hh"
 
 #include "gm2ringsim/common/g2PreciseValues.hh"
@@ -123,6 +124,10 @@ gm2ringsim::Inflector::Inflector(fhicl::ParameterSet const & p, art::ActivityReg
 {
   printf("In the Inflector service constructor\n");
   
+  // Let's prepare the sensitive detector, no registration with G4SDManager necessary as 
+  // this is done in FiberHarpSD constructor
+
+  artg4::getSensitiveDetector(inflectorSDname_, inflectorSD_);
 
   //FIXME: No need for this binding. We can just grab spintracking from
   //      the master fcl and set the spintracking variable accordingly,once.
@@ -729,8 +734,8 @@ void gm2ringsim::Inflector::buildTrackingVolumes(){
   G4SDManager* SDman = G4SDManager::GetSDMpointer();
   SDman->ListTree();
   //  G4String inflectorSDname = "InflectorSD";
-  InflectorSD* infSD = new InflectorSD(inflectorSDname_);
-  SDman->AddNewDetector( infSD );
+  //InflectorSD* infSD = new InflectorSD(inflectorSDname_);
+  //  SDman->AddNewDetector( infSD );
   //inflectorSD *infSD = SDHandleOwner::getInstance().getInflectorSD();
   
   //END FIXME
@@ -795,7 +800,7 @@ void gm2ringsim::Inflector::buildTrackingVolumes(){
     log -> SetVisAttributes(tcbVisAtt);
 
     //FIXME: Artize
-    log -> SetSensitiveDetector(infSD);
+    log -> SetSensitiveDetector(inflectorSD_);
 
     name.str("");
     name << "InflectorTracker["
@@ -852,13 +857,13 @@ void gm2ringsim::Inflector::rebuildFieldImpl(){
   
   switch( mag_field_type_ ){
   case VANISHING_FIELD:
-    inflectorMagField_ = new vanishingInflectorField;
+    inflectorMagField_ = new VanishingInflectorField;
     break;
   case SIMPLE_FIELD:
-    inflectorMagField_ = new simpleInflectorField(fieldNormConst_);
+    inflectorMagField_ = new SimpleInflectorField(fieldNormConst_);
     break;
   case MAPPED_FIELD:
-    inflectorMagField_ = new mappedInflectorField();
+    inflectorMagField_ = new MappedInflectorField();
     break;
   default:
     G4cout << "An improper Inflector Field was set in Inflector::rebuildFieldImpl()!!\n";
@@ -1064,13 +1069,13 @@ void gm2ringsim::Inflector::generateGPSMacros(){
 
 // Declare to Art what we are producing
 void gm2ringsim::Inflector::doCallArtProduces(art::EDProducer * producer) {
-  producer->produces<InflectorRecordCollection>(category());
+  producer->produces<InflectorArtRecordCollection>(category());
 }
 
 // Actually add the data to the event
 void gm2ringsim::Inflector::doFillEventWithArtHits(G4HCofThisEvent *hc) {
    
-  std::unique_ptr<InflectorRecordCollection> myArtHits(new InflectorRecordCollection);
+  std::unique_ptr<InflectorArtRecordCollection> myArtHits(new InflectorArtRecordCollection);
 
   // Find the collection ID for the hits
   G4SDManager* fSDM = G4SDManager::GetSDMpointer();
