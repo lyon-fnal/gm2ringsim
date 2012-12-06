@@ -1,7 +1,7 @@
 // Implementation of FiberHarp
 #include "gm2ringsim/fiberHarp/FiberHarp_service.hh"
 #include "gm2ringsim/fiberHarp/FiberHarpHit.hh"
-#include "gm2ringsim/fiberHarp/FiberHarpRecord.hh"
+#include "gm2ringsim/fiberHarp/FiberHarpArtRecord.hh"
 
 #include "gm2ringsim/common/g2PreciseValues.hh"
 
@@ -79,12 +79,12 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::FiberHarp::doPlaceToPVs(std::vector
 
 // Declare to Art what we are producing
 void gm2ringsim::FiberHarp::doCallArtProduces(art::EDProducer * producer) {
-  producer->produces<FiberHarpRecordCollection>(category());
+  producer->produces<FiberHarpArtRecordCollection>(category());
 }
 //
 // Actually add the data to the event
 void gm2ringsim::FiberHarp::doFillEventWithArtHits(G4HCofThisEvent *hc) {
-    std::unique_ptr<FiberHarpRecordCollection> myArtHits(new FiberHarpRecordCollection);
+    std::unique_ptr<FiberHarpArtRecordCollection> myArtHits(new FiberHarpArtRecordCollection);
   
   // Find the collection ID for the hits
   G4SDManager* fSDM = G4SDManager::GetSDMpointer();
