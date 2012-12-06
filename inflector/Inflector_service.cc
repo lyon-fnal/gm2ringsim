@@ -857,13 +857,13 @@ void gm2ringsim::Inflector::rebuildFieldImpl(){
   
   switch( mag_field_type_ ){
   case VANISHING_FIELD:
-    inflectorMagField_ = new vanishingInflectorField;
+    inflectorMagField_ = new VanishingInflectorField;
     break;
   case SIMPLE_FIELD:
-    inflectorMagField_ = new simpleInflectorField(fieldNormConst_);
+    inflectorMagField_ = new SimpleInflectorField(fieldNormConst_);
     break;
   case MAPPED_FIELD:
-    inflectorMagField_ = new mappedInflectorField();
+    inflectorMagField_ = new MappedInflectorField();
     break;
   default:
     G4cout << "An improper Inflector Field was set in Inflector::rebuildFieldImpl()!!\n";

@@ -1,4 +1,4 @@
-/** @file inflectorField.cc
+/** @file InflectorField.cc
 
     Implements all the members of the vanishingInflectorField,
     simpleInflectorField and mappedInflectorField classes.
@@ -23,12 +23,12 @@
 
 #include "gm2ringsim/common/g2PreciseValues.hh"
 #include "gm2ringsim/inflector/inflectorGeometry.hh"
-#include "gm2ringsim/inflector/inflectorField.hh"
+#include "gm2ringsim/inflector/InflectorField.hh"
 #include "gm2ringsim/inflector/storageRingField.hh"
 
 //////////// vanishingInflectorField
 
-void vanishingInflectorField::GetFieldValue(const double */*Point*/,
+void gm2ringsim::VanishingInflectorField::GetFieldValue(const double */*Point*/,
 					    double *Bfield) const
 {
   Bfield[0] = Bfield[1] = Bfield[2] = 0.;
@@ -39,7 +39,7 @@ void vanishingInflectorField::GetFieldValue(const double */*Point*/,
 
 //////////// simpleInflectorField
 
-simpleInflectorField::simpleInflectorField(G4double fieldNormConstant) :
+gm2ringsim::SimpleInflectorField::SimpleInflectorField(G4double fieldNormConstant) :
   epsilon(30*degree),fieldNormConst(fieldNormConstant)
 {
   // Set data members to latest position of inflector
@@ -80,11 +80,11 @@ simpleInflectorField::simpleInflectorField(G4double fieldNormConstant) :
 }
 
 
-simpleInflectorField::~simpleInflectorField()
+gm2ringsim::SimpleInflectorField::~SimpleInflectorField()
 {;}
 
 
-void simpleInflectorField::GetFieldValue(const double *Point,
+void gm2ringsim::SimpleInflectorField::GetFieldValue(const double *Point,
 				   double *Bfield) const
 {
   const G4double x_muon = Point[0];
@@ -100,7 +100,7 @@ void simpleInflectorField::GetFieldValue(const double *Point,
 }
 
 
-G4double simpleInflectorField::CalculateFieldValue(const G4double x_muon,
+G4double gm2ringsim::SimpleInflectorField::CalculateFieldValue(const G4double x_muon,
 					     const G4double /*y_muon*/,
 					     const G4double z_muon) const
 {
@@ -191,7 +191,7 @@ G4double simpleInflectorField::CalculateFieldValue(const G4double x_muon,
 
 /** @bug Need to fix things so that these field maps don't get
     reloaded when the field gets reinstantiated. */
-mappedInflectorField::mappedInflectorField() :
+gm2ringsim::MappedInflectorField::MappedInflectorField() :
   magnet_file_("g2RunTimeFiles/injec_fld.dat"), 
   inflector_file_("g2RunTimeFiles/inf_field_alone.dat")
 {
@@ -205,7 +205,7 @@ mappedInflectorField::mappedInflectorField() :
 
 #include <tr1/functional>
 
-void mappedInflectorField::load_maps(){
+void gm2ringsim::MappedInflectorField::load_maps(){
   // open files and toss if not exist
   // parse file ... write a function that returns vector of data
   // points?   add some comments ... strip/lstrip/rstrip/tokenize/etc.
@@ -232,10 +232,10 @@ void mappedInflectorField::load_maps(){
 	 << magnet_file_ << ".\n"; 
   reflect_and_merge(vec);
   std::for_each(vec.begin(), vec.end(), 			   
-		std::tr1::bind(&mappedInflectorField::magnet_transform,this,
+		std::tr1::bind(&gm2ringsim::MappedInflectorField::magnet_transform,this,
 			       std::tr1::placeholders::_1));
   //FIXME
-  //magnet_tree_ = data_tree(vec.begin(), vec.end());
+  magnet_tree_ = data_tree(vec.begin(), vec.end());
 
 
   G4cout << "Reading inflector field from file " << inflector_file_ << '\n';
@@ -245,10 +245,10 @@ void mappedInflectorField::load_maps(){
 	 << inflector_file_ << ".\n";
   reflect_and_merge(vec);
   std::for_each(vec.begin(), vec.end(), 			   
-		std::tr1::bind(&mappedInflectorField::inflector_transform,this,
+		std::tr1::bind(&gm2ringsim::MappedInflectorField::inflector_transform,this,
 			       std::tr1::placeholders::_1));
   //FIXME
-  //inflector_tree_ = data_tree(vec.begin(), vec.end());
+  inflector_tree_ = data_tree(vec.begin(), vec.end());
 
 #if 0
   inflectorGeometry const& ig = inflectorGeometry::getInstance();
@@ -279,14 +279,14 @@ void mappedInflectorField::load_maps(){
 
     found.clear();
     //FIXME
-    //magnet_tree_.find_within_range(dp, search_rad, std::back_inserter(found));
+    magnet_tree_.find_within_range(dp, search_rad, std::back_inserter(found));
     G4ThreeVector Bf = shepard_interpolate(dp,found);
     out << Bf.y() << ' ';
 
     
     found.clear();
     //FIXME
-    //inflector_tree_.find_within_range(dp, search_rad, std::back_inserter(found));
+    inflector_tree_.find_within_range(dp, search_rad, std::back_inserter(found));
     G4ThreeVector Bi = shepard_interpolate(dp, found);
     out << Bi.y() << ' ';
 
@@ -297,7 +297,7 @@ void mappedInflectorField::load_maps(){
 
 }
 
-void mappedInflectorField::magnet_transform(data_point& dp){
+void gm2ringsim::MappedInflectorField::magnet_transform(data_point& dp){
   // rotate from Wuzheng system to g2MIGTRACE system
   G4ThreeVector rot_pt = rotationYOf(dp.point(), delta_);
   // This transform does the right thing (carefully checked with
@@ -306,7 +306,7 @@ void mappedInflectorField::magnet_transform(data_point& dp){
   dp = data_point(rot_pt, rot_field);
 }
 
-void mappedInflectorField::inflector_transform(data_point& dp){ 
+void gm2ringsim::MappedInflectorField::inflector_transform(data_point& dp){ 
   // translate from Wuzheng system to origin
 
   //  G4cout << "Inflector transform: " <<  dp.point() << '\n';
@@ -346,13 +346,13 @@ void mappedInflectorField::inflector_transform(data_point& dp){
   dp = data_point(pt, field);
 }
 
-std::string mappedInflectorField::magnet_file(std::string name){
+std::string gm2ringsim::MappedInflectorField::magnet_file(std::string name){
   std::string old(magnet_file_);
   magnet_file_ = name;
   return old;
 }
 
-std::string mappedInflectorField::inflector_file(std::string name){
+std::string gm2ringsim::MappedInflectorField::inflector_file(std::string name){
   std::string old(inflector_file_);
   inflector_file_ = name;
   return old;
@@ -362,7 +362,7 @@ std::string mappedInflectorField::inflector_file(std::string name){
 #include <boost/tokenizer.hpp>
 #include <cstdlib>
 
-void mappedInflectorField::reflect_and_merge(data_vec & vec){
+void gm2ringsim::MappedInflectorField::reflect_and_merge(data_vec & vec){
   data_vec reflected;
   data_vec::const_iterator b = vec.begin(),
     e = vec.end();
@@ -383,7 +383,7 @@ void mappedInflectorField::reflect_and_merge(data_vec & vec){
 }
 
 // assume open, valid file.  gonna puke hard if not!
-mappedInflectorField::data_vec mappedInflectorField::
+gm2ringsim::MappedInflectorField::data_vec gm2ringsim::MappedInflectorField::
 parse_file(std::istream& is, int exp_toks){
   data_vec temp;
   std::string str;
@@ -440,7 +440,7 @@ G4double distance(G4ThreeVector const& left,G4ThreeVector const& right){
 
 G4double const search_rad = 5.*millimeter;
 
-void mappedInflectorField::
+void gm2ringsim::MappedInflectorField::
 GetFieldValue( double const * Point, double *Bfield) const {
   G4ThreeVector point(Point[0], Point[1], Point[2]);
   G4ThreeVector zero(0,0,0);
@@ -455,7 +455,7 @@ GetFieldValue( double const * Point, double *Bfield) const {
   // actually check.
   //
   //FIXME
-  //magnet_tree_.find_within_range(dp, search_rad, std::back_inserter(found));
+  magnet_tree_.find_within_range(dp, search_rad, std::back_inserter(found));
 
   /** @bug Need to do something more intelligent if we don't find any
       internal points, that is, if we are outside the mapped field
@@ -465,7 +465,7 @@ GetFieldValue( double const * Point, double *Bfield) const {
 
   // calculate the inflector field
   //FIXME
-  //  inflector_tree_.find_within_range(dp, search_rad, std::back_inserter(found));
+  inflector_tree_.find_within_range(dp, search_rad, std::back_inserter(found));
 
   B += shepard_interpolate(dp, found);
 
@@ -478,7 +478,7 @@ GetFieldValue( double const * Point, double *Bfield) const {
 }
 
 
-G4ThreeVector mappedInflectorField::
+G4ThreeVector gm2ringsim::MappedInflectorField::
 shepard_interpolate(data_point const& dp, data_vec const& dv) const {
   //  G4cout << "shepard_interpolate:\n";
 
