@@ -114,7 +114,6 @@ include(ArtMake)
 
 # Build these directories
 
-add_subdirectory( tracker )
 add_subdirectory( fcl )
 add_subdirectory( macros )
 add_subdirectory( world )
@@ -122,6 +121,7 @@ add_subdirectory( arc )
 add_subdirectory( vac )
 add_subdirectory( fields )
 add_subdirectory( inflector )
+#add_subdirectory( tracker )
 add_subdirectory( common )
 add_subdirectory( ups )
 add_subdirectory( test )
