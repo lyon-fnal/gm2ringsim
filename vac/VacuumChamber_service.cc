@@ -22,11 +22,12 @@ gm2ringsim::VacuumChamber::VacuumChamber(fhicl::ParameterSet const & p, art::Act
 	       p.get<std::string>("name", "vac"),
 	       p.get<std::string>("category", "vac"),
 	       p.get<std::string>("mother_category", "arc")),
-  turnCounterSDName_("turnCounter")
+  turnCounterSDName_("turnCounter"),
+  trackerSDName_("tracker")
 {
   //creates or gets the turnCounterSD depending on whether it exists or not.
   artg4::getSensitiveDetector(turnCounterSDName_,turnSD_);
-
+  artg4::getSensitiveDetector(trackerSDName_,trackerSD_);
 }
 
 G4UnionSolid* gm2ringsim::VacuumChamber::buildUnionSolid(const VacGeometry& g, VacGeometry::typeToBuild which, unsigned int arc) {
@@ -227,7 +228,7 @@ void gm2ringsim::VacuumChamber::makeTrackerPVs(
     
     // TODO - handle sensitive detectors
     //trackerSD *tracker = SDHandleOwner::getInstance().getTrackerSD();
-    //trackerTubs_L->SetSensitiveDetector( tracker );
+    trackerTubs_L->SetSensitiveDetector( trackerSD_ );
     
     // In arcNumber 11, put a turnCounter at the inflector aperture
     // position
