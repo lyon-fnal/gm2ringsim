@@ -1,5 +1,5 @@
 art_make( LIBRARIES "gm2ringsim_actions" )
 add_subdirectory ( PGA )
 add_subdirectory ( track )
-#add_subdirectory ( muonStorageStatus )
+add_subdirectory ( muonStorageStatus )
 install_headers()
