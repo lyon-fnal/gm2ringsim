@@ -78,9 +78,9 @@ services: {
             } //g2GPS Parameter Set
         } //PrimaryGeneratorAciton
 
-      MuonStorageStatusAction: { 
-        name: "MuonStorageStatusAction"
-      }//MuonStorageStatusAction
+//      MuonStorageStatusAction: { 
+//        name: "MuonStorageStatusAction"
+//      }//MuonStorageStatusAction
 //    RunAction: {
 //      name: "run"
 //    }//RunAction

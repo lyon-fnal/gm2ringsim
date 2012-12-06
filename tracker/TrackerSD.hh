@@ -10,13 +10,13 @@
     @date 2009
 */
 
-#include "G4VSensitiveDetector.hh"
-#include "G4Step.hh"
-#include "G4HCofThisEvent.hh"
-#include "trackerHit.hh"
-#include "spinHit.hh"
+#include "Geant4/G4VSensitiveDetector.hh"
+#include "Geant4/G4Step.hh"
+#include "Geant4/G4HCofThisEvent.hh"
+#include "gm2ringsim/tracker/TrackerHit.hh"
+//FIXME: #include "spinHit.hh"
 
-class trackerSDMessenger;
+class TrackerSDMessenger;
 
 /** Provides the in-ring beam tracker volumes with a sensitive
     detector. 
@@ -28,60 +28,61 @@ class trackerSDMessenger;
     interface to obtain a pointer to the active implementation.
     Otherwise, the enable/disable logic in Geant could go screwy. 
 */
-class trackerSD : public G4VSensitiveDetector{
+class TrackerSD : public G4VSensitiveDetector{
 
 public:
-  trackerSD(G4String name);
-  ~trackerSD();
+  TrackerSD(G4String name);
+  ~TrackerSD();
   
   void Initialize(G4HCofThisEvent*);
   G4bool ProcessHits(G4Step*, G4TouchableHistory*);
   void EndOfEvent(G4HCofThisEvent*);
 
-  G4int PrintLevel() const { return printLevel; };
+  G4int PrintLevel() const { return printLevel_; };
   G4int PrintLevel(G4int newLevel);
 
-  G4int DrawLevel() const { return drawLevel; };
+  G4int DrawLevel() const { return drawLevel_; };
   G4int DrawLevel(G4int newLevel);
 private:
-  trackerHitsCollection *trackerHC;
-  spinHitsCollection *spinHC;
+  TrackerHitsCollection *trackerHC_;
+  //FIXME:  spinHitsCollection *spinHC_;
 
-  G4int printLevel, drawLevel;
+  G4int printLevel_, drawLevel_;
 
-  trackerSDMessenger *tsdm_;
+  //TrackerSDMessenger *tsdm_;
 };
 
 
 
-#include "G4UImessenger.hh"
-#include "G4UIdirectory.hh"
-#include "G4UIcmdWithAnInteger.hh"
+// #include "G4UImessenger.hh"
+// #include "G4UIdirectory.hh"
+// #include "G4UIcmdWithAnInteger.hh"
 
-/** The G4UImessenger interface to the in-ring beam tracker sensitive
-    detectors. 
+// /** The G4UImessenger interface to the in-ring beam tracker sensitive
+//     detectors. 
 
-    Provdes the following commands:
-    - /g2MIGTRACE/hits/trackerSD/printLevel
-    - /g2MIGTRACE/hits/trackerSD/drawLevel
-*/
-class trackerSDMessenger : public G4UImessenger {
+//     Provdes the following commands:
+//     - /g2MIGTRACE/hits/TrackerSD/printLevel
+//     - /g2MIGTRACE/hits/TrackerSD/drawLevel
+// */
+// class TrackerSDMessenger : public G4UImessenger {
 
-public:
-  trackerSDMessenger(trackerSD *tsd);
-  ~trackerSDMessenger();
+// public:
+//   TrackerSDMessenger(TrackerSD *tsd);
+//   ~TrackerSDMessenger();
 
-  void SetNewValue(G4UIcommand*,G4String);
+//   void SetNewValue(G4UIcommand*,G4String);
 
-private:
-  trackerSD *tsd_;
+// private:
+//   TrackerSD *tsd_;
 
-  G4UIdirectory *topdir_;
-  G4UIdirectory *dir_;
+//   G4UIdirectory *topdir_;
+//   G4UIdirectory *dir_;
   
-  G4UIcmdWithAnInteger *printLevelCmd_;
-  G4UIcmdWithAnInteger *drawLevelCmd_;
+//   G4UIcmdWithAnInteger *printLevelCmd_;
+//   G4UIcmdWithAnInteger *drawLevelCmd_;
 
-};
+// };
 
-#endif // G2MIGTRACE_TRACKERSD_HH
+
+ #endif // G2MIGTRACE_TRACKERSD_HH
