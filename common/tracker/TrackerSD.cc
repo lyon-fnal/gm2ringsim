@@ -61,7 +61,6 @@ void TrackerSD::Initialize(G4HCofThisEvent* HCoTE){
     
   // Add to HCoTE
   HCoTE->AddHitsCollection( trackerHCID, trackerHC_ );
-  //FIXME:
   HCoTE->AddHitsCollection( spinHCID, spinHC_ );
 }
 
