@@ -14,7 +14,7 @@
 #include "Geant4/G4Step.hh"
 #include "Geant4/G4HCofThisEvent.hh"
 #include "gm2ringsim/common/tracker/TrackerHit.hh"
-//FIXME: #include "spinHit.hh"
+#include "gm2ringsim/common/spin/SpinHit.hh"
 
 class TrackerSDMessenger;
 
@@ -45,7 +45,7 @@ public:
   G4int DrawLevel(G4int newLevel);
 private:
   TrackerHitsCollection *trackerHC_;
-  //FIXME:  spinHitsCollection *spinHC_;
+  SpinHitsCollection *spinHC_;
 
   G4int printLevel_, drawLevel_;
 

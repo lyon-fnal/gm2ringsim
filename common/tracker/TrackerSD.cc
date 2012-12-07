@@ -17,6 +17,7 @@
 
 #include "gm2ringsim/common/tracker/TrackerHit.hh"
 #include "gm2ringsim/common/tracker/TrackerSD.hh"
+#include "gm2ringsim/common/spin/SpinHit.hh"
 //#include "eventAction.hh"
 
 TrackerSD::TrackerSD(G4String name) : 
@@ -45,22 +46,23 @@ TrackerSD::~TrackerSD(){
 void TrackerSD::Initialize(G4HCofThisEvent* HCoTE){
   trackerHC_ = new TrackerHitsCollection
     ( SensitiveDetectorName, collectionName[0]);
-  //FIXME:spinHC = new spinHitsCollection
-  //FIXME: ( SensitiveDetectorName, collectionName[1]);
+  spinHC_ = new SpinHitsCollection
+    ( SensitiveDetectorName, collectionName[1]);
 
   G4int const trackerHCID = 
     G4SDManager::GetSDMpointer()->GetCollectionID(trackerHC_);
   
-  //FIXME: G4int const spinHCID =
-  // FIXME: G4SDManager::GetSDMpointer()->GetCollectionID(spinHC);
+    G4int const spinHCID =
+      G4SDManager::GetSDMpointer()->GetCollectionID(spinHC_);
   
-  //    G4cout << "In TrackerSD::Initialize():\n";
-  //    G4cout << trackerHCID << '\n';
-  //    G4cout << spinHCID << '\n';
-  
+    G4cout << "In TrackerSD::Initialize():\n";
+    G4cout << trackerHCID << '\n';
+    G4cout << spinHCID << '\n';
+    
   // Add to HCoTE
   HCoTE->AddHitsCollection( trackerHCID, trackerHC_ );
-  //FIXME: HCoTE->AddHitsCollection( spinHCID, spinHC );
+  //FIXME:
+  HCoTE->AddHitsCollection( spinHCID, spinHC_ );
 }
 
 G4bool TrackerSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){ 
@@ -70,7 +72,7 @@ G4bool TrackerSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){
     return false;
   
   trackerHC_->insert(new TrackerHit(thisStep));
-  //FIXME: spinHC->insert(new spinHit(thisStep));
+  spinHC_->insert(new SpinHit(thisStep));
 
   return true; 
 }
@@ -90,7 +92,7 @@ void TrackerSD::EndOfEvent(G4HCofThisEvent*) {
       G4cout << '\t';
       (*trackerHC_)[i]->Print();
       G4cout << '\t';
-      //FIXMe:(*spinHC)[i]->Print();
+      (*spinHC_)[i]->Print();
     }
   }
   

@@ -32,7 +32,7 @@ public:
 
 };
 
-typedef G4THitsCollection<SpinHit> spinHitsCollection;
+typedef G4THitsCollection<SpinHit> SpinHitsCollection;
 extern G4Allocator<SpinHit> spinHitAllocator;
 
 inline void* SpinHit::operator new(size_t)
