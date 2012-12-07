@@ -15,8 +15,13 @@ collimator_geom : {
   coll_Sphi_Half : 90.  // deg
   coll_Dphi_Half : 180. // deg
   
-  AzimuthalPos :  [14.7, 134.7, 164.7, 194.7, 224.7, 254.7, 284.7, 314.7, 344.7 ]  // deg
-  
+  nCollimators : 9 // 
+
+  // The next 3 arrays need to be of size = nCollimators
+  azimuthalPos :  [14.7, 134.7, 164.7, 194.7, 224.7, 254.7, 284.7, 314.7, 344.7 ]  // deg
+  cVacWallArray :  [4, 5, 6, 7, 8, 9, 10, 11, 0 ]            //
+  //collimatorType: FULL=0, HALF_LRO=1, HALF_SRO=2, OFF=3
+  collimatorType : [ 1, 1, 1, 1, 0, 0, 2, 3, 0 ]             //
 
   display : true
   collimatorColor : [0.3, 0.6, 0.9, 1.0]
