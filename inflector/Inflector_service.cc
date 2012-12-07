@@ -127,9 +127,8 @@ gm2ringsim::Inflector::Inflector(fhicl::ParameterSet const & p, art::ActivityReg
   
   // Let's prepare the sensitive detector, no registration with G4SDManager necessary as 
   // this is done in FiberHarpSD constructor
-  
-  artg4::getSensitiveDetector(inflectorSDname_, inflectorSD_);
-  artg4::getSensitiveDetector(ringSDname_, ringSD_);
+
+  inflectorSD_ = artg4::getSensitiveDetector<InflectorSD>(inflectorSDname_);
 
   //FIXME: No need for this binding. We can just grab spintracking from
   //      the master fcl and set the spintracking variable accordingly,once.

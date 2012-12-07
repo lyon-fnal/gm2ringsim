@@ -19,7 +19,7 @@
 #include "gm2ringsim/inflector/InflectorSD.hh"
 //FIXME: Need to include the eventAction #include "eventAction.hh"
 
-InflectorSD::InflectorSD(G4String name) : 
+gm2ringsim::InflectorSD::InflectorSD(G4String name) : 
   G4VSensitiveDetector( name ),
   printLevel(0), drawLevel(0),
   tsdm_(new InflectorSDMessenger(this)) {
@@ -34,10 +34,10 @@ InflectorSD::InflectorSD(G4String name) :
 // The destructor will never be called during the run of the program,
 // as SDs are never removed from the SDManager during the lifetime of
 // the program.
-InflectorSD::~InflectorSD(){
+gm2ringsim::InflectorSD::~InflectorSD(){
 }
 
-void InflectorSD::Initialize(G4HCofThisEvent* HCoTE){
+void gm2ringsim::InflectorSD::Initialize(G4HCofThisEvent* HCoTE){
 
   thisHC = new inflectorHitsCollection
     ( SensitiveDetectorName, collectionName[0]);
@@ -45,14 +45,14 @@ void InflectorSD::Initialize(G4HCofThisEvent* HCoTE){
   G4int const thisHCID = 
       G4SDManager::GetSDMpointer()->GetCollectionID(thisHC);
 
-  //  G4cout << "In InflectorSD::Initialize():\n";
+  //  G4cout << "In gm2ringsim::InflectorSD::Initialize():\n";
   //  G4cout << (int)thisHC << ' ' << thisHCID << '\n';
 
   // Add to HCoTE
   HCoTE->AddHitsCollection( thisHCID, thisHC );
 }
 
-G4bool InflectorSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){ 
+G4bool gm2ringsim::InflectorSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){ 
 
   if( thisStep->GetPreStepPoint()->GetPhysicalVolume() ==
       thisStep->GetPostStepPoint()->GetPhysicalVolume() )
@@ -65,7 +65,7 @@ G4bool InflectorSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){
 
 
 
-void InflectorSD::EndOfEvent(G4HCofThisEvent*) {
+void gm2ringsim::InflectorSD::EndOfEvent(G4HCofThisEvent*) {
   G4int n = thisHC->entries();
   
   // Output junk ...
@@ -87,13 +87,13 @@ void InflectorSD::EndOfEvent(G4HCofThisEvent*) {
 
 
 
-G4int InflectorSD::PrintLevel(G4int newLevel){
+G4int gm2ringsim::InflectorSD::PrintLevel(G4int newLevel){
   G4int temp = printLevel;
   printLevel = newLevel;
   return temp;
 }
 
-G4int InflectorSD::DrawLevel(G4int newLevel){
+G4int gm2ringsim::InflectorSD::DrawLevel(G4int newLevel){
   G4int temp = drawLevel;
   drawLevel = newLevel;
   return temp;
@@ -104,7 +104,7 @@ G4int InflectorSD::DrawLevel(G4int newLevel){
 //////////////////////////////////
 //////////////////////////////////
 
-InflectorSDMessenger::InflectorSDMessenger(InflectorSD *tsd) :
+gm2ringsim::InflectorSDMessenger::InflectorSDMessenger(InflectorSD *tsd) :
   tsd_(tsd) {
 
   topdir_ = new G4UIdirectory("/g2MIGTRACE/hits/");
@@ -128,13 +128,13 @@ InflectorSDMessenger::InflectorSDMessenger(InflectorSD *tsd) :
 }
 
 
-InflectorSDMessenger::~InflectorSDMessenger(){
+gm2ringsim::InflectorSDMessenger::~InflectorSDMessenger(){
   delete drawLevelCmd_;
   delete printLevelCmd_;
   delete dir_;
 }
 
-void InflectorSDMessenger::SetNewValue(G4UIcommand* cmd, G4String newval){ 
+void gm2ringsim::InflectorSDMessenger::SetNewValue(G4UIcommand* cmd, G4String newval){ 
   
   if( cmd == printLevelCmd_ ){
     if( 0 == newval.size() )
