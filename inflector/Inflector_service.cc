@@ -120,14 +120,16 @@ gm2ringsim::Inflector::Inflector(fhicl::ParameterSet const & p, art::ActivityReg
   fieldNormConst_(infGeom_.fieldNormConst),
   currentToMagFieldConversion_(infGeom_.currentToMagFieldConversion),
   spin_tracking_(sts_.spinTrackingEnabled),
-  inflectorSDname_("InflectorSD")
+  inflectorSDname_("InflectorSD"),
+  ringSDname_("RingSD")
 {
   printf("In the Inflector service constructor\n");
   
   // Let's prepare the sensitive detector, no registration with G4SDManager necessary as 
   // this is done in FiberHarpSD constructor
-
+  
   artg4::getSensitiveDetector(inflectorSDname_, inflectorSD_);
+  artg4::getSensitiveDetector(ringSDname_, ringSD_);
 
   //FIXME: No need for this binding. We can just grab spintracking from
   //      the master fcl and set the spintracking variable accordingly,once.
@@ -269,9 +271,10 @@ void gm2ringsim::Inflector::buildCore_SandL() {
   /* //FIXME: This needs to move to the appropriate place
      //       for producing the ROOT output
   ringSD *ring = SDHandleOwner::getInstance().getRingSD();
-  beamChannel_L_->SetSensitiveDetector(ring);
-  inflectorMandrel_L_->SetSensitiveDetector(ring);
   */
+  beamChannel_L_->SetSensitiveDetector(ringSD_);
+  inflectorMandrel_L_->SetSensitiveDetector(ringSD_);
+
 
 }                                      
 
@@ -293,8 +296,10 @@ void gm2ringsim::Inflector::buildPeripherals_SandL(){
 
   /* //FIXME
      ringSD *ring = SDHandleOwner::getInstance().getRingSD();
-     window_DS_L->SetSensitiveDetector(ring);
   */
+
+  window_DS_L_->SetSensitiveDetector(ringSD_);
+     
 
   window_US_L_ = new G4LogicalVolume(window_S,
 				    artg4Materials::Al6061(),
@@ -666,9 +671,10 @@ void gm2ringsim::Inflector::buildCryostatWalls_SandL(){
   
   //FIXME: Add Sensitive Detectors
   /*  ringSD *ring = SDHandleOwner::getInstance().getRingSD();
-      parallelCryoWall_L->SetSensitiveDetector(ring);
-      perpCryoWall_L->SetSensitiveDetector(ring);
+
   */
+  parallelCryoWall_L_->SetSensitiveDetector(ringSD_);
+  perpCryoWall_L_->SetSensitiveDetector(ringSD_);
   
 } //Inflector::buildCryostatWalls_SandL() 
 
