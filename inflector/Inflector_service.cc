@@ -121,7 +121,9 @@ gm2ringsim::Inflector::Inflector(fhicl::ParameterSet const & p, art::ActivityReg
   currentToMagFieldConversion_(infGeom_.currentToMagFieldConversion),
   spin_tracking_(sts_.spinTrackingEnabled),
   inflectorSDname_("InflectorSD"),
-  ringSDname_("RingSD")
+  ringSDname_("RingSD"),
+  inflectorSD_(0), // will set below
+  ringSD_(0)
 {
   printf("In the Inflector service constructor\n");
   
@@ -129,6 +131,7 @@ gm2ringsim::Inflector::Inflector(fhicl::ParameterSet const & p, art::ActivityReg
   // this is done in FiberHarpSD constructor
 
   inflectorSD_ = artg4::getSensitiveDetector<InflectorSD>(inflectorSDname_);
+  ringSD_ = artg4::getSensitiveDetector<RingSD>(ringSDname_);
 
   //FIXME: No need for this binding. We can just grab spintracking from
   //      the master fcl and set the spintracking variable accordingly,once.
@@ -267,10 +270,6 @@ void gm2ringsim::Inflector::buildCore_SandL() {
   mandrelVisAtt -> SetForceWireframe(1);
   inflectorMandrel_L_ -> SetVisAttributes(mandrelVisAtt);
   
-  /* //FIXME: This needs to move to the appropriate place
-     //       for producing the ROOT output
-  ringSD *ring = SDHandleOwner::getInstance().getRingSD();
-  */
   beamChannel_L_->SetSensitiveDetector(ringSD_);
   inflectorMandrel_L_->SetSensitiveDetector(ringSD_);
 
@@ -293,10 +292,6 @@ void gm2ringsim::Inflector::buildPeripherals_SandL(){
 				    0,
 				    0);
 
-  /* //FIXME
-     ringSD *ring = SDHandleOwner::getInstance().getRingSD();
-  */
-
   window_DS_L_->SetSensitiveDetector(ringSD_);
      
 
@@ -307,7 +302,7 @@ void gm2ringsim::Inflector::buildPeripherals_SandL(){
 				    0,
 				    0);
 
-  // FIXME  window_US_L->SetSensitiveDetector(ring);
+  window_US_L_->SetSensitiveDetector(ringSD_);
 
 
   G4VSolid *equivalentAl_S = new G4Box("equivalentAl_S",
@@ -333,7 +328,7 @@ void gm2ringsim::Inflector::buildPeripherals_SandL(){
 			0,
 			0);
   
-  //FIXME  equivalentAl_DS_L->SetSensitiveDetector(ring);
+  equivalentAl_DS_L_->SetSensitiveDetector(ringSD_);
   
   equivalentAl_US_L_ = 
     new G4LogicalVolume(equivalentAl_S,
@@ -343,7 +338,7 @@ void gm2ringsim::Inflector::buildPeripherals_SandL(){
 			0,
 			0);
   
-  //FIXME  equivalentAl_US_L_->SetSensitiveDetector(ring);
+  equivalentAl_US_L_->SetSensitiveDetector(ringSD_);
   
   equivalentCu_DS_L_ = 
     new G4LogicalVolume(equivalentCu_S,
@@ -353,7 +348,7 @@ void gm2ringsim::Inflector::buildPeripherals_SandL(){
 			0,
 			0);
   
-  //FIXME  equivalentCu_DS_L->SetSensitiveDetector(ring);
+  equivalentCu_DS_L_->SetSensitiveDetector(ringSD_);
   
   equivalentCu_US_L_ = 
     new G4LogicalVolume(equivalentCu_S,
@@ -363,7 +358,7 @@ void gm2ringsim::Inflector::buildPeripherals_SandL(){
 			0,
 			0);
   
-  //FIXME  equivalentCu_US_L->SetSensitiveDetector(ring);
+  equivalentCu_US_L_->SetSensitiveDetector(ringSD_);
   
   equivalentNbTi_DS_L_ =
     new G4LogicalVolume(equivalentNbTi_S,
@@ -373,7 +368,7 @@ void gm2ringsim::Inflector::buildPeripherals_SandL(){
 			0,
 			0);
   
-  //FIXME  equivalentNbTi_DS_L->SetSensitiveDetector(ring);
+  equivalentNbTi_DS_L_->SetSensitiveDetector(ringSD_);
   
   equivalentNbTi_US_L_ =
     new G4LogicalVolume(equivalentNbTi_S,
@@ -383,7 +378,8 @@ void gm2ringsim::Inflector::buildPeripherals_SandL(){
 			0,
 			0);
   
-  //FIXME  equivalentNbTi_US_L->SetSensitiveDetector(ring);
+
+  equivalentNbTi_US_L_->SetSensitiveDetector(ringSD_);
 
   G4VSolid *flange_S = new G4Box("flange_S", infGeom_.flange_X, 
 				 infGeom_.flange_Y, infGeom_.flange_Z);
@@ -396,7 +392,7 @@ void gm2ringsim::Inflector::buildPeripherals_SandL(){
 			0,
 			0);
   
-  //FIXME endFlange_DS_L->SetSensitiveDetector(ring);
+  endFlange_DS_L_->SetSensitiveDetector(ringSD_);
   
   endFlange_US_L_ = 
     new G4LogicalVolume(flange_S,
@@ -406,7 +402,7 @@ void gm2ringsim::Inflector::buildPeripherals_SandL(){
 			0,
 			0);
   
-  //FIXME  endFlange_US_L->SetSensitiveDetector(ring);
+  endFlange_US_L_->SetSensitiveDetector(ringSD_);
 
   G4VSolid *launchRegion_S = new G4Box("lanchRegion_S", infGeom_.launch_X,
 				       infGeom_.launch_Y, infGeom_.launch_Z);
@@ -668,10 +664,6 @@ void gm2ringsim::Inflector::buildCryostatWalls_SandL(){
   parallelCryoWall_L_->SetVisAttributes(cryoVisAtt);
   perpCryoWall_L_->SetVisAttributes(cryoVisAtt);
   
-  //FIXME: Add Sensitive Detectors
-  /*  ringSD *ring = SDHandleOwner::getInstance().getRingSD();
-
-  */
   parallelCryoWall_L_->SetSensitiveDetector(ringSD_);
   perpCryoWall_L_->SetSensitiveDetector(ringSD_);
   
@@ -735,16 +727,6 @@ void gm2ringsim::Inflector::buildTrackingVolumes(){
     joinBeamChannels(G4RotationMatrix(0,0,0),
 		     G4ThreeVector(0,0,-infGeom_.beamChannel2_offset));
   
-  // FIXME: Need to ARTIZE this
-  G4SDManager* SDman = G4SDManager::GetSDMpointer();
-  SDman->ListTree();
-  //  G4String inflectorSDname = "InflectorSD";
-  //InflectorSD* infSD = new InflectorSD(inflectorSDname_);
-  //  SDman->AddNewDetector( infSD );
-  //inflectorSD *infSD = SDHandleOwner::getInstance().getInflectorSD();
-  
-  //END FIXME
-  
   std::ostringstream name;
   
   G4VisAttributes *tcbVisAtt = 
@@ -804,7 +786,6 @@ void gm2ringsim::Inflector::buildTrackingVolumes(){
 			  0);
     log -> SetVisAttributes(tcbVisAtt);
 
-    //FIXME: Artize
     log -> SetSensitiveDetector(inflectorSD_);
 
     name.str("");

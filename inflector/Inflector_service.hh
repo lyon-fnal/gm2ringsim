@@ -132,8 +132,8 @@ namespace gm2ringsim {
       G4double currentToMagFieldConversion_;
       bool const spin_tracking_;
       G4String inflectorSDname_;
-      InflectorSD *inflectorSD_;
       G4String ringSDname_;
+      InflectorSD *inflectorSD_;
       RingSD *ringSD_;
 
       // Private overriden methods from ART
