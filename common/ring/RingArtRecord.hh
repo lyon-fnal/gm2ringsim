@@ -59,26 +59,29 @@ namespace gm2ringsim{
     
     ~RingArtRecord();
     RingArtRecord() : 
-      rhat(0), vhat(0), theta(0), time(0),
       x_loc(0), y_loc(0), z_loc(0),
-      prhat_loc(0), pvhat_loc(0),
+      px_loc(0),py_loc(0),pz_loc(0),
+      prhat_loc(0), pvhat_loc(0),      
+      rhat(0), vhat(0), theta(0), time(0),
       p(0), prhat(0), pvhat(0), 
       turn(-1), volumeUID(0), trackID(-1),
       deltaP(0), deltaPrhat(0), deltaPvhat(0), deltaE(0) 
     {}
     
 #ifndef __GCCXML__
-    RingArtRecord(float rin, float vin, float thetain,float timein,
-		  float xloc,float yloc,float zloc,
-		  float prloc,float pvloc,float pin,
-		  float prhatin,float pvhatin,
+    RingArtRecord(float xloc,float yloc,float zloc,
+		  float pxloc,float pyloc, float pzloc,
+		  float prhat_loc_in, float pvhat_loc_in,
+		  float rin, float vin, float thetain,float timein,
+		  float pin,float prhatin,float pvhatin,
 		  int turnin,int volin,int trackin,
 		  float dP, float dPrhat, float dPVhat, float dE
 		  ) : 
-      rhat(rin), vhat(vin), theta(thetain), time(timein),
       x_loc(xloc), y_loc(yloc), z_loc(zloc),
-      prhat_loc(prloc), pvhat_loc(pvloc),p(pin),
-      prhat(prhatin), pvhat(pvhatin), 
+      px_loc(pxloc),py_loc(pyloc), pz_loc(pzloc),
+      prhat_loc(prhat_loc_in), pvhat_loc(pvhat_loc_in),
+      rhat(rin), vhat(vin), theta(thetain), time(timein),
+      p(pin),prhat(prhatin),pvhat(pvhatin),
       turn(turnin), volumeUID(volin), trackID(trackin),
       deltaP(dP), deltaPrhat(dPrhat), deltaPvhat(dPVhat), deltaE(dE) 
     {}
@@ -86,6 +89,8 @@ namespace gm2ringsim{
 #endif //__GCCXML__
     
   }; //struct RingArtRecord
+
+  typedef std::vector<RingArtRecord> RingArtRecordCollection;
 
 }//namespace gm2ringsim
 #endif // RINGRECORD_HH

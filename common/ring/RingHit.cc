@@ -25,7 +25,6 @@
 #include "gm2ringsim/actions/muonStorageStatus/TurnCounter.hh"
 //#include "rootStorageManager.hh"
 
-G4Allocator<gm2ringsim::RingHit> RingHitAllocator;
 
 gm2ringsim::RingHit::RingHit(G4Step* step) : 
   position(step->GetPreStepPoint()->GetPosition()),
@@ -61,19 +60,19 @@ gm2ringsim::RingHit::RingHit(G4Step* step) :
 }
 
 void gm2ringsim::RingHit::Draw(){
-#ifdef G4VIS_USE
-  G4VVisManager* pVVisManager = G4VVisManager::GetConcreteInstance();
-  if(!pVVisManager)
-    return;
+// #ifdef G4VIS_USE
+//   G4VVisManager* pVVisManager = G4VVisManager::GetConcreteInstance();
+//   if(!pVVisManager)
+//     return;
 
-  G4Circle circle(position);
-  circle.SetScreenSize(5);
-  circle.SetFillStyle(G4Circle::filled);
-  G4Colour colour(0.,1.,0.);
-  G4VisAttributes attribs(colour);
-  circle.SetVisAttributes(attribs);
-  pVVisManager->Draw(circle);
-#endif
+//   G4Circle circle(position);
+//   circle.SetScreenSize(5);
+//   circle.SetFillStyle(G4Circle::filled);
+//   G4Colour colour(0.,1.,0.);
+//   G4VisAttributes attribs(colour);
+//   circle.SetVisAttributes(attribs);
+//   pVVisManager->Draw(circle);
+// #endif
 }
 
 void gm2ringsim::RingHit::Print(){
@@ -88,3 +87,20 @@ void gm2ringsim::RingHit::Print(){
   //	 << "\n";
   // END FIXME
 }
+
+//extern G4Allocator<gm2ringsim::RingHit> RingHitAllocator;
+
+// G4Allocator<gm2ringsim::RingHit> RingHitAllocator;
+  
+// void* gm2ringsim::RingHit::operator new(size_t)
+// {
+//   void *aHit;
+//   aHit = (void *) RingHitAllocator.MallocSingle();
+//   return aHit;
+// }
+
+// void gm2ringsim::RingHit::operator delete(void *aHit)
+// {
+//   RingHitAllocator.FreeSingle ((RingHit*) aHit);
+// }
+  

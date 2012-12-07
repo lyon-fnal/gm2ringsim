@@ -18,7 +18,7 @@
 #include "gm2ringsim/common/ring/RingHit.hh"
 #include "gm2ringsim/common/ring/RingSD.hh"
 
-RingSD::RingSD(G4String name) : 
+gm2ringsim::RingSD::RingSD(G4String name) : 
   G4VSensitiveDetector( name ),
   printLevel_(0), drawLevel_(0)
   //  rsdm_(new RingSDMessenger(this)) 
@@ -35,10 +35,10 @@ RingSD::RingSD(G4String name) :
 // The destructor will never be called during the run of the program,
 // as SDs are never removed from the SDManager during the lifetime of
 // the program.
-RingSD::~RingSD(){
+gm2ringsim::RingSD::~RingSD(){
 }
 
-void RingSD::Initialize(G4HCofThisEvent* HCoTE){
+void gm2ringsim::RingSD::Initialize(G4HCofThisEvent* HCoTE){
 
   thisHC_ = new RingHitsCollection
     ( SensitiveDetectorName, collectionName[0]);
@@ -53,14 +53,14 @@ void RingSD::Initialize(G4HCofThisEvent* HCoTE){
   HCoTE->AddHitsCollection( thisHCID, thisHC_ );
 }
 
-G4bool RingSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){ 
+G4bool gm2ringsim::RingSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){ 
   thisHC_->insert(new RingHit(thisStep));
   return true;
 }
 
 
 
-void RingSD::EndOfEvent(G4HCofThisEvent*) {
+void gm2ringsim::RingSD::EndOfEvent(G4HCofThisEvent*) {
 
   G4int n = thisHC_->entries();
 
@@ -83,13 +83,13 @@ void RingSD::EndOfEvent(G4HCofThisEvent*) {
 
 
 
-G4int RingSD::printLevel(G4int newLevel){
+G4int gm2ringsim::RingSD::printLevel(G4int newLevel){
   G4int temp = printLevel_;
   printLevel_ = newLevel;
   return temp;
 }
 
-G4int RingSD::drawLevel(G4int newLevel){
+G4int gm2ringsim::RingSD::drawLevel(G4int newLevel){
   G4int temp = drawLevel_;
   drawLevel_ = newLevel;
   return temp;
