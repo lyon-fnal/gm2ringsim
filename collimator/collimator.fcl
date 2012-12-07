@@ -1,0 +1,24 @@
+// Collimator geometry
+//
+// Values are in mm unless otherwise specified
+
+BEGIN_PROLOG
+collimator_geom : {
+
+  coll_rMin : 0.045 // m 
+  coll_rMax : 0.055 // m 
+  coll_z :    0.003175 // m 
+  
+  coll_Sphi_Full : 0.   // deg
+  coll_Dphi_Full : 360. // deg
+  
+  coll_Sphi_Half : 90.  // deg
+  coll_Dphi_Half : 180. // deg
+  
+  AzimuthalPos :  [14.7, 134.7, 164.7, 194.7, 224.7, 254.7, 284.7, 314.7, 344.7 ]  // deg
+  
+
+  display : true
+  collimatorColor : [0.3, 0.6, 0.9, 1.0]
+}
+END_PROLOG

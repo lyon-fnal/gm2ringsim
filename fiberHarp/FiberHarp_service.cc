@@ -34,7 +34,6 @@ gm2ringsim::FiberHarp::FiberHarp(fhicl::ParameterSet const & p, art::ActivityReg
 {
   // Let's prepare the sensitive detector, no registration with G4SDManager necessary as 
   // this is done in FiberHarpSD constructor
-  //  harpSD_ = new FiberHarpSD(harpSDname_);
   harpSD_ = artg4::getSensitiveDetector<FiberHarpSD>(harpSDname_);
 
 }
