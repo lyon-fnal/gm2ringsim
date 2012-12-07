@@ -15,8 +15,8 @@
 #include "Geant4/G4StepPoint.hh"
 #include "Geant4/G4LorentzVector.hh"
 
-#include "gm2ringsim/tracker/TrackerHit.hh"
-#include "gm2ringsim/tracker/TrackerSD.hh"
+#include "gm2ringsim/common/tracker/TrackerHit.hh"
+#include "gm2ringsim/common/tracker/TrackerSD.hh"
 //#include "eventAction.hh"
 
 TrackerSD::TrackerSD(G4String name) : 

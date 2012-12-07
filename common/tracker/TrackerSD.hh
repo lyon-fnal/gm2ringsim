@@ -13,7 +13,7 @@
 #include "Geant4/G4VSensitiveDetector.hh"
 #include "Geant4/G4Step.hh"
 #include "Geant4/G4HCofThisEvent.hh"
-#include "gm2ringsim/tracker/TrackerHit.hh"
+#include "gm2ringsim/common/tracker/TrackerHit.hh"
 //FIXME: #include "spinHit.hh"
 
 class TrackerSDMessenger;

@@ -18,7 +18,7 @@
 #include "Geant4/G4UnionSolid.hh"
 
 #include "gm2ringsim/actions/muonStorageStatus/TurnCounterSD.hh"
-#include "gm2ringsim/tracker/TrackerSD.hh"
+#include "gm2ringsim/common/tracker/TrackerSD.hh"
 
 #include "gm2ringsim/vac/VacGeometry.hh"
 

@@ -10,7 +10,7 @@
 #include "Geant4/G4Colour.hh"
 #include "Geant4/G4VisAttributes.hh"
 
-#include "gm2ringsim/tracker/TrackerHit.hh"
+#include "gm2ringsim/common/tracker/TrackerHit.hh"
 #include "gm2ringsim/actions/muonStorageStatus/TurnCounter.hh"
 
 #include "art/Framework/Services/Registry/ServiceHandle.h"
