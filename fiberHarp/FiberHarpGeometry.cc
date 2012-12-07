@@ -34,6 +34,16 @@ gm2ringsim::FiberHarpGeometry::FiberHarpGeometry(std::string detName) :
   for (auto& entry : azimuthalPos ){ 
     entry *= deg; 
   }
+
+  if(azimuthalPos.size() != (unsigned int)nHarps) throw cet::exception("FiberHarpGeometry") << 
+    "Wrong geometry input: Size of azimuthalPos array is " << azimuthalPos.size() << 
+    " and not equals nHarps=" << nHarps << std::endl;
+  if(vacWallPos.size() != (unsigned int)nHarps) throw cet::exception("FiberHarpGeometry") << 
+    "Wrong geometry input: Size of vacWallPos array is " << vacWallPos.size() << 
+    " and not equals nHarps=" << nHarps << std::endl;
+  if(harpType.size() != (unsigned int)nHarps) throw cet::exception("FiberHarpGeometry") << 
+    "Wrong geometry input: Size of harpType array is " << harpType.size() << 
+    " and not equals nHarps=" << nHarps << std::endl;  
 }
 
 
