@@ -37,10 +37,11 @@
 
 #include "Geant4/globals.hh"
 #include <vector>
+#include <string>
 
 #include "Geant4/G4Event.hh"
 #include "gm2ringsim/actions/PGA/g2SingleParticleSource.hh"
-
+#include "gm2ringsim/actions/PGA/G2GPSSettings.hh"
 
 /** Provides a modified General Particle Source to include time
     distribution */
@@ -119,6 +120,7 @@ private:
   void IntensityNormalization();
 
 private:
+  gm2ringsim::G2GPSSettings settings_;
   G4bool multiple_vertex;
   G4bool normalised;
   ///////////////////////////////////////////////////

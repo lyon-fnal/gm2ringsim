@@ -5,6 +5,7 @@
 #include "geom/fiberHarp.fcl"
 #include "geom/station.fcl"
 #include "geom/PGA.fcl"
+#include "geom/g2GPS.fcl"
 
 process_name:myProcessName
 
@@ -49,6 +50,9 @@ services: {
       SpinTracking : {
         spinTrackingEnabled : false
       }
+      G2GPSSettings:  @local::G2GPS_geom
+      
+      
     }
 
 

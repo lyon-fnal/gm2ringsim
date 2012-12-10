@@ -12,7 +12,8 @@
 #include "gm2ringsim/actions/PGA/g2GeneralParticleSource.hh"
 
 g2GeneralParticleSource::g2GeneralParticleSource()
-  : multiple_vertex(false), 
+  : settings_("G2GPSSettings"), //This should be in the fcl:
+    multiple_vertex(false), 
     bypass_gps(false),
     muonGasGunLongitudinalDistrDefault("e989"),
     muonGasGunTransverseDistrDefault("e989")
