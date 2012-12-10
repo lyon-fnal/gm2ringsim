@@ -3,6 +3,7 @@
 #include "gm2ringsim/arc/Arc_service.hh"
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include "artg4/material/Materials.hh"
 #include "artg4/util/util.hh"
@@ -28,42 +29,24 @@
 #include "gm2ringsim/fields/g2FieldEqRhs.hh"
 
 
+
 // Constructor for the service 
 gm2ringsim::Arc::Arc(fhicl::ParameterSet const & p, art::ActivityRegistry & ) :
-    DetectorBase(p,
-                   p.get<std::string>("name", "arc"),
-                   p.get<std::string>("category", "arc"),
+  DetectorBase(p,
+		 p.get<std::string>("name", "arc"),
+		 p.get<std::string>("category", "arc"),
 		 p.get<std::string>("mother_category", "world")),
-    sts_("SpinTracking"),
-    spin_tracking_(sts_.spinTrackingEnabled),
-    withoutSpin_(0),    //will set in the initialize function
-    withSpin_(0)        //will set in the initialize function
+  sts_("SpinTracking"), //This is a shortcut to get the SpinTracking par list from the fhicl
+  spin_tracking_(sts_.spinTrackingEnabled),
+  withoutSpin_(0),    //will set in the constructor function
+  withSpin_(0)        //will set in the constructor function
 {
 
-//FIXME: Will need to enable spinTracking
-
-}
-
-gm2ringsim::Arc::~Arc() {
-  if (withoutSpin_)
-    delete withoutSpin_;
-
-  if (withSpin_)
-    delete withSpin_;
-}
-
-void gm2ringsim::Arc::initialize() {
-//FIXME: Will need to enable spinTracking
-
-  printf("+++++++++++++++++++++++\n\n\n");
-  printf("In the Arc::intialize() function\n\n");
-  printf("\n\n\n+++++++++++++++++++++++\n");
-
- storageRingField *storageField = new storageRingField();
+  storageRingField *storageField = new storageRingField();
 
   // build the spin ignoring field equations                                                         
   G4Mag_EqRhs *equation =
-    new G4Mag_UsualEqRhs(storageField);
+  new G4Mag_UsualEqRhs(storageField);
   G4ClassicalRK4 *stepper =
     new G4ClassicalRK4(equation);
   G4ChordFinder *iChordFinder =
@@ -79,9 +62,25 @@ void gm2ringsim::Arc::initialize() {
 
 }
 
+gm2ringsim::Arc::~Arc() {
+  if (withoutSpin_)
+    delete withoutSpin_;
+
+  if (withSpin_)
+    delete withSpin_;
+}
+  
+void gm2ringsim::Arc::initialize() {
+
+
+
+}
+
 G4LogicalVolume* gm2ringsim::Arc::makeAnArcLV(gm2ringsim::ArcGeometry const & g, unsigned int arcNum) {
   
-  //
+
+mf::LogInfo("Arc") <<"In the Arc::makeAnArcLV, with spin_tracking_ set to "<<spin_tracking_;
+
   G4FieldManager *tmpFieldManager=withoutSpin_;
   if (spin_tracking_)
     tmpFieldManager = withSpin_;
@@ -99,13 +98,12 @@ G4LogicalVolume* gm2ringsim::Arc::makeAnArcLV(gm2ringsim::ArcGeometry const & g,
   std::string arcName = artg4::addNumberToName("ArcSection", arcNum);
   
   // Make the logical volume
-  G4LogicalVolume* arc_L = new G4LogicalVolume(arc_S,
-                                               artg4Materials::Vacuum(),
-                                               arcName.c_str(),
-                                               // ADD SPIN-dependent field HERE
-					       tmpFieldManager
+G4LogicalVolume* arc_L = new G4LogicalVolume(arc_S,
+					       artg4Materials::Vacuum(),
+					       arcName.c_str(),
+					       tmpFieldManager //This is the spin-dependent field manager
                                                );
-  
+
   // Set visualization
   artg4::setVisAtts( arc_L, g.display, g.arcColor );
     
