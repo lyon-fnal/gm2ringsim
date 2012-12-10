@@ -25,6 +25,14 @@ gm2ringsim::InflectorGeom::InflectorGeom(std::string const & detName) :
   parWall_X( p.get<double>("parWall_X") * cm),
   parWall_Y( p.get<double>("parWall_Y") * cm),
   parWall_Z( p.get<double>("parWall_Z") * cm),
+  parWall_alpha( p.get<double>("parWall_alpha") * degree),
+  parWall_beta( p.get<double>("parWall_beta") * degree),
+  parWall_gamma( p.get<double>("parWall_gamma") * degree),
+  parWall_posX( p.get<double>("parWall_posX_length") * cm * 
+		std::cos(parWall_gamma) ), // Assume this is based on parWall_gamma. In g2MIGTRACE, this was hard coded as cos(24*degree)
+  parWall_posY( p.get<double>("parWall_posY_length") * cm *
+		std::sin(parWall_gamma) ), // and sin(24*degree)
+  parWall_posZ( p.get<double>("parWall_posZ") * cm),
   perpWall_X( p.get<double>("perpWall_X") * cm),
   perpWall_Y( p.get<double>("perpWall_Y") * cm),
   perpWall_Z( p.get<double>("perpWall_Z") * cm),
@@ -101,8 +109,22 @@ gm2ringsim::InflectorGeom::InflectorGeom(std::string const & detName) :
     + ig.conductor_thickness() + (launchWidth / 2)),
 
   cryo_angular( p.get<double>("cryo_angular") * deg),
-  cryo_rotation( p.get<double>("cryo_rotation") * deg)
-
+  cryo_rotation( p.get<double>("cryo_rotation") * deg),
+  num_trackers( p.get<int>("num_trackers")),
+  epsilon(p.get<double>("epsilon") * deg ),
+  vacuumInflectorSection(p.get<int>("vacuumInflectorSection")),
+  maxStepLength(p.get<double>("maxStepLength") * mm),
+  useConductorEquivalent(p.get<bool>("useConductorEquivalent")),
+  useUpstreamWindow(p.get<bool>("useUpstreamWindow")),
+  useDownstreamWindow(p.get<bool>("useDownstreamWindow")),
+  useUpstreamConductor(p.get<bool>("useUpstreamConductor")),
+  useDownstreamConductor(p.get<bool>("useDownstreamConductor")),
+  useUpstreamEndFlange(p.get<bool>("useUpstreamEndFlange")),
+  useDownstreamEndFlange(p.get<bool>("useDownstreamEndFlange")),
+  conductorCurrent(p.get<double>("conductorCurrent") * ampere),
+  fieldNormConst(p.get<double>("fieldNormConst") * gauss) ,
+  currentToMagFieldConversion((p.get<double>("currentToField_gauss") * gauss ) /
+			      (p.get<double>("currentToField_amp") * ampere ) )
 {}
 
 void gm2ringsim::InflectorGeom::print() const {
@@ -123,6 +145,12 @@ void gm2ringsim::InflectorGeom::print() const {
   oss << "  parWall_X=" << parWall_X << "\n";
   oss << "  parWall_Y=" << parWall_Y << "\n";
   oss << "  parWall_Z=" << parWall_Z << "\n";
+  oss << "  parWall_alpha=" << parWall_alpha << "\n";
+  oss << "  parWall_beta=" << parWall_beta << "\n";
+  oss << "  parWall_gamma=" << parWall_gamma << "\n";
+  oss << "  parWall_posX=" << parWall_posX << "\n";
+  oss << "  parWall_posY=" << parWall_posY << "\n";
+  oss << "  parWall_posZ=" << parWall_posZ << "\n";
   oss << "  perpWall_X=" << perpWall_X << "\n";
   oss << "  perpWall_Y=" << perpWall_Y << "\n";
   oss << "  perpWall_Z=" << perpWall_Z << "\n";
@@ -196,6 +224,21 @@ void gm2ringsim::InflectorGeom::print() const {
     oss << " cryo_angular=" <<cryo_angular << "\n";
     oss << " cryo_rotation=" <<cryo_rotation << "\n";
 
+    oss << "  num_trackers=" << num_trackers << "\n";
+    oss << "  epsilon=" <<epsilon << "\n";
+    oss << "  vacuumInflectorSection=" <<vacuumInflectorSection << "\n";
+    
+    oss << "maxStepLength=" << maxStepLength << "\n";
+    oss << "useConductorEquivalent=" <<useConductorEquivalent << "\n";
+    oss << "useUpstreamWindow=" <<useUpstreamWindow << "\n";
+    oss << "useDownstreamWindow=" <<useDownstreamWindow << "\n";
+    oss << "useUpstreamConductor=" <<useUpstreamConductor << "\n";
+    oss << "useDownstreamConductor=" <<useDownstreamConductor << "\n";
+    oss << "useUpstreamEndFlange=" <<useUpstreamEndFlange << "\n";
+    oss << "useDownstreamEndFlange=" <<useDownstreamEndFlange << "\n";
+    oss << "conductorCurrent=" <<conductorCurrent <<"\n";
+    oss << "fieldNormConst=" << fieldNormConst << "\n";
+    oss << "currentToMagFieldConversion=" << currentToMagFieldConversion << "\n";
   mf::LogInfo("CATEGORY") << oss.str();
 }
 

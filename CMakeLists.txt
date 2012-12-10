@@ -122,12 +122,13 @@ add_subdirectory( vac )
 add_subdirectory( fields )
 add_subdirectory( inflector )
 add_subdirectory( common )
-#add_subdirectory( calo )
 add_subdirectory( ups )
 add_subdirectory( test )
 add_subdirectory( actions )
 add_subdirectory( traceback )
+add_subdirectory( fiberHarp )
 add_subdirectory( station )
+
 # Packaging facility
 include(UseCPack)
 

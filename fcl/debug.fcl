@@ -2,6 +2,8 @@
 #include "geom/arc.fcl"
 #include "geom/vac.fcl"
 #include "geom/inflector.fcl"
+#include "geom/fiberHarp.fcl"
+#include "geom/station.fcl"
 
 process_name:myProcessName
 
@@ -38,31 +40,36 @@ services: {
       arc:   @local::arc_geom
       vac:   @local::vac_geom
       inflector: @local::inflector_geom
+      fiberHarp: @local::fiberHarp_geom
+      station: @local::station_geom
      }
-     
-     RunSettings: {
-       SpinTracking: {
-         spinTrackingEnabled : true
+    RunSettings : {
+      SpinTracking : {
+        spinTrackingEnabled : false
       }
     }
-     
      
     // Detector(s) for the simulation
 
     // Action(s) for the simulation
-    //    ClockAction: {}
     StackingAction: {  
           name: "stackingAction"
 	  minWavelength:250 //nm
           maxWavelength:950  //nm
     }
 
-    PhysicsList: {}	
+    PhysicsList: {}
+    TrackingAction : {
+          name : "trackingAction"
+    }
+    ClockAction: {}	
     World: {}	
     Arc: {}
     VacuumChamber: {}
     Inflector:{}	
-	   
+    FiberHarp: {}	   
+    Station: {}
+
     PrimaryGeneratorAction: {
             name: "primary"	
 	    muonGasVerbosity : true
@@ -71,10 +78,20 @@ services: {
             } //g2GPS Parameter Set
         } //PrimaryGeneratorAciton
 
-    EventAction: {
-      name: "event"
-    }//EventAction
+//      MuonStorageStatusAction: { 
+//        name: "MuonStorageStatusAction"
+//      }//MuonStorageStatusAction
+//    RunAction: {
+//      name: "run"
+//    }//RunAction
 
+
+//    EventAction: {
+//      name: "event"
+//      // heartbeatFreq :  100
+//      // heartbeatLength: 0
+//    }//EventAction
+    
 
   } //user:
 } //services:
@@ -93,18 +110,17 @@ physics: {
       enableVisualization: true
       macroPath: ".:./macros:../macros:../../macros"
       visMacro: "vis.mac"
-      afterEvent: pause
-      //      pauseAfterEvent: true
-    }
+     //     afterEvent : ui   
+     afterEvent: pause
 
-  }
+   }
+ }
 
   path1: [ artg4Main ]
   stream1:  [ out1 ]
 
   trigger_paths: [ path1 ]
   end_paths: [ stream1 ]
+
 }
 
-// Override Arc display
-services.user.Geometry.arc.display : true

@@ -1163,7 +1163,10 @@ namespace KDTree
       {
          typename _Base::NoLeakAlloc noleak(this);
          _Link_type new_node = noleak.get();
-         _M_construct_node(new_node, __V, __PARENT, __LEFT, __RIGHT);
+	//Brendan Kiburg: Mac did not like the unqualified lookup
+	// so I added the this->  like it suggested
+	// Dec 2012         
+	 this->_M_construct_node(new_node, __V, __PARENT, __LEFT, __RIGHT);
          noleak.disconnect();
          return new_node;
       }
@@ -1181,8 +1184,11 @@ namespace KDTree
       void
       _M_delete_node(_Link_type __p)
       {
-        _M_destroy_node(__p);
-        _M_deallocate_node(__p);
+	//Brendan Kiburg: Mac did not like the unqualified lookup
+	// so I added the this->  like it suggested
+	// Dec 2012
+        this->_M_destroy_node(__p);
+        this->_M_deallocate_node(__p);
       }
 
       _Link_type _M_root;
