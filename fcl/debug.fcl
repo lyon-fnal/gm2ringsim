@@ -4,6 +4,7 @@
 #include "geom/inflector.fcl"
 #include "geom/fiberHarp.fcl"
 #include "geom/station.fcl"
+#include "geom/PGA.fcl"
 
 process_name:myProcessName
 
@@ -42,12 +43,15 @@ services: {
       inflector: @local::inflector_geom
       fiberHarp: @local::fiberHarp_geom
       station: @local::station_geom
+      pga: @local::PGA_geom	
      }
     RunSettings : {
       SpinTracking : {
         spinTrackingEnabled : false
       }
     }
+
+
      
     // Detector(s) for the simulation
 
@@ -70,13 +74,17 @@ services: {
     FiberHarp: {}	   
     Station: {}
 
-    PrimaryGeneratorAction: {
-            name: "primary"	
-	    muonGasVerbosity : true
-            g2GPS : {
-	      useMuonGasGun: true
-            } //g2GPS Parameter Set
-        } //PrimaryGeneratorAciton
+    G2PGA: {
+      name: "primary"
+    }
+ 
+//    PrimaryGeneratorAction: {
+//            name: "primary"	
+//	    muonGasVerbosity : true
+//            g2GPS : {
+//	      useMuonGasGun: true
+//            } //g2GPS Parameter Set
+//        } //PrimaryGeneratorAciton
 
 //      MuonStorageStatusAction: { 
 //        name: "MuonStorageStatusAction"
