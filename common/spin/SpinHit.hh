@@ -17,6 +17,10 @@
 
 /** A G4VHit for storing a spin and momentum three vector during
     tracking. */
+
+//FIXME: Need to move spinHit stuff into gm2ringsim. However
+//       I had trouble doing this with the inline functions below
+
 class SpinHit : public G4VHit {
 
 public:
