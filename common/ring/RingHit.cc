@@ -25,8 +25,9 @@
 #include "gm2ringsim/actions/muonStorageStatus/TurnCounter.hh"
 //#include "rootStorageManager.hh"
 
+G4Allocator<RingHit> RingHitAllocator;
 
-gm2ringsim::RingHit::RingHit(G4Step* step) : 
+RingHit::RingHit(G4Step* step) : 
   position(step->GetPreStepPoint()->GetPosition()),
   momentum(step->GetPreStepPoint()->GetMomentum()),
   time(step->GetPreStepPoint()->GetGlobalTime()),
@@ -59,7 +60,7 @@ gm2ringsim::RingHit::RingHit(G4Step* step) :
   }
 }
 
-void gm2ringsim::RingHit::Draw(){
+void RingHit::Draw(){
 // #ifdef G4VIS_USE
 //   G4VVisManager* pVVisManager = G4VVisManager::GetConcreteInstance();
 //   if(!pVVisManager)
@@ -75,7 +76,7 @@ void gm2ringsim::RingHit::Draw(){
 // #endif
 }
 
-void gm2ringsim::RingHit::Print(){
+void RingHit::Print(){
   //FIXME:
   //g2UniqueObjectManager const& uom = 
   // rootStorageManager::getInstance().getUOM();
@@ -90,7 +91,7 @@ void gm2ringsim::RingHit::Print(){
 
 //extern G4Allocator<gm2ringsim::RingHit> RingHitAllocator;
 
-// G4Allocator<gm2ringsim::RingHit> RingHitAllocator;
+
   
 // void* gm2ringsim::RingHit::operator new(size_t)
 // {
