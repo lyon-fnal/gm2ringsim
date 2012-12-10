@@ -1,4 +1,7 @@
-art_make( LIBRARIES "artg4_util" "gm2ringsim_inflector" "gm2ringsim_common" "gm2ringsim_common_spin" "gm2ringsim_fields" "gm2ringsim_actions")
+# Build the libraries
+art_make( LIBRARIES "gm2ringsim_common_spin" "${XERCESCLIB}" "${allG4Libs}")
+
+# Copy the headers
 install_headers()
 
 # Copy the fcl
@@ -6,6 +9,7 @@ install_headers()
 file(GLOB fcl_files *.fcl)
 install( FILES ${fcl_files}
          DESTINATION ${product}/${version}/${PROJECT_NAME}/fcl/geom )
+
 # Also install in the build area
 foreach(aFile ${fcl_files})
   get_filename_component( basename ${aFile} NAME )
