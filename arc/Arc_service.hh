@@ -15,12 +15,13 @@
 #include "Geant4/G4HCofThisEvent.hh"
 #include "Geant4/G4LogicalVolume.hh"
 #include "Geant4/G4VPhysicalVolume.hh"
+#include "Geant4/G4FieldManager.hh"
 
 #include <vector>
 
 // Get the base class for the service
 #include "artg4/Core/DetectorBase.hh"
-
+#include "gm2ringsim/actions/SpinTrackingSettings.hh"
 
 // Within a namespace
 namespace gm2ringsim {
@@ -36,21 +37,30 @@ namespace gm2ringsim {
         Arc(fhicl::ParameterSet const &, art::ActivityRegistry & );
 
         // We always need a virtual destructor
-        virtual ~Arc() {};
+        virtual ~Arc() ;
 
     private:
+      SpinTrackingSettings sts_;
+      bool const spin_tracking_;
 
-        // Private overriden methods
+      G4FieldManager *withoutSpin_;
+      G4FieldManager *withSpin_;
 
-        // Create the logical volumes
-        virtual std::vector<G4LogicalVolume*> doBuildLVs() override;
 
-        // Create the physical volumes
-        virtual std::vector<G4VPhysicalVolume*> doPlaceToPVs( std::vector<G4LogicalVolume*>) override;
       
-        // Convenience functions
-        G4LogicalVolume* makeAnArcLV(ArcGeometry const &, unsigned int);
+      // Private overriden methods
+      
+      // Create the logical volumes
+      virtual std::vector<G4LogicalVolume*> doBuildLVs() override;
+      
+      // Create the physical volumes
+      virtual std::vector<G4VPhysicalVolume*> doPlaceToPVs( std::vector<G4LogicalVolume*>) override;
 
+      virtual void initialize() override;
+      
+      // Convenience functions
+      G4LogicalVolume* makeAnArcLV(ArcGeometry const &, unsigned int);
+      
 
     };
 }
