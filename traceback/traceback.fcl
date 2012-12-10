@@ -4,22 +4,25 @@
 
 BEGIN_PROLOG
 traceback_geom : {
-  r: 170
+  r: 110
   v: 150
-  t: 10
+  t: 500
   r_in : 268.873 // in
   r_out: 276.149 // in
   window_angle: 3.53 // deg
   //theta_out [(11.96-2.5), (11.96-2.5)+15] in g2MIGTRACE
   theta_out: [9.46, 24.46] // deg
   t_offset: 0
-  r_offset: 0
-  v_offset: 0
+  r_offset: -10.0
+  v_offset: 0.0
   t_rotation: 0 // deg
   r_rotation: 0 // deg
-  v_rotation: 0 // deg
+  v_rotation: -3.0 // deg
+  
+  traceback_radial: [170.0, 175.0, 175.0, 170.0, 170.0, 170.0, 160.0, 160.0, 155.0, 150.0, 140.0, 135.0, 130.0, 115.0, 105.0, 95.0, 90.0, 80.0, 70.0, 60.0, 50.0, 40.0]
 
   displayTraceback: true
-  tracebackColor : [1.0, 0.0, 0.0, 1.0]
+  tracebackColor : [0.25, .99, 0.82, 1.0]
 
 }
+END_PROLOG

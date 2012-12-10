@@ -19,10 +19,22 @@ gm2ringsim::TracebackGeometry::TracebackGeometry(std::string const & detName) :
   t_rotation( p.get<double>("t_rotation") * deg),
   r_rotation( p.get<double>("r_rotation") * deg),
   v_rotation( p.get<double>("v_rotation") * deg),
+  traceback_radial( p.get<std::vector<double>>("traceback_radial")),
   displayTraceback( p.get<bool>("displayTraceback") ),
-  tracebackColor( p.get<std::vector<double>>("tracebackColor") )
+  tracebackColor( p.get<std::vector<double>>("tracebackColor")),
+  r_c((r_in + r_out)/2)
 {
   for (auto& entry : theta_out ) { entry *= deg; }
+  for (auto& entry : theta_in ) { entry *= deg; }
+  for (auto& entry : theta_c ) { entry *= deg; }
+  
+  //Derived quantities
+  
+  for (unsigned int i = 0; i < 2; ++i ) {
+    theta_in[i] = (theta_out[i] - 0.12*deg);
+    theta_c[i] = (theta_in[i] + theta_out[i])/2;
+  }
+
 }
 
 void gm2ringsim::TracebackGeometry::print() const{

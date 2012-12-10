@@ -30,8 +30,17 @@ namespace gm2ringsim {
     const double t_rotation;
     const double r_rotation;
     const double v_rotation;
+    std::vector<double> traceback_radial;
+
     const bool displayTraceback;
     std::vector<double> tracebackColor;
+    
+
+    //Derived constants
+    double r_c;
+    double theta_in[2];
+    double theta_c[2];
+  
 
   };
 
