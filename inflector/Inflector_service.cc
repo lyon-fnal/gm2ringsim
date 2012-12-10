@@ -120,15 +120,18 @@ gm2ringsim::Inflector::Inflector(fhicl::ParameterSet const & p, art::ActivityReg
   fieldNormConst_(infGeom_.fieldNormConst),
   currentToMagFieldConversion_(infGeom_.currentToMagFieldConversion),
   spin_tracking_(sts_.spinTrackingEnabled),
-  inflectorSDname_("InflectorSD")
+  inflectorSDname_("InflectorSD"),
+  inflectorSD_(0) // will set below
 {
   printf("In the Inflector service constructor\n");
   
   // Let's prepare the sensitive detector, no registration with G4SDManager necessary as 
   // this is done in FiberHarpSD constructor
 
-  artg4::getSensitiveDetector(inflectorSDname_, inflectorSD_);
-
+  //  artg4::getSensitiveDetector(inflectorSDname_, inflectorSD_);
+  
+  inflectorSD_ = artg4::getSensitiveDetector<InflectorSD>(inflectorSDname_);
+  
   //FIXME: No need for this binding. We can just grab spintracking from
   //      the master fcl and set the spintracking variable accordingly,once.
   /*  std::tr1::function<void(bool)> f =

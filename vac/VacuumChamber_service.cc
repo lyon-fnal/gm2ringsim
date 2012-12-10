@@ -23,11 +23,13 @@ gm2ringsim::VacuumChamber::VacuumChamber(fhicl::ParameterSet const & p, art::Act
 	       p.get<std::string>("category", "vac"),
 	       p.get<std::string>("mother_category", "arc")),
   turnCounterSDName_("turnCounter"),
-  trackerSDName_("tracker")
+  trackerSDName_("tracker"),
+  turnSD_(0),   // will set below
+  trackerSD_(0) // will set below
 {
   //creates or gets the turnCounterSD depending on whether it exists or not.
-  artg4::getSensitiveDetector(turnCounterSDName_,turnSD_);
-  artg4::getSensitiveDetector(trackerSDName_,trackerSD_);
+  turnSD_ = artg4::getSensitiveDetector<turnCounterSD>(turnCounterSDName_);
+  trackerSD_ = artg4::getSensitiveDetector<TrackerSD>(trackerSDName_);
 }
 
 G4UnionSolid* gm2ringsim::VacuumChamber::buildUnionSolid(const VacGeometry& g, VacGeometry::typeToBuild which, unsigned int arc) {
