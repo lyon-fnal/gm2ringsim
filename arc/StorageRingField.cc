@@ -7,7 +7,7 @@
     - Kevin Lynch 2009
 */
 
-#include "storageRingField.hh"
+#include "gm2ringsim/arc/StorageRingField.hh"
 
 #include <cmath>
 #include <iostream>

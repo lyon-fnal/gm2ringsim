@@ -20,7 +20,6 @@
 #include "Geant4/G4Step.hh"
 #include "Geant4/globals.hh"
 
-namespace gm2ringsim{
   
   /** Provides a G4VHit class to record energy loss and scattering data
       on physical objects in the ring.
@@ -49,34 +48,34 @@ namespace gm2ringsim{
     
     RingHit(G4Step*);
     
-    //inline void* operator new(size_t);
-    //inline void  operator delete(void*);
+    inline void* operator new(size_t);
+    inline void  operator delete(void*);
     
     void Draw();
     void Print();
     
   }; // end of class definition
   
-  typedef G4THitsCollection<gm2ringsim::RingHit> RingHitsCollection;
+typedef G4THitsCollection<RingHit> RingHitsCollection;
 
   //FIXME: What's the point of these functions ??
 
-  // //FIXME Whys is this extern
-  //extern G4Allocator<gm2ringsim::RingHit> RingHitAllocator;
+   //FIXME Whys is this extern
+  extern G4Allocator<RingHit> RingHitAllocator;
   
-  // inline void* RingHit::operator new(size_t)
-  // {
-  //   void *aHit;
-  //   aHit = (void *) RingHitAllocator.MallocSingle();
-  //   return aHit;
-  // }
+   inline void* RingHit::operator new(size_t)
+   {
+     void *aHit;
+     aHit = (void *) RingHitAllocator.MallocSingle();
+     return aHit;
+   }
   
-  // inline void RingHit::operator delete(void *aHit)
-  // {
-  //   RingHitAllocator.FreeSingle ((RingHit*) aHit);
-  // }
+   inline void RingHit::operator delete(void *aHit)
+   {
+     RingHitAllocator.FreeSingle ((RingHit*) aHit);
+   }
   
-}//namespace gm2ringsim
+
 
 
 

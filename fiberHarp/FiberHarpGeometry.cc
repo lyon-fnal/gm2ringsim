@@ -26,14 +26,24 @@ gm2ringsim::FiberHarpGeometry::FiberHarpGeometry(std::string detName) :
   coll_z( p.get<double>("coll_z") * m),
   nHarps( p.get<int>("nHarps")),
   azimuthalPos( p.get<std::vector<double>>("azimuthalPos")),
-  vacWallPos( p.get<std::vector<double>>("vacWallPos") ),
-  harpType( p.get<std::vector<double>>("harpType") ),
+  vacWallPos( p.get<std::vector<int>>("vacWallPos") ),
+  harpType( p.get<std::vector<int>>("harpType") ),
   display( p.get<bool>("display")),
   fiberHarpColor( p.get<std::vector<double>>("fiberHarpColor"))
 {
   for (auto& entry : azimuthalPos ){ 
     entry *= deg; 
   }
+
+  if(azimuthalPos.size() != (unsigned int)nHarps) throw cet::exception("FiberHarpGeometry") << 
+    "Wrong geometry input: Size of azimuthalPos array is " << azimuthalPos.size() << 
+    " and not equals nHarps=" << nHarps << std::endl;
+  if(vacWallPos.size() != (unsigned int)nHarps) throw cet::exception("FiberHarpGeometry") << 
+    "Wrong geometry input: Size of vacWallPos array is " << vacWallPos.size() << 
+    " and not equals nHarps=" << nHarps << std::endl;
+  if(harpType.size() != (unsigned int)nHarps) throw cet::exception("FiberHarpGeometry") << 
+    "Wrong geometry input: Size of harpType array is " << harpType.size() << 
+    " and not equals nHarps=" << nHarps << std::endl;  
 }
 
 

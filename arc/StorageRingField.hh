@@ -1,5 +1,5 @@
-#ifndef storageRingField_hh
-#define storageRingField_hh
+#ifndef STORAGERINGFIELD_HH
+#define STORAGERINGFIELD_HH
 
 /** @file storageRingField.hh
 
@@ -184,7 +184,6 @@ private:
 #include "Geant4/G4UIcmdWithADoubleAndUnit.hh"
 #include "Geant4/G4UIcmdWithoutParameter.hh"
 
-
 /** Provides a G4UImessenger interface to set details of the storage
     field.
 
@@ -252,5 +251,5 @@ private:
   G4UIcmdWithAString *fringeMapCmd_;
 };
 
-#endif // storageRingField_hh
+#endif // STORAGERINGFIELD_HH
 

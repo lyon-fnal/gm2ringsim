@@ -127,6 +127,7 @@ add_subdirectory( test )
 add_subdirectory( actions )
 add_subdirectory( fiberHarp )
 add_subdirectory( station )
+add_subdirectory( collimator )
 
 # Packaging facility
 include(UseCPack)

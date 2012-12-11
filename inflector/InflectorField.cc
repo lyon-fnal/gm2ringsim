@@ -24,7 +24,7 @@
 #include "gm2ringsim/common/g2PreciseValues.hh"
 #include "gm2ringsim/inflector/inflectorGeometry.hh"
 #include "gm2ringsim/inflector/InflectorField.hh"
-#include "gm2ringsim/inflector/storageRingField.hh"
+#include "gm2ringsim/arc/StorageRingField.hh"
 
 //////////// vanishingInflectorField
 
