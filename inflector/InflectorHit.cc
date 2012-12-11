@@ -21,10 +21,10 @@
 
 #include "gm2ringsim/inflector/InflectorHit.hh"
 //FIXME: do i need this?#include "g2UniqueObjectManager.rhh"
-
-G4Allocator<inflectorHit> inflectorHitAllocator;
-
-inflectorHit::inflectorHit(G4Step* step) : 
+namespace gm2ringsim {
+  G4Allocator<inflectorHit> inflectorHitAllocator;
+}
+gm2ringsim::inflectorHit::inflectorHit(G4Step* step) : 
   position(step->GetPreStepPoint()->GetPosition()),
   momentum(step->GetPreStepPoint()->GetMomentum()),
   time(step->GetPreStepPoint()->GetGlobalTime()),
@@ -80,7 +80,7 @@ inflectorHit::inflectorHit(G4Step* step) :
 }
 
 
-void inflectorHit::Draw(){
+void gm2ringsim::inflectorHit::Draw(){
 #ifdef G4VIS_USE
   G4VVisManager* pVVisManager = G4VVisManager::GetConcreteInstance();
   if(!pVVisManager)
@@ -98,7 +98,7 @@ void inflectorHit::Draw(){
 
 //#include "rootStorageManager.hh"
 
-void inflectorHit::Print(){
+void gm2ringsim::inflectorHit::Print(){
   G4cout << " volumeUID: " << volumeUID
 	 << " time: " << time
 	 << " position: " << position
