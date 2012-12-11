@@ -27,6 +27,8 @@ gm2ringsim::CollimatorGeometry::CollimatorGeometry(std::string detName) :
   azimuthalPos( p.get<std::vector<double>>("azimuthalPos") ),
   cVacWallArray( p.get<std::vector<int>>("cVacWallArray") ),
   collimatorType( p.get<std::vector<int>>("collimatorType") ),
+  coll_Sphi{coll_Sphi_Full, coll_Sphi_Half, coll_Sphi_Half},
+  coll_Dphi{coll_Dphi_Full, coll_Dphi_Half, coll_Dphi_Half},
   display( p.get<bool>("display") ),
   collimatorColor( p.get<std::vector<double>>("collimatorColor") )
 {
