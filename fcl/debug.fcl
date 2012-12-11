@@ -4,6 +4,7 @@
 #include "geom/inflector.fcl"
 #include "geom/fiberHarp.fcl"
 #include "geom/station.fcl"
+#include "geom/collimator.fcl"
 #include "geom/PGA.fcl"
 #include "geom/g2GPS.fcl"
 
@@ -44,6 +45,7 @@ services: {
       inflector: @local::inflector_geom
       fiberHarp: @local::fiberHarp_geom
       station: @local::station_geom
+      collimator: @local::collimator_geom
       pga: @local::PGA_geom	
      }
     RunSettings : {
@@ -77,6 +79,7 @@ services: {
     Inflector:{}	
     FiberHarp: {}	   
     Station: {}
+    Collimator : {}
 
     G2PGA: {
       name: "primary"

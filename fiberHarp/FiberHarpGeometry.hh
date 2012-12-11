@@ -28,8 +28,8 @@ namespace gm2ringsim{
     const double coll_z;
     const int nHarps;
     std::vector<double> azimuthalPos;
-    std::vector<double> vacWallPos;
-    std::vector<double> harpType;
+    std::vector<int> vacWallPos;
+    std::vector<int> harpType;
     
     const bool display;
     std::vector<double> fiberHarpColor;
