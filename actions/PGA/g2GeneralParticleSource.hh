@@ -37,10 +37,12 @@
 
 #include "Geant4/globals.hh"
 #include <vector>
+#include <string>
 
 #include "Geant4/G4Event.hh"
+#include "Geant4/G4ParticleTable.hh"
 #include "gm2ringsim/actions/PGA/g2SingleParticleSource.hh"
-
+#include "gm2ringsim/actions/PGA/G2GPSSettings.hh"
 
 /** Provides a modified General Particle Source to include time
     distribution */
@@ -65,6 +67,38 @@ public:
   void AddaSource (G4double);
   void DeleteaSource(G4int);
 
+  // g2GeneralParticleSourceMessengerSettings
+  void implementSettings();
+  
+  void setParticleDefinition(std::string newValues);
+  void setPosType(std::string newValues);
+  
+  void setPosRot1(std::vector<double> rot1);
+  void setPosRot2(std::vector<double> rot2);
+  
+  void setPosShape(std::string shape);
+  void setCentreCoords(std::vector<double> pos);
+  void setHalfX(double hx);
+  void setHalfY(double hy);
+  
+  void setPosSigmaX(double sigx);
+  void setPosSigmaY(double sigy);
+  
+  void setAngRot1(std::vector<double> rot1);
+  void setAngRot2(std::vector<double> rot2);
+  void setAngType(std::string ang_type);
+  void setAngSigmaX(double sigx);
+  void setAngSigmaY(double sigy);
+  
+  void setEnergyType(std::string eType);
+  void setMonoEnergy(double newValues);
+  void setEnergySigma(double eSigma);
+
+  void setTimeType(std::string tType);
+  void setTimeMono(double tMono);
+  void setTimeSigma(double tSigma);
+  
+  
   // Set the verbosity level.
   void SetVerbosity(G4int i) {currentSource->SetVerbosity(i);} ;
 
@@ -72,6 +106,7 @@ public:
   void SetMultipleVertex(G4bool av) {multiple_vertex = av;} ;
 
   // Set the particle species
+
   void SetParticleDefinition (G4ParticleDefinition * aParticleDefinition) 
     {currentSource->SetParticleDefinition(aParticleDefinition); } ;
 
@@ -119,6 +154,8 @@ private:
   void IntensityNormalization();
 
 private:
+  gm2ringsim::G2GPSSettings settings_;
+  G4ParticleTable *particleTable_;
   G4bool multiple_vertex;
   G4bool normalised;
   ///////////////////////////////////////////////////

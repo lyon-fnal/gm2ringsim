@@ -1,4 +1,4 @@
-art_make( LIBRARIES "artg4_util" "gm2ringsim_inflector" "gm2ringsim_common" "gm2ringsim_fields" "gm2ringsim_actions")
+art_make( LIBRARIES "artg4_util" "gm2ringsim_inflector" "gm2ringsim_common" "gm2ringsim_common_spin" "gm2ringsim_fields" "gm2ringsim_actions")
 install_headers()
 
 # Copy the fcl

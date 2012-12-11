@@ -1,0 +1,24 @@
+/g2MIGTRACE/g2GPS/particle mu-
+/g2MIGTRACE/g2GPS/pos/type Beam 
+
+/g2MIGTRACE/g2GPS/pos/rot1 1 0 0 
+/g2MIGTRACE/g2GPS/pos/rot2 0 1 0
+
+/g2MIGTRACE/g2GPS/pos/shape Circle
+/g2MIGTRACE/g2GPS/pos/centre 7.1121454901592012 0. 0. m
+/g2MIGTRACE/g2GPS/pos/radius 20 mm
+/g2MIGTRACE/g2GPS/pos/sigma_r 0. m
+
+/g2MIGTRACE/g2GPS/ang/type beam2d 
+/g2MIGTRACE/g2GPS/ang/sigma_r 0. deg 
+/g2MIGTRACE/g2GPS/ang/rot1 1 0 0
+/g2MIGTRACE/g2GPS/ang/rot2 0 -1 0
+
+/g2MIGTRACE/g2GPS/ene/type Gauss 
+/g2MIGTRACE/g2GPS/ene/mono 2.99049378258 GeV 
+/g2MIGTRACE/g2GPS/ene/sigma 0 
+
+/g2MIGTRACE/kicker/setKickerHV 0 0 0 kV
+/g2MIGTRACE/g2GPS/time/tType Gauss 
+/g2MIGTRACE/g2GPS/time/tMono 100 ns
+/g2MIGTRACE/g2GPS/time/tSigma 25 ns 
