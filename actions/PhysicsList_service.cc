@@ -10,8 +10,8 @@
 
 gm2ringsim::PhysicsListService::PhysicsListService(fhicl::ParameterSet const &, art::ActivityRegistry &) :
   PhysicsListServiceBase( std::unique_ptr<G4VUserPhysicsList>(new 
-      //physicsList))
-							      N02PhysicsList) )
+							      physicsList))
+  //N02PhysicsList) )
 {
   //  physicsList_.ConstructLeptons();
 }
