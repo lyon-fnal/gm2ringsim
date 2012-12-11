@@ -795,22 +795,25 @@ void gm2ringsim::Inflector::buildTrackingVolumes(){
 	 << i
 	 << "]";
     G4double const tIML = infGeom_.ig.mandrel_length() - infGeom_.trackerThickness;
-    G4PVPlacement *place =
-      new G4PVPlacement(0,
-			G4ThreeVector(0.,
-				      // i*tIML/(num_trackers-1) -tIML/2., 
-				      - i*tIML/(infGeom_.num_trackers-1) 
-				      + tIML/2., 
-				      0),
-			log,
-			name.str().c_str(),
-			beamChannel_L_,
-			false,
-			0);
+
+    // Don't create the variable place if we aren't going to use it below
+    //    G4PVPlacement *place =
+    new G4PVPlacement(0,
+		      G4ThreeVector(0.,
+				    // i*tIML/(num_trackers-1) -tIML/2., 
+				    - i*tIML/(infGeom_.num_trackers-1) 
+				    + tIML/2., 
+				    0),
+		      log,
+		      name.str().c_str(),
+		      beamChannel_L_,
+		      false,
+		      0);
     
-    // FIXME: ARTize : tracker_physicals.push_back(place);
-    place->GetCopyNo(); // temporary to compile (cannot compile if place is unused)
-    //FIXME: place->GetCopyNo() can be removed
+    // The tracker_physicals only need to be stored IF you intend
+    // to delete and rebuild the inflector (see: g2migtrace implementation of DeleteInflector
+
+
   }
   
  }

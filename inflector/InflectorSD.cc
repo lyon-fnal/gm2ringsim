@@ -17,7 +17,6 @@
 
 #include "gm2ringsim/inflector/InflectorHit.hh"
 #include "gm2ringsim/inflector/InflectorSD.hh"
-//FIXME: Need to include the eventAction #include "eventAction.hh"
 
 gm2ringsim::InflectorSD::InflectorSD(G4String name) : 
   G4VSensitiveDetector( name ),
