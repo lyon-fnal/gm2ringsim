@@ -25,21 +25,12 @@ G2GPS_storageVertex: {
    ene_type: Gauss
    ene_mono: 2.99049378258 //GeV
    ene_sigma: 0.0 //GeV
-   //0.01364 //GeV 
    
-//   kicker_HV: [0, 0, 0] //kV // no kicker implemented yet, so off for now
+   //   kicker_HV: [0, 0, 0] //kV // no kicker implemented yet, so off for now
 
    tType: Gauss
    tMono: 100 //ns
    tSigma: 25 //ns
-}
-
-G2GPS_storageVertexReal: {
-
- 
- 
-
-
 }
 
 G2GPS_downstreamInflectorMandrel : {
