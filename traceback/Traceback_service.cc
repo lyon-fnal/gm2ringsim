@@ -149,13 +149,14 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
     std::cout<<"correction_normal: "<<correction_normal<<std::endl;
     
     int arc_number = floor(tracebackNum/2);
+
     tracebackPVs.push_back(
                          new G4PVPlacement(
                                            rot,
                                            pos,
                                            aTracebackLV,
                                            tracebackLabel,
-                                           vacs[ arc_number ],
+                                           vacs[ arc_number ]->GetDaughter(0)->GetLogicalVolume(),
                                            false,
                                            0, true
                                            )
