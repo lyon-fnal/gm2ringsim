@@ -30,7 +30,8 @@ gm2ringsim::G2GPSSettings::G2GPSSettings(std::string const & detName) :
   ene_sigma( p.get<double>("ene_sigma") * GeV),
   tType( p.get<std::string>("tType") ),
   tMono( p.get<double>("tMono") * ns),
-  tSigma( p.get<double>("tSigma") * ns)
+  tSigma( p.get<double>("tSigma") * ns),
+  parSetKeys_(p.get_keys())
 {
   // radians??
   //FIXME: Need to check angular units
@@ -70,3 +71,8 @@ oss << "  tSigma=" << tSigma << "\n";
 mf::LogInfo("CATEGORY") << oss.str();
 }
 
+
+bool gm2ringsim::G2GPSSettings::contains(std::string s) {
+  std::cout << s <<std::endl;
+  return true;
+}

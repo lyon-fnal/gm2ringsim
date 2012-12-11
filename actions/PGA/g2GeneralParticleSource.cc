@@ -18,6 +18,7 @@ g2GeneralParticleSource::g2GeneralParticleSource()
     muonGasGunLongitudinalDistrDefault("e989"),
     muonGasGunTransverseDistrDefault("e989")
 {
+  
   particleTable_ = G4ParticleTable::GetParticleTable();
   
 
@@ -39,8 +40,9 @@ g2GeneralParticleSource::g2GeneralParticleSource()
 
 }
   
-  void g2GeneralParticleSource::implementSettings(){
-    
+void g2GeneralParticleSource::implementSettings(){
+  fhicl::ParameterSet pSet = settings_.p;
+  
     setParticleDefinition(settings_.particle);
     setPosType(settings_.pos_type);
     setPosRot1(settings_.pos_rot1);

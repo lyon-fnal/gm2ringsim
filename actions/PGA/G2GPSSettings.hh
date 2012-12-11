@@ -11,11 +11,12 @@
 
 namespace gm2ringsim {
   
-  struct G2GPSSettings : public artg4::RunSettingsBase {
-   
- G2GPSSettings(std::string const &);
+  class G2GPSSettings : public artg4::RunSettingsBase {
+  public: 
+    G2GPSSettings(std::string const &);
     void print() const;
-
+    virtual bool contains(std::string) override;
+    
     std::string particle;
     std::string pos_type;
     std::vector<double> pos_rot1;
@@ -38,6 +39,11 @@ namespace gm2ringsim {
     std::string tType;
     const double tMono;
     const double tSigma;    
+    
+  private:
+    std::vector<std::string> parSetKeys_;
+    
+
   };
 }
 

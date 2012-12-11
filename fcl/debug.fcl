@@ -53,6 +53,7 @@ services: {
         spinTrackingEnabled : false
       }
       G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel
+      //G2GPSSettings:  @local::G2GPS_storageVertex
       
       
     }
