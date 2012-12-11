@@ -26,7 +26,9 @@ gm2ringsim::Collimator::Collimator(fhicl::ParameterSet const & p, art::ActivityR
 	       p.get<std::string>("category", "collimator"),
 	       p.get<std::string>("mother_category", "vac")),
   geom_(myName())
-{}
+{
+  geom_.print();
+}
 
 // Build the logical volumes
 std::vector<G4LogicalVolume *> gm2ringsim::Collimator::doBuildLVs() {
@@ -87,7 +89,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Collimator::doPlaceToPVs( std::vect
     collPVs.push_back(new G4PVPlacement(new G4RotationMatrix(theta1+0.01*degree, phi, theta),
 					G4ThreeVector(R_magic(),
 						      geom_.coll_z+R_magic()*sin(0.01*degree),
-						      0*m),
+						      0.*m),
 					lvs()[collNumber],
 					objectName,
 					vacLV,
