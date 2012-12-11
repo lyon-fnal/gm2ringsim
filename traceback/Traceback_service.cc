@@ -29,40 +29,25 @@ gm2ringsim::Traceback::Traceback(fhicl::ParameterSet const & p, art::ActivityReg
 {}
 G4LogicalVolume* gm2ringsim::Traceback::makeATracebackLV(gm2ringsim::TracebackGeometry const & tg) {
   
-  G4double half_zmax = 150.0/2.0;
-  G4double half_thetamax = 60.0/2.0;
-  
-  G4double tan3 = 0.05240773;
-    
-  G4double new_theta = 0.0;
-  
-  G4VSolid *s1 = new G4Box("traceback_S1", tg.traceback_radial[0]/2, half_thetamax, half_zmax);
-  G4VSolid *s2 = new G4Box("traceback_S2", tg.traceback_radial[1]/2, half_thetamax, half_zmax);
+  G4double move_theta = 0.0;
+  G4double move_r;
 
-  new_theta = new_theta + 60.0;
-
-  G4double new_r = (tg.traceback_radial[0]/2-tg.traceback_radial[1]/2)+ new_theta*tan3;
+  G4VSolid *solid = new G4Box("traceback_S1", tg.traceback_radial_half[0], tg.traceback_theta_half, tg.traceback_z_half);
+  std::cout<<"tan_traceback_radial_shift_angle: "<<tg.tan_traceback_radial_shift_angle<<std::endl;
+  for(int i = 1; i!= 22; ++i){
+       
+    G4VSolid *s = new G4Box("traceback_this", tg.traceback_radial_half[i], tg.traceback_theta_half, tg.traceback_z_half);
     
-  G4ThreeVector off2 (-new_r, -new_theta, 0.0);
-  
-  G4UnionSolid *solid = new G4UnionSolid("traceback_S",s1, s2, 0, off2);
-  
-  for(int i = 2; i!= 22; ++i){
+    move_theta = tg.traceback_theta + tg.traceback_theta*(i-1);
     
-    G4VSolid *s_this = new G4Box("traceback_this", tg.traceback_radial[i]/2, half_thetamax, half_zmax);
+    move_r = (tg.traceback_radial_half[0]-tg.traceback_radial_half[i])+ move_theta*tg.tan_traceback_radial_shift_angle;
     
-    new_theta = new_theta + 60.0;
-    
-    new_r = (tg.traceback_radial[0]/2-tg.traceback_radial[i]/2)+ new_theta*tan3;
-    
-    G4ThreeVector off_this (-new_r, -new_theta, 0.0);
-    
-    G4UnionSolid *solid_this = new G4UnionSolid("traceback_S",solid, s_this, 0, off_this);
-    
+    G4ThreeVector move_this (-move_r, -move_theta, 0.0);
+    G4UnionSolid *solid_this = new G4UnionSolid("traceback_S",solid, s, 0, move_this);
     solid = solid_this;
     
   }
-  
+
   G4LogicalVolume *traceback_L = new G4LogicalVolume(solid,
                                                      artg4Materials::Vacuum(),
                                                      "traceback_L");
@@ -150,6 +135,18 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
     G4RotationMatrix *rot = new G4RotationMatrix(0,
                                                  0,
                                                  tg.theta_in[ arc_position ] + tg.window_angle - tg.v_rotation);
+    
+    std::cout<<"STATION NUMBER: "<<tracebackNum<<std::endl;
+    std::cout<<"window edge: "<<window_edge<<std::endl;
+    std::cout<<"r_2: "<<r_2<<std::endl;
+    std::cout<<"t_2: "<<t_2<<std::endl;
+    std::cout<<"r_offset: "<<tg.r_offset<<std::endl;
+    std::cout<<"t_offset: "<<tg.t_offset<<std::endl;
+    std::cout<<"v_offset: "<<tg.v_offset<<std::endl;
+    std::cout<<"vrots: "<<vrots<<std::endl;
+    std::cout<<"vrotc: "<<vrotc<<std::endl;
+    std::cout<<"correction_along: "<<correction_along<<std::endl;
+    std::cout<<"correction_normal: "<<correction_normal<<std::endl;
     
     int arc_number = floor(tracebackNum/2);
     tracebackPVs.push_back(

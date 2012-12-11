@@ -20,6 +20,9 @@ gm2ringsim::TracebackGeometry::TracebackGeometry(std::string const & detName) :
   r_rotation( p.get<double>("r_rotation") * deg),
   v_rotation( p.get<double>("v_rotation") * deg),
   traceback_radial( p.get<std::vector<double>>("traceback_radial")),
+  traceback_z( p.get<double>("traceback_z")),
+  traceback_theta( p.get<double>("traceback_theta")),
+  traceback_radial_shift_angle( p.get<double>("traceback_radial_shift_angle") * deg),
   displayTraceback( p.get<bool>("displayTraceback") ),
   tracebackColor( p.get<std::vector<double>>("tracebackColor")),
   r_c((r_in + r_out)/2)
@@ -34,7 +37,14 @@ gm2ringsim::TracebackGeometry::TracebackGeometry(std::string const & detName) :
     theta_in[i] = (theta_out[i] - 0.12*deg);
     theta_c[i] = (theta_in[i] + theta_out[i])/2;
   }
+  
+  for (unsigned int i = 0 ; i < 22; ++i){
+    traceback_radial_half[i] = traceback_radial[i]/2;
+  }
 
+  traceback_z_half = traceback_z/2;
+  traceback_theta_half = traceback_theta/2;
+  tan_traceback_radial_shift_angle = tan(traceback_radial_shift_angle);
 }
 
 void gm2ringsim::TracebackGeometry::print() const{
@@ -52,6 +62,9 @@ void gm2ringsim::TracebackGeometry::print() const{
   oss << "  t_rotation=" << t_rotation << "\n";
   oss << "  r_rotation=" << r_rotation << "\n";
   oss << "  v_rotation=" << v_rotation << "\n";
+  oss << "  traceback_radial= "; for (auto entry : traceback_radial) { oss << " " << entry; }; oss << "\n";
+  oss << "  traceback_z="<< traceback_z << "\n";
+  oss << "  traceback_theta="<< traceback_theta << "\n";
   oss << "  displayTraceback=" << displayTraceback << "\n";
   oss << "  tracebackColor= "; for (auto entry : tracebackColor) { oss << " " << entry; }; oss << "\n";
   mf::LogInfo("TRACEBACK") << oss.str();

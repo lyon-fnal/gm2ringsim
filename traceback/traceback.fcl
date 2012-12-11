@@ -20,7 +20,10 @@ traceback_geom : {
   v_rotation: -3.0 // deg
   
   traceback_radial: [170.0, 175.0, 175.0, 170.0, 170.0, 170.0, 160.0, 160.0, 155.0, 150.0, 140.0, 135.0, 130.0, 115.0, 105.0, 95.0, 90.0, 80.0, 70.0, 60.0, 50.0, 40.0]
-
+  traceback_z: 150
+  traceback_theta: 60
+  traceback_radial_shift_angle: 3 //deg
+  
   displayTraceback: true
   tracebackColor : [0.25, .99, 0.82, 1.0]
 
