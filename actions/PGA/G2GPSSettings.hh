@@ -27,11 +27,14 @@ namespace gm2ringsim {
     const double pos_halfy;
     const double pos_sigma_x;
     const double pos_sigma_y;
+    const double pos_radius;
+    const double pos_sigma_r;
     std::vector<double> ang_rot1;
     std::vector<double> ang_rot2;
     std::string ang_type;
     const double ang_sigma_x;
     const double ang_sigma_y;
+    const double ang_sigma_r;
 
     std::string ene_type;
     const double ene_mono;
