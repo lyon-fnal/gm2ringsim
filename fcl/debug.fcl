@@ -4,6 +4,7 @@
 #include "geom/inflector.fcl"
 #include "geom/fiberHarp.fcl"
 #include "geom/station.fcl"
+#include "geom/collimator.fcl"
 
 process_name:myProcessName
 
@@ -42,6 +43,7 @@ services: {
       inflector: @local::inflector_geom
       fiberHarp: @local::fiberHarp_geom
       station: @local::station_geom
+      collimator: @local::collimator_geom
      }
     RunSettings : {
       SpinTracking : {
@@ -69,6 +71,7 @@ services: {
     Inflector:{}	
     FiberHarp: {}	   
     Station: {}
+    Collimator : {}
 
     PrimaryGeneratorAction: {
             name: "primary"	
