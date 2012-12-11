@@ -33,6 +33,9 @@ g2GeneralParticleSource::g2GeneralParticleSource()
   IntensityNormalization();
 
   implementSettings();
+  
+  printf("Particle Lifetime after implementSettings()== %f\n", (double)(currentSource->GetParticleDefinition()->GetPDGLifeTime()));
+
 
 }
   
@@ -65,11 +68,7 @@ g2GeneralParticleSource::g2GeneralParticleSource()
     setTimeMono(settings_.tMono);
     setTimeSigma(settings_.tSigma);
 
-    
-
-    
-
-  settings_.print();
+    settings_.print();
 }
 
 
@@ -79,14 +78,25 @@ void g2GeneralParticleSource::setParticleDefinition(std::string newValues){
   //  fShootIon = true;
   //} else {
   //fShootIon = false;
-  if (newValues == "muminus")
-    newValues = "mu-";
-  if (newValues == "muplus")
-    newValues = "mu+";
   
-  G4ParticleDefinition* pd = particleTable_->FindParticle(newValues);
+  printf("size of particle table is %d\n",particleTable_->size());
+
+  if (!strcmp(newValues.c_str(),"muminus"))
+    { printf("identified that we have muminus particles\n");
+      newValues = "mu-";
+    }
+  if (!strcmp(newValues.c_str(),"muplus"))
+    { printf("identified that we have muplus particles\n");
+      newValues = "mu+";
+    }
+  
+  const G4String name = "mu-";
+  G4ParticleDefinition* pd = particleTable_->FindParticle(name);
   if(pd != NULL)
-    SetParticleDefinition( pd ); 
+    {
+      std::cout<<"setting particle to "<<newValues<<std::endl;
+      SetParticleDefinition( pd ); 
+    }
   //}
 
 }
@@ -281,7 +291,7 @@ void g2GeneralParticleSource::GeneratePrimaryVertex(G4Event* evt)
       while ( rndm > sourceProbability[i] ) i++;
       (currentSource = sourceVector[i]);
     }
-  currentSource-> GeneratePrimaryVertex(evt);
+    currentSource-> GeneratePrimaryVertex(evt);
   } 
   else {
     for (size_t i = 0; i <  sourceIntensity.size(); i++) {

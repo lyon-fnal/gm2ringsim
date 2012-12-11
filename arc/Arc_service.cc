@@ -98,7 +98,7 @@ mf::LogInfo("Arc") <<"In the Arc::makeAnArcLV, with spin_tracking_ set to "<<spi
   std::string arcName = artg4::addNumberToName("ArcSection", arcNum);
   
   // Make the logical volume
-G4LogicalVolume* arc_L = new G4LogicalVolume(arc_S,
+  G4LogicalVolume* arc_L = new G4LogicalVolume(arc_S,
 					       artg4Materials::Vacuum(),
 					       arcName.c_str(),
 					       tmpFieldManager //This is the spin-dependent field manager
