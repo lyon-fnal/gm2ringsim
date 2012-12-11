@@ -54,7 +54,10 @@ gm2ringsim::physicsList::physicsList() : verboseLevel_(1),
 			     physics_(new PhysicsListVector),
 			     mess_(new physicsListMessenger(this)) { 
   defaultCutValue = 1*mm;
-  physics_ -> push_back(new G4EmStandardPhysics);
+  //FIXME: This breaks in ART
+  //physics_ -> push_back(new G4EmStandardPhysics);
+  
+  // This was commented out in g2MIGTRACE already
   /*
   G4EmExtraPhysics *eep = new G4EmExtraPhysics;
   G4String on("on");
