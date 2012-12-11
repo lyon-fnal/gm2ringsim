@@ -6,10 +6,12 @@
 #include <iostream>
 #include <string>
 
+//FIXME: Need to add defaults
+
 gm2ringsim::G2GPSSettings::G2GPSSettings(std::string const & detName) :
   RunSettingsBase(detName),
-  particle( p.get<std::string>("particle") ),
-  pos_type( p.get<std::string>("pos_type") ),
+  particle( p.get<std::string>("particle", "geantino") ),
+  pos_type( p.get<std::string>("pos_type", "Point") ), //"Point Beam Plane Surface Volume");
   pos_rot1( p.get<std::vector<double>>("pos_rot1") ),
   pos_rot2( p.get<std::vector<double>>("pos_rot2") ),
   pos_shape( p.get<std::string>("pos_shape")),
@@ -31,6 +33,7 @@ gm2ringsim::G2GPSSettings::G2GPSSettings(std::string const & detName) :
   tSigma( p.get<double>("tSigma") * ns)
 {
   // radians??
+  //FIXME: Need to check angular units
   // for (auto& entry : pos_rot1 ) { entry *= ; }
   // for (auto& entry : pos_rot2 ) { entry *= mm; }
   for (auto& entry : pos_centre ) { entry *= mm; }

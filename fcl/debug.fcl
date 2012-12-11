@@ -50,7 +50,7 @@ services: {
       SpinTracking : {
         spinTrackingEnabled : false
       }
-      G2GPSSettings:  @local::G2GPS_geom
+      G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel
       
       
     }
