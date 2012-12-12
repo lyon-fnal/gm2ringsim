@@ -11,6 +11,7 @@ gm2ringsim::N02PhysicsList::N02PhysicsList()
 {
   defaultCutValue = 1.0*cm;
   SetVerboseLevel(1);
+  //  ConstructLeptons();
 }
 
 // The rest are copied verbaim from the Geant code
@@ -29,6 +30,7 @@ void gm2ringsim::N02PhysicsList::ConstructParticle()
   ConstructMesons();
   ConstructBaryons();
   */
+  //  ConstructLeptons();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

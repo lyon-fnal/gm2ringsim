@@ -15,33 +15,36 @@
 #include "Geant4/G4HCofThisEvent.hh"
 #include "gm2ringsim/inflector/InflectorHit.hh"
 
-class InflectorSDMessenger;
 
-/** A sensitive detector similar to the trackerSD for tracking of
-    particles inside the inflector beam aperture. */
-class InflectorSD : public G4VSensitiveDetector{
-
-public:
-  InflectorSD(G4String name);
-  ~InflectorSD();
+namespace gm2ringsim {
+  class InflectorSDMessenger;
   
-  void Initialize(G4HCofThisEvent*);
-  G4bool ProcessHits(G4Step*, G4TouchableHistory*);
-  void EndOfEvent(G4HCofThisEvent*);
+  /** A sensitive detector similar to the trackerSD for tracking of
+      particles inside the inflector beam aperture. */
+  class InflectorSD : public G4VSensitiveDetector{
+    
+  public:
+    InflectorSD(G4String name);
+    ~InflectorSD();
+    
+    void Initialize(G4HCofThisEvent*);
+    G4bool ProcessHits(G4Step*, G4TouchableHistory*);
+    void EndOfEvent(G4HCofThisEvent*);
+    
+    G4int PrintLevel() const { return printLevel; };
+    G4int PrintLevel(G4int newLevel);
+    
+    G4int DrawLevel() const { return drawLevel; };
+    G4int DrawLevel(G4int newLevel);
+  private:
+    inflectorHitsCollection *thisHC;
+    
+    G4int printLevel, drawLevel;
+    
+    InflectorSDMessenger *tsdm_;
+  }; //class InflectorSD
 
-  G4int PrintLevel() const { return printLevel; };
-  G4int PrintLevel(G4int newLevel);
-
-  G4int DrawLevel() const { return drawLevel; };
-  G4int DrawLevel(G4int newLevel);
-private:
-  inflectorHitsCollection *thisHC;
-
-  G4int printLevel, drawLevel;
-
-  InflectorSDMessenger *tsdm_;
-};
-
+} //namespace gm2ringsim
 
 
 #include "Geant4/G4UImessenger.hh"
@@ -55,23 +58,28 @@ private:
     - /g2MIGTRACE/hits/InflectorSD/printLevel
     - /g2MIGTRACE/hits/InflectorSD/drawLevel
 */
-class InflectorSDMessenger : public G4UImessenger {
 
-public:
-  InflectorSDMessenger(InflectorSD *tsd);
-  ~InflectorSDMessenger();
-
-  void SetNewValue(G4UIcommand*,G4String);
-
-private:
-  InflectorSD *tsd_;
-
-  G4UIdirectory *topdir_;
-  G4UIdirectory *dir_;
+namespace gm2ringsim {
   
-  G4UIcmdWithAnInteger *printLevelCmd_;
-  G4UIcmdWithAnInteger *drawLevelCmd_;
-
-};
+  class InflectorSDMessenger : public G4UImessenger {
+    
+  public:
+    InflectorSDMessenger(InflectorSD *tsd);
+    ~InflectorSDMessenger();
+    
+    void SetNewValue(G4UIcommand*,G4String);
+    
+  private:
+    InflectorSD *tsd_;
+    
+    G4UIdirectory *topdir_;
+    G4UIdirectory *dir_;
+    
+    G4UIcmdWithAnInteger *printLevelCmd_;
+    G4UIcmdWithAnInteger *drawLevelCmd_;
+    
+  }; //class InflectorSDMessenger
+  
+} //namespace gm2ringsim
 
 #endif // G2MIGTRACE_INFLECTORSD_HH
