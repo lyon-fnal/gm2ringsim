@@ -136,18 +136,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
                                                  0,
                                                  tg.theta_in[ arc_position ] + tg.window_angle - tg.v_rotation);
     
-    std::cout<<"STATION NUMBER: "<<tracebackNum<<std::endl;
-    std::cout<<"window edge: "<<window_edge<<std::endl;
-    std::cout<<"r_2: "<<r_2<<std::endl;
-    std::cout<<"t_2: "<<t_2<<std::endl;
-    std::cout<<"r_offset: "<<tg.r_offset<<std::endl;
-    std::cout<<"t_offset: "<<tg.t_offset<<std::endl;
-    std::cout<<"v_offset: "<<tg.v_offset<<std::endl;
-    std::cout<<"vrots: "<<vrots<<std::endl;
-    std::cout<<"vrotc: "<<vrotc<<std::endl;
-    std::cout<<"correction_along: "<<correction_along<<std::endl;
-    std::cout<<"correction_normal: "<<correction_normal<<std::endl;
-    
+       
     int arc_number = floor(tracebackNum/2);
 
     tracebackPVs.push_back(
