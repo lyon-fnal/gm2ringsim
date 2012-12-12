@@ -16,7 +16,7 @@
 #include "Geant4/G4LogicalVolume.hh"
 #include "Geant4/G4VPhysicalVolume.hh"
 
-#include "gm2ringsim/common/straw/StrawSD.hh"
+#include "gm2ringsim/traceback/StrawSD.hh"
 
 #include "gm2ringsim/traceback/TracebackGeometry.hh"
 #include <vector>

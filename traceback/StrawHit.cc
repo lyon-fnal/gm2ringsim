@@ -15,12 +15,12 @@
 
 // These two have to be included IN THIS ORDER due to a bug in
 // G4TouchableHandle.hh in 4.9.2.p01, caught by gcc 4.3.2
-#include "G4NavigationHistory.hh"
-#include "G4TouchableHandle.hh"
+#include "Geant4/G4NavigationHistory.hh"
+#include "Geant4/G4TouchableHandle.hh"
 // 
 
-#include "turnCounter.hh"
-#include "rootStorageManager.hh"
+#include "gm2ringsim/actions/muonStorageStatus/TurnCounter.hh"
+//#include "rootStorageManager.hh"
 
 #include <string>
 #include <sstream>
