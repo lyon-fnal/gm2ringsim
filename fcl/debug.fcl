@@ -12,7 +12,7 @@ process_name:myProcessName
 
 source: {
   module_type: EmptyEvent
-  maxEvents:  1
+  maxEvents:  10
 }
 
 services: {
@@ -33,11 +33,15 @@ services: {
      }
   }
 
-  user: {
+  user : {
+  
+    // Mandatory ArtG4 services
     DetectorHolder: {}
     ActionHolder: {}
-    RandomNumberGenerator: {}
     PhysicsListHolder: {}
+    RandomNumberGenerator: {}
+
+    // Geometry
     Geometry: {
       world: @local::world_geom
       arc:   @local::arc_geom
@@ -48,31 +52,32 @@ services: {
       collimator: @local::collimator_geom
       pga: @local::PGA_geom	
      }
-    RunSettings : {
+
+     // Global simulation settings
+     RunSettings : {
       SpinTracking : {
         spinTrackingEnabled : false
-      }
+        }
       G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel
-      
-      
-    }
-
-
-     
-    // Detector(s) for the simulation
+      }
 
     // Action(s) for the simulation
     StackingAction: {  
           name: "stackingAction"
-	  minWavelength:250 //nm
+          minWavelength:250 //nm
           maxWavelength:950  //nm
     }
 
-    PhysicsList: {}
+    Gm2PhysicsList: {}
     TrackingAction : {
           name : "trackingAction"
     }
     ClockAction: {}	
+    G2PGA: {
+      name: "primary"
+    }
+
+    // Detectors
     World: {}	
     Arc: {}
     VacuumChamber: {}
@@ -80,34 +85,6 @@ services: {
     FiberHarp: {}	   
     Station: {}
     Collimator : {}
-
-    G2PGA: {
-      name: "primary"
-    }
- 
-//    PrimaryGeneratorAction: {
-//            name: "primary"	
-//	    muonGasVerbosity : true
-//            g2GPS : {
-//	      useMuonGasGun: true
-//            } //g2GPS Parameter Set
-//        } //PrimaryGeneratorAciton
-
-//      MuonStorageStatusAction: { 
-//        name: "MuonStorageStatusAction"
-//      }//MuonStorageStatusAction
-//    RunAction: {
-//      name: "run"
-//    }//RunAction
-
-
-//    EventAction: {
-//      name: "event"
-//      // heartbeatFreq :  100
-//      // heartbeatLength: 0
-//    }//EventAction
-    
-
   } //user:
 } //services:
 
@@ -120,18 +97,16 @@ out1: {
 
 physics: {
   producers: {
-    artg4Main: {
-      module_type: artg4Main
-      enableVisualization: true
-      macroPath: ".:./macros:../macros:../../macros"
-      visMacro: "vis.mac"
-     //     afterEvent : ui   
-     afterEvent: pause
-
-   }
+    artg4 : { 
+     module_type: artg4Main
+     enableVisualization: true
+     macroPath: ".:./macros:../macros:../../macros"
+     visMacro: "vis.mac"
+     afterEvent: ui  // (ui, pause, pass)
+     }
  }
 
-  path1: [ artg4Main ]
+  path1: [ artg4 ]
   stream1:  [ out1 ]
 
   trigger_paths: [ path1 ]

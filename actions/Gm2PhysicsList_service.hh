@@ -19,7 +19,7 @@ namespace gm2ringsim {
     
   public:
     Gm2PhysicsListService(fhicl::ParameterSet const &, art::ActivityRegistry &);
-    virtual ~PhysicsListService() {};
+    virtual ~Gm2PhysicsListService() {};
     virtual G4VUserPhysicsList* makePhysicsList() const override;
     
   private:

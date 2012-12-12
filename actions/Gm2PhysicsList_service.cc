@@ -22,15 +22,13 @@ G4VUserPhysicsList* gm2ringsim::Gm2PhysicsListService::makePhysicsList() const {
   
   // Set the verbose level
   if ( verboseLevel_ > 0 ) {
-    pl->verboseLevel( verboselevel_ );
+    pl->verboseLevel( verboseLevel_ );
   }
   
   // React to muon decay mode
-  boost::trim(muonDecayMode_);
-  boost::to_lower(muonDecayMode_);
   
   // If "none" or "disable" then turn off decay
-  if (muonDecayMode_ == "none" || muonDecayMode == "disable") {
+  if (muonDecayMode_ == "none" || muonDecayMode_ == "disable") {
     pl->disableDecay();
   }
   
@@ -45,7 +43,7 @@ G4VUserPhysicsList* gm2ringsim::Gm2PhysicsListService::makePhysicsList() const {
   }
   
   // Turn on lepton construction
-  pl->ConstructLeption();
+  //pl->ConstructLeptons();  ???
   
   return pl;
 }
