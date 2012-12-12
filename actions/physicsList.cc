@@ -51,8 +51,7 @@
 gm2ringsim::physicsList::physicsList() : verboseLevel_(1),
 			     decayStatus_(decay_init),
 			     decayPhysicsList_(new G4DecayPhysics),
-			     physics_(new PhysicsListVector),
-			     mess_(new physicsListMessenger(this)) { 
+			     physics_(new PhysicsListVector) {
   defaultCutValue = 1*mm;
   //FIXME: This breaks in ART
   //physics_ -> push_back(new G4EmStandardPhysics);
@@ -83,8 +82,6 @@ gm2ringsim::physicsList::physicsList() : verboseLevel_(1),
 
 gm2ringsim::physicsList::~physicsList(){
   
-  delete mess_;
-
   PhysicsListVector::const_iterator b = physics_->begin(), e = physics_->end();
   while( b!=e ){
     delete (*b);

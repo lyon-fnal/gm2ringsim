@@ -25,14 +25,6 @@
 #include "Geant4/globals.hh"
 #include "Geant4/G4VModularPhysicsList.hh"
 #include "Geant4/G4VPhysicsConstructor.hh"
-#include "gm2ringsim/actions/physicsListMessenger.hh"
-
-/** Provides the required physics lists. 
-
-    Interacts with a messenger class to enable/disable pion and muon
-    decay, and to set whether those decays are isotropic or account
-    for spin.
-*/
 
 class G4Cerenkov;
 class G4Scintillation;
@@ -89,8 +81,6 @@ namespace gm2ringsim{
     G4VPhysicsConstructor*  decayPhysicsList_;
     
     PhysicsListVector* physics_;
-    
-    physicsListMessenger *mess_;
     
     // From N06 example
     G4Cerenkov*          theCerenkovProcess;

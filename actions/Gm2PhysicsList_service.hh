@@ -8,14 +8,23 @@
 
 #include "artg4/services/PhysicsListServiceBase.hh"
 
+#include <string>
+
+class G4VUserPhysicsList;
+
 namespace gm2ringsim {
   
 
-  class PhysicsListService : public artg4::PhysicsListServiceBase {
+  class Gm2PhysicsListService : public artg4::PhysicsListServiceBase {
     
   public:
-    PhysicsListService(fhicl::ParameterSet const &, art::ActivityRegistry &);    
+    Gm2PhysicsListService(fhicl::ParameterSet const &, art::ActivityRegistry &);
     virtual ~PhysicsListService() {};
+    virtual G4VUserPhysicsList* makePhysicsList() const override;
+    
+  private:
+    std::string muonDecayMode_;
+    int verboseLevel_;
   };
   
 }
