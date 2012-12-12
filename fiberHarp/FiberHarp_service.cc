@@ -20,6 +20,7 @@
 
 // There are two types of harps: X sensing and Y sensing.  We will also
 // implement a broken Y-sensing harp, and the absence of a harp.
+//FIXME Replace with strings in FHICL "HARP_OFF", "HARP_X" and adapt code below to compare to strings
 enum e_fiberHarp_type {HARP_OFF, HARP_X, HARP_Y, HARP_BROKEN_Y};
 
 // Constructor for the service 

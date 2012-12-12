@@ -14,6 +14,7 @@
 
 // There are three types of collimators
 namespace gm2ringsim {
+//FIXME Replace with strings in FHICL "FULL", "HALF_LRO" and adapt code below to compare to strings
   enum e_collimator_type {FULL, HALF_LRO, HALF_SRO, OFF};
   std::vector<const char*> e_collimator_names = { "Collimator(full)", "Collimator(half-lro)", 
 						  "Collimator(half-sro)", ""};
