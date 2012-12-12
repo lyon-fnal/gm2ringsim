@@ -22,25 +22,30 @@
 
 // Constructor for the service 
 gm2ringsim::Traceback::Traceback(fhicl::ParameterSet const & p, art::ActivityRegistry & ) :
-    DetectorBase(p,
+  DetectorBase(p,
                    p.get<std::string>("name", "traceback"),
                    p.get<std::string>("category", "traceback"),
-                   p.get<std::string>("mother_category", "vac"))
-{}
-G4LogicalVolume* gm2ringsim::Traceback::makeATracebackLV(gm2ringsim::TracebackGeometry const & tg) {
+                   p.get<std::string>("mother_category", "vac")),
+  geom_(myName()),
+  strawSDName_("straw"),
+  strawSD_(0)
+{
+  strawSD_ = artg4::getSensitiveDetector<StrawSD>(strawSDName_);
+}
+G4LogicalVolume* gm2ringsim::Traceback::makeATracebackLV() {
   
-  G4double move_theta = 0.0;
+  G4double move_theta;
   G4double move_r;
 
-  G4VSolid *solid = new G4Box("traceback_S1", tg.traceback_radial_half[0], tg.traceback_theta_half, tg.traceback_z_half);
-  std::cout<<"tan_traceback_radial_shift_angle: "<<tg.tan_traceback_radial_shift_angle<<std::endl;
+  G4VSolid *solid = new G4Box("traceback_S1", geom_.traceback_radial_half[0], geom_.traceback_theta_half, geom_.traceback_z_half);
+
   for(int i = 1; i!= 22; ++i){
        
-    G4VSolid *s = new G4Box("traceback_this", tg.traceback_radial_half[i], tg.traceback_theta_half, tg.traceback_z_half);
+    G4VSolid *s = new G4Box("traceback_this", geom_.traceback_radial_half[i], geom_.traceback_theta_half, geom_.traceback_z_half);
     
-    move_theta = tg.traceback_theta + tg.traceback_theta*(i-1);
+    move_theta = geom_.traceback_theta + geom_.traceback_theta*(i-1);
     
-    move_r = (tg.traceback_radial_half[0]-tg.traceback_radial_half[i])+ move_theta*tg.tan_traceback_radial_shift_angle;
+    move_r = (geom_.traceback_radial_half[0]-geom_.traceback_radial_half[i])+ move_theta*geom_.tan_traceback_radial_shift_angle;
     
     G4ThreeVector move_this (-move_r, -move_theta, 0.0);
     G4UnionSolid *solid_this = new G4UnionSolid("traceback_S",solid, s, 0, move_this);
@@ -52,35 +57,35 @@ G4LogicalVolume* gm2ringsim::Traceback::makeATracebackLV(gm2ringsim::TracebackGe
                                                      artg4Materials::Vacuum(),
                                                      "traceback_L");
    
-  artg4::setVisAtts(traceback_L, tg.displayTraceback, tg.tracebackColor);
+  artg4::setVisAtts(traceback_L, geom_.displayTraceback, geom_.tracebackColor);
   return traceback_L;
 
 }
 // Build the logical volumes
 std::vector<G4LogicalVolume *> gm2ringsim::Traceback::doBuildLVs() {
-  TracebackGeometry tg(myName());
-  tg.print();
-  
+  //TracebackGeometry tg(myName());
+  //tg.print();
+  geom_.print();
   // Create the vector of logical volumes
   std::vector<G4LogicalVolume*> tracebackLVs;
   
   // Build the logical volumes
   for ( unsigned int tracebackNumber = 0; tracebackNumber != 24; ++tracebackNumber ) {
     // Push this into the vector
-    tracebackLVs.push_back( makeATracebackLV(tg));
+    tracebackLVs.push_back( makeATracebackLV());
   }
   return tracebackLVs;
 }
 
 // Build the physical volumes
 std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vector<G4LogicalVolume*> vacs) {
-  TracebackGeometry tg(myName());
+  //TracebackGeometry tg(myName());
   
   std::vector<G4VPhysicalVolume*> tracebackPVs;
   tracebackPVs.resize(lvs().size());
   
-  G4double const r_2 = tg.r/2.;
-  G4double const t_2 = tg.t/2.;
+  G4double const r_2 = geom_.r/2.;
+  G4double const t_2 = geom_.t/2.;
   
   //loop over the logical volumes
   unsigned int tracebackNum = 0;
@@ -92,21 +97,20 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
     std::string tracebackLabel( boost::str( boost::format("TracebackNumber[%02d]") % tracebackNum ));
     int arc_position = tracebackNum % 2;
     
-    G4ThreeVector window_edge(tg.r_out*std::cos(tg.theta_out[ arc_position ]),
-                              tg.r_out*std::sin(tg.theta_out[ arc_position ]),
+    G4ThreeVector window_edge(geom_.r_out*std::cos(geom_.theta_out[ arc_position ]),
+                              geom_.r_out*std::sin(geom_.theta_out[ arc_position ]),
                               0.);
 
-    
-    G4ThreeVector unit_along(std::cos(tg.theta_in[ arc_position ] + tg.window_angle),
-                             std::sin(tg.theta_in[ arc_position ] + tg.window_angle),
+    G4ThreeVector unit_along(std::cos(geom_.theta_in[ arc_position ] + geom_.window_angle),
+                             std::sin(geom_.theta_in[ arc_position ] + geom_.window_angle),
                              0.);
     
     G4ThreeVector unit_vertical(0,0,-1.); // OK ... yes, up :-(
     
     G4ThreeVector unit_normal = unit_along.cross(unit_vertical); // OK
     
-    G4double const vrots = std::sin( std::abs(tg.v_rotation) );
-    G4double const vrotc = std::cos(tg.v_rotation);
+    G4double const vrots = std::sin( std::abs(geom_.v_rotation) );
+    G4double const vrotc = std::cos(geom_.v_rotation);
     G4double const correction_along = (vrotc-1.)*r_2 + vrots*t_2;
     G4double const correction_normal = vrots*r_2 + (vrotc-1.)*t_2;
     // beamlike
@@ -128,15 +132,14 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
     - correction_along * unit_along
     + correction_normal * unit_normal
     // finally, let's apply the user defined offsets
-    +tg.r_offset * unit_along
-    +tg.t_offset * unit_normal
-    +tg.v_offset * unit_vertical;
+    +geom_.r_offset * unit_along
+    +geom_.t_offset * unit_normal
+    +geom_.v_offset * unit_vertical;
     
     G4RotationMatrix *rot = new G4RotationMatrix(0,
                                                  0,
-                                                 tg.theta_in[ arc_position ] + tg.window_angle - tg.v_rotation);
+                                                 geom_.theta_in[ arc_position ] + geom_.window_angle - geom_.v_rotation);
     
-       
     int arc_number = floor(tracebackNum/2);
 
     tracebackPVs.push_back(
@@ -150,7 +153,6 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
                                            0, true
                                            )
                          );
-    
     
     tracebackNum++;
   }

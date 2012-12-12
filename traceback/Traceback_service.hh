@@ -16,6 +16,8 @@
 #include "Geant4/G4LogicalVolume.hh"
 #include "Geant4/G4VPhysicalVolume.hh"
 
+#include "gm2ringsim/common/straw/StrawSD.hh"
+
 #include "gm2ringsim/traceback/TracebackGeometry.hh"
 #include <vector>
 
@@ -37,6 +39,9 @@ namespace gm2ringsim {
         virtual ~Traceback() {};
 
     private:
+        TracebackGeometry geom_;
+        G4String strawSDName_;
+        StrawSD *strawSD_;
 
         // Private overriden methods
 
@@ -55,7 +60,7 @@ namespace gm2ringsim {
         //virtual void doFillEventWithArtHits(G4HCofThisEvent * hc) override;
       
       // Convenience functions
-        G4LogicalVolume* makeATracebackLV(TracebackGeometry const &);
+        G4LogicalVolume* makeATracebackLV();
 
     };
 }
