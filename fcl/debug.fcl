@@ -7,6 +7,7 @@
 #include "geom/collimator.fcl"
 #include "geom/PGA.fcl"
 #include "geom/g2GPS.fcl"
+#include "geom/traceback.fcl"
 
 process_name:myProcessName
 
@@ -47,6 +48,8 @@ services: {
       station: @local::station_geom
       collimator: @local::collimator_geom
       pga: @local::PGA_geom	
+      traceback: @local::traceback_geom
+
      }
     RunSettings : {
       SpinTracking : {
@@ -81,6 +84,7 @@ services: {
     FiberHarp: {}	   
     Station: {}
     Collimator : {}
+    Traceback: {}
 
     G2PGA: {
       name: "primary"
