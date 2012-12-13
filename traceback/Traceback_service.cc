@@ -100,7 +100,11 @@ void gm2ringsim::Traceback::makeStrawDetectors(std::vector<G4VPhysicalVolume*>& 
                       );
 
       std::string pvName = artg4::addNumberToName("StrawChamberPV", sc);
-      if(sc != 0){
+      if(geom_.strawLocation[sc] == 0){
+        moveTheta = 0.0;
+        moveR=0;
+      }
+      else{
         moveTheta = geom_.tracebackTheta*(geom_.strawLocation[sc]);
 
         moveR =  geom_.tracebackRadialHalf[0]-geom_.tracebackRadialHalf[geom_.strawLocation[sc]]

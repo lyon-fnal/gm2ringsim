@@ -26,7 +26,7 @@ traceback_geom : {
   
   
   whichTracebackLocations: [12, 18]
-  strawLocation: [0, 1, 2, 3, 4, 7, 11, 16, 20]
+  strawLocation: [0,1, 2, 3, 4, 7, 11, 16, 20]
   displayTraceback: true
   tracebackColor : [0.25, .99, 0.82, 1.0]
 
