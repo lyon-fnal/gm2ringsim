@@ -75,35 +75,49 @@ void gm2ringsim::Traceback::makeTracebackLVs(std::vector<G4LogicalVolume*>& trac
 }
 
 void gm2ringsim::Traceback::makeStrawDetectors(std::vector<G4VPhysicalVolume*>& straws,std::vector<G4LogicalVolume*>& tracebacks){
-  for (unsigned int i =0 ; i<geom_.strawLocation.size(); i++){
-    G4VSolid *strawSystem = new G4Box("strawSystem", geom_.traceback_radial_half[geom_.strawLocation[i]]-50, geom_.traceback_theta_half-50, geom_.traceback_z_half-50);
-    std::string strawLVName = artg4::addNumberToName("StrawChamberLV", i);
+  for (int tb = 0; tb<24 ;tb++){
+    for (unsigned int sc =0 ; sc<geom_.strawLocation.size(); sc++){
+    
+      G4double move_theta;
+      G4double move_r;
+    
+      G4VSolid *strawSystem = new G4Box("strawSystem", geom_.traceback_radial_half[geom_.strawLocation[sc]]-50, geom_.traceback_theta_half-50, geom_.traceback_z_half-50);
+    
+      std::string strawLVName = artg4::addNumberToName("StrawChamberLV", sc);
 
-    G4LogicalVolume* strawLV = new G4LogicalVolume(
+      G4LogicalVolume* strawLV = new G4LogicalVolume(
                                                    strawSystem,
                                                    artg4Materials::Vacuum(),
                                                    strawLVName,
                                                    0,
                                                    0);
-    artg4::setVisAtts( strawLV, geom_.displayStraw, geom_.strawColor,
+    
+      artg4::setVisAtts( strawLV, geom_.displayStraw, geom_.strawColor,
                       [] (G4VisAttributes* att) {
                         att->SetForceSolid(1);
                         att->SetVisibility(1);
                       }
                       );
 
-    std::string pvName = artg4::addNumberToName("StrawChamberPV", i);
-    
-    // We can make the physical volumes here
-    straws.push_back( new G4PVPlacement(0,
-                                            G4ThreeVector(),
+      std::string pvName = artg4::addNumberToName("StrawChamberPV", sc);
+      move_r =  geom_.traceback_radial_half[geom_.strawLocation[0]]-geom_.traceback_radial_half[geom_.strawLocation[sc]]
+                + move_theta*geom_.tan_traceback_radial_shift_angle;
+      
+      move_theta = geom_.traceback_theta*(geom_.strawLocation[sc]);
+
+      G4ThreeVector position (-move_r, -move_theta, 0.0);
+      std::cout<<"Straw Chamber: "<<sc<<std::endl;
+      std::cout<<"Position: "<<position <<std::endl;
+      // We can make the physical volumes here
+      straws.push_back( new G4PVPlacement(0,
+                                            position,
                                             strawLV,
                                             pvName.c_str(),
-                                            tracebacks[i],
+                                            tracebacks[tb],
                                             false,
                                             0)
                    );
-
+    }
 
   }
 }
