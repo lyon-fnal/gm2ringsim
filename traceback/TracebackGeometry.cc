@@ -23,8 +23,11 @@ gm2ringsim::TracebackGeometry::TracebackGeometry(std::string const & detName) :
   traceback_z( p.get<double>("traceback_z")),
   traceback_theta( p.get<double>("traceback_theta")),
   traceback_radial_shift_angle( p.get<double>("traceback_radial_shift_angle") * deg),
+  strawLocation( p.get<std::vector<int>>("strawLocation")),
   displayTraceback( p.get<bool>("displayTraceback") ),
   tracebackColor( p.get<std::vector<double>>("tracebackColor")),
+  displayStraw( p.get<bool>("displayStraw")),
+  strawColor( p.get<std::vector<double>>("strawColor")),
   r_c((r_in + r_out)/2)
 {
   for (auto& entry : theta_out ) { entry *= deg; }
@@ -65,6 +68,7 @@ void gm2ringsim::TracebackGeometry::print() const{
   oss << "  traceback_radial= "; for (auto entry : traceback_radial) { oss << " " << entry; }; oss << "\n";
   oss << "  traceback_z="<< traceback_z << "\n";
   oss << "  traceback_theta="<< traceback_theta << "\n";
+  oss << "  strawLocations="; for (auto entry : strawLocation) { oss << " " << entry; }; oss << "\n";
   oss << "  displayTraceback=" << displayTraceback << "\n";
   oss << "  tracebackColor= "; for (auto entry : tracebackColor) { oss << " " << entry; }; oss << "\n";
   mf::LogInfo("TRACEBACK") << oss.str();

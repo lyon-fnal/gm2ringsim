@@ -62,19 +62,63 @@ G4LogicalVolume* gm2ringsim::Traceback::makeATracebackLV() {
 
 }
 // Build the logical volumes
-std::vector<G4LogicalVolume *> gm2ringsim::Traceback::doBuildLVs() {
-  //TracebackGeometry tg(myName());
-  //tg.print();
-  geom_.print();
+void gm2ringsim::Traceback::makeTracebackLVs(std::vector<G4LogicalVolume*>& tracebacks) {
+  
   // Create the vector of logical volumes
-  std::vector<G4LogicalVolume*> tracebackLVs;
+  //std::vector<G4LogicalVolume*> tracebackLVs;
   
   // Build the logical volumes
   for ( unsigned int tracebackNumber = 0; tracebackNumber != 24; ++tracebackNumber ) {
     // Push this into the vector
-    tracebackLVs.push_back( makeATracebackLV());
+    tracebacks.push_back( makeATracebackLV());
   }
-  return tracebackLVs;
+}
+
+void gm2ringsim::Traceback::makeStrawDetectors(std::vector<G4VPhysicalVolume*>& straws,std::vector<G4LogicalVolume*>& tracebacks){
+  for (unsigned int i =0 ; i<geom_.strawLocation.size(); i++){
+    G4VSolid *strawSystem = new G4Box("strawSystem", geom_.traceback_radial_half[geom_.strawLocation[i]]-50, geom_.traceback_theta_half-50, geom_.traceback_z_half-50);
+    std::string strawLVName = artg4::addNumberToName("StrawChamberLV", i);
+
+    G4LogicalVolume* strawLV = new G4LogicalVolume(
+                                                   strawSystem,
+                                                   artg4Materials::Vacuum(),
+                                                   strawLVName,
+                                                   0,
+                                                   0);
+    artg4::setVisAtts( strawLV, geom_.displayStraw, geom_.strawColor,
+                      [] (G4VisAttributes* att) {
+                        att->SetForceSolid(1);
+                        att->SetVisibility(1);
+                      }
+                      );
+
+    std::string pvName = artg4::addNumberToName("StrawChamberPV", i);
+    
+    // We can make the physical volumes here
+    straws.push_back( new G4PVPlacement(0,
+                                            G4ThreeVector(),
+                                            strawLV,
+                                            pvName.c_str(),
+                                            tracebacks[i],
+                                            false,
+                                            0)
+                   );
+
+
+  }
+}
+
+
+//Build the logical volumes
+std::vector<G4LogicalVolume *> gm2ringsim::Traceback::doBuildLVs() {
+  geom_.print();
+  
+  std::vector<G4LogicalVolume*> tracebacks;
+  makeTracebackLVs(tracebacks);
+  std::vector<G4VPhysicalVolume*> straws;
+
+  makeStrawDetectors(straws, tracebacks);
+  return tracebacks;
 }
 
 // Build the physical volumes
@@ -143,15 +187,15 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
     int arc_number = floor(tracebackNum/2);
 
     tracebackPVs.push_back(
-                         new G4PVPlacement(
-                                           rot,
-                                           pos,
-                                           aTracebackLV,
-                                           tracebackLabel,
-                                           vacs[ arc_number ]->GetDaughter(0)->GetLogicalVolume(),
-                                           false,
-                                           0, true
-                                           )
+                           new G4PVPlacement(
+                                             rot,
+                                             pos,
+                                             aTracebackLV,
+                                             tracebackLabel,
+                                             vacs[ arc_number ]->GetDaughter(0)->GetLogicalVolume(),
+                                             false,
+                                             0, true
+                                             )
                          );
     
     tracebackNum++;
@@ -160,6 +204,10 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
 
 
 }
+//i want to take a vector of traceback locations [1,3,5] for example.
+//for each of those locations I want to put two straw chambers (planes for now)
+//those straw chambers should be at 20mm on either side of the edges of the box
+//they should be 5mm thick
 
 // CHANGE_ME: You can delete the below if this detector creates no data
 

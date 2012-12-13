@@ -34,9 +34,11 @@ namespace gm2ringsim {
     const double traceback_z;
     const double traceback_theta;
     const double traceback_radial_shift_angle;
-    
+    std::vector<int> strawLocation;
     const bool displayTraceback;
     std::vector<double> tracebackColor;
+    const bool displayStraw;
+    std::vector<double> strawColor;
     
 
     //Derived constants

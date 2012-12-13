@@ -61,6 +61,8 @@ namespace gm2ringsim {
       
       // Convenience functions
         G4LogicalVolume* makeATracebackLV();
+        void makeTracebackLVs(std::vector<G4LogicalVolume*>&);
+        void makeStrawDetectors(std::vector<G4VPhysicalVolume*>&, std::vector<G4LogicalVolume*>& );
 
     };
 }
