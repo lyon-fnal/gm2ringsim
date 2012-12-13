@@ -68,7 +68,7 @@ void gm2ringsim::Traceback::makeTracebackLVs(std::vector<G4LogicalVolume*>& trac
   //std::vector<G4LogicalVolume*> tracebackLVs;
   
   // Build the logical volumes
-  for ( unsigned int tracebackNumber = 0; tracebackNumber != 24; ++tracebackNumber ) {
+  for ( unsigned int tracebackNumber = 0; tracebackNumber != geom_.whichTracebackLocations.size(); ++tracebackNumber ) {
     // Push this into the vector
     tracebacks.push_back( makeATracebackLV());
   }
@@ -118,7 +118,7 @@ void gm2ringsim::Traceback::makeStrawDetectors(std::vector<G4VPhysicalVolume*>& 
                                             position,
                                             strawLV,
                                             pvName.c_str(),
-                                            tracebacks[geom_.whichTracebackLocations[tb]],
+                                            tracebacks[tb],
                                             false,
                                             0)
                    );
@@ -151,12 +151,14 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
   G4double const tHalf = geom_.t/2.;
   
   //loop over the logical volumes
-  unsigned int tracebackNum = 0;
+  unsigned int i = 0;
+  unsigned int tracebackNum;
   for ( auto aTracebackLV : lvs() ) {
     
     // We to name the station including its station number
     // g2migtrace used sprintf. Let's use boost::format instead
     // (see http://www.boost.org/doc/libs/1_52_0/libs/format/doc/format.html )
+    tracebackNum= geom_.whichTracebackLocations[i];
     std::string tracebackLabel( boost::str( boost::format("TracebackNumber[%02d]") % tracebackNum ));
     int arcPosition = tracebackNum % 2;
     
@@ -217,7 +219,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
                                              )
                          );
     
-    tracebackNum++;
+    i++;
   }
   return tracebackPVs;
 
