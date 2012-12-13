@@ -43,6 +43,7 @@
 
 #include "gm2ringsim/inflector/InflectorGeom.hh"
 #include "gm2ringsim/inflector/InflectorSD.hh"
+#include "gm2ringsim/common/ring/RingSD.hh"
 #include "gm2ringsim/actions/SpinTrackingSettings.hh"
 
 // Within a namespace
@@ -131,8 +132,10 @@ namespace gm2ringsim {
       G4double currentToMagFieldConversion_;
       bool const spin_tracking_;
       G4String inflectorSDname_;
+      G4String ringSDname_;
       InflectorSD *inflectorSD_;
-      
+      RingSD *ringSD_;
+
       // Private overriden methods from ART
       // Create the logical volumes
       virtual std::vector<G4LogicalVolume*> doBuildLVs() override;

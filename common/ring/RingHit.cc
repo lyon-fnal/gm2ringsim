@@ -25,9 +25,11 @@
 #include "gm2ringsim/actions/muonStorageStatus/TurnCounter.hh"
 //#include "rootStorageManager.hh"
 
-G4Allocator<RingHit> RingHitAllocator;
+namespace gm2ringsim {
+  G4Allocator<RingHit> RingHitAllocator;
+}
 
-RingHit::RingHit(G4Step* step) : 
+gm2ringsim::RingHit::RingHit(G4Step* step) : 
   position(step->GetPreStepPoint()->GetPosition()),
   momentum(step->GetPreStepPoint()->GetMomentum()),
   time(step->GetPreStepPoint()->GetGlobalTime()),
@@ -60,7 +62,7 @@ RingHit::RingHit(G4Step* step) :
   }
 }
 
-void RingHit::Draw(){
+void gm2ringsim::RingHit::Draw(){
 // #ifdef G4VIS_USE
 //   G4VVisManager* pVVisManager = G4VVisManager::GetConcreteInstance();
 //   if(!pVVisManager)
@@ -76,7 +78,7 @@ void RingHit::Draw(){
 // #endif
 }
 
-void RingHit::Print(){
+void gm2ringsim::RingHit::Print(){
   //FIXME:
   //g2UniqueObjectManager const& uom = 
   // rootStorageManager::getInstance().getUOM();
@@ -89,19 +91,6 @@ void RingHit::Print(){
   // END FIXME
 }
 
-//extern G4Allocator<gm2ringsim::RingHit> RingHitAllocator;
-
 
   
-// void* gm2ringsim::RingHit::operator new(size_t)
-// {
-//   void *aHit;
-//   aHit = (void *) RingHitAllocator.MallocSingle();
-//   return aHit;
-// }
-
-// void gm2ringsim::RingHit::operator delete(void *aHit)
-// {
-//   RingHitAllocator.FreeSingle ((RingHit*) aHit);
-// }
   
