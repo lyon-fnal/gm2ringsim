@@ -25,7 +25,7 @@ traceback_geom : {
   tracebackRadialShiftAngle: 3 //deg
   
   
-  whichTracebackLocations: [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22]
+  whichTracebackLocations: [12, 18]
   strawLocation: [0, 1, 2, 3, 4, 7, 11, 16, 20]
   displayTraceback: true
   tracebackColor : [0.25, .99, 0.82, 1.0]
