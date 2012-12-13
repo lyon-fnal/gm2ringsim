@@ -34,31 +34,31 @@ gm2ringsim::Traceback::Traceback(fhicl::ParameterSet const & p, art::ActivityReg
 }
 G4LogicalVolume* gm2ringsim::Traceback::makeATracebackLV() {
   
-  G4double move_theta;
-  G4double move_r;
+  G4double moveTheta;
+  G4double moveR;
 
-  G4VSolid *solid = new G4Box("traceback_S1", geom_.traceback_radial_half[0], geom_.traceback_theta_half, geom_.traceback_z_half);
+  G4VSolid *solid = new G4Box("traceback_S1", geom_.tracebackRadialHalf[0], geom_.tracebackThetaHalf, geom_.tracebackZHalf);
 
   for(int i = 1; i!= 22; ++i){
        
-    G4VSolid *s = new G4Box("traceback_this", geom_.traceback_radial_half[i], geom_.traceback_theta_half, geom_.traceback_z_half);
+    G4VSolid *s = new G4Box("traceback_this", geom_.tracebackRadialHalf[i], geom_.tracebackThetaHalf, geom_.tracebackZHalf);
     
-    move_theta = geom_.traceback_theta + geom_.traceback_theta*(i-1);
+    moveTheta = geom_.tracebackTheta + geom_.tracebackTheta*(i-1);
     
-    move_r = (geom_.traceback_radial_half[0]-geom_.traceback_radial_half[i])+ move_theta*geom_.tan_traceback_radial_shift_angle;
+    moveR = (geom_.tracebackRadialHalf[0]-geom_.tracebackRadialHalf[i])+ moveTheta*geom_.tanTracebackRadialShiftAngle;
     
-    G4ThreeVector move_this (-move_r, -move_theta, 0.0);
-    G4UnionSolid *solid_this = new G4UnionSolid("traceback_S",solid, s, 0, move_this);
-    solid = solid_this;
+    G4ThreeVector moveThis (-moveR, -moveTheta, 0.0);
+    G4UnionSolid *solidThis = new G4UnionSolid("traceback_S",solid, s, 0, moveThis);
+    solid = solidThis;
     
   }
 
-  G4LogicalVolume *traceback_L = new G4LogicalVolume(solid,
+  G4LogicalVolume *tracebackLV = new G4LogicalVolume(solid,
                                                      artg4Materials::Vacuum(),
-                                                     "traceback_L");
+                                                     "tracebackLV");
    
-  artg4::setVisAtts(traceback_L, geom_.displayTraceback, geom_.tracebackColor);
-  return traceback_L;
+  artg4::setVisAtts(tracebackLV, geom_.displayTraceback, geom_.tracebackColor);
+  return tracebackLV;
 
 }
 // Build the logical volumes
@@ -75,13 +75,13 @@ void gm2ringsim::Traceback::makeTracebackLVs(std::vector<G4LogicalVolume*>& trac
 }
 
 void gm2ringsim::Traceback::makeStrawDetectors(std::vector<G4VPhysicalVolume*>& straws,std::vector<G4LogicalVolume*>& tracebacks){
-  for (int tb = 0; tb<24 ;tb++){
+  for (unsigned int tb = 0; tb<geom_.whichTracebackLocations.size() ;tb++){
     for (unsigned int sc =0 ; sc<geom_.strawLocation.size(); sc++){
     
-      G4double move_theta;
-      G4double move_r;
+      G4double moveTheta=0.0;
+      G4double moveR=0.0;
     
-      G4VSolid *strawSystem = new G4Box("strawSystem", geom_.traceback_radial_half[geom_.strawLocation[sc]]-50, geom_.traceback_theta_half-50, geom_.traceback_z_half-50);
+      G4VSolid *strawSystem = new G4Box("strawSystem", geom_.tracebackRadialHalf[geom_.strawLocation[sc]]-10, geom_.tracebackThetaHalf-10, geom_.tracebackZHalf-10);
     
       std::string strawLVName = artg4::addNumberToName("StrawChamberLV", sc);
 
@@ -100,12 +100,17 @@ void gm2ringsim::Traceback::makeStrawDetectors(std::vector<G4VPhysicalVolume*>& 
                       );
 
       std::string pvName = artg4::addNumberToName("StrawChamberPV", sc);
-      move_r =  geom_.traceback_radial_half[geom_.strawLocation[0]]-geom_.traceback_radial_half[geom_.strawLocation[sc]]
-                + move_theta*geom_.tan_traceback_radial_shift_angle;
-      
-      move_theta = geom_.traceback_theta*(geom_.strawLocation[sc]);
+      if(sc != 0){
+        moveTheta = geom_.tracebackTheta*(geom_.strawLocation[sc]);
 
-      G4ThreeVector position (-move_r, -move_theta, 0.0);
+        moveR =  geom_.tracebackRadialHalf[0]-geom_.tracebackRadialHalf[geom_.strawLocation[sc]]
+                + moveTheta*geom_.tanTracebackRadialShiftAngle;
+      
+      }
+      std::cout<<"geom_.strawLocation[sc]: "<<geom_.strawLocation[sc]<<std::endl;
+      std::cout<<"moveTheta: "<<moveTheta<<std::endl;
+      
+      G4ThreeVector position (-moveR, -moveTheta, 0.0);
       std::cout<<"Straw Chamber: "<<sc<<std::endl;
       std::cout<<"Position: "<<position <<std::endl;
       // We can make the physical volumes here
@@ -113,7 +118,7 @@ void gm2ringsim::Traceback::makeStrawDetectors(std::vector<G4VPhysicalVolume*>& 
                                             position,
                                             strawLV,
                                             pvName.c_str(),
-                                            tracebacks[tb],
+                                            tracebacks[geom_.whichTracebackLocations[tb]],
                                             false,
                                             0)
                    );
@@ -142,8 +147,8 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
   std::vector<G4VPhysicalVolume*> tracebackPVs;
   tracebackPVs.resize(lvs().size());
   
-  G4double const r_2 = geom_.r/2.;
-  G4double const t_2 = geom_.t/2.;
+  G4double const rHalf = geom_.r/2.;
+  G4double const tHalf = geom_.t/2.;
   
   //loop over the logical volumes
   unsigned int tracebackNum = 0;
@@ -153,52 +158,52 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
     // g2migtrace used sprintf. Let's use boost::format instead
     // (see http://www.boost.org/doc/libs/1_52_0/libs/format/doc/format.html )
     std::string tracebackLabel( boost::str( boost::format("TracebackNumber[%02d]") % tracebackNum ));
-    int arc_position = tracebackNum % 2;
+    int arcPosition = tracebackNum % 2;
     
-    G4ThreeVector window_edge(geom_.r_out*std::cos(geom_.theta_out[ arc_position ]),
-                              geom_.r_out*std::sin(geom_.theta_out[ arc_position ]),
+    G4ThreeVector windowEdge(geom_.rOut*std::cos(geom_.thetaOut[ arcPosition ]),
+                              geom_.rOut*std::sin(geom_.thetaOut[ arcPosition ]),
                               0.);
 
-    G4ThreeVector unit_along(std::cos(geom_.theta_in[ arc_position ] + geom_.window_angle),
-                             std::sin(geom_.theta_in[ arc_position ] + geom_.window_angle),
+    G4ThreeVector unitAlong(std::cos(geom_.thetaIn[ arcPosition ] + geom_.windowAngle),
+                             std::sin(geom_.thetaIn[ arcPosition ] + geom_.windowAngle),
                              0.);
     
-    G4ThreeVector unit_vertical(0,0,-1.); // OK ... yes, up :-(
+    G4ThreeVector unitVertical(0,0,-1.); // OK ... yes, up :-(
     
-    G4ThreeVector unit_normal = unit_along.cross(unit_vertical); // OK
+    G4ThreeVector unitNormal = unitAlong.cross(unitVertical); // OK
     
-    G4double const vrots = std::sin( std::abs(geom_.v_rotation) );
-    G4double const vrotc = std::cos(geom_.v_rotation);
-    G4double const correction_along = (vrotc-1.)*r_2 + vrots*t_2;
-    G4double const correction_normal = vrots*r_2 + (vrotc-1.)*t_2;
+    G4double const vrots = std::sin( std::abs(geom_.vRotation) );
+    G4double const vrotc = std::cos(geom_.vRotation);
+    G4double const correctionAlong = (vrotc-1.)*rHalf + vrots*tHalf;
+    G4double const correctionNormal = vrots*rHalf + (vrotc-1.)*tHalf;
     // beamlike
     
     // for the real g-2 station
     G4ThreeVector pos =
     // center the station on the center of the outer window edge
-    window_edge
+    windowEdge
     // move it in by the radial half width
-    - r_2 * unit_along
+    - rHalf * unitAlong
     // move it downstream by the thickness half width
-    + t_2 * unit_normal
+    + tHalf * unitNormal
     // We have to move the station around so that it doesn't "whack"
     // (technical term, that) into the outside of the vacuum walls
     // when it's rotated
     /** @bug doesn't include the r_rotation and t_rotation corrections
      ... should probably get this by multiplying appropriate
      rotation matrices, but this will take some thought... */
-    - correction_along * unit_along
-    + correction_normal * unit_normal
+    - correctionAlong * unitAlong
+    + correctionNormal * unitNormal
     // finally, let's apply the user defined offsets
-    +geom_.r_offset * unit_along
-    +geom_.t_offset * unit_normal
-    +geom_.v_offset * unit_vertical;
+    +geom_.rOffset * unitAlong
+    +geom_.tOffset * unitNormal
+    +geom_.vOffset * unitVertical;
     
     G4RotationMatrix *rot = new G4RotationMatrix(0,
                                                  0,
-                                                 geom_.theta_in[ arc_position ] + geom_.window_angle - geom_.v_rotation);
+                                                 geom_.thetaIn[ arcPosition ] + geom_.windowAngle - geom_.vRotation);
     
-    int arc_number = floor(tracebackNum/2);
+    int arcNumber = floor(tracebackNum/2);
 
     tracebackPVs.push_back(
                            new G4PVPlacement(
@@ -206,7 +211,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
                                              pos,
                                              aTracebackLV,
                                              tracebackLabel,
-                                             vacs[ arc_number ]->GetDaughter(0)->GetLogicalVolume(),
+                                             vacs[ arcNumber ]->GetDaughter(0)->GetLogicalVolume(),
                                              false,
                                              0, true
                                              )

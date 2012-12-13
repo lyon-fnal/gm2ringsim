@@ -9,45 +9,46 @@ gm2ringsim::TracebackGeometry::TracebackGeometry(std::string const & detName) :
   r( p.get<double>("r") * mm),
   v( p.get<double>("v") * mm),
   t( p.get<double>("t") * mm),
-  r_in( p.get<double>("r_in") * in),
-  r_out( p.get<double>("r_out") * in),
-  window_angle( p.get<double>("window_angle") * deg),
-  theta_out( p.get<std::vector<double>>("theta_out") ),
-  t_offset( p.get<double>("t_offset") * mm),
-  r_offset( p.get<double>("r_offset") * mm),
-  v_offset( p.get<double>("v_offset") * mm),
-  t_rotation( p.get<double>("t_rotation") * deg),
-  r_rotation( p.get<double>("r_rotation") * deg),
-  v_rotation( p.get<double>("v_rotation") * deg),
-  traceback_radial( p.get<std::vector<double>>("traceback_radial")),
-  traceback_z( p.get<double>("traceback_z")),
-  traceback_theta( p.get<double>("traceback_theta")),
-  traceback_radial_shift_angle( p.get<double>("traceback_radial_shift_angle") * deg),
+  rIn( p.get<double>("rIn") * in),
+  rOut( p.get<double>("rOut") * in),
+  windowAngle( p.get<double>("windowAngle") * deg),
+  thetaOut( p.get<std::vector<double>>("thetaOut") ),
+  tOffset( p.get<double>("tOffset") * mm),
+  rOffset( p.get<double>("rOffset") * mm),
+  vOffset( p.get<double>("vOffset") * mm),
+  tRotation( p.get<double>("tRotation") * deg),
+  rRotation( p.get<double>("rRotation") * deg),
+  vRotation( p.get<double>("vRotation") * deg),
+  tracebackRadial( p.get<std::vector<double>>("tracebackRadial")),
+  tracebackZ( p.get<double>("tracebackZ")),
+  tracebackTheta( p.get<double>("tracebackTheta")),
+  tracebackRadialShiftAngle( p.get<double>("tracebackRadialShiftAngle") * deg),
   strawLocation( p.get<std::vector<int>>("strawLocation")),
+  whichTracebackLocations( p.get<std::vector<int>>("whichTracebackLocations")),
   displayTraceback( p.get<bool>("displayTraceback") ),
   tracebackColor( p.get<std::vector<double>>("tracebackColor")),
   displayStraw( p.get<bool>("displayStraw")),
   strawColor( p.get<std::vector<double>>("strawColor")),
-  r_c((r_in + r_out)/2)
+  rC((rIn + rOut)/2)
 {
-  for (auto& entry : theta_out ) { entry *= deg; }
-  for (auto& entry : theta_in ) { entry *= deg; }
-  for (auto& entry : theta_c ) { entry *= deg; }
+  for (auto& entry : thetaOut ) { entry *= deg; }
+  for (auto& entry : thetaIn ) { entry *= deg; }
+  for (auto& entry : thetaC ) { entry *= deg; }
   
   //Derived quantities
   
   for (unsigned int i = 0; i < 2; ++i ) {
-    theta_in[i] = (theta_out[i] - 0.12*deg);
-    theta_c[i] = (theta_in[i] + theta_out[i])/2;
+    thetaIn[i] = (thetaOut[i] - 0.12*deg);
+    thetaC[i] = (thetaIn[i] + thetaOut[i])/2;
   }
   
   for (unsigned int i = 0 ; i < 22; ++i){
-    traceback_radial_half[i] = traceback_radial[i]/2;
+    tracebackRadialHalf[i] = tracebackRadial[i]/2;
   }
 
-  traceback_z_half = traceback_z/2;
-  traceback_theta_half = traceback_theta/2;
-  tan_traceback_radial_shift_angle = tan(traceback_radial_shift_angle);
+  tracebackZHalf = tracebackZ/2;
+  tracebackThetaHalf = tracebackTheta/2;
+  tanTracebackRadialShiftAngle = tan(tracebackRadialShiftAngle);
 }
 
 void gm2ringsim::TracebackGeometry::print() const{
@@ -55,20 +56,21 @@ void gm2ringsim::TracebackGeometry::print() const{
   oss << "  r=" << r << "\n";
   oss << "  v=" << v << "\n";
   oss << "  t=" << t << "\n";
-  oss << "  r_in=" << r_in << "\n";
-  oss << "  r_out=" << r_out << "\n";
-  oss << "  window_angle=" << window_angle << "\n";
-  oss << "  theta_out= "; for (auto entry : theta_out) { oss << " " << entry; }; oss << "\n";
-  oss << "  t_offset=" << t_offset << "\n";
-  oss << "  r_offset=" << r_offset << "\n";
-  oss << "  v_offset=" << v_offset << "\n";
-  oss << "  t_rotation=" << t_rotation << "\n";
-  oss << "  r_rotation=" << r_rotation << "\n";
-  oss << "  v_rotation=" << v_rotation << "\n";
-  oss << "  traceback_radial= "; for (auto entry : traceback_radial) { oss << " " << entry; }; oss << "\n";
-  oss << "  traceback_z="<< traceback_z << "\n";
-  oss << "  traceback_theta="<< traceback_theta << "\n";
+  oss << "  rIn=" << rIn << "\n";
+  oss << "  rOut=" << rOut << "\n";
+  oss << "  windowAngle=" << windowAngle << "\n";
+  oss << "  thetaOut= "; for (auto entry : thetaOut) { oss << " " << entry; }; oss << "\n";
+  oss << "  tOffset=" << tOffset << "\n";
+  oss << "  rOffset=" << rOffset << "\n";
+  oss << "  vOffset=" << vOffset << "\n";
+  oss << "  tRotation=" << tRotation << "\n";
+  oss << "  rRotation=" << rRotation << "\n";
+  oss << "  vRotation=" << vRotation << "\n";
+  oss << "  tracebackRadial= "; for (auto entry : tracebackRadial) { oss << " " << entry; }; oss << "\n";
+  oss << "  tracebackZ="<< tracebackZ << "\n";
+  oss << "  tracebackTheta="<< tracebackTheta << "\n";
   oss << "  strawLocations="; for (auto entry : strawLocation) { oss << " " << entry; }; oss << "\n";
+  oss << "  whichTracebackLocations="; for (auto entry : whichTracebackLocations) { oss << " " << entry; }; oss << "\n";
   oss << "  displayTraceback=" << displayTraceback << "\n";
   oss << "  tracebackColor= "; for (auto entry : tracebackColor) { oss << " " << entry; }; oss << "\n";
   mf::LogInfo("TRACEBACK") << oss.str();
