@@ -121,7 +121,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Station::doPlaceToPVs( std::vector<
     
     G4RotationMatrix *rot = new G4RotationMatrix(0,
                                                  0,
-                                                 sg.theta_in[ stationNum % 2 ] + sg.window_angle - sg.v_rotation);
+                                                 sg.theta_in[ arc_position ] + sg.window_angle - sg.v_rotation);
 
     int arc_number = floor(stationNum/2);
     stationPVs.push_back(
