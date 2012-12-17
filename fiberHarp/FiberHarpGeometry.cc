@@ -27,8 +27,7 @@ gm2ringsim::FiberHarpGeometry::FiberHarpGeometry(std::string detName) :
   nHarps( p.get<int>("nHarps")),
   azimuthalPos( p.get<std::vector<double>>("azimuthalPos")),
   vacWallPos( p.get<std::vector<int>>("vacWallPos") ),
-  harpType( p.get<std::vector<int>>("harpType") ),
-  harpTypeNew( p.get<std::vector<std::string>>("harpTypeNew") ),
+  harpType( p.get<std::vector<std::string>>("harpType") ),
   display( p.get<bool>("display")),
   fiberHarpColor( p.get<std::vector<double>>("fiberHarpColor"))
 {
@@ -43,12 +42,12 @@ gm2ringsim::FiberHarpGeometry::FiberHarpGeometry(std::string detName) :
     "Wrong geometry input: Size of vacWallPos array is " << vacWallPos.size() << 
     " and not equals nHarps=" << nHarps << std::endl;
 
-  if(harpTypeNew.size() != (unsigned int)nHarps) throw cet::exception("FiberHarpGeometry") << 
-    "Wrong geometry input: Size of harpType array is " << harpTypeNew.size() << 
+  if(harpType.size() != (unsigned int)nHarps) throw cet::exception("FiberHarpGeometry") << 
+    "Wrong geometry input: Size of harpType array is " << harpType.size() << 
     " and not equals nHarps=" << nHarps << std::endl;
   
   // Let's check that the harpType entries are all known
-  for (auto entry :  harpTypeNew){
+  for (auto entry :  harpType){
     if(entry != "HARP_X" && entry != "HARP_Y" && entry != "HARP_OFF" && entry != "HARP_BROKEN_Y")
       throw cet::exception("FiberHarpGeometry") << "harpType entry " << entry << 
 	" not HARP_X, HARP_Y, HARP_OFF or HARP_BOKEN_Y!\n";
@@ -72,7 +71,6 @@ void gm2ringsim::FiberHarpGeometry::print(){
   oss << "  azimuthalPos= "; for (auto entry : azimuthalPos) { oss << " " << entry; }; oss << "\n";
   oss << "  vacWallPos= "; for (auto entry : vacWallPos) { oss << " " << entry; }; oss << "\n";
   oss << "  harpType= "; for (auto entry : harpType) { oss << " " << entry; }; oss << "\n";
-  oss << "  harpTypeNew= "; for (auto entry : harpTypeNew) { oss << " " << entry; }; oss << "\n";
   oss << "  display=" << display << "\n";
 
   mf::LogInfo("FiberHarpGeometry") << oss.str();

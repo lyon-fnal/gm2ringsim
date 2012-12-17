@@ -23,8 +23,7 @@ fiberHarp_geom : {
   azimuthalPos : [2, 4, 2, 4] // deg
   vacWallPos: [6, 6, 9, 9] //
   // harpType must be one of: "HARP_OFF", "HARP_X", "HARP_Y", "HARP_BROKEN_Y"
-  harpType: [1, 2, 0, 0] //
-  harpTypeNew : [ "HARP_X", "HARP_Y", "HARP_OFF", "HARP_OFF" ]
+  harpType : [ "HARP_X", "HARP_Y", "HARP_OFF", "HARP_OFF" ]
 	
   display : true
   fiberHarpColor : [1.0,.6,0.,1.0]
