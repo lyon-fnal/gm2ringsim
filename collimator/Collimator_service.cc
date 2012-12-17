@@ -12,13 +12,7 @@
 #include "Geant4/G4VPhysicalVolume.hh"
 #include "Geant4/G4PVPlacement.hh"
 
-// There are three types of collimators
-namespace gm2ringsim {
-//FIXME Replace with strings in FHICL "FULL", "HALF_LRO" and adapt code below to compare to strings
-  enum e_collimator_type {FULL, HALF_LRO, HALF_SRO, OFF};
-  std::vector<const char*> e_collimator_names = { "Collimator(full)", "Collimator(half-lro)", 
-						  "Collimator(half-sro)", ""};
-}
+using namespace gm2ringsim;
 
 // Constructor for the service 
 gm2ringsim::Collimator::Collimator(fhicl::ParameterSet const & p, art::ActivityRegistry & ) :
@@ -37,8 +31,11 @@ std::vector<G4LogicalVolume *> gm2ringsim::Collimator::doBuildLVs() {
   
   // Loop over all 9 collimators
   for(G4int collNumber = 0; collNumber < geom_.nCollimators; collNumber++){
-    if(geom_.collimatorType[collNumber] == OFF) collLVs.push_back(0);
-    
+    if(geom_.collimatorType[collNumber] == OFF){
+      collLVs.push_back(0);
+      continue;
+    }
+
     G4Tubs *collimator_S = new G4Tubs("coll", 
 				      geom_.coll_rMin, 
 				      geom_.coll_rMax, 

@@ -26,7 +26,6 @@ gm2ringsim::CollimatorGeometry::CollimatorGeometry(std::string detName) :
   nCollimators( p.get<double>("nCollimators") ),
   azimuthalPos( p.get<std::vector<double>>("azimuthalPos") ),
   cVacWallArray( p.get<std::vector<int>>("cVacWallArray") ),
-  collimatorType( p.get<std::vector<int>>("collimatorType") ),
   coll_Sphi{coll_Sphi_Full, coll_Sphi_Half, coll_Sphi_Half},
   coll_Dphi{coll_Dphi_Full, coll_Dphi_Half, coll_Dphi_Half},
   display( p.get<bool>("display") ),
@@ -40,9 +39,28 @@ gm2ringsim::CollimatorGeometry::CollimatorGeometry(std::string detName) :
   if(cVacWallArray.size() != (unsigned int)nCollimators) throw cet::exception("CollimatorGeometry") << 
     "Wrong geometry input: Size of cVacWallArray array is " << cVacWallArray.size() << 
     " and not equals nHarps=" << nCollimators << std::endl;
-  if(collimatorType.size() != (unsigned int)nCollimators) throw cet::exception("CollimatorGeometry") << 
-    "Wrong geometry input: Size of collimatorType array is " << collimatorType.size() << 
-    " and not equals nHarps=" << nCollimators << std::endl;
+
+  std::vector<std::string> collimatorName = p.get<std::vector<std::string>>("collimatorType");
+
+  if(collimatorName.size() != (unsigned int)nCollimators) 
+    throw cet::exception("CollimatorGeometry") << 
+      "Wrong geometry input: Size of collimatorName array is " << collimatorName.size() << 
+      " and not equals nHarps=" << nCollimators << std::endl;
+    
+  for ( auto entry : collimatorName){
+    int collType = -1;
+    if(entry == "FULL") collType = FULL;
+    if(entry == "HALF_LRO") collType = HALF_LRO;
+    if(entry == "HALF_SRO") collType = HALF_SRO;
+    if(entry == "OFF") collType = OFF;
+    
+    if(collType == -1) throw cet::exception("CollimatorGeometry") << "collimatorType entry " << entry << 
+			 " not FULL, HALF_LRO, HALF_SRO, OFF!\n";
+    
+    collimatorType.push_back(collType);
+  }
+
+  print();
 }
 
 

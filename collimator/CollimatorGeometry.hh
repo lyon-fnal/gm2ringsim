@@ -13,6 +13,13 @@
 
 #include <string>
 
+// There are three types of collimators
+namespace gm2ringsim {
+  enum e_collimator_type {FULL, HALF_LRO, HALF_SRO, OFF};
+  std::vector<const char*> e_collimator_names = { "Collimator(full)", "Collimator(half-lro)", 
+						  "Collimator(half-sro)", ""};
+}
+
 namespace gm2ringsim{
   struct CollimatorGeometry : public artg4::GeometryBase {
     
