@@ -18,6 +18,8 @@
 #include "Geant4/G4RunManager.hh"
 #include "Geant4/G4SDManager.hh"
 
+#include <iostream>
+
 // There are two types of harps: X sensing and Y sensing.  We will also
 // implement a broken Y-sensing harp, and the absence of a harp.
 //FIXME Replace with strings in FHICL "HARP_OFF", "HARP_X" and adapt code below to compare to strings
@@ -32,7 +34,9 @@ gm2ringsim::FiberHarp::FiberHarp(fhicl::ParameterSet const & p, art::ActivityReg
   geom_(myName()),
   harpSDname_("fiberHarpSD"),
   harpSD_(artg4::getSensitiveDetector<FiberHarpSD>(harpSDname_))
-{}
+{
+  geom_.print();
+}
 
 // Build the logical volumes
 std::vector<G4LogicalVolume *> gm2ringsim::FiberHarp::doBuildLVs() {
@@ -51,7 +55,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::FiberHarp::doPlaceToPVs(std::vector
   std::vector<G4VPhysicalVolume *> fiberPVs;
   
   for(int harpNumber = 0; harpNumber < geom_.nHarps; harpNumber++){ 
-    if(geom_.harpType[harpNumber] != HARP_OFF){
+    if(geom_.harpTypeNew[harpNumber] != "HARP_OFF"){
       // The wall should have one daughter (the vacuum chamber itself)
       if (vacWalls[geom_.vacWallPos[harpNumber]]->GetNoDaughters() != 1 ) {
 	throw cet::exception("FIBERHARP") << "Whaaa?? My wall has no vacuum! Abort! \n";
@@ -124,7 +128,7 @@ void gm2ringsim::FiberHarp::doFillEventWithArtHits(G4HCofThisEvent *hc) {
 
 
 G4LogicalVolume* gm2ringsim::FiberHarp::BuildFiberHarp(G4int harpNumber){
-  if(geom_.harpType[harpNumber] == HARP_OFF){
+  if(geom_.harpTypeNew[harpNumber] == "HARP_OFF"){
     return 0;
   }
 
@@ -151,15 +155,15 @@ G4LogicalVolume* gm2ringsim::FiberHarp::BuildFiberHarp(G4int harpNumber){
     if(supportNumber == 0)
       supportPos = -supportPos;
     
-    if(geom_.harpType[harpNumber] == HARP_X){
+    if(geom_.harpTypeNew[harpNumber] == "HARP_X"){
       box = new G4Box(name, geom_.supportLength/2, geom_.supportDepth/2, geom_.supportWidth/2);
       placement = G4ThreeVector(0, 0, supportPos);
     } 
-    else if(geom_.harpType[harpNumber] == HARP_Y){
+    else if(geom_.harpTypeNew[harpNumber] == "HARP_Y"){
       box = new G4Box(name, geom_.supportWidth/2, geom_.supportDepth/2, geom_.supportLength/2);
       placement = G4ThreeVector(supportPos, 0, 0);
     }
-    else if(geom_.harpType[harpNumber] == HARP_BROKEN_Y){
+    else if(geom_.harpTypeNew[harpNumber] == "HARP_BROKEN_Y"){
       if(supportNumber == 1) {
 	box = new G4Box(name, geom_.supportWidth/2, geom_.supportDepth/2, geom_.supportLength/2);
 	placement = G4ThreeVector(supportPos, 0, 0);
@@ -207,7 +211,7 @@ G4LogicalVolume* gm2ringsim::FiberHarp::BuildFiberHarp(G4int harpNumber){
     
     G4double fiberPos = (fiberNumber-geom_.nFibers/2) * geom_.fiberSpacing;
     
-    if(geom_.harpType[harpNumber] == HARP_X){ 
+    if(geom_.harpTypeNew[harpNumber] == "HARP_X"){ 
       new G4PVPlacement(0,
 			G4ThreeVector(fiberPos, 0, 0),
 			fiberLogical,
