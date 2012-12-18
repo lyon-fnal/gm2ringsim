@@ -42,7 +42,7 @@ gm2ringsim::TracebackGeometry::TracebackGeometry(std::string const & detName) :
     thetaC[i] = (thetaIn[i] + thetaOut[i])/2;
   }
   
-  for (unsigned int i = 0 ; i < 22; ++i){
+  for (unsigned int i = 0 ; i < 44; ++i){
     tracebackRadialHalf[i] = tracebackRadial[i]/2;
   }
 

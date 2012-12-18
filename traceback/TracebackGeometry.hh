@@ -46,7 +46,7 @@ namespace gm2ringsim {
     double rC;
     double thetaIn[2];
     double thetaC[2];
-    double tracebackRadialHalf[22];
+    double tracebackRadialHalf[44];
     double tracebackZHalf;
     double tracebackThetaHalf;
     double tanTracebackRadialShiftAngle;

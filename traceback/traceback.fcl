@@ -9,24 +9,25 @@ traceback_geom : {
   t: 500
   rIn : 268.873 // in
   rOut: 276.149 // in
-  windowAngle: 3.53 // deg
+  //windowAngle: 3.53 // deg
+  windowAngle: 0.5 // deg
   //theta_out [(11.96-2.5), (11.96-2.5)+15] in g2MIGTRACE
   thetaOut: [9.46, 24.46] // deg
   tOffset: 0
-  rOffset: -10.0
+  rOffset: -25.0
   vOffset: 0.0
   tRotation: 0 // deg
   rRotation: 0 // deg
   vRotation: -3.0 // deg
   
-  tracebackRadial: [170.0, 175.0, 175.0, 170.0, 170.0, 170.0, 160.0, 160.0, 155.0, 150.0, 140.0, 135.0, 130.0, 115.0, 105.0, 95.0, 90.0, 80.0, 70.0, 60.0, 50.0, 40.0]
+  tracebackRadial: [170.0, 170.0, 175.0, 175.0, 175.0, 175.0, 170.0, 170.0, 170.0, 170.0, 170.0, 170.0, 160.0, 160.0, 160.0, 160.0, 155.0, 155.0, 150.0, 155.0, 140.0, 140.0, 135.0, 135.0, 130.0, 130.0, 115.0, 115.0, 105.0, 105.0, 95.0, 95.0, 90.0, 90.0, 80.0, 80.0, 70.0, 70.0, 60.0, 60.0, 50.0, 50.0, 40.0, 40.0]
   tracebackZ: 150
-  tracebackTheta: 60
-  tracebackRadialShiftAngle: 3 //deg
+  tracebackTheta: 30
+  tracebackRadialShiftAngle: 0 //deg
   
   
   whichTracebackLocations: [12, 18]
-  strawLocation: [0,1, 2, 3, 4, 7, 11, 16, 20]
+  strawLocation: [0, 1, 2, 3, 4, 7, 11, 16, 20]
   displayTraceback: true
   tracebackColor : [0.25, .99, 0.82, 1.0]
 

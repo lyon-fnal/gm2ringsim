@@ -39,7 +39,7 @@ G4LogicalVolume* gm2ringsim::Traceback::makeATracebackLV() {
 
   G4VSolid *solid = new G4Box("traceback_S1", geom_.tracebackRadialHalf[0], geom_.tracebackThetaHalf, geom_.tracebackZHalf);
 
-  for(int i = 1; i!= 22; ++i){
+  for(int i = 1; i!= 44; ++i){
        
     G4VSolid *s = new G4Box("traceback_this", geom_.tracebackRadialHalf[i], geom_.tracebackThetaHalf, geom_.tracebackZHalf);
     
@@ -104,6 +104,7 @@ void gm2ringsim::Traceback::makeStrawDetectors(std::vector<G4VPhysicalVolume*>& 
         moveTheta = 0.0;
         moveR=0;
       }
+      
       else{
         moveTheta = geom_.tracebackTheta*(geom_.strawLocation[sc]);
 
@@ -111,6 +112,7 @@ void gm2ringsim::Traceback::makeStrawDetectors(std::vector<G4VPhysicalVolume*>& 
                 + moveTheta*geom_.tanTracebackRadialShiftAngle;
       
       }
+      
       std::cout<<"geom_.strawLocation[sc]: "<<geom_.strawLocation[sc]<<std::endl;
       std::cout<<"moveTheta: "<<moveTheta<<std::endl;
       
