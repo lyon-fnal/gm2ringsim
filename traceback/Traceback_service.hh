@@ -15,10 +15,12 @@
 #include "Geant4/G4HCofThisEvent.hh"
 #include "Geant4/G4LogicalVolume.hh"
 #include "Geant4/G4VPhysicalVolume.hh"
-
+#include "Geant4/G4UnionSolid.hh"
 #include "gm2ringsim/traceback/StrawSD.hh"
 
 #include "gm2ringsim/traceback/TracebackGeometry.hh"
+#include "gm2ringsim/vac/VacGeometry.hh"
+
 #include <vector>
 
 // Get the base class for the service
@@ -61,6 +63,8 @@ namespace gm2ringsim {
       
       // Convenience functions
         G4LogicalVolume* makeATracebackLV();
+        G4UnionSolid* buildScallopSolid();
+
         void makeTracebackLVs(std::vector<G4LogicalVolume*>&);
         void makeStrawDetectors(std::vector<G4VPhysicalVolume*>&, std::vector<G4LogicalVolume*>& );
 

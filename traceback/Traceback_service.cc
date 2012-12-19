@@ -9,6 +9,7 @@
 #include "artg4/util/util.hh"
 
 #include "gm2ringsim/traceback/TracebackGeometry.hh"
+#include "gm2ringsim/vac/VacGeometry.hh"
 
 #include "boost/format.hpp"
 
@@ -17,6 +18,9 @@
 #include "Geant4/G4VisAttributes.hh"
 #include "Geant4/G4UserLimits.hh"
 #include "Geant4/G4UnionSolid.hh"
+#include "Geant4/G4Tubs.hh"
+#include "Geant4/G4Trap.hh"
+#include "Geant4/G4TwoVector.hh"
 
 //#include CHANGE_ME: Add include for header for Art hit class
 
@@ -32,6 +36,98 @@ gm2ringsim::Traceback::Traceback(fhicl::ParameterSet const & p, art::ActivityReg
 {
   strawSD_ = artg4::getSensitiveDetector<StrawSD>(strawSDName_);
 }
+
+
+G4UnionSolid* gm2ringsim::Traceback::buildScallopSolid() {
+
+  VacGeometry vacg(myName());
+  G4Tubs *torus = new G4Tubs("torus",
+                             vacg.torus_rmin,
+                             vacg.torus_rmax[vacg.vacuumRegion] + vacg.inflectorExtension(0),
+                             vacg.torus_z[vacg.vacuumRegion],
+                             vacg.torus_sphi, vacg.torus_dphi);
+
+  // This was cut and pasted from vacChamberConstruction
+  G4double
+  pPhi = 0., pAlp = 0.,
+  pTheta = (vacg.phi_a - vacg.phi_b)/2.,
+  pDz = vacg.z[vacg.vacuumRegion]/2.,
+  pDy = vacg.torus_z[vacg.vacuumRegion],
+  pDx12 = vacg.xL[vacg.vacuumRegion]/2.,
+  pDx34 = vacg.xS[vacg.vacuumRegion]/2.;
+  
+  G4Trap *out_scallop =
+  new G4Trap("out_scallop", pDz, pTheta, pPhi,
+             pDy, pDx12, pDx12, pAlp,
+             pDy, pDx34, pDx34, pAlp
+             );
+  
+  G4double
+  dz = -vacg.z[vacg.vacuumRegion]/2.,
+  dx = -dz*std::tan( (vacg.phi_b-vacg.phi_a)/2. ) + vacg.xS[vacg.vacuumRegion]/2.;
+  
+  // The little rotation is in the coordinates of the trapezoid,
+  G4TwoVector fixup(dz,dx);
+  fixup.rotate( -vacg.phi_a );
+  // flip to the coordinate system of the arcSection
+  fixup.setX(-fixup.x());
+  fixup += vacg.pt_a[vacg.vacuumRegion];
+  
+  G4Transform3D
+  out_transform_1(G4RotationMatrix( 0., 90.*degree, -vacg.phi_a-90.*degree ),
+                  G4ThreeVector( fixup.x(), fixup.y(), 0. ) );
+  
+  fixup.rotate(15.*degree);
+  
+  G4Transform3D
+  out_transform_2(G4RotationMatrix( 0., 90.*degree, -vacg.phi_a+(-15.-90.)*degree ),
+                  G4ThreeVector( fixup.x(), fixup.y(), 0. ) );
+  
+  pPhi = pAlp = 0.;
+  pTheta = vacg.phi_q/2;
+  pDz = vacg.zz[vacg.vacuumRegion]/2.;
+  pDy = vacg.torus_z[vacg.vacuumRegion];
+  pDx12 = vacg.xO[vacg.vacuumRegion]/2.;
+  pDx34 = vacg.xI[vacg.vacuumRegion]/2.;
+  
+  G4Trap *in_scallop =
+  new G4Trap("in_scallop", pDz, pTheta, pPhi,
+             pDy, pDx12, pDx12, pAlp,
+             pDy, pDx34, pDx34, pAlp
+             );
+  
+  dz = vacg.zz[vacg.vacuumRegion]/2.;
+  dx = -vacg.xI[vacg.vacuumRegion]/2.-vacg.zz[vacg.vacuumRegion]/2.*std::tan(vacg.phi_q/2.);
+  fixup = G4TwoVector(dz, dx);
+  fixup.rotate( vacg.phi_q );
+  //    fixup += G4TwoVector( 277.*in, 0 );
+  fixup+= G4TwoVector(vacg.pt_p[vacg.vacuumRegion].r(),0);
+  fixup.rotate( vacg.pt_p[vacg.vacuumRegion].phi() );
+  
+  G4Transform3D
+  in_transform_1(G4RotationMatrix( 0., 90.*degree,
+                                  -vacg.phi_q+(-15.-90.)*degree ),
+                 G4ThreeVector( fixup.x(), fixup.y(), 0. ) );
+  
+  
+  fixup.rotate(15.*degree);
+  
+  G4Transform3D
+  in_transform_2(G4RotationMatrix( 0., 90.*degree,
+                                  -vacg.phi_q+(-30.-90.)*degree ),
+                 G4ThreeVector( fixup.x(), fixup.y(), 0. ) );
+  
+  G4UnionSolid *us =
+  new G4UnionSolid("union1", torus, out_scallop, out_transform_1);
+  us = new G4UnionSolid("union2", us, out_scallop, out_transform_2);
+  us = new G4UnionSolid("union3", us, in_scallop, in_transform_1);
+  us = new G4UnionSolid("union4", us, in_scallop, in_transform_2);
+  
+  return us;
+}
+
+
+
 G4LogicalVolume* gm2ringsim::Traceback::makeATracebackLV() {
   
   G4double moveTheta;
