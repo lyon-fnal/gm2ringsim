@@ -83,7 +83,7 @@ services: {
     Inflector:{}	
     FiberHarp: {}	   
     Station: {}
-    Collimator : {}
+//    Collimator : {}
     Traceback: {}
 
     G2PGA: {
