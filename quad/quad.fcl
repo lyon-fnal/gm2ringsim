@@ -1,0 +1,64 @@
+//Quad geometry
+//
+// Values are in mm unless otherwise specified
+BEGIN_PROLOG
+
+quad_geom : {	
+	  topBottomWidth : 4.7 //cm
+	  topBottomThickness : 0.3 //cm
+          innerOuterWidth : 4.382 //cm
+  	  innerOuterThickness : 0.05 //cm
+  	  outerThickness_Q1 : 0.01 //cm
+  	  plateSep : 10.0 //cm
+	  
+	  
+	  curlInnerRadius : 0.107 //cm
+   	  curlOuterRadius : 0.157 //cm
+	  innerCurlMajorRadius : 706.041 //cm
+	  outerCurlMajorRadius : 716.359 //cm
+	  curlHeightAboveMidplane : 2.191 //cm
+  
+	  support_nPlanes : 7
+	  support_rInner : [0.,0.,0.,0.,0.,0.,0.] //cm
+	  support_rOuter : [0.483, 0.483,0.606,0.841,0.954,0.954,0.954] //cm
+	  support_z : [-5.000,2.329,2.459,2.459,2.589,2.691,7.691] //cm
+	  support_Sphi : 0. //degree
+	  support_Dphi : 360. //degree
+
+	  
+          // Field Region containing the plates
+          // from vacChamberConstruciton::vacChamberConstruction() pt_c[vacuumRegion]
+	  QFR_rmin : 276.707 //in
+          // from vacChamberConstruction <unnamed>::torus_rmax
+	  QFR_rmax : 284.370 //in 
+           // from vacChamberConstruction <unnamed>::ZachIsAwesome_Z
+	  QFR_z : 0.069 //m
+
+	  outerSM_rMax : 284.370 //in 
+	  // All supports
+	  machining_Sphi : 0. //degree
+	  machining_Dphi : 30. //degree
+	  
+	  Sphi13 : 16.323 //degree
+	  Dphi13 : 13. //degree
+    	  Sphi26 : 3.323 //degree
+    	  Dphi26 : 26. //degree
+	  
+	  outerSupportOffset : 2.2 //cm
+
+	  //was const G4double angSupportPos[2][6] 
+  	  angSupportPos0 : [16.823,22.823,28.823,0,0,0] //degree
+	  angSupportPos1 : [3.823,9.823,14.823,17.823,22.823,28.823] //degree
+  
+  
+
+          plateNames : ["QuadInnerPlate", "QuadOuterPlate","QuadTopPlate", "QuadBottomPlate" ]
+
+	  numQuadRegions : 4
+   	  numQuadSections : 2
+   	  numPlateTypes : 4
+   	  numSupportTypes : 2
+   	  numSupportPairsPerSection :[3,6]
+} 
+
+END_PROLOG
