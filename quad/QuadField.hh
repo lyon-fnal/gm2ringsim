@@ -278,9 +278,10 @@ private:
   
 };
 
+
+
+#endif // #if 0
+
 }//namespace gm2ringsim
-
-
-#endif // #if 1
  
 #endif // QUADFIELD_HH

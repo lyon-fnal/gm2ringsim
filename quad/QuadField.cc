@@ -88,12 +88,16 @@ using namespace CLHEP;
 #include <utility>
 
 #include "gm2ringsim/quad/QuadField.hh"
-//#include "gm2ringsim/arc/StorageRingField.hh"
+#include "gm2ringsim/arc/StorageRingField.hh"
 
 #include "gm2ringsim/common/g2PreciseValues.hh"
 
 
 namespace gm2ringsim {
+  
+  //FIXME: These used to be part of QuadConstruction.hh private vars
+  enum plate_type {INNERPLATE, OUTERPLATE, TOPPLATE, BOTTOMPLATE, plate_type_end};
+  enum plate_section {SECTION13, SECTION26, plate_section_end};
 
   // Source: Quad NIM Paper, Table 5 - page 476.  Note: the distorted
   // values (due to the vacuum walls) have been input in this table
@@ -504,12 +508,12 @@ gm2ringsim::QuadFieldFactory::~QuadFieldFactory(){
 
 
 
-QuadField* gm2ringsim::QuadFieldFactory::buildQuadField(int quadNumber, int quadSection){
+gm2ringsim::QuadField* gm2ringsim::QuadFieldFactory::buildQuadField(int quadNumber, int quadSection){
   return new QuadField(ifi_[quadNumber][quadSection], ofi_[quadNumber][quadSection]);
 }
 
 
-InnerFieldImpl* 
+gm2ringsim::InnerFieldImpl* 
 gm2ringsim::QuadFieldFactory::innerFromType(int quadNumber, int /*quadSection*/,
 				inner_field_impl_type type){
   switch(type){
@@ -533,7 +537,7 @@ gm2ringsim::QuadFieldFactory::innerFromType(int quadNumber, int /*quadSection*/,
 }
 
 
-OuterFieldImpl* 
+gm2ringsim::OuterFieldImpl* 
 gm2ringsim::QuadFieldFactory::outerFromType(int quadNumber, int /*quadSection*/,
 				outer_field_impl_type type){
   switch(type){
