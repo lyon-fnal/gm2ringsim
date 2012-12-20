@@ -13,7 +13,7 @@
     - Brendan Kiburg   2012 Moving to ART
 */
 
-G4double mMuon()
+G4double gm2ringsim::mMuon()
 {
   //  NSF: g2MIGTRACE uses an old version of GEANT4.  The value below is more up-to-date.  Source = J. Beringer 
   //  et al. (Particle Data Group, http://pdg.lbl.gov), Phys. Rev. D 86, 010001 (2012).
@@ -22,7 +22,7 @@ G4double mMuon()
   return mMuon_;
 }
 
-G4double aMuon()
+G4double gm2ringsim::aMuon()
 {
   //  NSF: g2MIGTRACE uses an old version of GEANT4.  The value below is more up-to-date.  Source = J. Beringer 
   //  et al. (Particle Data Group, http://pdg.lbl.gov), Phys. Rev. D 86, 010001 (2012).
@@ -32,7 +32,7 @@ G4double aMuon()
 }
 
 /** @bug This should be calculated, and actually used in the storage field! */
-G4double B_magic() // NSF: B_magic = B_magic(R_magic(P_magic(aMuon()))) gotten from (used in) field map?
+G4double gm2ringsim::B_magic() // NSF: B_magic = B_magic(R_magic(P_magic(aMuon()))) gotten from (used in) field map?
 {
   static G4double const B_ = 1.451269*tesla; // magnitude of E821 field, used as default
   //  G4cout << "B_ " << B_ << '\n';
@@ -41,7 +41,7 @@ G4double B_magic() // NSF: B_magic = B_magic(R_magic(P_magic(aMuon()))) gotten f
 
 //  NSF: All "magic" parameters (below) are a function of (1) the anomalous magnetic moment 
 //  of the muon, and (2) the value of the magnetic field used in the experiment. That's it.
-G4double pMagic()
+G4double gm2ringsim::pMagic()
 {
   //  NSF: The easiest way to calculate....
   static G4double const pMagic_ = mMuon()/std::sqrt( aMuon() );
@@ -49,21 +49,21 @@ G4double pMagic()
   return pMagic_;
 }
 
-G4double R_magic()
+G4double gm2ringsim::R_magic()
 {
   static G4double const R_magic_ = pMagic()/( c_light*B_magic() );
   //  G4cout << "R_magic = " << R_magic_/m << " meters" << G4endl;
   return R_magic_;
 }
 
-G4double gammaMagic()
+G4double gm2ringsim::gammaMagic()
 {
   static G4double const gammaMagic_ = std::sqrt( 1.+1./aMuon() );
   //  G4cout << "gammaMagic = " << gammaMagic_ << G4endl;
   return gammaMagic_;
 }
 
-G4double betaMagic()
+G4double gm2ringsim::betaMagic()
 {
   static G4double const gammaMagic_2_ = gammaMagic()*gammaMagic();
   static G4double const betaMagic_ = std::sqrt( 1.-1./gammaMagic_2_ );
@@ -71,35 +71,35 @@ G4double betaMagic()
   return betaMagic_;
 }
 
-G4double EMagic()
+G4double gm2ringsim::EMagic()
 {
   static G4double const EMagic_ = gammaMagic()*mMuon();
   //  G4cout << "EMagic = " << EMagic_/MeV << " MeV" << G4endl;
   return EMagic_;
 }
 
-G4double KEMagic()
+G4double gm2ringsim::KEMagic()
 {
   static G4double const KEMagic_ = EMagic() - mMuon();
   //  G4cout << "KEMagic = " << KEMagic_/MeV << " MeV" << G4endl;
   return KEMagic_;
 }
 
-G4double omegaCMagic()
+G4double gm2ringsim::omegaCMagic()
 {
   static G4double const omegaCMagic_ = betaMagic()*c_light/R_magic();
   //  G4cout << "omegaCMagic = " << omegaCMagic_ << " rad/ns" << G4endl;
   return omegaCMagic_;
 }
 
-G4double omegaAMagic()
+G4double gm2ringsim::omegaAMagic()
 {
   static G4double const omegaAMagic_ = aMuon()*gammaMagic()*betaMagic()*c_light/R_magic();
   //  G4cout << "omegaAMagic = " << omegaAMagic_ << " rad/ns" << G4endl;
   return omegaAMagic_;
 }
 
-G4double omegaSMagic()
+G4double gm2ringsim::omegaSMagic()
 {
   static G4double const omegaSMagic_ = omegaCMagic() + omegaAMagic();
   //  G4cout << "omegaSMagic = " << omegaSMagic_ << " rad/ns" << G4endl;
@@ -109,7 +109,7 @@ G4double omegaSMagic()
 
 // Messenger
 
-g2PreciseMessenger::g2PreciseMessenger() {
+gm2ringsim::g2PreciseMessenger::g2PreciseMessenger() {
   preciseDirectory = new G4UIdirectory("/g2MIGTRACE/precise_parameters/");
   preciseDirectory -> SetGuidance("Read-only Precision Parameters");
 
@@ -119,14 +119,14 @@ g2PreciseMessenger::g2PreciseMessenger() {
   preciseInfoCmd -> AvailableForStates(G4State_PreInit, G4State_Idle);
 }
 
-g2PreciseMessenger::~g2PreciseMessenger() {
+gm2ringsim::g2PreciseMessenger::~g2PreciseMessenger() {
   delete preciseInfoCmd;
   delete preciseDirectory;
 }
 
 #include "Geant4/G4UnitsTable.hh"
 
-void g2PreciseMessenger::SetNewValue( G4UIcommand* command, G4String /*newValue*/ )
+void gm2ringsim::g2PreciseMessenger::SetNewValue( G4UIcommand* command, G4String /*newValue*/ )
 {
   if( command == preciseInfoCmd ){
     G4cout << "\n"

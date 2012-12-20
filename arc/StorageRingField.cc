@@ -31,7 +31,7 @@
 ////////////////////////////////////////////////
 
 void storageRingField::GetFieldValue( const double Point[3],
-				      double *Bfield ) const {
+						  double *Bfield ) const {
   storageFieldController::getInstance().GetFieldValue(Point, Bfield);
 }
 
@@ -43,7 +43,7 @@ void storageRingField::GetFieldValue( const double Point[3],
 ////////////////////////////////////////////////
 
 storageFieldController::storageFieldController() : 
-  central_(-B_magic()),
+  central_(-gm2ringsim::B_magic()),
   centralimpl_(new uniformStorageImpl(central_)),
   fringeimpl_(new uniformStorageImpl(central_)),
   sfm_(new storageFieldMessenger(this)),
@@ -59,7 +59,7 @@ storageFieldController const& storageFieldController::getInstance() {
 void storageFieldController::GetFieldValue( const double Point[3],
 					    double *Bfield ) const {
 
-  double const xc = sqrt(Point[0]*Point[0]+Point[2]*Point[2])-R_magic();
+  double const xc = sqrt(Point[0]*Point[0]+Point[2]*Point[2])-gm2ringsim::R_magic();
   double const rc = std::sqrt(Point[1]*Point[1] + xc*xc);
   //  std::cout << "xc rc " << xc << ' ' << rc << '\n';
   if( rc <= 45.*mm ){
@@ -263,7 +263,7 @@ bool fringeStorageImpl::load_fringe_map(){
 }
 
 void fringeStorageImpl::set_scale(){
-  G4ThreeVector B = map_->value(R_magic(),0.);
+  G4ThreeVector B = map_->value(gm2ringsim::R_magic(),0.);
   scale_ = central_/B.y(); // this line gets the sign and magnitude rigt
   //  G4cout << "scale = " << scale_ << '\n';
 }
@@ -359,7 +359,7 @@ void detailedMultipoleStorageImpl::GetFieldValue( const double Point[3],
   //  if( low < 0 || low >= 8999 )
   //    std::cout << low << ' ' << high << '\n';
 
-  double const xaperture = rglobal - R_magic();
+  double const xaperture = rglobal - gm2ringsim::R_magic();
   double const raperture= std::sqrt(xaperture*xaperture + y*y);
   double const phiaperture = std::atan2(y,xaperture);
 
@@ -670,7 +670,6 @@ detailedMultipoleMessenger::~detailedMultipoleMessenger(){
   delete detailedMapCmd_;
   delete detailedMultipoleImplDir_;
 }
-
 void detailedMultipoleMessenger::SetNewValue(G4UIcommand *command, G4String newval){
 
   if( command == detailedMapCmd_ ){
