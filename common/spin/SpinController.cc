@@ -11,7 +11,7 @@
     @date 2009-2011
 */
 
-#include "gm2ringsim/common/spin/spinController.hh"
+#include "gm2ringsim/common/spin/SpinController.hh"
 //#include "spinMessenger.hh"
 
 spinController::spinController() : spin_tracking_(false) {

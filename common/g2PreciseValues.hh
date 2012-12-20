@@ -10,13 +10,13 @@
  */
 
 #include "Geant4/globals.hh"
-
 namespace gm2ringsim {
   /** Updated muon mass */
   G4double mMuon();
 
   /** Updated muon anomalous magnetic moment */
   G4double  aMuon();
+
 
   /** The magic magnetic field strength. */
   /** NSF: Not sure what ^this means, exactly.  The magnetic field strength is an experimental
@@ -59,10 +59,9 @@ namespace gm2ringsim {
 #include "Geant4/G4UIdirectory.hh"
 #include "Geant4/G4UIcmdWithoutParameter.hh"
 
-/** A G4UImessenger that allows read access to the precision values. */
-
-namespace gm2ringsim{ 
-  class g2PreciseMessenger : public ::G4UImessenger {
+namespace gm2ringsim{
+  /** A G4UImessenger that allows read access to the precision values. */
+  class g2PreciseMessenger : public G4UImessenger {
   public:
     g2PreciseMessenger();
     ~g2PreciseMessenger();

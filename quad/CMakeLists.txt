@@ -1,5 +1,5 @@
 # Build the libraries
-art_make( LIBRARIES "gm2ringsim_quad" "${XERCESCLIB}" "${allG4Libs}")
+art_make( LIBRARIES "gm2ringsim_quad" "gm2ringsim_common" "${XERCESCLIB}" "${allG4Libs}")
 
 # Copy the headers
 install_headers()

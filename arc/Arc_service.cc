@@ -24,7 +24,7 @@
 #include "Geant4/G4ChordFinder.hh"
 #include "Geant4/G4MagIntegratorStepper.hh"
 #include "Geant4/G4ClassicalRK4.hh"
-#include "gm2ringsim/arc/storageRingField.hh"
+#include "gm2ringsim/arc/StorageRingField.hh"
 
 #include "gm2ringsim/fields/g2FieldEqRhs.hh"
 

@@ -59,7 +59,7 @@ gm2ringsim::storageFieldController const& gm2ringsim::storageFieldController::ge
 void gm2ringsim::storageFieldController::GetFieldValue( const double Point[3],
 					    double *Bfield ) const {
 
-  double const xc = sqrt(Point[0]*Point[0]+Point[2]*Point[2])-R_magic();
+  double const xc = sqrt(Point[0]*Point[0]+Point[2]*Point[2])-gm2ringsim::R_magic();
   double const rc = std::sqrt(Point[1]*Point[1] + xc*xc);
   //  std::cout << "xc rc " << xc << ' ' << rc << '\n';
   if( rc <= 45.*mm ){
@@ -359,7 +359,7 @@ void gm2ringsim::detailedMultipoleStorageImpl::GetFieldValue( const double Point
   //  if( low < 0 || low >= 8999 )
   //    std::cout << low << ' ' << high << '\n';
 
-  double const xaperture = rglobal - R_magic();
+  double const xaperture = rglobal - gm2ringsim::R_magic();
   double const raperture= std::sqrt(xaperture*xaperture + y*y);
   double const phiaperture = std::atan2(y,xaperture);
 
@@ -670,7 +670,6 @@ gm2ringsim::detailedMultipoleMessenger::~detailedMultipoleMessenger(){
   delete detailedMapCmd_;
   delete detailedMultipoleImplDir_;
 }
-
 void gm2ringsim::detailedMultipoleMessenger::SetNewValue(G4UIcommand *command, G4String newval){
 
   if( command == detailedMapCmd_ ){
