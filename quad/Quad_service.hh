@@ -20,31 +20,33 @@
 
 #include <vector>
 #include <map>
-
+#include <string>
 
 #include "artg4/material/Materials.hh" 
 #include "gm2ringsim/common/spin/SpinController.hh"
 #include "gm2ringsim/quad/QuadField.hh"
 #include "gm2ringsim/quad/QuadGeometry.hh"
+#include "gm2ringsim/actions/SpinTrackingSettings.hh"
+#include "gm2ringsim/common/ring/RingSD.hh"
 
 // Get the base class for the service
 #include "artg4/Core/DetectorBase.hh"
 
 // Within a namespace
 namespace gm2ringsim {
-
-    // The class
-    class Quad : public artg4::DetectorBase {
-
-    public:
-
-        // Constructor
-        Quad(fhicl::ParameterSet const &, art::ActivityRegistry & );
-
-        // We always need a virtual destructor
-        virtual ~Quad() {};
-
-      void ConstructQuads(const std::vector<G4VPhysicalVolume *>&);
+  
+  // The class
+  class Quad : public artg4::DetectorBase {
+    
+  public:
+    
+    // Constructor
+    Quad(fhicl::ParameterSet const &, art::ActivityRegistry & );
+    
+    // We always need a virtual destructor
+    virtual ~Quad() {};
+    
+    //void ConstructQuads(const std::vector<G4LogicalVolume *>&);
       
       /** Interface to the spinController to enable/disable spin tracking
 	  in the field implementation. */
@@ -67,25 +69,36 @@ namespace gm2ringsim {
       // Actually add the data to the event
       //virtual void doFillEventWithArtHits(G4HCofThisEvent * hc) override;
       
+    
+    void buildQuadsSandL();
+    void buildQuads();
+    
+    
+    void buildRegionSandL(G4int, G4int);
+    void buildRegion(G4int, G4int);
+    
+    void buildPlatesSandL(G4int, G4int);
+    void buildPlates(G4int, G4int);
+    
+    void buildInnerOuterSupportsSandL(G4int, G4int);
+    void buildInnerOuterSupports(G4int, G4int);
 
-      void buildQuads();
-      void buildRegion(G4int, G4int);
-      void buildPlates(G4int, G4int);
-      void buildInnerOuterSupports(G4int, G4int);
-      void buildTopBottomSupports(G4int, G4int);
-      void buildFieldManagers(G4int, G4int);
-      void do_enable_spintracking(bool);
-      
-      G4int get_index(G4int, G4int);
-      struct plate_params{
-	G4double rmin, rmax, zby2, sphi, dphi, zoff;
-	plate_params();
-	plate_params(G4double,G4double,G4double,G4double,G4double,G4double);
-      };
-      friend class plate_params;
-      void init_plate_params();
-      plate_params get_plate_params(G4int, G4int, G4int);
-      
+    void buildTopBottomSupportsSandL(G4int, G4int);
+    void buildTopBottomSupports(G4int, G4int);
+    
+    void buildFieldManagers(G4int, G4int);
+    //  void do_enable_spintracking(bool);
+    
+    G4int get_index(G4int, G4int);
+    struct plate_params{
+      G4double rmin, rmax, zby2, sphi, dphi, zoff;
+      plate_params();
+      plate_params(G4double,G4double,G4double,G4double,G4double,G4double);
+    };
+    friend class plate_params;
+    void init_plate_params();
+    plate_params get_plate_params(G4int, G4int, G4int);
+    
       G4int get_index(G4int, G4int, G4int);
       
       struct curl_params {
@@ -94,40 +107,47 @@ namespace gm2ringsim {
 	curl_params();
 	curl_params(G4double,G4double,G4double);
       };
-      friend class curl_params;
       
-      typedef std::map<int, plate_params> plate_map_t;
-      plate_map_t plate_map_;
-
+    friend class curl_params;
+    void init_curl_params();
+    curl_params get_curl_params(G4int, G4int, G4int);
+    typedef std::map<int, plate_params> plate_map_t;
       typedef std::map<int, curl_params> curl_map_t;
-      curl_map_t curl_map_;
+      
       
       enum plate_type {INNERPLATE, OUTERPLATE, TOPPLATE, BOTTOMPLATE, plate_type_end};
       
       enum plate_section {SECTION13, SECTION26, plate_section_end};
 
-QuadGeometry qg_;
+      SpinTrackingSettings sts_;
+      QuadGeometry qg_;
 
+      plate_map_t plate_map_;
+      curl_map_t curl_map_;
 
-// Because the quadrupoles are constructed within 2 'for' loops,
-// (one loop for region (1-4) and one for type(13 or 26 degree) )
-// I found it convenient to specify in which 'arc' section each 
-// belongs by creating the two dimensional array found below. In
-// the beginning of the 'quadConstruction::BuildQuadObjects()' 
-// function, the array is used to locate the correct pointer
-// to the appropriate mother volume by selecting the correct
-// pointer from the 'vacWallPTRS' vector, which is constructed
-// in 'primaryConstruction' as handy tool to keep track of volumes
+      // Because the quadrupoles are constructed within 2 'for' loops,
+      // (one loop for region (1-4) and one for type(13 or 26 degree) )
+      // I found it convenient to specify in which 'arc' section each 
+      // belongs by creating the two dimensional array found below. In
+      // the beginning of the 'quadConstruction::BuildQuadObjects()' 
+      // function, the array is used to locate the correct pointer
+      // to the appropriate mother volume by selecting the correct
+      // pointer from the 'vacWallPTRS' vector, which is constructed
+      // in 'primaryConstruction' as handy tool to keep track of volumes
+      
+    enum arc_placement {Arc0,Arc1,Arc3=3,Arc4,Arc6=6,Arc7,Arc9=9,Arc10=10};
+    
+    const G4int qVacWallArray_[4][2] = { {Arc0,Arc1}, 
+					 {Arc3,Arc4}, 
+					 {Arc6,Arc7}, 
+					 {Arc9,Arc10} };
+    
 
-enum arc_placement {Arc0,Arc1,Arc3=3,Arc4,Arc6=6,Arc7,Arc9=9,Arc10=10};
+    double angSupportPos_[2][6];
+    //std::vector<G4VPhysicalVolume *> vacPTRS_; //Was a PV in g2MIGTRACE  
+    std::vector<G4LogicalVolume *> vacPTRS_; // Changed in ART since we only pass the mother LVS
 
-const G4int qVacWallArray[4][2] = { {Arc0,Arc1}, 
-				      {Arc3,Arc4}, 
-				      {Arc6,Arc7}, 
-				      {Arc9,Arc10} };
-
-      std::vector<G4VPhysicalVolume *> vacPTRS_;
-      /** @bug These explicit array dimension constants should be replaced
+    /** @bug These explicit array dimension constants should be replaced
 	  ... see quadConstruction.cc. */
       
       // There are 4 quadrupole regions in the storage ring
@@ -136,30 +156,40 @@ const G4int qVacWallArray[4][2] = { {Arc0,Arc1},
       // There are inner and outer supports
       
       // quad regions, sections
-      G4VPhysicalVolume *genericQuadRegion_P_[4][2];
-      
-      // quad region, section, plate
-      G4VPhysicalVolume *genericQuadPlate_P_[4][2][4];
-      
-      // quad region, section, support
-      G4VPhysicalVolume *genericInnerSupport_P_[4][2][6];
-      G4VPhysicalVolume *genericOuterSupport_P_[4][2][6];
-      
-      // quad region, section  
-      G4FieldManager *withoutSpin_[4][2];
-      G4FieldManager *withSpin_[4][2];
-      
-      QuadFieldFactory qff_;
-      
-      bool spin_tracking_;
-      connection_t conn_;
+    G4LogicalVolume *genericQuadRegion_L_[4][2];
+    G4VPhysicalVolume *genericQuadRegion_P_[4][2];
+    
+    
+    // quad region, section, plate
+    G4LogicalVolume *genericQuadPlate_L_[4][2][4];
+    G4VPhysicalVolume *genericQuadPlate_P_[4][2][4];
+    
+    // quad region, section, support
+    G4LogicalVolume *genericInnerSupport_L_[4][2][6];
+    G4VPhysicalVolume *genericInnerSupport_P_[4][2][6];
+    
+    G4LogicalVolume* genericOuterSupport_L_[4][2][6];
+    G4VPhysicalVolume *genericOuterSupport_P_[4][2][6];
+    
+    // quad region, section  
+    G4FieldManager *withoutSpin_[4][2];
+    G4FieldManager *withSpin_[4][2];
+    
+    QuadFieldFactory qff_;
+    
+    const bool spin_tracking_;
+    connection_t conn_;
 
+    std::string ringSDname_;
+    RingSD* ringSD_;
 
-      //      enum plate_type {INNERPLATE, OUTERPLATE, TOPPLATE, BOTTOMPLATE, plate_type_end};
-      
-      // enum plate_section {SECTION13, SECTION26, plate_section_end};
+    
+    //      enum plate_type {INNERPLATE, OUTERPLATE, TOPPLATE, BOTTOMPLATE, plate_type_end};
+    
+    // enum plate_section {SECTION13, SECTION26, plate_section_end};
+    
+  };
 
-    };
 }
 
 #endif
