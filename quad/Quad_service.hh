@@ -122,8 +122,12 @@ namespace gm2ringsim {
       
       enum plate_section {SECTION13, SECTION26, plate_section_end};
 
-      SpinTrackingSettings sts_;
-      QuadGeometry qg_;
+    SpinTrackingSettings sts_;
+    QuadGeometry qg_;
+    QuadFieldFactory qff_;
+    
+    const bool spin_tracking_;
+
 
       plate_map_t plate_map_;
       curl_map_t curl_map_;
@@ -179,11 +183,7 @@ namespace gm2ringsim {
     G4FieldManager *withoutSpin_[4][2];
     G4FieldManager *withSpin_[4][2];
     
-    QuadFieldFactory qff_;
-    
-    const bool spin_tracking_;
-    connection_t conn_;
-
+ 
     //      enum plate_type {INNERPLATE, OUTERPLATE, TOPPLATE, BOTTOMPLATE, plate_type_end};
     
     // enum plate_section {SECTION13, SECTION26, plate_section_end};

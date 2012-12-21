@@ -68,11 +68,10 @@ gm2ringsim::Quad::Quad(fhicl::ParameterSet const & p, art::ActivityRegistry & ) 
 	       p.get<std::string>("mother_category", "vac")),
   sts_("SpinTracking"),
   qg_(myName()), //QuadGeometry
-  
-  //FIXME: need to initialize lots of other things
-
+  qff_(),
   spin_tracking_(sts_.spinTrackingEnabled)
-  
+  // The rest of the internal variables are things like pointers
+  // and structures that get created/assigned below
 {
   printf("In the Quad constructor \n");
   
@@ -159,9 +158,7 @@ void gm2ringsim::Quad::buildRegionSandL(G4int quadRegion, G4int sectionType){
 			artg4Materials::Vacuum(),
 			"quadRegion_L");
 
-  
-  //FIXME: get these parameters from the fhicl file
-  artg4::setVisAtts( genericQuadRegion_L_[quadRegion][sectionType],
+    artg4::setVisAtts( genericQuadRegion_L_[quadRegion][sectionType],
 		     qg_.displayQFR, qg_.qfrColor,
 		     //wallLV, g.displayWall, g.wallColor,
 		     [] (G4VisAttributes* att) {
@@ -300,7 +297,6 @@ void gm2ringsim::Quad::buildInnerOuterSupports(G4int quadRegion, G4int sectionTy
     supportName << "QuadInnerSupport[" << quadRegion << "]"
 		<< "[" << sectionType << "]" << "[" << sPair << "]";
     
-    // FIXME <-- need to use the spin tracking to set the FieldManager
     G4VPhysicalVolume *ptr = genericQuadRegion_P_[quadRegion][sectionType];
     genericInnerSupport_P_[quadRegion][sectionType][sPair] 
       = new G4PVPlacement(0,

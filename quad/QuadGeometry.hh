@@ -33,7 +33,7 @@ namespace gm2ringsim {
     const double support_Sphi;
     const double support_Dphi;
     
-    //FIXME : should grab these from vac geom instead
+    //FIXME : should grab these from vac geom instead or Re-Setting them here
     const double QFR_rmin;
     const double QFR_rmax;
     const double QFR_z;
