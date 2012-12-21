@@ -300,27 +300,33 @@ std::vector<G4LogicalVolume *> gm2ringsim::VacuumChamber::doBuildLVs() {
 
 }
 
-// Build the physical volumes
+// Build the physical volumes.
+
+// Note that this is a little tricky. The top level objects are the vacuum walls, but in fact what we really
+// want to store are the vacuum chambers (the vacuum between the walls) because that's where everything else
+// is going to go. So we're going to place the wall, but fill the vector with the daughter, the chamber.
 std::vector<G4VPhysicalVolume *> gm2ringsim::VacuumChamber::doPlaceToPVs( std::vector<G4LogicalVolume*> arcsLVs) {
   
-  std::vector<G4VPhysicalVolume*> wallPVs;
+  std::vector<G4VPhysicalVolume*> chamberPVs;
   
   for (unsigned int i = 0; i < 12; ++i) {
     
     std::string wallName = artg4::addNumberToName("VacuumChamberWallPV", i);
     
-    wallPVs.push_back(new G4PVPlacement(0,
+    new G4PVPlacement(0,
                                       G4ThreeVector(),
                                       lvs()[i],
                                       wallName.c_str(),
                                       arcsLVs[i],
                                       false,
-                                      0)
-                    );
+                                      0);
+    
+    // We actually want ArtG4 to keep track of the chamber (the daughter of the wall)
+    chamberPVs.push_back( lvs()[i]->GetDaughter(0) );
 
   }
   
-  return wallPVs;
+  return chamberPVs;
 }
 
 using gm2ringsim::VacuumChamber;

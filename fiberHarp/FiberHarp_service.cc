@@ -45,23 +45,19 @@ std::vector<G4LogicalVolume *> gm2ringsim::FiberHarp::doBuildLVs() {
 }
 
 // Build the physical volumes
-std::vector<G4VPhysicalVolume *> gm2ringsim::FiberHarp::doPlaceToPVs(std::vector<G4LogicalVolume*> vacWalls){
+std::vector<G4VPhysicalVolume *> gm2ringsim::FiberHarp::doPlaceToPVs(std::vector<G4LogicalVolume*> vacChambers){
   
   std::vector<G4VPhysicalVolume *> fiberPVs;
   
   for(int harpNumber = 0; harpNumber < geom_.nHarps; harpNumber++){ 
     if(geom_.harpType[harpNumber] != HARP_OFF){
-      // The wall should have one daughter (the vacuum chamber itself)
-      if (vacWalls[geom_.vacWallPos[harpNumber]]->GetNoDaughters() != 1 ) {
-	throw cet::exception("FIBERHARP") << "Whaaa?? My wall has no vacuum! Abort! \n";
-      }
-      
+ 
       // Get the vacuum chamber logical volume from the wall
-      G4LogicalVolume* vacLV = vacWalls[geom_.vacWallPos[harpNumber]]->GetDaughter(0)->GetLogicalVolume();
+      G4LogicalVolume* vacLV = vacChambers[geom_.vacWallPos[harpNumber]];
       
       fiberPVs.push_back(new G4PVPlacement(new G4RotationMatrix(0, 0, geom_.azimuthalPos[harpNumber]),
-					   G4ThreeVector(R_magic()*cos(geom_.azimuthalPos[harpNumber]),
-							 R_magic()*sin(geom_.azimuthalPos[harpNumber]),
+					   G4ThreeVector(R_magic()*geom_.RMagicScale*cos(geom_.azimuthalPos[harpNumber]),
+							 R_magic()*geom_.RMagicScale*sin(geom_.azimuthalPos[harpNumber]),
 							 0*m),
 					   lvs()[harpNumber],
 					   lvs()[harpNumber]->GetName(),

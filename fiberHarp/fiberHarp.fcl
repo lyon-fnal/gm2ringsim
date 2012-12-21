@@ -16,6 +16,8 @@ fiberHarp_geom : {
   nFibers : 7
 
   coll_z : .003175 // m
+  
+  RMagicScale: 1
 
   nHarps : 4 //
 

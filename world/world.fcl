@@ -7,6 +7,6 @@ world_geom : {
   world_z: 11000
   
   display : true
-  worldColor : [ 1.0, 1.0, 1.0, 1.0 ]
+  worldColor : [ 0.5, 0.5, 0.5, 1.0 ]
 }
 END_PROLOG

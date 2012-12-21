@@ -53,8 +53,8 @@ gm2ringsim::physicsList::physicsList() : verboseLevel_(1),
 			     decayPhysicsList_(new G4DecayPhysics),
 			     physics_(new PhysicsListVector) {
   defaultCutValue = 1*mm;
-  //FIXME: This breaks in ART
-  //physics_ -> push_back(new G4EmStandardPhysics);
+
+  physics_ -> push_back(new G4EmStandardPhysics);
   
   // This was commented out in g2MIGTRACE already
   /*
