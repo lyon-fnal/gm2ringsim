@@ -87,6 +87,7 @@ namespace gm2ringsim {
     void buildTopBottomSupports(G4int, G4int);
     
     void buildFieldManagers(G4int, G4int);
+    void assignFieldManagers();
     //  void do_enable_spintracking(bool);
     
     G4int get_index(G4int, G4int);

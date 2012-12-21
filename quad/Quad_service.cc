@@ -151,12 +151,10 @@ void gm2ringsim::Quad::buildQuadsSandL(){
 	//FIXME: Daughter volume in wrong places (supports)
 	//buildInnerOuterSupportsSandL(quadRegion, sectionType);
 	//buildTopBottomSupportsSandL(quadRegion, sectionType);
-	//buildFieldManagers(quadRegion, sectionType);
+	buildFieldManagers(quadRegion, sectionType);
       }
-  
-  // assign all the field managers after they've all been built
-  //FIXME
-  //  do_enable_spintracking(false);
+
+  assignFieldManagers();
 }
 
 void gm2ringsim::Quad::buildRegionSandL(G4int quadRegion, G4int sectionType){
@@ -194,7 +192,7 @@ void gm2ringsim::Quad::buildRegionSandL(G4int quadRegion, G4int sectionType){
 		     qg_.displayQFR, qg_.qfrColor,
 		     //wallLV, g.displayWall, g.wallColor,
 		     [] (G4VisAttributes* att) {
-		       att->SetForceSolid(1);
+		       att->SetForceSolid(0);
 		     } ); 
 
 }
@@ -484,6 +482,21 @@ void gm2ringsim::Quad::buildTopBottomSupportsSandL(G4int /*quadRegion*/, G4int /
 void gm2ringsim::Quad::buildTopBottomSupports(G4int /*quadRegion*/, G4int /*sectionType*/)
 {}
 
+void gm2ringsim::Quad::assignFieldManagers(){
+
+  for( int i=0; i!=qg_.numQuadRegions; ++i)
+    for( int j=0; j!=qg_.numQuadSections; ++j)
+      if( !spin_tracking_ ){
+        genericQuadRegion_L_[i][j]->
+          SetFieldManager(withoutSpin_[i][j], true);
+      } else {
+        genericQuadRegion_L_[i][j]->
+          SetFieldManager(withSpin_[i][j], true);
+      }
+
+
+
+}
 
 void gm2ringsim::Quad::buildFieldManagers(G4int quadRegion, G4int sectionType) {
   

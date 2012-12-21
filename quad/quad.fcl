@@ -71,7 +71,7 @@ quad_geom : {
   supportsColor : [1.0, 1.0, 1.0, 1.0 ] //white?
   
   //Quad Field Region (the box the fields go in) 
-  displayQFR : false
+  displayQFR : true
   qfrColor : [ 0.0, 0.0, 1.0, 1.0 ] //blue
 
 } 
