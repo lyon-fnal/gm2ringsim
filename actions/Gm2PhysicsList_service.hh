@@ -11,6 +11,7 @@
 #include <string>
 
 class G4VUserPhysicsList;
+class physicsList;
 
 namespace gm2ringsim {
   
@@ -21,10 +22,12 @@ namespace gm2ringsim {
     Gm2PhysicsListService(fhicl::ParameterSet const &, art::ActivityRegistry &);
     virtual ~Gm2PhysicsListService() {};
     virtual G4VUserPhysicsList* makePhysicsList() const override;
+    virtual void initializePhysicsList() const override;
     
   private:
     std::string muonDecayMode_;
     int verboseLevel_;
+    physicsList* thePhysicsList_;
   };
   
 }
