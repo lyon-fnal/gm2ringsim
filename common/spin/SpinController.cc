@@ -4,45 +4,49 @@
     callback interface.  
 
     The implementation is almost too trivical to bother with a
-    separate file, except that we need spinController::getInstance()
+    separate file, except that we need SpinController::getInstance()
     to be generated in a single place in the object code. 
 
     @author Kevin Lynch 
     @date 2009-2011
+
+    Artized by 
+    @author Brendan Kiburg
+    @date Dec 2012
 */
 
 #include "gm2ringsim/common/spin/SpinController.hh"
 //#include "spinMessenger.hh"
 
-spinController::spinController() : spin_tracking_(false) {
+gm2ringsim::SpinController::SpinController() : spin_tracking_(false) {
   //,  sm_(new spinMessenger(this)) {
   
 }
 
-spinController::~spinController(){
+gm2ringsim::SpinController::~SpinController(){
   //  delete sm_;
 }
 
-spinController& spinController::getInstance() {
-  static spinController s;
+gm2ringsim::SpinController& gm2ringsim::SpinController::getInstance() {
+  static SpinController s;
   return s;
 }
 
-void spinController::enable_spintracking(){
+void gm2ringsim::SpinController::enable_spintracking(){
   sig_( spin_tracking_ = true );
   
 }
 
-void spinController::disable_spintracking(){
+void gm2ringsim::SpinController::disable_spintracking(){
   sig_( spin_tracking_ = false );
 
 }
 
-connection_t spinController::connect( e_connect_ordering e, function<void(bool)> f ){
+gm2ringsim::connection_t gm2ringsim::SpinController::connect( e_connect_ordering e, function<void(bool)> f ){
   return sig_.connect(e, f);
 }
 
-void spinController::disconnect( connection_t c){
+void gm2ringsim::SpinController::disconnect( connection_t c){
   sig_.disconnect(c);
 }
 

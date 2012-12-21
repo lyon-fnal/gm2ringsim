@@ -46,7 +46,7 @@ TrackerSD::~TrackerSD(){
 void TrackerSD::Initialize(G4HCofThisEvent* HCoTE){
   trackerHC_ = new TrackerHitsCollection
     ( SensitiveDetectorName, collectionName[0]);
-  spinHC_ = new SpinHitsCollection
+  spinHC_ = new gm2ringsim::SpinHitsCollection
     ( SensitiveDetectorName, collectionName[1]);
 
   G4int const trackerHCID = 
@@ -71,7 +71,7 @@ G4bool TrackerSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){
     return false;
   
   trackerHC_->insert(new TrackerHit(thisStep));
-  spinHC_->insert(new SpinHit(thisStep));
+  spinHC_->insert(new gm2ringsim::SpinHit(thisStep));
 
   return true; 
 }

@@ -45,7 +45,7 @@ public:
   G4int DrawLevel(G4int newLevel);
 private:
   TrackerHitsCollection *trackerHC_;
-  SpinHitsCollection *spinHC_;
+  gm2ringsim::SpinHitsCollection *spinHC_;
 
   G4int printLevel_, drawLevel_;
 
