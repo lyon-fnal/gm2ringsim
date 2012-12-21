@@ -2,6 +2,7 @@
 #include "geom/arc.fcl"
 #include "geom/vac.fcl"
 #include "geom/inflector.fcl"
+#include "geom/quad.fcl"
 #include "geom/fiberHarp.fcl"
 #include "geom/station.fcl"
 #include "geom/collimator.fcl"
@@ -44,6 +45,7 @@ services: {
       arc:   @local::arc_geom
       vac:   @local::vac_geom
       inflector: @local::inflector_geom
+      quad: @local::quad_geom
       fiberHarp: @local::fiberHarp_geom
       station: @local::station_geom
       collimator: @local::collimator_geom

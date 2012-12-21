@@ -180,6 +180,8 @@ std::vector<G4LogicalVolume *> gm2ringsim::Inflector::doBuildLVs() {
   infGeom_.print();
   getInflectorInfo();
   std::cout<<"spin tracking enabled is :"<<spin_tracking_<<std::endl;
+
+  //FIXME: Is this really what we want to do??
   std::vector<G4LogicalVolume *> l_inflector;
   return l_inflector;
 
@@ -203,6 +205,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Inflector::doPlaceToPVs( std::vecto
   // Build the field
   buildInflectorField();
 
+  //FIXME: Is this really what we want to do??
   std::vector<G4VPhysicalVolume *> p_inflector;
   return p_inflector;
 

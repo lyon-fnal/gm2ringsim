@@ -26,6 +26,13 @@ namespace gm2ringsim {
   /** Abstract base class for concrete quadrupole field implementations. */
   class QuadFieldImpl {
   public:
+    // FIXME: Tried to add because QuadFieldFactory destructor
+    //        tries to destroy a bunch of InnerField Impl and
+    //        gm2ringsim won't compile if I delete an object
+    //        of an abstract class (gm2ringsim::InnerFieldImpl )
+    //        that doesn't have a virtual destructor
+    //virtual ~QuadFieldImpl();
+    
     /** Returns the field value at @p Point in @p EMfield in the
 	scraping limit.  Concrete implementations must modify ONLY the
 	electric field components of EMfield (3-5). */
