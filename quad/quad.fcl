@@ -59,6 +59,21 @@ quad_geom : {
    	  numPlateTypes : 4
    	  numSupportTypes : 2
    	  numSupportPairsPerSection :[3,6]
+
+
+  
+  // Visibility
+  // For colors, [red, green, blue, opacity]
+  displayPlates : true
+  platesColor : [ 1.0, 1.0, 0.0, 1.0 ] //yellow
+  
+  displaySupports : true
+  supportsColor : [1.0, 1.0, 1.0, 1.0 ] //white?
+  
+  //Quad Field Region (the box the fields go in) 
+  displayQFR : false
+  qfrColor : [ 0.0, 0.0, 1.0, 1.0 ] //blue
+
 } 
 
 END_PROLOG

@@ -82,7 +82,13 @@ gm2ringsim::QuadGeometry::QuadGeometry(std::string const & detName) :
   numQuadSections( p.get<int>("numQuadSections") ),
   numPlateTypes( p.get<int>("numPlateTypes") ),
   numSupportTypes( p.get<int>("numSupportTypes") ),
-  numSupportPairsPerSection( p.get<std::vector<int>>("numSupportPairsPerSection") )
+  numSupportPairsPerSection( p.get<std::vector<int>>("numSupportPairsPerSection") ),
+  displayPlates( p.get<bool>("displayPlates") ),
+  platesColor( p.get<std::vector<double>>("platesColor") ),
+  displaySupports( p.get<bool>("displaySupports") ),
+  supportsColor( p.get<std::vector<double>>("supportsColor") ),
+  displayQFR( p.get<bool>("displayQFR") ),
+  qfrColor( p.get<std::vector<double>>("qfrColor") )
   { 
   for (auto& entry : support_rInner ) { entry *= cm; }
   for (auto& entry : support_rOuter ) { entry *= cm; }
@@ -181,5 +187,12 @@ oss << "  numPlateTypes=" << numPlateTypes << "\n";
 oss << "  numSupportTypes=" << numSupportTypes << "\n";
 oss << "  numSupportPairsPerSection= "; for (auto entry : numSupportPairsPerSection) { oss << " " << entry; }; oss << "\n";
 
-  mf::LogInfo("CATEGORY") << oss.str();
+oss << "  displayPlates=" << displayPlates << "\n";
+oss << "  platesColor= "; for (auto entry : platesColor) { oss << " " << entry; }; oss << "\n";
+oss << "  displaySupports=" << displaySupports << "\n";
+oss << "  supportsColor= "; for (auto entry : supportsColor) { oss << " " << entry; }; oss << "\n";
+oss << "  displayQFR=" << displayQFR << "\n";
+oss << "  qfrColor= "; for (auto entry : qfrColor) { oss << " " << entry; }; oss << "\n";
+
+ mf::LogInfo("QuadGeometry") << oss.str();
 }//QuadGeometry::print()

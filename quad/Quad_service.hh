@@ -94,6 +94,7 @@ namespace gm2ringsim {
       G4double rmin, rmax, zby2, sphi, dphi, zoff;
       plate_params();
       plate_params(G4double,G4double,G4double,G4double,G4double,G4double);
+      void print();
     };
     friend class plate_params;
     void init_plate_params();
@@ -106,6 +107,7 @@ namespace gm2ringsim {
 	G4double rmin, rmax, sign;
 	curl_params();
 	curl_params(G4double,G4double,G4double);
+	void print();
       };
       
     friend class curl_params;

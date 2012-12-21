@@ -141,6 +141,15 @@ namespace gm2ringsim {
     const int numSupportTypes;
     std::vector<int> numSupportPairsPerSection;
 
+    const bool displayPlates;
+    const std::vector<double> platesColor;
+    
+    const bool displaySupports;
+    const std::vector<double> supportsColor;
+    
+    const bool displayQFR;
+    const std::vector<double> qfrColor;
+
   }; //struct QuadGeometry
 
 }// namespace gm2ringsim

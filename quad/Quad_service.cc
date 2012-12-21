@@ -30,6 +30,7 @@
 */
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include "gm2ringsim/quad/Quad_service.hh"
 #include "gm2ringsim/quad/QuadField.hh"
@@ -57,6 +58,7 @@
 #include "Geant4/G4ClassicalRK4.hh"
 #include "Geant4/G4UserLimits.hh"
 
+#include <sstream>
 
 // Constructor for the service 
 gm2ringsim::Quad::Quad(fhicl::ParameterSet const & p, art::ActivityRegistry & ) :
@@ -74,26 +76,36 @@ gm2ringsim::Quad::Quad(fhicl::ParameterSet const & p, art::ActivityRegistry & ) 
     ringSD_(0)
 
 {
+  printf("In the Quad constructor \n");
+  
+  //Create 2D array from vectors passed in
   for (int i=0;i<7;++i){
     angSupportPos_[0][i]=qg_.angSupportPos0[i];
     angSupportPos_[1][i]=qg_.angSupportPos1[i];
   }
 
-  qg_.print();
-  printf("In the Quad constructor \n");
   ringSD_ = artg4::getSensitiveDetector<RingSD>(ringSDname_);
+
+  //  G4cout << "call init_plate_params()\n";
+  init_plate_params();
+  //  G4cout << "call init_curl_params()\n";
+  init_curl_params();
+
+  //Print the Geometry as a check
+  qg_.print();
+
 
 }
 
 // Build the logical volumes
 std::vector<G4LogicalVolume *> gm2ringsim::Quad::doBuildLVs() {
 
-  buildQuads();
+  buildQuadsSandL();
 
-  
-  //FIXME
-  std::vector<G4LogicalVolume *> l_inflector;
-  return l_inflector;
+
+  //FIXME: Is this really what we want to do??
+  std::vector<G4LogicalVolume *> l_quads;
+  return l_quads;
 
 }
 
@@ -104,9 +116,9 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Quad::doPlaceToPVs( std::vector<G4L
   
   buildQuads(); // PhysicalVolumes
   
-  //FIXME
-  std::vector<G4VPhysicalVolume *> p_inflector;
-  return p_inflector;
+  //FIXME: Is this really what we want to do??
+  std::vector<G4VPhysicalVolume *> p_quads;
+  return p_quads;
 }
 
 void gm2ringsim::Quad::buildQuads(){
@@ -117,8 +129,9 @@ void gm2ringsim::Quad::buildQuads(){
       {
 	buildRegion(quadRegion, sectionType);
 	buildPlates(quadRegion, sectionType);
-	buildInnerOuterSupports(quadRegion, sectionType);
-	buildTopBottomSupports(quadRegion, sectionType);
+	//FIXME: Daught volume in wrong places (supports)
+	//buildInnerOuterSupports(quadRegion, sectionType);
+	//buildTopBottomSupports(quadRegion, sectionType);
       }
   
   // assign all the field managers after they've all been built
@@ -134,9 +147,11 @@ void gm2ringsim::Quad::buildQuadsSandL(){
       {
 	buildRegionSandL(quadRegion, sectionType);
 	buildPlatesSandL(quadRegion, sectionType);
-	buildInnerOuterSupportsSandL(quadRegion, sectionType);
-	buildTopBottomSupportsSandL(quadRegion, sectionType);
-	buildFieldManagers(quadRegion, sectionType);
+	
+	//FIXME: Daughter volume in wrong places (supports)
+	//buildInnerOuterSupportsSandL(quadRegion, sectionType);
+	//buildTopBottomSupportsSandL(quadRegion, sectionType);
+	//buildFieldManagers(quadRegion, sectionType);
       }
   
   // assign all the field managers after they've all been built
@@ -149,10 +164,22 @@ void gm2ringsim::Quad::buildRegionSandL(G4int quadRegion, G4int sectionType){
   // bits, and the fields.  The region fills the space between the
   // innermost radius of the vacRegion that could be contained in a
   // torus, and the outermost toroid radius of the vacTregion
+  
+  /*  printf("About to build Quad Region S\n");
+  std::cout<<"qg_.QFR_rmin="<<qg_.QFR_rmin<<std::endl;
+  std::cout<<" qg_.QFR_rmax="<< qg_.QFR_rmax<<std::endl;
+  std::cout<<" qg_.QFR_z="<< qg_.QFR_z <<std::endl;
+  std::cout<<" qg_.quad_Sphi[sectionType]="<<qg_.quad_Sphi[sectionType]<<std::endl;
+  std::cout<< "qg_.quad_Dphi[sectinoType]=" << qg_.quad_Dphi[sectionType]<<std::endl;
+  
+  printf("calling tubs\n");
+  */
+
   G4Tubs *tubs = new G4Tubs("quadRegion_S",
 			    qg_.QFR_rmin, qg_.QFR_rmax, qg_.QFR_z,
 			    qg_.quad_Sphi[sectionType], qg_.quad_Dphi[sectionType]);
-  
+
+  //  printf("done with tubs\n");
   //  G4LogicalVolume *log =
   genericQuadRegion_L_[quadRegion][sectionType] =
     new G4LogicalVolume(tubs,
@@ -162,21 +189,23 @@ void gm2ringsim::Quad::buildRegionSandL(G4int quadRegion, G4int sectionType){
   
 
   
-  G4VisAttributes* QFRVisAtt = 
-    new G4VisAttributes (G4Colour(1.0,1.0,0.0,1.0));
-  QFRVisAtt->SetForceSolid(1);
-  QFRVisAtt->SetVisibility(0);
-  genericQuadRegion_L_[quadRegion][sectionType]->SetVisAttributes(QFRVisAtt);
-  
+  //FIXME: get these parameters from the fhicl file
+  artg4::setVisAtts( genericQuadRegion_L_[quadRegion][sectionType],
+		     qg_.displayQFR, qg_.qfrColor,
+		     //wallLV, g.displayWall, g.wallColor,
+		     [] (G4VisAttributes* att) {
+		       att->SetForceSolid(1);
+		     } ); 
+
 }
 
 
 
-void gm2ringsim::Quad::buildRegion(G4int quadRegion, G4int sectionType){
-  //  G4VPhysicalVolume *vac = vacPTRS[qVacWallArray[quadRegion][sectionType]];
-
-  std::ostringstream regionName;
-  regionName << "QuadFieldRegion[" << quadRegion << "][" 
+  void gm2ringsim::Quad::buildRegion(G4int quadRegion, G4int sectionType){
+    //  G4VPhysicalVolume *vac = vacPTRS[qVacWallArray[quadRegion][sectionType]];
+    
+    std::ostringstream regionName;
+    regionName << "QuadFieldRegion[" << quadRegion << "][" 
 	     << sectionType << ']';
   
   G4LogicalVolume *vac = vacPTRS_[qVacWallArray_[quadRegion][sectionType]];
@@ -199,8 +228,9 @@ void gm2ringsim::Quad::buildPlates(G4int quadRegion, G4int sectionType){
     std::ostringstream plateName;
     plateName << qg_.plateNames[plateType]
 	      << "[" << quadRegion << "]" << "[" << sectionType << "]";
-
+    
     plate_params p = get_plate_params(quadRegion, sectionType, plateType);
+    
     genericQuadPlate_P_[quadRegion][sectionType][plateType] = 
       new G4PVPlacement(0,
 			G4ThreeVector(0, 0.*m, p.zoff),
@@ -220,11 +250,14 @@ void gm2ringsim::Quad::buildPlatesSandL(G4int quadRegion, G4int sectionType){
   // for each plate type are obtained by accessing the dimensional
   // arrays with the loop index...clever!  Saves a lot of code.
   
+  printf("about to buildPlatesSandL\n");
   for(G4int plateType=0; plateType!=qg_.numPlateTypes; plateType++){
+    printf("Getting plate parameters for q=%d,s=%d,p=%d\n",quadRegion,sectionType,plateType);
     plate_params p = get_plate_params(quadRegion, sectionType, plateType);
-    //    G4cout << p.rmin << ' ' << p.rmax << ' '
-    //	   << p.zby2 << ' ' << p.sphi << ' '
-    //	   << p.dphi << '\n';
+    p.print();
+    G4cout << p.rmin << ' ' << p.rmax << ' '
+    	   << p.zby2 << ' ' << p.sphi << ' '
+    	   << p.dphi << '\n';
     G4Tubs *mainPlate_S = new G4Tubs("mainPlate_S", 
 				     p.rmin, p.rmax, p.zby2, p.sphi, p.dphi);
     
@@ -272,11 +305,13 @@ void gm2ringsim::Quad::buildPlatesSandL(G4int quadRegion, G4int sectionType){
 			  artg4Materials::Al(),
 			  "genericQuadPlate_L");
     
-        
-    G4VisAttributes* qPlatesVisAtt = 
-      new G4VisAttributes (G4Colour(1.0, 1.0, 0.0, 1.0));
-    qPlatesVisAtt -> SetForceSolid(1);
-    genericQuadPlate_L_[quadRegion][sectionType][plateType] -> SetVisAttributes(qPlatesVisAtt);
+    artg4::setVisAtts( genericQuadPlate_L_[quadRegion][sectionType][plateType],
+		       qg_.displayPlates, qg_.platesColor,
+		       [] (G4VisAttributes* att) {
+			 att->SetForceSolid(1);
+		       }
+		       ); 
+    
     genericQuadPlate_L_[quadRegion][sectionType][plateType]->SetSensitiveDetector( ringSD_ );
   } //plateType
 }
@@ -329,9 +364,10 @@ void gm2ringsim::Quad::buildInnerOuterSupportsSandL(G4int quadRegion, G4int sect
   G4int const supportPairsPerSection = qg_.numSupportPairsPerSection[sectionType];
 
   // convert vectors to arrays
-  double sz[7]; for (int i=0;i<7;++i){ sz[i]=qg_.support_z[i];}
-  double srI[7]; for (int i=0;i<7;++i){ srI[i]=qg_.support_rInner[i];}
-  double srO[7]; for (int i=0;i<7;++i){ srO[i]=qg_.support_rOuter[i];}
+  const int nInd = 7;//qg_.support_nPlanes;
+  double sz[nInd]; for (int i=0;i<nInd;++i){ sz[i]=qg_.support_z[i];}
+  double srI[nInd]; for (int i=0;i<nInd;++i){ srI[i]=qg_.support_rInner[i];}
+  double srO[nInd]; for (int i=0;i<nInd;++i){ srO[i]=qg_.support_rOuter[i];}
   
   for(G4int sPair=0; sPair<supportPairsPerSection; sPair++){
     
@@ -414,18 +450,26 @@ void gm2ringsim::Quad::buildInnerOuterSupportsSandL(G4int quadRegion, G4int sect
 			    artg4Materials::MacorCeramic(),
 			    "genericOuterSupport_L");
       
-    
-    G4VisAttributes* supportVisAtt =
-      new G4VisAttributes (G4Colour());
-    supportVisAtt->SetForceSolid(1);
-    genericInnerSupport_L_[quadRegion][sectionType][sPair]->SetVisAttributes(supportVisAtt);
-    genericOuterSupport_L_[quadRegion][sectionType][sPair]->SetVisAttributes(supportVisAtt);
-    
-    genericInnerSupport_L_[quadRegion][sectionType][sPair]->SetSensitiveDetector( ringSD_ );
-    genericOuterSupport_L_[quadRegion][sectionType][sPair]->SetSensitiveDetector( ringSD_ );
-    
-  }
 
+  
+      artg4::setVisAtts( genericInnerSupport_L_[quadRegion][sectionType][sPair],
+			 qg_.displaySupports, qg_.supportsColor,
+			 [] (G4VisAttributes* att) {
+			   att->SetForceSolid(1);
+			 }
+			 );     
+
+      artg4::setVisAtts( genericOuterSupport_L_[quadRegion][sectionType][sPair],
+			 qg_.displaySupports, qg_.supportsColor,
+			 [] (G4VisAttributes* att) {
+			   att->SetForceSolid(1);
+			 }
+			 );     
+      genericInnerSupport_L_[quadRegion][sectionType][sPair]->SetSensitiveDetector( ringSD_ );
+      genericOuterSupport_L_[quadRegion][sectionType][sPair]->SetSensitiveDetector( ringSD_ );
+      
+  } // Loop overs supportPairs
+  
 
 
 }
@@ -434,8 +478,13 @@ void gm2ringsim::Quad::buildInnerOuterSupportsSandL(G4int quadRegion, G4int sect
 // support.  These supports are probably completely irrelevant as far
 // as storage efficiency goes so including them in the simulation is
 // not critical.  ZSH 08 AUG 09.
+void gm2ringsim::Quad::buildTopBottomSupportsSandL(G4int /*quadRegion*/, G4int /*sectionType*/)
+{}
+
 void gm2ringsim::Quad::buildTopBottomSupports(G4int /*quadRegion*/, G4int /*sectionType*/)
 {}
+
+
 void gm2ringsim::Quad::buildFieldManagers(G4int quadRegion, G4int sectionType) {
   
   G4cout << "buildFieldManagers: " << quadRegion << ' ' << sectionType << '\n';
@@ -495,6 +544,20 @@ plate_params(G4double rmin_, G4double rmax_, G4double zby2_,
   sphi(sphi_), dphi(dphi_), zoff(zoff_)
 {}
 
+void gm2ringsim::Quad::plate_params::
+print() {
+  std::ostringstream oss;
+  oss << "Plate Params:\n";
+  oss << "\t rmin: "<<rmin<<"\n";
+  oss << "\t rmax: "<<rmax<<"\n";
+  oss << "\t zby2: "<<zby2<<"\n";
+  oss << "\t sphi: "<<sphi<<"\n";
+  oss << "\t dphi: "<<dphi<<"\n";
+  oss << "\t zoff: "<<zoff<<"\n";
+  oss << "\t\t End of Plate Params\n";
+  mf::LogInfo("PlateParams") << oss.str();
+}
+
 
 gm2ringsim::Quad::curl_params::
 curl_params() :
@@ -506,6 +569,15 @@ curl_params(G4double rmin_, G4double rmax_, G4double sign_) :
   is_curled(true), rmin(rmin_), rmax(rmax_), sign(sign_)
 {}
 
+void gm2ringsim::Quad::curl_params::
+print() {
+  std::cout<<"Curl Params:"<<std::endl;
+  std::cout<<"\t rmin: "<<rmin<<std::endl;
+  std::cout<<"\t rmax: "<<rmax<<std::endl;
+  std::cout<<"\t sign: "<<sign<<std::endl;
+  std::cout<<"\t is_curled:"<<is_curled<<std::endl;
+  std::cout<<"\t\t End of Curl Params"<<std::endl;
+}
 
 
 void gm2ringsim::Quad::init_curl_params(){
