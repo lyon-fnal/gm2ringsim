@@ -1,0 +1,41 @@
+
+BEGIN_PROLOG 
+
+kicker_geom : {
+	    	  
+   kickTime1 : 120 //ns 
+   kickTime2 : 197.5 //ns 
+   kickPercent : 100.0 
+  
+   kPlate1HV : 95. //kilovolt 
+   kPlate2HV : 95. //kilovolt 
+   kPlate3HV : 95. //kilovolt 
+  
+  // Values obtained from g2track '/dat/kicker.dat'
+   kicker1L : 1.164e-6 //henry 
+   kicker1R : 11.35 //ohm 
+   kicker1C : 11.239996 //nanofarad 
+  
+   kicker2L : 1.114e-6 //henry 
+   kicker2R : 11.43 //ohm 
+   kicker2C : 11.299994 //nanofarad 
+  
+   kicker3L : 1.187e-6 //henry 
+   kicker3R : 11.33 //ohm 
+   kicker3C : 11.049994 //nanofarad 
+  
+  // Myserious conversion factor from g2track
+  //FIXME
+  //   conversionFactor : (196*gauss)/(5600*ampere) 
+
+
+}
+
+END_PROLOG
+
+
+
+
+
+
+
