@@ -65,6 +65,15 @@
 # Specify zoom value:
 #/vis/viewer/zoom 1.4
 /vis/viewer/zoom 2.2
+
+# For viewing the quads
+#/vis/viewer/set/viewpointThetaPhi 30 30 deg
+#/vis/viewer/panTo 5.8 -1.0 m
+#/vis/viewer/zoomTo 20
+#/vis/viewer/refresh
+
+
+
 #
 # Specify style (surface or wireframe):
 #/vis/viewer/set/style wireframe

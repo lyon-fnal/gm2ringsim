@@ -62,30 +62,27 @@
 
 // Constructor for the service 
 gm2ringsim::Quad::Quad(fhicl::ParameterSet const & p, art::ActivityRegistry & ) :
-    DetectorBase(p,
-		 p.get<std::string>("name", "quad"),
-		 p.get<std::string>("category", "quad"),
-		 //FIXME
-		 p.get<std::string>("mother_category", "vac")),
-    sts_("SpinTracking"),
-    qg_(myName()), //QuadGeometry
+  DetectorBase(p,
+	       p.get<std::string>("name", "quad"),
+	       p.get<std::string>("category", "quad"),
+	       p.get<std::string>("mother_category", "vac")),
+  sts_("SpinTracking"),
+  qg_(myName()), //QuadGeometry
+  
+  //FIXME: need to initialize lots of other things
 
-    //FIXME: need to initialize lots of other things
-    spin_tracking_(sts_.spinTrackingEnabled),
-    ringSDname_("RingSD"),
-    ringSD_(0)
-
+  spin_tracking_(sts_.spinTrackingEnabled)
+  
 {
   printf("In the Quad constructor \n");
   
   //Create 2D array from vectors passed in
-  for (int i=0;i<7;++i){
+  for (int i=0;i<6;++i){
     angSupportPos_[0][i]=qg_.angSupportPos0[i];
     angSupportPos_[1][i]=qg_.angSupportPos1[i];
   }
-
-  ringSD_ = artg4::getSensitiveDetector<RingSD>(ringSDname_);
-
+  
+  
   //  G4cout << "call init_plate_params()\n";
   init_plate_params();
   //  G4cout << "call init_curl_params()\n";
@@ -93,50 +90,40 @@ gm2ringsim::Quad::Quad(fhicl::ParameterSet const & p, art::ActivityRegistry & ) 
 
   //Print the Geometry as a check
   qg_.print();
-
-
 }
 
-// Build the logical volumes
+  // Build the shape and logical volumes
 std::vector<G4LogicalVolume *> gm2ringsim::Quad::doBuildLVs() {
-
   buildQuadsSandL();
-
-
-  //FIXME: Is this really what we want to do??
+  
+  //FIXME: Decide which logical volumes we want to store in ART
   std::vector<G4LogicalVolume *> l_quads;
   return l_quads;
-
+  
+  printf("done with doBuildLVs()\n");
 }
 
 // Build the physical volumes
 std::vector<G4VPhysicalVolume *> gm2ringsim::Quad::doPlaceToPVs( std::vector<G4LogicalVolume*> vacLV) {
+
+  buildQuads(vacLV); // PhysicalVolumes
   
-  vacPTRS_ = vacLV;
-  
-  buildQuads(); // PhysicalVolumes
-  
-  //FIXME: Is this really what we want to do??
+  //FIXME: Decide which physical volumes we want to store in ART
   std::vector<G4VPhysicalVolume *> p_quads;
   return p_quads;
 }
 
-void gm2ringsim::Quad::buildQuads(){
+void gm2ringsim::Quad::buildQuads(std::vector<G4LogicalVolume*>& vacLV){
  // Loop over the 4 quad regions
   for(G4int quadRegion = 0; quadRegion < qg_.numQuadRegions; quadRegion++)
     // Loop over the 2 sections of each region
     for(G4int sectionType = 0; sectionType < qg_.numQuadSections; sectionType++)
       {
-	buildRegion(quadRegion, sectionType);
+	buildRegion(vacLV,quadRegion, sectionType);
 	buildPlates(quadRegion, sectionType);
-	//FIXME: Daught volume in wrong places (supports)
-	//buildInnerOuterSupports(quadRegion, sectionType);
-	//buildTopBottomSupports(quadRegion, sectionType);
+	buildInnerOuterSupports(quadRegion, sectionType);
+	buildTopBottomSupports(quadRegion, sectionType);
       }
-  
-  // assign all the field managers after they've all been built
-  //FIXME (here or SandL
-  //  do_enable_spintracking(false);
 }
 
 void gm2ringsim::Quad::buildQuadsSandL(){
@@ -147,13 +134,12 @@ void gm2ringsim::Quad::buildQuadsSandL(){
       {
 	buildRegionSandL(quadRegion, sectionType);
 	buildPlatesSandL(quadRegion, sectionType);
-	
-	//FIXME: Daughter volume in wrong places (supports)
-	//buildInnerOuterSupportsSandL(quadRegion, sectionType);
-	//buildTopBottomSupportsSandL(quadRegion, sectionType);
+	buildInnerOuterSupportsSandL(quadRegion, sectionType);
+	buildTopBottomSupportsSandL(quadRegion, sectionType);
 	buildFieldManagers(quadRegion, sectionType);
       }
 
+  // Field managers get assigned to the LVs so we can do this now or wait til the PVs are built
   assignFieldManagers();
 }
 
@@ -162,29 +148,16 @@ void gm2ringsim::Quad::buildRegionSandL(G4int quadRegion, G4int sectionType){
   // bits, and the fields.  The region fills the space between the
   // innermost radius of the vacRegion that could be contained in a
   // torus, and the outermost toroid radius of the vacTregion
-  
-  /*  printf("About to build Quad Region S\n");
-  std::cout<<"qg_.QFR_rmin="<<qg_.QFR_rmin<<std::endl;
-  std::cout<<" qg_.QFR_rmax="<< qg_.QFR_rmax<<std::endl;
-  std::cout<<" qg_.QFR_z="<< qg_.QFR_z <<std::endl;
-  std::cout<<" qg_.quad_Sphi[sectionType]="<<qg_.quad_Sphi[sectionType]<<std::endl;
-  std::cout<< "qg_.quad_Dphi[sectinoType]=" << qg_.quad_Dphi[sectionType]<<std::endl;
-  
-  printf("calling tubs\n");
-  */
 
   G4Tubs *tubs = new G4Tubs("quadRegion_S",
 			    qg_.QFR_rmin, qg_.QFR_rmax, qg_.QFR_z,
 			    qg_.quad_Sphi[sectionType], qg_.quad_Dphi[sectionType]);
 
-  //  printf("done with tubs\n");
   //  G4LogicalVolume *log =
   genericQuadRegion_L_[quadRegion][sectionType] =
     new G4LogicalVolume(tubs,
 			artg4Materials::Vacuum(),
 			"quadRegion_L");
-  
-  
 
   
   //FIXME: get these parameters from the fhicl file
@@ -199,20 +172,19 @@ void gm2ringsim::Quad::buildRegionSandL(G4int quadRegion, G4int sectionType){
 
 
 
-  void gm2ringsim::Quad::buildRegion(G4int quadRegion, G4int sectionType){
-    //  G4VPhysicalVolume *vac = vacPTRS[qVacWallArray[quadRegion][sectionType]];
-    
-    std::ostringstream regionName;
-    regionName << "QuadFieldRegion[" << quadRegion << "][" 
-	     << sectionType << ']';
+void gm2ringsim::Quad::buildRegion(std::vector<G4LogicalVolume*>& vacLV, G4int quadRegion, G4int sectionType){
   
-  G4LogicalVolume *vac = vacPTRS_[qVacWallArray_[quadRegion][sectionType]];
+  std::ostringstream regionName;
+  regionName << "QuadFieldRegion[" << quadRegion << "][" 
+	     << sectionType << ']';
+
+  //vacs[ arcNumber ]->GetDaughter(0)->GetLogicalVolume(),
+  G4LogicalVolume *vac = vacLV[qVacWallArray_[quadRegion][sectionType]];//->GetDaughter(0)->GetLogicalVolume();
   genericQuadRegion_P_[quadRegion][sectionType] =
     new G4PVPlacement(0,
 		      G4ThreeVector(0,0,0),
 		      genericQuadRegion_L_[quadRegion][sectionType], //log,
 		      regionName.str(),
-		      //		      vac->GetLogicalVolume(),
 		      vac,
 		      false,
 		      0);
@@ -247,6 +219,10 @@ void gm2ringsim::Quad::buildPlatesSandL(G4int quadRegion, G4int sectionType){
   // within this loop as "genericQuadPlate"; the correct dimensions
   // for each plate type are obtained by accessing the dimensional
   // arrays with the loop index...clever!  Saves a lot of code.
+
+  // This string is important for looking up the RingSD from the SDManager
+  RingSD* ringSD = artg4::getSensitiveDetector<RingSD>("RingSD"); 
+
   
   printf("about to buildPlatesSandL\n");
   for(G4int plateType=0; plateType!=qg_.numPlateTypes; plateType++){
@@ -310,14 +286,15 @@ void gm2ringsim::Quad::buildPlatesSandL(G4int quadRegion, G4int sectionType){
 		       }
 		       ); 
     
-    genericQuadPlate_L_[quadRegion][sectionType][plateType]->SetSensitiveDetector( ringSD_ );
+    genericQuadPlate_L_[quadRegion][sectionType][plateType]->SetSensitiveDetector( ringSD );
   } //plateType
 }
 
 void gm2ringsim::Quad::buildInnerOuterSupports(G4int quadRegion, G4int sectionType) {
-
+  
   G4int const supportPairsPerSection = qg_.numSupportPairsPerSection[sectionType];
   for(G4int sPair=0; sPair<supportPairsPerSection; sPair++){
+    
     // A unique name for the inner support physical volume
     std::ostringstream supportName;
     supportName << "QuadInnerSupport[" << quadRegion << "]"
@@ -341,6 +318,8 @@ void gm2ringsim::Quad::buildInnerOuterSupports(G4int quadRegion, G4int sectionTy
     supportName << "QuadOuterSupport[" << quadRegion << "]"
 		<< "[" << sectionType << "]" << "[" << sPair << "]";
     
+
+
     ptr = genericQuadRegion_P_[quadRegion][sectionType];
     genericOuterSupport_P_[quadRegion][sectionType][sPair] 
       = new G4PVPlacement(0,
@@ -360,6 +339,10 @@ void gm2ringsim::Quad::buildInnerOuterSupportsSandL(G4int quadRegion, G4int sect
   // All supports are again built using 'for' loops.  Here, determine
   // the number of pairs for the current sectionType
   G4int const supportPairsPerSection = qg_.numSupportPairsPerSection[sectionType];
+  
+  // This string is important for looking up the RingSD from the SDManager
+  RingSD* ringSD = artg4::getSensitiveDetector<RingSD>("RingSD"); 
+
 
   // convert vectors to arrays
   const int nInd = 7;//qg_.support_nPlanes;
@@ -369,8 +352,6 @@ void gm2ringsim::Quad::buildInnerOuterSupportsSandL(G4int quadRegion, G4int sect
   
   for(G4int sPair=0; sPair<supportPairsPerSection; sPair++){
     
-
-
     // An extra long support but with the correct shape
     G4Polycone *support_S = new G4Polycone("support_S",
 					   qg_.support_Sphi,
@@ -417,7 +398,7 @@ void gm2ringsim::Quad::buildInnerOuterSupportsSandL(G4int quadRegion, G4int sect
 			      ISMTransform);
     
     
-    // Repeate the above procedure for the outer support, which is the
+    // Repeat the above procedure for the outer support, which is the
     // same except for slight changes to rotation and translation
     posX = qg_.OSupportRad*cos(angSupportPos_[sectionType][sPair]);
     posY = qg_.OSupportRad*sin(angSupportPos_[sectionType][sPair]);
@@ -463,8 +444,8 @@ void gm2ringsim::Quad::buildInnerOuterSupportsSandL(G4int quadRegion, G4int sect
 			   att->SetForceSolid(1);
 			 }
 			 );     
-      genericInnerSupport_L_[quadRegion][sectionType][sPair]->SetSensitiveDetector( ringSD_ );
-      genericOuterSupport_L_[quadRegion][sectionType][sPair]->SetSensitiveDetector( ringSD_ );
+      genericInnerSupport_L_[quadRegion][sectionType][sPair]->SetSensitiveDetector( ringSD );
+      genericOuterSupport_L_[quadRegion][sectionType][sPair]->SetSensitiveDetector( ringSD );
       
   } // Loop overs supportPairs
   

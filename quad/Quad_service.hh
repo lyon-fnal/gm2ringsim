@@ -71,11 +71,11 @@ namespace gm2ringsim {
       
     
     void buildQuadsSandL();
-    void buildQuads();
+    void buildQuads(std::vector<G4LogicalVolume*>&);
     
     
     void buildRegionSandL(G4int, G4int);
-    void buildRegion(G4int, G4int);
+    void buildRegion(std::vector<G4LogicalVolume*>&,G4int, G4int);
     
     void buildPlatesSandL(G4int, G4int);
     void buildPlates(G4int, G4int);
@@ -147,8 +147,9 @@ namespace gm2ringsim {
     
 
     double angSupportPos_[2][6];
+    
+    // Just changed the functions to pass along the std::vector<G4LogicalVolume*> motherLVS instead
     //std::vector<G4VPhysicalVolume *> vacPTRS_; //Was a PV in g2MIGTRACE  
-    std::vector<G4LogicalVolume *> vacPTRS_; // Changed in ART since we only pass the mother LVS
 
     /** @bug These explicit array dimension constants should be replaced
 	  ... see quadConstruction.cc. */
@@ -183,10 +184,6 @@ namespace gm2ringsim {
     const bool spin_tracking_;
     connection_t conn_;
 
-    std::string ringSDname_;
-    RingSD* ringSD_;
-
-    
     //      enum plate_type {INNERPLATE, OUTERPLATE, TOPPLATE, BOTTOMPLATE, plate_type_end};
     
     // enum plate_section {SECTION13, SECTION26, plate_section_end};
