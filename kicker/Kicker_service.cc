@@ -4,6 +4,35 @@
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 
+#include "Geant4/G4Tubs.hh"
+#include "Geant4/G4LogicalVolume.hh"
+#include "Geant4/G4VPhysicalVolume.hh"
+#include "Geant4/G4PVPlacement.hh"
+#include "Geant4/G4VisAttributes.hh"
+#include "Geant4/G4UnitsTable.hh"
+#include "Geant4/G4RunManager.hh"
+
+#include "Geant4/G4FieldManager.hh"
+#include "fields/g2FieldEqRhs.hh"
+#include "Geant4/G4Mag_UsualEqRhs.hh"
+#include "Geant4/G4Mag_SpinEqRhs.hh"
+#include "Geant4/G4ClassicalRK4.hh"
+
+//#include "kickerMessenger.hh"
+#include "kicker/KickerHelpers.hh"
+#include "artg4/material/Materials.hh"
+
+#include "Geant4/G4String.hh"
+
+#include "artg4/util/util.hh"
+#include "gm2ringsim/common/ring/RingSD.hh"
+
+#include "gm2ringsim/common/g2PreciseValues.hh"
+
+#include <iomanip>
+#include <tr1/functional>
+
+
 //#include CHANGE_ME: Add include for header for Art hit class
 
 // Constructor for the service 
@@ -12,7 +41,11 @@ gm2ringsim::Kicker::Kicker(fhicl::ParameterSet const & p, art::ActivityRegistry 
                    p.get<std::string>("name", "kicker"),
                    p.get<std::string>("category", "kicker"),
 		 p.get<std::string>("mother_category", "vac")),
-    kg_("Kicker")
+    sts_("SpinTracking"),
+    spin_tracking_(sts_.spinTrackingEnabled),
+    kg_(myName()),
+    numKickers(3),
+    numKickerObjects(3)
 {
   kg_.print();
 }

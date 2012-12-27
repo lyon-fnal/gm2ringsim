@@ -5,7 +5,7 @@ kicker_geom : {
 	    	  
    kickTime1 : 120 //ns 
    kickTime2 : 197.5 //ns 
-   kickPercent : 100.0 
+//   kickPercent : 100.0  //included in vector below
   
    kPlate1HV : 95. //kilovolt 
    kPlate2HV : 95. //kilovolt 
@@ -23,12 +23,62 @@ kicker_geom : {
    kicker3L : 1.187e-6 //henry 
    kicker3R : 11.33 //ohm 
    kicker3C : 11.049994 //nanofarad 
-  
-  // Myserious conversion factor from g2track
+   
+  // All measurements taken from g2track, g2geant3, and the g-2 kicker NIM      
+  // paper titled "A fast non-ferric kicker for the muon (g-2) experiment"      
+  // : Reference # "A 496 8-25 (2003)" and compared.  Geometrical parameters,   
+  // on Rob Carey's suggestion, were taken from g2track as it was written       
+  // *after* the actual kicker had been fabricated.  The kickers' azimuthal     
+  // span in degrees was calculated from the kicker length, given in the NIM    
+  // paper as 1.76m, and worked out to 14.18 degree span per kicker, which      
+  // matched g2track.  *NOTE*, there remains some question as to the precise    
+  // azimuthal location for each kicker.  Kicker placement has been estimated   
+  // from the numbers found in g2track and g2geant3 and Rob's suggestions,      
+  // and should be accurate to within a degree.  If future studies require      
+  // higher accuracy, it should be trivial to change the positions below        
+  // once the correct numbers have been located or measured manually.   
+
+   radius : 7.112 //m
+   width : 0.08 //m
+   thickness : 0.00075 //m
+   separation : .10224 //m  
+
+// Define the starting position (Sphi) of the 3 kickers in the                
+  // azimuthal coordinate system of the vacuum chamber.  Note that              
+  // kickers 1 and 2 are daughters of arcSection 2, while kicker 3 is a         
+  // daughter of arcSection 3.  These angular measurements were taken           
+  // from "BmChbrPln.dwg" and are updated to reflect the scalloped              
+  // vacuum chambers added in SVN revision 145.                                 
+   k1Sphi : 0.196 //degree
+   k2Sphi : 15.194 //degree
+   k3Sphi : 0.196 //degree
+
+// Define the angular span of the 3 kicker plates (Dphi).  This number        
+  // has been verified from 2 indp't sources: direct angular                    
+  // measurements in "BmChbrPln.dwg" for each of the 3 kicker sections,         
+  // as well as being calculated from the kicker NIM paper, where the           
+  // plates are explicitly declared to be 1.76m long.  To calculate:            
+  // (1.76m) / (2*pi*7.112m) * 360 degrees = 14.179 degree                      
+   kPlates_Dphi : 14.18 //deg
+
+   arc2 : 2
+   arc3 : 3
+
+  // Mysterious conversion factor from g2track
   //FIXME
   //   conversionFactor : (196*gauss)/(5600*ampere) 
 
 
+  // Initialize the LCR circuit values with some defaults Values were           
+  // obtained from g2track and checked against the literature.                  
+  // SquareMag initializes the magnitude of the square pulse kick               
+  // option  
+  kickerHV : [95. , 95. , 95. ] //kilovolt
+  kickPercent : [100. , 100. , 100. ] // 
+  squareMag : [225. , 225. , 225. ] //gauss
+  circuitC : [11.239996 , 11.299994 , 11.049994 ] //nanofarad
+  circuitL : [1.164e-6 ,1.114e-6 ,1.187e-6 ] //henry
+  circuitR : [11.35 ,11.43 , 11.33] //ohm
 }
 
 END_PROLOG
