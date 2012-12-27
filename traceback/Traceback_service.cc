@@ -8,19 +8,35 @@
 #include "artg4/material/Materials.hh"
 #include "artg4/util/util.hh"
 
-#include "gm2ringsim/traceback/TracebackGeometry.hh"
-#include "gm2ringsim/vac/VacGeometry.hh"
-
-#include "boost/format.hpp"
+//Geant4
+#include "Geant4/G4PVPlacement.hh"
+#include "Geant4/G4Transform3D.hh"
+#include "Geant4/G4RotationMatrix.hh"
+#include "Geant4/G4VisAttributes.hh"
+#include "Geant4/G4RunManager.hh"
+#include "Geant4/G4UnitsTable.hh"
+#include "Geant4/G4ClassicalRK4.hh"
+#include "Geant4/G4Mag_UsualEqRhs.hh"
+#include "Geant4/G4Mag_SpinEqRhs.hh"
+#include "Geant4/G4UnitsTable.hh"
+#include "Geant4/G4UserLimits.hh"
+#include "Geant4/G4UImanager.hh"
+#include "Geant4/G4UniformMagField.hh"
+#include "Geant4/G4SDManager.hh"
 
 #include "Geant4/G4Box.hh"
-#include "Geant4/G4PVPlacement.hh"
-#include "Geant4/G4VisAttributes.hh"
 #include "Geant4/G4UserLimits.hh"
 #include "Geant4/G4UnionSolid.hh"
 #include "Geant4/G4Tubs.hh"
 #include "Geant4/G4Trap.hh"
 #include "Geant4/G4TwoVector.hh"
+
+#include "gm2ringsim/traceback/TracebackGeometry.hh"
+#include "gm2ringsim/vac/VacGeometry.hh"
+
+#include "boost/format.hpp"
+
+#include "gm2ringsim/vac/VacGeometry.hh"
 
 //#include CHANGE_ME: Add include for header for Art hit class
 
@@ -38,15 +54,10 @@ gm2ringsim::Traceback::Traceback(fhicl::ParameterSet const & p, art::ActivityReg
 }
 
 
-G4UnionSolid* gm2ringsim::Traceback::buildScallopSolid() {
-
-  VacGeometry vacg(myName());
-  G4Tubs *torus = new G4Tubs("torus",
-                             vacg.torus_rmin,
-                             vacg.torus_rmax[vacg.vacuumRegion] + vacg.inflectorExtension(0),
-                             vacg.torus_z[vacg.vacuumRegion],
-                             vacg.torus_sphi, vacg.torus_dphi);
-
+/*G4UnionSolid* gm2ringsim::Traceback::buildScallopSolid() {
+  
+  const VacGeometry vacg("vac");
+  
   // This was cut and pasted from vacChamberConstruction
   G4double
   pPhi = 0., pAlp = 0.,
@@ -82,25 +93,12 @@ G4UnionSolid* gm2ringsim::Traceback::buildScallopSolid() {
   G4Transform3D
   out_transform_2(G4RotationMatrix( 0., 90.*degree, -vacg.phi_a+(-15.-90.)*degree ),
                   G4ThreeVector( fixup.x(), fixup.y(), 0. ) );
-  
-  pPhi = pAlp = 0.;
-  pTheta = vacg.phi_q/2;
-  pDz = vacg.zz[vacg.vacuumRegion]/2.;
-  pDy = vacg.torus_z[vacg.vacuumRegion];
-  pDx12 = vacg.xO[vacg.vacuumRegion]/2.;
-  pDx34 = vacg.xI[vacg.vacuumRegion]/2.;
-  
-  G4Trap *in_scallop =
-  new G4Trap("in_scallop", pDz, pTheta, pPhi,
-             pDy, pDx12, pDx12, pAlp,
-             pDy, pDx34, pDx34, pAlp
-             );
-  
+    
   dz = vacg.zz[vacg.vacuumRegion]/2.;
   dx = -vacg.xI[vacg.vacuumRegion]/2.-vacg.zz[vacg.vacuumRegion]/2.*std::tan(vacg.phi_q/2.);
   fixup = G4TwoVector(dz, dx);
   fixup.rotate( vacg.phi_q );
-  //    fixup += G4TwoVector( 277.*in, 0 );
+ 
   fixup+= G4TwoVector(vacg.pt_p[vacg.vacuumRegion].r(),0);
   fixup.rotate( vacg.pt_p[vacg.vacuumRegion].phi() );
   
@@ -124,35 +122,59 @@ G4UnionSolid* gm2ringsim::Traceback::buildScallopSolid() {
   us = new G4UnionSolid("union4", us, in_scallop, in_transform_2);
   
   return us;
-}
-
-
+   
+}*/
 
 G4LogicalVolume* gm2ringsim::Traceback::makeATracebackLV() {
   
-  G4double moveTheta;
-  G4double moveR;
-
-  G4VSolid *solid = new G4Box("traceback_S1", geom_.tracebackRadialHalf[0], geom_.tracebackThetaHalf, geom_.tracebackZHalf);
-
-  for(int i = 1; i!= 44; ++i){
-       
-    G4VSolid *s = new G4Box("traceback_this", geom_.tracebackRadialHalf[i], geom_.tracebackThetaHalf, geom_.tracebackZHalf);
-    
-    moveTheta = geom_.tracebackTheta + geom_.tracebackTheta*(i-1);
-    
-    moveR = (geom_.tracebackRadialHalf[0]-geom_.tracebackRadialHalf[i])+ moveTheta*geom_.tanTracebackRadialShiftAngle;
-    
-    G4ThreeVector moveThis (-moveR, -moveTheta, 0.0);
-    G4UnionSolid *solidThis = new G4UnionSolid("traceback_S",solid, s, 0, moveThis);
-    solid = solidThis;
-    
-  }
-
-  G4LogicalVolume *tracebackLV = new G4LogicalVolume(solid,
+  const VacGeometry vacg("vac");
+  
+  // This was cut and pasted from vacChamberConstruction
+  /*G4double
+  pPhi = 0., pAlp = 0.,
+  pTheta = (vacg.phi_a - vacg.phi_b)/2.,
+  pDz = vacg.z[vacg.vacuumRegion]/2.,
+  pDy = vacg.torus_z[vacg.vacuumRegion],
+  pDx12 = vacg.xL[vacg.vacuumRegion]/2.,
+  pDx34 = vacg.xS[vacg.vacuumRegion]/2.;
+  */
+  /*G4VSolid *scallop =new G4Trap("scallop", pDz, pTheta, pPhi,
+                             pDy, pDx12, pDx12, pAlp,
+                             pDy, pDx34, pDx34, pAlp
+                             );
+  */
+  //G4VSolid *scallop = new G4Para("scallop",100,75,700,10*degree,10*degree,90*degree)
+  //G4VSolid *scallop = new G4Trap("scallop",100,30,700,700,75);
+  G4VSolid *scallop = new G4Trap("scallop",150,1400,200,60);
+  /*  G4double
+  dz = -vacg.z[vacg.vacuumRegion]/2.,
+  dx = -dz*std::tan( (vacg.phi_b-vacg.phi_a)/2. ) + vacg.xS[vacg.vacuumRegion]/2.;
+  
+  // The little rotation is in the coordinates of the trapezoid,
+  G4TwoVector fixup(dz,dx);
+  fixup.rotate( -vacg.phi_a );
+  // flip to the coordinate system of the arcSection
+  fixup.setX(-fixup.x());
+  fixup += vacg.pt_a[vacg.vacuumRegion];
+  
+  G4Transform3D
+  out_transform_1(G4RotationMatrix( 0., 90.*degree, -vacg.phi_a-90.*degree ),
+                  G4ThreeVector( fixup.x(), fixup.y(), 0. ) );
+  
+  fixup.rotate(15.*degree);
+  
+  G4Transform3D
+  out_transform_2(G4RotationMatrix( 0., 90.*degree, -vacg.phi_a+(-15.-90.)*degree ),
+                  G4ThreeVector( fixup.x(), fixup.y(), 0. ) );
+*/
+  
+  G4LogicalVolume *tracebackLV = new G4LogicalVolume(scallop,
                                                      artg4Materials::Vacuum(),
                                                      "tracebackLV");
-   
+  
+  
+  
+  
   artg4::setVisAtts(tracebackLV, geom_.displayTraceback, geom_.tracebackColor);
   return tracebackLV;
 
@@ -233,18 +255,17 @@ void gm2ringsim::Traceback::makeStrawDetectors(std::vector<G4VPhysicalVolume*>& 
 //Build the logical volumes
 std::vector<G4LogicalVolume *> gm2ringsim::Traceback::doBuildLVs() {
   geom_.print();
-  
+ 
   std::vector<G4LogicalVolume*> tracebacks;
   makeTracebackLVs(tracebacks);
-  std::vector<G4VPhysicalVolume*> straws;
+  //std::vector<G4VPhysicalVolume*> straws;
 
-  makeStrawDetectors(straws, tracebacks);
+  //makeStrawDetectors(straws, tracebacks);
   return tracebacks;
 }
 
 // Build the physical volumes
 std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vector<G4LogicalVolume*> vacs) {
-  //TracebackGeometry tg(myName());
   
   std::vector<G4VPhysicalVolume*> tracebackPVs;
   tracebackPVs.resize(lvs().size());
@@ -305,14 +326,17 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
     
     G4RotationMatrix *rot = new G4RotationMatrix(0,
                                                  0,
-                                                 geom_.thetaIn[ arcPosition ] + geom_.windowAngle - geom_.vRotation);
-    
-    int arcNumber = floor(tracebackNum/2);
+                                                 geom_.thetaIn[ arcPosition ] + geom_.windowAngle - geom_.vRotation+ 174*degree);
+                                                 //0);
 
+    int arcNumber = floor(tracebackNum/2);
+    
+    
     tracebackPVs.push_back(
                            new G4PVPlacement(
                                              rot,
                                              pos,
+                                        
                                              aTracebackLV,
                                              tracebackLabel,
                                              vacs[ arcNumber ]->GetDaughter(0)->GetLogicalVolume(),
@@ -327,6 +351,8 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
 
 
 }
+
+
 //i want to take a vector of traceback locations [1,3,5] for example.
 //for each of those locations I want to put two straw chambers (planes for now)
 //those straw chambers should be at 20mm on either side of the edges of the box

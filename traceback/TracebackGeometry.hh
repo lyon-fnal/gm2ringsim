@@ -1,7 +1,7 @@
-// Vac Geometry
+// Traceback Geometry
 
-#ifndef VACGEOMETRY_HH
-#define VACGEOMETRY_HH
+#ifndef TRACEBACKGEOMETRY_HH
+#define TRACEBACKGEOMETRY_HH
 
 #include "artg4/Core/GeometryBase.hh"
 

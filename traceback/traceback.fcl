@@ -12,9 +12,9 @@ traceback_geom : {
   //windowAngle: 3.53 // deg
   windowAngle: 0.5 // deg
   //theta_out [(11.96-2.5), (11.96-2.5)+15] in g2MIGTRACE
-  thetaOut: [9.46, 24.46] // deg
-  tOffset: 0
-  rOffset: -25.0
+  thetaOut:[9.46, 24.46] // deg
+  tOffset: -700.0
+  rOffset: -10.0
   vOffset: 0.0
   tRotation: 0 // deg
   rRotation: 0 // deg
@@ -26,7 +26,7 @@ traceback_geom : {
   tracebackRadialShiftAngle: 0 //deg
   
   
-  whichTracebackLocations: [12, 18]
+  whichTracebackLocations: [1]
   strawLocation: [0, 1, 2, 3, 4, 7, 11, 16, 20]
   displayTraceback: true
   tracebackColor : [0.25, .99, 0.82, 1.0]
