@@ -79,7 +79,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Collimator::doPlaceToPVs( std::vect
     // Get the vacuum chamber logical volume from the wall
     G4LogicalVolume* vacLV = vacWalls[geom_.cVacWallArray[collNumber]]->GetDaughter(0)->GetLogicalVolume();
    
-    std::sprintf(objectName, "%s-%02d", e_collimator_names[geom_.collimatorType[collNumber]],  collNumber);
+    std::sprintf(objectName, "%s-%02d", e_collimator_names[geom_.collimatorType[collNumber]].c_str(),  collNumber);
 
     /** @bug tCB_Dphi from vacChamberParameters.hh should be used
 	instead of 0.01*degree, but we have to fix the multiple
