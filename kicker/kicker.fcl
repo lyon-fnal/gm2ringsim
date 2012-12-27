@@ -79,6 +79,14 @@ kicker_geom : {
   circuitC : [11.239996 , 11.299994 , 11.049994 ] //nanofarad
   circuitL : [1.164e-6 ,1.114e-6 ,1.187e-6 ] //henry
   circuitR : [11.35 ,11.43 , 11.33] //ohm
+  kickerOffsetTime : [ 0.0 , 0.0 , 0.0 ] //ns
+  kickerProperOffsetTime : [0.0 , 0.0 , 0.0 ] //ns
+
+  // Visibility
+  // For colors, [red, green, blue, opacity]
+  displayPlates : true
+  platesColor : [ 0.0, 1.0, 0.0, 1.0 ] //green
+
 }
 
 END_PROLOG

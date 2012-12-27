@@ -51,7 +51,10 @@ namespace gm2ringsim {
     std::vector<double> circuitC;
     std::vector<double> circuitL;
     std::vector<double> circuitR;
-    
+
+    std::vector<double> kickerOffsetTime;
+    std::vector<double> kickerProperOffsetTime;
+
     // Defines the field-region
     const G4double kPlatesFR_rMin;
     const G4double kPlatesFR_rMax;
@@ -73,6 +76,9 @@ namespace gm2ringsim {
     std::vector<double> kPlates_Sphi;
     std::vector<int> kVacWallArray;
 
+
+    const bool displayPlates;
+    const std::vector<double> platesColor;
 
     void print() const;
   }; //struct KickerGeometry

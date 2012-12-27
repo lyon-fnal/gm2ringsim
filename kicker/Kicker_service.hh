@@ -50,78 +50,43 @@ namespace gm2ringsim {
 
 
       SpinTrackingSettings sts_;
-      const bool spin_tracking_;
+      const bool spin_tracking_; //set it and forget it
       KickerGeometry kg_;
       enum {KICKER1 = 0, KICKER2 = 1, KICKER3 = 2};
-      G4int const numKickers;
-      G4int const numKickerObjects;
+      G4int const numKickers_;
+      G4int const numKickerObjects_;
       enum {KICK_LCR, KICK_SQUARE, KICK_OTHER};
-      G4int kickType;
-      G4double squareMag[3];
-      G4bool initialBuild;
+      G4int kickType_;
 
-      G4VPhysicalVolume *kicker_P[3][3];
+      G4LogicalVolume *kicker_L_[3][3];
+      G4VPhysicalVolume *kicker_P_[3][3];
 
-      KickModifier *modifier[3];
-      G4MagneticField *kickerMagField[3];
-      G4Mag_EqRhs *iEquation[3];
-      G4MagIntegratorStepper *iStepper[3];
-      G4ChordFinder *iChordFinder[3];
-      G4FieldManager *manager[3];
+
+      KickModifier *modifier_[3];
+      G4MagneticField *kickerMagField_[3];
+      G4Mag_EqRhs *iEquation_[3];
+      G4MagIntegratorStepper *iStepper_[3];
+      G4ChordFinder *iChordFinder_[3];
+      G4FieldManager *manager_[3];
       
       enum {NO_MODIFIER, MORSE_MODIFIER};
       enum kicker_region_type { FIELDREGION, INNERPLATE, OUTERPLATE };
-      G4int which_modifier;
+      G4int which_modifier_;
       
 
-      // Previously public methods in g2migtrace
-      void constructKickers(const std::vector<G4VPhysicalVolume *>& VacH);
-      
-      /** Interface to set the kicker module voltages in the LCR model. */
-      void setKickerHV(G4double, G4double, G4double);
-      /** Interface to set the kicker module application percentage; works          
-	  in parallel with the kicker HV setting. */
-      void setKickPercent(G4double, G4double, G4double);
-      /** Jigger the kicker pulse in time */
-      void setKickerOffsetTime(G4double, G4double, G4double);
-      /** Modify the kicker module capacitance value in the LCR pulse               
-	  model. */
-      void setCircuitCapacitance(G4double, G4double, G4double);
-      /** Modify the kicker module inductance value in the LCR pulse                
-	  model. */
-      void setCircuitInductance(G4double, G4double, G4double);
-      /** Modify the kicker module resistance value in the LCR pulse                
-	  model. */
-      void setCircuitResistance(G4double, G4double, G4double);
-      /** Choose the kicker model.                                                    Available models are LCR and Square. */
-      void setKickType(G4String);
-      /** Set the kicker field modifier module, which provides geometric            
-	  modification of the field distribution.                                   
-	  
-	  Available modifiers are the unmodified and Morse. */
-      void setKickModifier(G4String);
-      /** Set the value of the square pulse magnitude. */
-      void setSquarePulseMagnitude(G4double, G4double, G4double);
-      
-      /** Interface to get the current values of the kicker parameters. */
-      void getKickerInfo();
-      
-      /** Interface to the spinController to enable/disable spin tracking           
-	  in the fields. */
-      void enable_spintracking(bool);
       
       // private methods in g2migtrace
-      void buildKickerObjects(std::vector<G4VPhysicalVolume*> const&);
-      
-      void buildKickerPlates(G4VPhysicalVolume*, G4int, G4int, char *);
+      void buildKickerPlatesSAndL();
+      void buildKickerPlates(std::vector<G4LogicalVolume*> const&);
+
       
       void buildKickerFields();
-      
-      void figureProperOffsetTime();
-      void modifyKickerFields();
-      
+      void figureProperOffsetTime();      
 
+      /** Set the value of the square pulse magnitude. */
+      //void setSquarePulseMagnitude(G4double, G4double, G4double);
 
+      
         // Private overriden methods
 
         // Create the logical volumes
@@ -137,6 +102,42 @@ namespace gm2ringsim {
 
         // Actually add the data to the event
         //virtual void doFillEventWithArtHits(G4HCofThisEvent * hc) override;
+
+
+      // Previously public methods in g2migtrace
+      // No longer implemented since we can change via fcl
+      //void modifyKickerFields();
+      //void constructKickers(const std::vector<G4VPhysicalVolume *>& VacH);
+      /** Interface to set the kicker module voltages in the LCR model. */
+      //void setKickerHV(G4double, G4double, G4double);
+      /** Interface to set the kicker module application percentage; works          
+	  in parallel with the kicker HV setting. */
+      //void setKickPercent(G4double, G4double, G4double);
+      /** Jigger the kicker pulse in time */
+      //void setKickerOffsetTime(G4double, G4double, G4double);
+      /** Modify the kicker module capacitance value in the LCR pulse               
+	  model. */
+      //void setCircuitCapacitance(G4double, G4double, G4double);
+      /** Modify the kicker module inductance value in the LCR pulse                
+	  model. */
+      //void setCircuitInductance(G4double, G4double, G4double);
+      /** Modify the kicker module resistance value in the LCR pulse                
+	  model. */
+      //void setCircuitResistance(G4double, G4double, G4double);
+      /** Choose the kicker model.
+	  Available models are LCR and Square. */
+      //void setKickType(G4String);
+      /** Set the kicker field modifier module, which provides geometric            
+	  modification of the field distribution.                                   
+	  
+	  Available modifiers are the unmodified and Morse. */
+      //void setKickModifier(G4String);
+
+      
+      /** Interface to get the current values of the kicker parameters. */
+      // void getKickerInfo();
+      
+
 
     };
 }

@@ -39,6 +39,9 @@ gm2ringsim::KickerGeometry::KickerGeometry(std::string const & detName) :
   circuitC( p.get<std::vector<double>>("circuitC") ),
   circuitL( p.get<std::vector<double>>("circuitL") ),
   circuitR( p.get<std::vector<double>>("circuitR") ),
+  kickerOffsetTime( p.get<std::vector<double>>("kickerOffsetTime") ),
+  kickerProperOffsetTime( p.get<std::vector<double>>("kickerProperOffsetTime") ),
+
 // Derived parameters
 // Defines the field-region                                                   
   kPlatesFR_rMin(radius - (separation/2)),
@@ -53,7 +56,9 @@ gm2ringsim::KickerGeometry::KickerGeometry(std::string const & detName) :
 // Defines the outer kicker plate                                             
   kPlatesO_rMin(radius + (separation/2)),
   kPlatesO_rMax(radius + (separation/2) + thickness),
-  kPlatesO_z((width/2))
+  kPlatesO_z((width/2)),
+  displayPlates( p.get<bool>("displayPlates") ),
+  platesColor( p.get<std::vector<double>>("platesColor") )
 {  
 
   for (auto& entry : kickerHV ) { entry *= kilovolt; }
@@ -61,6 +66,8 @@ gm2ringsim::KickerGeometry::KickerGeometry(std::string const & detName) :
   for (auto& entry : circuitC ) { entry *= nanofarad; }
   for (auto& entry : circuitL ) { entry *= henry; }
   for (auto& entry : circuitR ) { entry *= ohm; }
+  for (auto& entry : kickerOffsetTime ) { entry *= ns;}
+  for (auto& entry : kickerProperOffsetTime ) { entry *= ns;}
   kPlates_rMin.push_back(kPlatesFR_rMin);
   kPlates_rMin.push_back(kPlatesI_rMin);
   kPlates_rMin.push_back(kPlatesO_rMin);
@@ -132,11 +139,17 @@ void gm2ringsim::KickerGeometry::print() const {
   oss << "  circuitL= "; for (auto entry : circuitL) { oss << " " << entry; }; oss << "\n";
   oss << "  circuitR= "; for (auto entry : circuitR) { oss << " " << entry; }; oss << "\n";  
 
+  oss << "  kickerOffsetTime= "; for (auto entry : kickerOffsetTime) { oss << " " << entry; }; oss << "\n";  
+  oss << "  kickerProperOffsetTime= "; for (auto entry : kickerProperOffsetTime) { oss << " " << entry; }; oss << "\n";  
+
   oss << "   kPlates_rMin=" ;  for (auto entry : kPlates_rMin){  oss << " " << entry; }; oss << "\n";
 oss << "   kPlates_rMax=" ;  for (auto entry : kPlates_rMax){  oss << " " << entry; }; oss << "\n";
 oss << "   kPlates_z=" ;  for (auto entry : kPlates_z){  oss << " " << entry; }; oss << "\n";
 oss << "   kPlates_Sphi=" ;  for (auto entry : kPlates_Sphi){  oss << " " << entry; }; oss << "\n";
 
+
+oss << "  displayPlates=" << displayPlates << "\n";
+oss << "  platesColor= "; for (auto entry : platesColor) { oss << " " << entry; }; oss << "\n";
   
   mf::LogInfo("KICKERGEOM") << oss.str();
 }
