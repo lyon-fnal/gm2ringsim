@@ -3,6 +3,7 @@
 #include "geom/vac.fcl"
 #include "geom/inflector.fcl"
 #include "geom/quad.fcl"
+#include "geom/oct.fcl"
 #include "geom/kicker.fcl"
 #include "geom/fiberHarp.fcl"
 #include "geom/station.fcl"
@@ -47,6 +48,7 @@ services: {
       vac:   @local::vac_geom
       inflector: @local::inflector_geom
       quad: @local::quad_geom
+      octupole: @local::oct_geom
       kicker: @local::kicker_geom	
       fiberHarp: @local::fiberHarp_geom
       station: @local::station_geom
@@ -55,6 +57,8 @@ services: {
       traceback: @local::traceback_geom
 
      }
+
+     
     RunSettings : {
       SpinTracking : {
         spinTrackingEnabled : false
@@ -86,6 +90,7 @@ services: {
     VacuumChamber: {}
     Inflector:{}	
     Quad: {}
+    Octupole: {}
     Kicker: {}
     FiberHarp: {}	   
     Station: {}
