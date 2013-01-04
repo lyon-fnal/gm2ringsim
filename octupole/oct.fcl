@@ -1,0 +1,38 @@
+//Quad geometry
+//
+// Values are in mm unless otherwise specified
+BEGIN_PROLOG
+
+oct_geom : {	
+
+  // Numbers generally from Koop et. al.  See documentation NIM
+  // directory (even though it's not a NIM)
+
+   whichSector : 8
+
+   fieldRad : 7 //cm
+   fieldStartPhi : 12.5 //degree
+   coilLength : 200 //cm
+
+  // assume Type A copper pipe, ASTM B88M
+   outerPipeDiameter : 10 //mm
+   pipeThickness : 0.9 //mm
+   pipePlaceRad : 6. //cm
+   thetaSepStep : 1.5
+ 
+
+  // Visibility
+  // For colors, [red, green, blue, opacity]
+  display : true
+  color : [ 0.0, 1.0, 1.0, 1.0 ] //purple ?
+  
+  displayTubes : true
+  tubeColor : [0.722, 0.451 , 0.2 , 0.5 ] // semitransparent copper
+//  tubeColor : [184./255., 115./255., 51./255., 0.5 ] 	     
+
+  displayWater : true
+  waterColor : [0.0, 0.0, 1.0, 1.0 ]
+  
+} 
+
+END_PROLOG
