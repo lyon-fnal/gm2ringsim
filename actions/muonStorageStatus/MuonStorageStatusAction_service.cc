@@ -60,7 +60,6 @@ void gm2ringsim::MuonStorageStatusAction::beginOfEventAction (const G4Event* pev
   muonStorageStatus_ = muonTrackingStatus::trackingMuon;
 
   // reset the turn counter
-  // FIXME: ARTIFY
   TurnCounter::getInstance().reset();
   
   // Initialize event status
@@ -144,6 +143,7 @@ void gm2ringsim::MuonStorageStatusAction::endOfRunAction(const G4Run *currentRun
   //FIXME: ARTIFY
   // If we need to do anything in Geant
   // No unique object manager or rootstoragemanager yet
+
   /*G4cout << "Unique Objects in Manager: "
 	 << rsm.getUOM().count() << '\n';
   
@@ -218,9 +218,9 @@ void gm2ringsim::MuonStorageStatusAction::userSteppingAction(const G4Step *curre
 } //MuonStoragestatusAction::userSteppAction
 
 
-  void gm2ringsim::MuonStorageStatusAction::incrementMuonStorageCounter()
-  {++muonStorageCounter_;} 
-    
+void gm2ringsim::MuonStorageStatusAction::incrementMuonStorageCounter()
+{++muonStorageCounter_;} 
+
 
 void gm2ringsim::MuonStorageStatusAction::callArtProduces(art::EDProducer *producer){
   //FIXME: Need to figure out the right name with multiple base classes
