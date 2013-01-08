@@ -16,9 +16,9 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "gm2ringsim/actions/muonStorageStatus/MuonStorageStatusAction_service.hh"
 
-
-G4Allocator<gm2ringsim::TrackerHit> TrackerHitAllocator;
-
+namespace gm2ringsim {
+G4Allocator<TrackerHit> TrackerHitAllocator;
+} //namespace gm2ringsim
 gm2ringsim::TrackerHit::TrackerHit(G4Step* step) : 
   position(step->GetPreStepPoint()->GetPosition()),
   momentum(step->GetPreStepPoint()->GetMomentum()),

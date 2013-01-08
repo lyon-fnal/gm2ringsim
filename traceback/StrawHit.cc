@@ -24,9 +24,9 @@
 
 #include <string>
 #include <sstream>
-
-G4Allocator<gm2ringsim::StrawHit> StrawHitAllocator;
-
+namespace gm2ringsim {
+  G4Allocator<StrawHit> StrawHitAllocator;
+}//namespace gm2ringsim
 gm2ringsim::StrawHit::StrawHit(G4Step *step) : 
   global_pos(step->GetPreStepPoint()->GetPosition()),
   energy_dep(step->GetTotalEnergyDeposit()),
