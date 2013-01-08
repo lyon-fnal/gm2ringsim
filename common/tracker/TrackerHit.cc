@@ -17,13 +17,13 @@
 #include "gm2ringsim/actions/muonStorageStatus/MuonStorageStatusAction_service.hh"
 
 
-G4Allocator<TrackerHit> TrackerHitAllocator;
+G4Allocator<gm2ringsim::TrackerHit> TrackerHitAllocator;
 
-TrackerHit::TrackerHit(G4Step* step) : 
+gm2ringsim::TrackerHit::TrackerHit(G4Step* step) : 
   position(step->GetPreStepPoint()->GetPosition()),
   momentum(step->GetPreStepPoint()->GetMomentum()),
   time(step->GetPreStepPoint()->GetGlobalTime()),
-  turnNum(turnCounter::getInstance().turns()),
+  turnNum(TurnCounter::getInstance().turns()),
   //turnNum(0), // FIXME: If i initialize with zero, update below
   trackID(step->GetTrack()->GetTrackID()),
   //FIXME:   volumeUID(get_uid(step->GetPreStepPoint()->GetPhysicalVolume()))
@@ -50,7 +50,7 @@ TrackerHit::TrackerHit(G4Step* step) :
 }
 
 
-void TrackerHit::Draw(){
+void gm2ringsim::TrackerHit::Draw(){
   //FIXME: Implement in fhicl
   /*#ifdef G4VIS_USE
   G4VVisManager* pVVisManager = G4VVisManager::GetConcreteInstance();
@@ -68,7 +68,7 @@ void TrackerHit::Draw(){
   */
 }
 
-void TrackerHit::Print(){
+void gm2ringsim::TrackerHit::Print(){
   G4cout << " turnNum: " << turnNum
 	 << " volumeUID: " << volumeUID
 	 << " time: " << time

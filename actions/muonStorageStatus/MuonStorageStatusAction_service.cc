@@ -61,7 +61,7 @@ void gm2ringsim::MuonStorageStatusAction::beginOfEventAction (const G4Event* pev
 
   // reset the turn counter
   // FIXME: ARTIFY
-  turnCounter::getInstance().reset();
+  TurnCounter::getInstance().reset();
   
   // Initialize event status
   setEventStatus(-1);
@@ -83,6 +83,9 @@ void gm2ringsim::MuonStorageStatusAction::endOfEventAction(const G4Event* ){//ev
   //FIXME: NOTHING other than the G4cout was commented out.
   // All needs to be reimplemented in ART
 
+
+  //FIXME: If we need anything from the Geant event, we need to do it here.
+
   // store junk in Root file
   //FIXME: Need to bypass rootStorageManager and 
   // directly shove this into the ART eventRecord
@@ -93,7 +96,7 @@ void gm2ringsim::MuonStorageStatusAction::endOfEventAction(const G4Event* ){//ev
   //er.muWasStored = 
   //(muonStorageStatus_ == muonTrackingStatus::storedMuon) ? true : false;
   //er.lastTurn =
-  //turnCounter::getInstance().turns();
+  //TurnCounter::getInstance().turns();
 
   // Fill the event status flag
   // er.EventStatus = (Int_t)getEventStatus();
@@ -139,6 +142,7 @@ void gm2ringsim::MuonStorageStatusAction::endOfRunAction(const G4Run *currentRun
 	 << dcE << ")%\n\n";
   
   //FIXME: ARTIFY
+  // If we need to do anything in Geant
   // No unique object manager or rootstoragemanager yet
   /*G4cout << "Unique Objects in Manager: "
 	 << rsm.getUOM().count() << '\n';
@@ -185,7 +189,7 @@ void gm2ringsim::MuonStorageStatusAction::userSteppingAction(const G4Step *curre
     currentTrack -> SetTrackStatus(fStopAndKill);
   }
 
-  G4int turn = turnCounter::getInstance().turns();
+  G4int turn = TurnCounter::getInstance().turns();
   
   if( currentTrack -> GetTrackID() == 1 ) {
     if( turn >= turnsForStorage_ )
@@ -225,6 +229,10 @@ void gm2ringsim::MuonStorageStatusAction::callArtProduces(art::EDProducer *produ
 
 void gm2ringsim::MuonStorageStatusAction::fillEventWithArtStuff(art::Event &e) {
   std::unique_ptr< EventRecordCollection > myArtHits(new EventRecordCollection);
+  //FIXME: ????
+  // get the geant hit
+  // conver the geant to ART record
+  // Move this to endOfEventAction(G4Event*)
   myArtHits->emplace_back( true,10,1);
   e.put(std::move(myArtHits),"MuonStorageStatusAction");
 }

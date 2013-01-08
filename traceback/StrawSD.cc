@@ -7,8 +7,8 @@
     @date 2011
 */
 
-#include "StrawSD.hh"
-#include "StrawHit.hh"
+#include "gm2ringsim/traceback/StrawSD.hh"
+#include "gm2ringsim/traceback/StrawHit.hh"
 
 #include "Geant4/G4ios.hh"
 #include "Geant4/G4SDManager.hh"
@@ -19,10 +19,11 @@
 #include "Geant4/G4StepPoint.hh"
 #include "Geant4/G4ThreeVector.hh"
 
-StrawSD::StrawSD(G4String name) : 
+gm2ringsim::StrawSD::StrawSD(G4String name) : 
   G4VSensitiveDetector( name ),
-  printLevel(0), drawLevel(0),
-  hsdm_(new StrawSDMessenger(this)) {
+  printLevel(0), drawLevel(0)
+  //  hsdm_(new StrawSDMessenger(this)) 
+{
   collectionName.insert( name );
 
   // Register with SDManager
@@ -34,10 +35,10 @@ StrawSD::StrawSD(G4String name) :
 // The destructor will never be called during the run of the program,
 // as SDs are never removed from the SDManager during the lifetime of
 // the program.
-StrawSD::~StrawSD(){
+gm2ringsim::StrawSD::~StrawSD(){
 }
 
-void StrawSD::Initialize(G4HCofThisEvent* HCoTE){
+void gm2ringsim::StrawSD::Initialize(G4HCofThisEvent* HCoTE){
 
   thisHC = new StrawHitsCollection
     ( SensitiveDetectorName, collectionName[0]);
@@ -49,12 +50,12 @@ void StrawSD::Initialize(G4HCofThisEvent* HCoTE){
   HCoTE->AddHitsCollection( thisHCID, thisHC );
 }
 
-G4bool StrawSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){ 
+G4bool gm2ringsim::StrawSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){ 
   thisHC->insert(new StrawHit(thisStep));
   return true;
 }
 
-void StrawSD::EndOfEvent(G4HCofThisEvent*) {
+void gm2ringsim::StrawSD::EndOfEvent(G4HCofThisEvent*) {
 
   G4int n = thisHC->entries();
 
@@ -75,13 +76,13 @@ void StrawSD::EndOfEvent(G4HCofThisEvent*) {
   
 }
 
-G4int StrawSD::PrintLevel(G4int newLevel){
+G4int gm2ringsim::StrawSD::PrintLevel(G4int newLevel){
   G4int temp = printLevel;
   printLevel = newLevel;
   return temp;
 }
 
-G4int StrawSD::DrawLevel(G4int newLevel){
+G4int gm2ringsim::StrawSD::DrawLevel(G4int newLevel){
   G4int temp = drawLevel;
   drawLevel = newLevel;
   return temp;
@@ -92,6 +93,7 @@ G4int StrawSD::DrawLevel(G4int newLevel){
 //////////////////////////////////
 //////////////////////////////////
 
+/*
 StrawSDMessenger::StrawSDMessenger(StrawSD *tsd) :
   rsd_(tsd) {
 
@@ -149,3 +151,4 @@ void StrawSDMessenger::SetNewValue(G4UIcommand* cmd, G4String newval){
 
 }
 
+*/

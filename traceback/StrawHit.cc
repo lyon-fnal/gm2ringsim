@@ -25,13 +25,13 @@
 #include <string>
 #include <sstream>
 
-G4Allocator<StrawHit> StrawHitAllocator;
+G4Allocator<gm2ringsim::StrawHit> StrawHitAllocator;
 
-StrawHit::StrawHit(G4Step *step) : 
+gm2ringsim::StrawHit::StrawHit(G4Step *step) : 
   global_pos(step->GetPreStepPoint()->GetPosition()),
   energy_dep(step->GetTotalEnergyDeposit()),
   time(step->GetPreStepPoint()->GetGlobalTime()),
-  turnNum(turnCounter::getInstance().turns()),
+  turnNum(TurnCounter::getInstance().turns()),
   trackID(step->GetTrack()->GetTrackID())
 {
   G4TouchableHandle const touchy = step->GetPreStepPoint()->GetTouchableHandle();
@@ -92,7 +92,7 @@ StrawHit::StrawHit(G4Step *step) :
   iss >> StrawStave;
 }
 
-void StrawHit::Draw(){
+void gm2ringsim::StrawHit::Draw(){
 #ifdef G4VIS_USE
   G4VVisManager* pVVisManager = G4VVisManager::GetConcreteInstance();
   if(!pVVisManager)
@@ -109,7 +109,7 @@ void StrawHit::Draw(){
 }
 
 
-void StrawHit::Print(){
+void gm2ringsim::StrawHit::Print(){
   G4cout << " turnNum: " << turnNum
 	 << " StrawPlane: " << StrawPlane
 	 << " StrawStave: " << StrawStave

@@ -217,7 +217,7 @@ void gm2ringsim::SquareKickField::KickFieldValue(G4double const /*Point*/[4],
   Kfield[0] = Kfield[1] = Kfield[2] = 0.;
   //  G4double const& time = Point[3];
   //  if(time < timeForOneFullCircuit){
-  if( turnCounter::getInstance().turns() == 0 ){
+  if( TurnCounter::getInstance().turns() == 0 ){
     Kfield[1] =  squareField;
     //    std::cout << squareField << '\n';
     //    Kfield[1] = 175.*gauss;
