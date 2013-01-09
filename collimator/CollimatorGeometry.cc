@@ -3,7 +3,7 @@
 
 /** @file CollimatorGeometry.cc
 
-    Implements the geometry data for the fiber harps
+    Implements the geometry data for the collimators
 
     @author Peter Winter
     @date 2012
@@ -26,6 +26,8 @@ gm2ringsim::CollimatorGeometry::CollimatorGeometry(std::string detName) :
   nCollimators( p.get<double>("nCollimators") ),
   azimuthalPos( p.get<std::vector<double>>("azimuthalPos") ),
   cVacWallArray( p.get<std::vector<int>>("cVacWallArray") ),
+  collimatorType(0),
+  collimatorName(p.get<std::vector<std::string>>("collimatorType")),
   coll_Sphi{coll_Sphi_Full, coll_Sphi_Half, coll_Sphi_Half},
   coll_Dphi{coll_Dphi_Full, coll_Dphi_Half, coll_Dphi_Half},
   display( p.get<bool>("display") ),
@@ -35,31 +37,32 @@ gm2ringsim::CollimatorGeometry::CollimatorGeometry(std::string detName) :
 
   if(azimuthalPos.size() != (unsigned int)nCollimators) throw cet::exception("CollimatorGeometry") << 
     "Wrong geometry input: Size of azimuthalPos array is " << azimuthalPos.size() << 
-    " and not equals nHarps=" << nCollimators << std::endl;
+    " and not equals nCollimators=" << nCollimators << std::endl;
   if(cVacWallArray.size() != (unsigned int)nCollimators) throw cet::exception("CollimatorGeometry") << 
     "Wrong geometry input: Size of cVacWallArray array is " << cVacWallArray.size() << 
-    " and not equals nHarps=" << nCollimators << std::endl;
-
-  std::vector<std::string> collimatorName = p.get<std::vector<std::string>>("collimatorType");
+    " and not equals nCollimators=" << nCollimators << std::endl;
 
   if(collimatorName.size() != (unsigned int)nCollimators) 
     throw cet::exception("CollimatorGeometry") << 
       "Wrong geometry input: Size of collimatorName array is " << collimatorName.size() << 
-      " and not equals nHarps=" << nCollimators << std::endl;
-    
-  for ( auto entry : collimatorName){
+      " and not equals nCollimators=" << nCollimators << std::endl;
+  
+  // Let's check that the collimatorName entries are all known
+  for (auto entry :  collimatorName){
+    if(entry != "FULL" && entry != "HALF_LRO" && entry != "HALF_SRO" && entry != "OFF")
+      throw cet::exception("CollimatorGeometry") << "collimatorName entry " << entry << 
+	" not FULl, HALF_LRO, HALF_SRO, or OFF!\n";
+		
+    // The following integer assignments should match the coll_Sphi and coll_Dphi vectors wrt the type of collimator
     int collType = -1;
-    if(entry == "FULL") collType = FULL;
-    if(entry == "HALF_LRO") collType = HALF_LRO;
-    if(entry == "HALF_SRO") collType = HALF_SRO;
-    if(entry == "OFF") collType = OFF;
-    
-    if(collType == -1) throw cet::exception("CollimatorGeometry") << "collimatorType entry " << entry << 
-			 " not FULL, HALF_LRO, HALF_SRO, OFF!\n";
-    
-    collimatorType.push_back(collType);
-  }
+    if(entry == "FULL") collType = 0;
+    if(entry == "HALF_LRO") collType = 1;
+    if(entry == "HALF_SRO") collType = 2;
+    if(entry == "OFF") collType = 3;
 
+    collimatorType.push_back(collType);
+  } 
+  
   print();
 }
 

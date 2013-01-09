@@ -94,7 +94,7 @@ services: {
     Kicker: {}
     FiberHarp: {}	   
     Station: {}
-    //Collimator : {}
+    Collimator : {}
     Traceback: {}
 
     G2PGA: {

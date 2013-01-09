@@ -18,7 +18,7 @@
  */
 
 
-#include "gm2ringsim/Octupole/Octupole_service.hh"
+#include "gm2ringsim/octupole/Octupole_service.hh"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 
 
