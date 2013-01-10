@@ -27,6 +27,7 @@
 #include "Geant4/G4Box.hh"
 #include "Geant4/G4UserLimits.hh"
 #include "Geant4/G4UnionSolid.hh"
+#include "Geant4/G4SubtractionSolid.hh"
 #include "Geant4/G4Tubs.hh"
 #include "Geant4/G4Trap.hh"
 #include "Geant4/G4TwoVector.hh"
@@ -54,11 +55,17 @@ gm2ringsim::Traceback::Traceback(fhicl::ParameterSet const & p, art::ActivityReg
 }
 
 
-/*G4UnionSolid* gm2ringsim::Traceback::buildScallopSolid() {
+
+G4LogicalVolume* gm2ringsim::Traceback::makeATracebackLV() {
   
   const VacGeometry vacg("vac");
+
+  G4Tubs *torus = new G4Tubs("torus",
+                             vacg.torus_rmin,
+                             vacg.torus_rmax[vacg.vacuumRegion],
+                             vacg.torus_z[vacg.vacuumRegion],
+                             vacg.torus_sphi, vacg.torus_dphi);
   
-  // This was cut and pasted from vacChamberConstruction
   G4double
   pPhi = 0., pAlp = 0.,
   pTheta = (vacg.phi_a - vacg.phi_b)/2.,
@@ -88,86 +95,11 @@ gm2ringsim::Traceback::Traceback(fhicl::ParameterSet const & p, art::ActivityReg
   out_transform_1(G4RotationMatrix( 0., 90.*degree, -vacg.phi_a-90.*degree ),
                   G4ThreeVector( fixup.x(), fixup.y(), 0. ) );
   
-  fixup.rotate(15.*degree);
-  
-  G4Transform3D
-  out_transform_2(G4RotationMatrix( 0., 90.*degree, -vacg.phi_a+(-15.-90.)*degree ),
-                  G4ThreeVector( fixup.x(), fixup.y(), 0. ) );
-    
-  dz = vacg.zz[vacg.vacuumRegion]/2.;
-  dx = -vacg.xI[vacg.vacuumRegion]/2.-vacg.zz[vacg.vacuumRegion]/2.*std::tan(vacg.phi_q/2.);
-  fixup = G4TwoVector(dz, dx);
-  fixup.rotate( vacg.phi_q );
- 
-  fixup+= G4TwoVector(vacg.pt_p[vacg.vacuumRegion].r(),0);
-  fixup.rotate( vacg.pt_p[vacg.vacuumRegion].phi() );
-  
-  G4Transform3D
-  in_transform_1(G4RotationMatrix( 0., 90.*degree,
-                                  -vacg.phi_q+(-15.-90.)*degree ),
-                 G4ThreeVector( fixup.x(), fixup.y(), 0. ) );
-  
-  
-  fixup.rotate(15.*degree);
-  
-  G4Transform3D
-  in_transform_2(G4RotationMatrix( 0., 90.*degree,
-                                  -vacg.phi_q+(-30.-90.)*degree ),
-                 G4ThreeVector( fixup.x(), fixup.y(), 0. ) );
-  
-  G4UnionSolid *us =
-  new G4UnionSolid("union1", torus, out_scallop, out_transform_1);
-  us = new G4UnionSolid("union2", us, out_scallop, out_transform_2);
-  us = new G4UnionSolid("union3", us, in_scallop, in_transform_1);
-  us = new G4UnionSolid("union4", us, in_scallop, in_transform_2);
-  
-  return us;
-   
-}*/
+  G4UnionSolid *torus_scallop = new G4UnionSolid("torus_scallop", torus, out_scallop, out_transform_1);
+  G4SubtractionSolid *scallop = new G4SubtractionSolid("scallp", torus_scallop, torus);
+  //G4SubtractionSolid *scallop = new G4SubtractionSolid("scallp",out_scallop, torus, out_transform_1);
 
-G4LogicalVolume* gm2ringsim::Traceback::makeATracebackLV() {
-  
-  const VacGeometry vacg("vac");
-  
-  // This was cut and pasted from vacChamberConstruction
-  /*G4double
-  pPhi = 0., pAlp = 0.,
-  pTheta = (vacg.phi_a - vacg.phi_b)/2.,
-  pDz = vacg.z[vacg.vacuumRegion]/2.,
-  pDy = vacg.torus_z[vacg.vacuumRegion],
-  pDx12 = vacg.xL[vacg.vacuumRegion]/2.,
-  pDx34 = vacg.xS[vacg.vacuumRegion]/2.;
-  */
-  /*G4VSolid *scallop =new G4Trap("scallop", pDz, pTheta, pPhi,
-                             pDy, pDx12, pDx12, pAlp,
-                             pDy, pDx34, pDx34, pAlp
-                             );
-  */
-  //G4VSolid *scallop = new G4Para("scallop",100,75,700,10*degree,10*degree,90*degree)
-  //G4VSolid *scallop = new G4Trap("scallop",100,30,700,700,75);
-  G4VSolid *scallop = new G4Trap("scallop",150,1400,200,60);
-  /*  G4double
-  dz = -vacg.z[vacg.vacuumRegion]/2.,
-  dx = -dz*std::tan( (vacg.phi_b-vacg.phi_a)/2. ) + vacg.xS[vacg.vacuumRegion]/2.;
-  
-  // The little rotation is in the coordinates of the trapezoid,
-  G4TwoVector fixup(dz,dx);
-  fixup.rotate( -vacg.phi_a );
-  // flip to the coordinate system of the arcSection
-  fixup.setX(-fixup.x());
-  fixup += vacg.pt_a[vacg.vacuumRegion];
-  
-  G4Transform3D
-  out_transform_1(G4RotationMatrix( 0., 90.*degree, -vacg.phi_a-90.*degree ),
-                  G4ThreeVector( fixup.x(), fixup.y(), 0. ) );
-  
-  fixup.rotate(15.*degree);
-  
-  G4Transform3D
-  out_transform_2(G4RotationMatrix( 0., 90.*degree, -vacg.phi_a+(-15.-90.)*degree ),
-                  G4ThreeVector( fixup.x(), fixup.y(), 0. ) );
-*/
-  
+  new G4UnionSolid("stupid",torus_scallop, torus_scallop);
   G4LogicalVolume *tracebackLV = new G4LogicalVolume(scallop,
                                                      artg4Materials::Vacuum(),
                                                      "tracebackLV");
@@ -326,9 +258,10 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
     
     G4RotationMatrix *rot = new G4RotationMatrix(0,
                                                  0,
-                                                 geom_.thetaIn[ arcPosition ] + geom_.windowAngle - geom_.vRotation+ 174*degree);
+                                                 0);
+                                                 //geom_.thetaIn[ arcPosition ] + geom_.windowAngle - geom_.vRotation+ 90*degree);
                                                  //0);
-
+    pos = G4ThreeVector(0,0,0);
     int arcNumber = floor(tracebackNum/2);
     
     
