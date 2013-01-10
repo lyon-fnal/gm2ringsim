@@ -56,7 +56,7 @@ gm2ringsim::Traceback::Traceback(fhicl::ParameterSet const & p, art::ActivityReg
 
 
 
-G4LogicalVolume* gm2ringsim::Traceback::makeATracebackLV() {
+G4LogicalVolume* gm2ringsim::Traceback::makeATracebackLV(int tracebackNum) {
   
   const VacGeometry vacg("vac");
 
@@ -91,15 +91,19 @@ G4LogicalVolume* gm2ringsim::Traceback::makeATracebackLV() {
   fixup.setX(-fixup.x());
   fixup += vacg.pt_a[vacg.vacuumRegion];
   
-  G4Transform3D
-  out_transform_1(G4RotationMatrix( 0., 90.*degree, -vacg.phi_a-90.*degree ),
-                  G4ThreeVector( fixup.x(), fixup.y(), 0. ) );
   
-  G4UnionSolid *torus_scallop = new G4UnionSolid("torus_scallop", torus, out_scallop, out_transform_1);
-  G4SubtractionSolid *scallop = new G4SubtractionSolid("scallp", torus_scallop, torus);
-  //G4SubtractionSolid *scallop = new G4SubtractionSolid("scallp",out_scallop, torus, out_transform_1);
+  int arcPosition = tracebackNum % 2;
 
-  new G4UnionSolid("stupid",torus_scallop, torus_scallop);
+  fixup.rotate(15.*degree*arcPosition);
+
+  G4Transform3D
+  out_transform(G4RotationMatrix( 0., 90.*degree, -vacg.phi_a+(-15*arcPosition-90.)*degree ),
+                  G4ThreeVector( fixup.x(), fixup.y(), 0. ) );
+
+  G4UnionSolid *torus_scallop = new G4UnionSolid("torus_scallop", torus, out_scallop, out_transform);
+  G4SubtractionSolid *scallop = new G4SubtractionSolid("scallp", torus_scallop, torus);
+
+  //new G4UnionSolid("stupid",torus_scallop, torus_scallop);
   G4LogicalVolume *tracebackLV = new G4LogicalVolume(scallop,
                                                      artg4Materials::Vacuum(),
                                                      "tracebackLV");
@@ -114,13 +118,10 @@ G4LogicalVolume* gm2ringsim::Traceback::makeATracebackLV() {
 // Build the logical volumes
 void gm2ringsim::Traceback::makeTracebackLVs(std::vector<G4LogicalVolume*>& tracebacks) {
   
-  // Create the vector of logical volumes
-  //std::vector<G4LogicalVolume*> tracebackLVs;
-  
-  // Build the logical volumes
+   // Build the logical volumes
   for ( unsigned int tracebackNumber = 0; tracebackNumber != geom_.whichTracebackLocations.size(); ++tracebackNumber ) {
     // Push this into the vector
-    tracebacks.push_back( makeATracebackLV());
+    tracebacks.push_back( makeATracebackLV(geom_.whichTracebackLocations[tracebackNumber]));
   }
 }
 
