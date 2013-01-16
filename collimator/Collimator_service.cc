@@ -12,12 +12,7 @@
 #include "Geant4/G4VPhysicalVolume.hh"
 #include "Geant4/G4PVPlacement.hh"
 
-// There are three types of collimators
-namespace gm2ringsim {
-  enum e_collimator_type {FULL, HALF_LRO, HALF_SRO, OFF};
-  std::vector<const char*> e_collimator_names = { "Collimator(full)", "Collimator(half-lro)", 
-						  "Collimator(half-sro)", ""};
-}
+using namespace gm2ringsim;
 
 // Constructor for the service 
 gm2ringsim::Collimator::Collimator(fhicl::ParameterSet const & p, art::ActivityRegistry & ) :
@@ -36,8 +31,11 @@ std::vector<G4LogicalVolume *> gm2ringsim::Collimator::doBuildLVs() {
   
   // Loop over all 9 collimators
   for(G4int collNumber = 0; collNumber < geom_.nCollimators; collNumber++){
-    if(geom_.collimatorType[collNumber] == OFF) collLVs.push_back(0);
-    
+    if(geom_.collimatorName[collNumber] == "OFF"){
+      collLVs.push_back(0);
+      continue;
+    }
+
     G4Tubs *collimator_S = new G4Tubs("coll", 
 				      geom_.coll_rMin, 
 				      geom_.coll_rMax, 
@@ -66,7 +64,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Collimator::doPlaceToPVs( std::vect
   char objectName[30];
   
   for(G4int collNumber = 0; collNumber < geom_.nCollimators; collNumber++){
-    if(geom_.collimatorType[collNumber] == OFF) continue;
+    if(geom_.collimatorName[collNumber] == "OFF") continue;
 
     if (vacWalls[geom_.cVacWallArray[collNumber]]->GetNoDaughters() != 1 ) {
       throw cet::exception("Collimator_service") << "What?? My wall has no vacuum! Abort! \n";
@@ -75,14 +73,14 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Collimator::doPlaceToPVs( std::vect
     // If collimator is a half collimator on the outside of the storage
     // ring, then use this angle for Euler angle theta2
     G4double theta = theta2;
-    if(geom_.collimatorType[collNumber] == HALF_LRO)
+    if(geom_.collimatorName[collNumber] == "HALF_LRO")
       theta = pi;
  
     // Get the vacuum chamber logical volume from the wall
     G4LogicalVolume* vacLV = vacWalls[geom_.cVacWallArray[collNumber]]->GetDaughter(0)->GetLogicalVolume();
    
-    std::sprintf(objectName, "%s-%02d", e_collimator_names[geom_.collimatorType[collNumber]],  collNumber);
-
+    std::sprintf(objectName, "Collimator(%s)-%02d", geom_.collimatorName[collNumber].c_str(),  collNumber);
+    
     /** @bug tCB_Dphi from vacChamberParameters.hh should be used
 	instead of 0.01*degree, but we have to fix the multiple
 	inclusion problem. */

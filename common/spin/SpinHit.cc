@@ -14,9 +14,11 @@
 #include "gm2ringsim/actions/muonStorageStatus/TurnCounter.hh"
 //#include "g2UniqueObjectManager.rhh"
 
-G4Allocator<SpinHit> spinHitAllocator;
+namespace gm2ringsim{
+  G4Allocator<SpinHit> spinHitAllocator;
+}
 
-SpinHit::SpinHit(G4Step* step) : 
+gm2ringsim::SpinHit::SpinHit(G4Step* step) : 
   momentum(step->GetPreStepPoint()->GetMomentum()),
   spin(step->GetPreStepPoint()->GetPolarization())
 {
@@ -24,11 +26,11 @@ SpinHit::SpinHit(G4Step* step) :
 }
 
 
-void SpinHit::draw(){
+void gm2ringsim::SpinHit::draw(){
   // Do Nothing...
 }
 
-void SpinHit::print(){
+void gm2ringsim::SpinHit::print(){
   G4cout << " spin: " << spin
 	 << "\n";
 }

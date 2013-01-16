@@ -2,7 +2,9 @@
 #include "geom/arc.fcl"
 #include "geom/vac.fcl"
 #include "geom/inflector.fcl"
+#include "geom/fiberHarp.fcl"
 #include "geom/station.fcl"
+#include "geom/traceback.fcl"
 
 process_name:myProcessName
 
@@ -39,7 +41,9 @@ services: {
       arc:   @local::arc_geom
       vac:   @local::vac_geom
       inflector: @local::inflector_geom
+      fiberHarp: @local::fiberHarp_geom
       station: @local::station_geom
+      traceback: @local::traceback_geom
      }
      
      RunSettings: {
@@ -63,9 +67,10 @@ services: {
     World: {}	
     Arc: {}
     VacuumChamber: {}
-    Inflector:{}	
+    Inflector:{}
+    FiberHarp: {}	   	
     Station: {}
-	   
+    Traceback: {}
     PrimaryGeneratorAction: {
             name: "primary"	
 	    muonGasVerbosity : true
@@ -98,8 +103,8 @@ physics: {
       module_type: artg4Main
       enableVisualization: true
       macroPath: ".:./macros:../macros:../../macros"
-      visMacro: "vis.mac"
-      pauseAfterEvent: true
+      visMacro: "leahvis.mac"
+      afterEvent: pause    
     }
 
   }

@@ -24,8 +24,8 @@ fiberHarp_geom : {
   // The next 3 arrays must be of size = nHarps !
   azimuthalPos : [2, 4, 2, 4] // deg
   vacWallPos: [6, 6, 9, 9] //
-  // Type: 0 = HARP_OFF, 1 = HARP_X, 2 = HARP_Y, 3 = HARP_BROKEN
-  harpType: [1, 2, 0, 0] //
+  // harpType must be one of: "HARP_OFF", "HARP_X", "HARP_Y", "HARP_BROKEN_Y"
+  harpType : [ "HARP_X", "HARP_Y", "HARP_OFF", "HARP_OFF" ]
 	
   display : true
   fiberHarpColor : [1.0,.6,0.,1.0]

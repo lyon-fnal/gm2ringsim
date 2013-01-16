@@ -78,17 +78,20 @@ public:
   
   void setPosShape(std::string shape);
   void setCentreCoords(std::vector<double> pos);
+  void setPosRadius(double rad);
   void setHalfX(double hx);
   void setHalfY(double hy);
   
   void setPosSigmaX(double sigx);
   void setPosSigmaY(double sigy);
-  
+  void setPosSigmaR(double sigr);
+
   void setAngRot1(std::vector<double> rot1);
   void setAngRot2(std::vector<double> rot2);
   void setAngType(std::string ang_type);
   void setAngSigmaX(double sigx);
   void setAngSigmaY(double sigy);
+  void setAngSigmaR(double sigr);
   
   void setEnergyType(std::string eType);
   void setMonoEnergy(double newValues);

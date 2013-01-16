@@ -2,11 +2,15 @@
 #include "geom/arc.fcl"
 #include "geom/vac.fcl"
 #include "geom/inflector.fcl"
+#include "geom/quad.fcl"
+#include "geom/oct.fcl"
+#include "geom/kicker.fcl"
 #include "geom/fiberHarp.fcl"
 #include "geom/station.fcl"
 #include "geom/collimator.fcl"
 #include "geom/PGA.fcl"
 #include "geom/g2GPS.fcl"
+#include "geom/traceback.fcl"
 
 process_name:myProcessName
 
@@ -47,10 +51,15 @@ services: {
       arc:   @local::arc_geom
       vac:   @local::vac_geom
       inflector: @local::inflector_geom
+      quad: @local::quad_geom
+      octupole: @local::oct_geom
+      kicker: @local::kicker_geom	
       fiberHarp: @local::fiberHarp_geom
       station: @local::station_geom
       collimator: @local::collimator_geom
       pga: @local::PGA_geom	
+      traceback: @local::traceback_geom
+
      }
 
      // Global simulation settings
@@ -82,6 +91,9 @@ services: {
     Arc: {}
     VacuumChamber: {}
     Inflector:{}	
+    Quad: {}
+    Octupole: {}
+    Kicker: {}
     FiberHarp: {}	   
     Station: {}
     Collimator : {}

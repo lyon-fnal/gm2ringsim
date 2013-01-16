@@ -18,6 +18,7 @@ g2GeneralParticleSource::g2GeneralParticleSource()
     muonGasGunLongitudinalDistrDefault("e989"),
     muonGasGunTransverseDistrDefault("e989")
 {
+  
   particleTable_ = G4ParticleTable::GetParticleTable();
   
 
@@ -39,33 +40,57 @@ g2GeneralParticleSource::g2GeneralParticleSource()
 
 }
   
-  void g2GeneralParticleSource::implementSettings(){
-    
+void g2GeneralParticleSource::implementSettings(){
+  if (settings_.contains("particle"))
     setParticleDefinition(settings_.particle);
+  if (settings_.contains("pos_type"))
     setPosType(settings_.pos_type);
+  if (settings_.contains("pos_rot1"))
     setPosRot1(settings_.pos_rot1);
+  if (settings_.contains("pos_rot2"))
     setPosRot2(settings_.pos_rot2);    
-    
+  if (settings_.contains("pos_shape"))
     setPosShape(settings_.pos_shape);
+  if (settings_.contains("pos_centre"))
     setCentreCoords(settings_.pos_centre);
+  if (settings_.contains("pos_halfx"))
     setHalfX(settings_.pos_halfx);
+  if (settings_.contains("pos_halfy"))
     setHalfY(settings_.pos_halfy);
+  if (settings_.contains("pos_sigma_x"))
     setPosSigmaX(settings_.pos_sigma_x);
+  if (settings_.contains("pos_sigma_y"))
     setPosSigmaY(settings_.pos_sigma_y);
-
-
+  if (settings_.contains("pos_radius"))
+    setPosRadius(settings_.pos_radius);
+  if (settings_.contains("pos_sigma_r"))
+    setPosSigmaR(settings_.pos_sigma_r);
+  
+  if (settings_.contains("ang_rot1"))
     setAngRot1(settings_.ang_rot1);
+  if (settings_.contains("ang_rot2"))
     setAngRot2(settings_.ang_rot2);
+  if (settings_.contains("ang_type"))
     setAngType(settings_.ang_type);
+  if (settings_.contains("ang_sigma_x"))
     setAngSigmaX(settings_.ang_sigma_x); 
+  if (settings_.contains("ang_sigma_y"))
     setAngSigmaY(settings_.ang_sigma_y);
-    
+  if (settings_.contains("ang_sigma_r"))
+    setAngSigmaR(settings_.ang_sigma_r);
+
+  if (settings_.contains("ene_type"))
     setEnergyType(settings_.ene_type);
+  if (settings_.contains("ene_mono"))
     setMonoEnergy(settings_.ene_mono);
+  if (settings_.contains("ene_sigma"))
     setEnergySigma(settings_.ene_sigma);
 
+  if (settings_.contains("tType"))
     setTimeType(settings_.tType);
+  if (settings_.contains("tMono"))
     setTimeMono(settings_.tMono);
+  if (settings_.contains("tSigma"))
     setTimeSigma(settings_.tSigma);
 
     settings_.print();
@@ -147,6 +172,13 @@ void g2GeneralParticleSource::setPosSigmaY(double sigy){
   currentSource->GetPosDist()->SetBeamSigmaInY(sigy);
 }
 
+void g2GeneralParticleSource::setPosSigmaR(double sigr){
+  currentSource->GetPosDist()->SetBeamSigmaInR(sigr);
+}
+
+void g2GeneralParticleSource::setPosRadius(double rad){
+  currentSource->GetPosDist()->SetRadius(rad);
+}
 
 void g2GeneralParticleSource::setAngRot1(std::vector<double> rot){
   G4ThreeVector r(rot[0],rot[1],rot[2]);
@@ -170,6 +202,11 @@ void g2GeneralParticleSource::setAngSigmaX(double sigx){
  }
 void g2GeneralParticleSource::setAngSigmaY(double sigy){
   currentSource->GetAngDist()->SetBeamSigmaInAngY(sigy); }
+
+void g2GeneralParticleSource::setAngSigmaR(double sigr){
+  currentSource->GetAngDist()->SetBeamSigmaInAngR(sigr); 
+  //  currentSource->GetAngDist()->SetBeamSigmaInAngR(
+}
 
 void g2GeneralParticleSource::setEnergyType(std::string eType){
   currentSource->GetEneDist()->SetEnergyDisType(eType);
