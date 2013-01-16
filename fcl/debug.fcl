@@ -68,7 +68,10 @@ services: {
         spinTrackingEnabled : false
         }
       G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel
-      }
+      //G2GPSSettings:  @local::G2GPS_storageVertex
+      
+      
+    }
 
     // Action(s) for the simulation
     StackingAction: {  
@@ -97,6 +100,35 @@ services: {
     FiberHarp: {}	   
     Station: {}
     Collimator : {}
+    Traceback: {}
+
+    G2PGA: {
+      name: "primary"
+    }
+ 
+//    PrimaryGeneratorAction: {
+//            name: "primary"	
+//	    muonGasVerbosity : true
+//            g2GPS : {
+//	      useMuonGasGun: true
+//            } //g2GPS Parameter Set
+//        } //PrimaryGeneratorAciton
+
+      MuonStorageStatusAction: { 
+        name: "MuonStorageStatusAction"
+      }//MuonStorageStatusAction
+//    RunAction: {
+//      name: "run"
+//    }//RunAction
+
+
+//    EventAction: {
+//      name: "event"
+//      // heartbeatFreq :  100
+//      // heartbeatLength: 0
+//    }//EventAction
+    
+
   } //user:
 } //services:
 
