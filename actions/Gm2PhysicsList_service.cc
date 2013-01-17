@@ -4,7 +4,6 @@
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 
-#include "gm2ringsim/actions/N02PhysicsList.hh"
 #include "gm2ringsim/actions/physicsList.hh"
 
 #include <boost/algorithm/string.hpp>
