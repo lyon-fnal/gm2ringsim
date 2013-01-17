@@ -130,6 +130,7 @@ add_subdirectory( actions )
 add_subdirectory( traceback )
 add_subdirectory( fiberHarp )
 add_subdirectory( station )
+add_subdirectory( calo )
 add_subdirectory( collimator )
 
 # Packaging facility
