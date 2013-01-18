@@ -57,7 +57,7 @@ std::vector<G4LogicalVolume *> gm2ringsim::Collimator::doBuildLVs() {
 }
 
 // Build the physical volumes
-std::vector<G4VPhysicalVolume *> gm2ringsim::Collimator::doPlaceToPVs( std::vector<G4LogicalVolume*> vacWalls) {
+std::vector<G4VPhysicalVolume *> gm2ringsim::Collimator::doPlaceToPVs( std::vector<G4LogicalVolume*> vacChambers) {
   G4double const theta1  = 0., phi = pi/2., theta2 = 0.;
   std::vector<G4VPhysicalVolume *> collPVs;
 
@@ -66,19 +66,12 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Collimator::doPlaceToPVs( std::vect
   for(G4int collNumber = 0; collNumber < geom_.nCollimators; collNumber++){
     if(geom_.collimatorName[collNumber] == "OFF") continue;
 
-    if (vacWalls[geom_.cVacWallArray[collNumber]]->GetNoDaughters() != 1 ) {
-      throw cet::exception("Collimator_service") << "What?? My wall has no vacuum! Abort! \n";
-    }
-    
     // If collimator is a half collimator on the outside of the storage
     // ring, then use this angle for Euler angle theta2
     G4double theta = theta2;
     if(geom_.collimatorName[collNumber] == "HALF_LRO")
       theta = pi;
- 
-    // Get the vacuum chamber logical volume from the wall
-    G4LogicalVolume* vacLV = vacWalls[geom_.cVacWallArray[collNumber]]->GetDaughter(0)->GetLogicalVolume();
-   
+    
     std::sprintf(objectName, "Collimator(%s)-%02d", geom_.collimatorName[collNumber].c_str(),  collNumber);
     
     /** @bug tCB_Dphi from vacChamberParameters.hh should be used
@@ -90,7 +83,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Collimator::doPlaceToPVs( std::vect
 						      0.*m),
 					lvs()[collNumber],
 					objectName,
-					vacLV,
+					vacChambers[geom_.cVacWallArray[collNumber]],
 					false,
 					collNumber));
   }
