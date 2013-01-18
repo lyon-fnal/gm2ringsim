@@ -96,6 +96,7 @@ services: {
     Kicker: {}
     FiberHarp: {}	   
     Station: {}
+    Calorimeter: {}
     Collimator : {}
     Traceback: {}
 
