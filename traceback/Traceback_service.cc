@@ -135,18 +135,24 @@ void gm2ringsim::Traceback::makeStrawDetectors(std::vector<G4VPhysicalVolume*>& 
   for (unsigned int tb = 0; tb<geom_.whichTracebackLocations.size() ;tb++){
     for (unsigned int sc =0 ; sc<geom_.strawLocation.size(); sc++){
       G4double
-      dr = 7060,
-      dy = 0;//-dz*std::tan( (vacg.phi_b-vacg.phi_a)/2. ) + vacg.xS[vacg.vacuumRegion]/2.;
-          
-      int arcPosition = geom_.whichTracebackLocations[tb] % 2;
+      R = 7060,
+      Y = 0,//-dz*std::tan( (vacg.phi_b-vacg.phi_a)/2. ) + vacg.xS[vacg.vacuumRegion]/2.;
+      phi = 13,
+      givenY = sc + sc*100,
+      deltaR =0;
       
-      G4TwoVector fixup(dr,dy);
+      int arcPosition = geom_.whichTracebackLocations[tb] % 2;
+      deltaR = givenY * sin(phi * deg);
+      R = R - deltaR;
+      Y = sqrt(givenY*givenY - deltaR*deltaR);
+      
+      G4TwoVector fixup(R,Y);
 
       fixup.rotate(15.*degree*arcPosition);
       G4Transform3D
       //out_transform(G4RotationMatrix( 0., 90.*degree, -vacg.phi_a+(-15*arcPosition-90.)*degree ),
 
-      out_transform(G4RotationMatrix( -13*deg, 0, 0),
+      out_transform(G4RotationMatrix( -13*deg -vacg.phi_a*arcPosition, 0, 0),
                     G4ThreeVector(fixup.x(), fixup.y(), 0. ) );
       
       G4VSolid *strawSystem = new G4Box("strawSystem", 50, 20, geom_.tracebackZHalf-10);
