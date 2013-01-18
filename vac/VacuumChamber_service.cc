@@ -25,7 +25,8 @@ gm2ringsim::VacuumChamber::VacuumChamber(fhicl::ParameterSet const & p, art::Act
   turnCounterSDName_("TurnCounter"),
   trackerSDName_("Tracker"),
   turnSD_(0),   // will set below
-  trackerSD_(0) // will set below
+  trackerSD_(0), // will set below
+  wallLVs_()
 {
   //creates or gets the turnCounterSD depending on whether it exists or not.
   turnSD_ = artg4::getSensitiveDetector<TurnCounterSD>(turnCounterSDName_);
@@ -120,8 +121,7 @@ G4UnionSolid* gm2ringsim::VacuumChamber::buildUnionSolid(const VacGeometry& g, V
   return us;
 }
 
-void gm2ringsim::VacuumChamber::makeWallLVs(
-            std::vector<G4LogicalVolume*>& walls, const VacGeometry& g) {
+void gm2ringsim::VacuumChamber::makeWallLVs(const VacGeometry& g) {
   
   for ( unsigned int arcNum=0; arcNum != 12; ++arcNum) {
     
@@ -136,7 +136,7 @@ void gm2ringsim::VacuumChamber::makeWallLVs(
                                                   0,
                                                   0);
     
-    // Set the attributes
+    // Set the attributes (using a C++11 lambda function)
     artg4::setVisAtts( wallLV, g.displayWall, g.wallColor,
                       [] (G4VisAttributes* att) {
                               att->SetForceWireframe(1);
@@ -144,15 +144,14 @@ void gm2ringsim::VacuumChamber::makeWallLVs(
                       }
     );
 
-    walls.push_back(wallLV);
+    wallLVs_.push_back(wallLV);
     
   }
 }
 
-void gm2ringsim::VacuumChamber::makeVacuumPVs(
-            std::vector<G4VPhysicalVolume*>& vacs,
-            std::vector<G4LogicalVolume*>& walls,
-            const VacGeometry& g) {
+void gm2ringsim::VacuumChamber::makeVacuumLVs(
+            std::vector<G4LogicalVolume*>& vacLVs,
+            const VacGeometry& g ) {
   
   for ( unsigned int arcNum=0; arcNum != 12; ++arcNum) {
     
@@ -167,32 +166,39 @@ void gm2ringsim::VacuumChamber::makeVacuumPVs(
                                                  0,
                                                  0);
     
-
+    
     // Set the attributes
     artg4::setVisAtts( vacLV, g.displayVac, g.vacColor,
                       [] (G4VisAttributes* att) {
                         att->SetForceWireframe(1);
                         att->SetVisibility(1);
                       }
-    );
-
+                      );
     
+    vacLVs.push_back(vacLV);
+  }
+
+}
+
+void gm2ringsim::VacuumChamber::makeVacuumPVs(
+                    std::vector<G4LogicalVolume*>& vacLVs) {
+  for ( unsigned int arcNum=0; arcNum != 12; ++arcNum) {
+        
     std::string pvName = artg4::addNumberToName("VacuumChamberPV", arcNum);
     
-    // We can make the physical volumes here
-    vacs.push_back( new G4PVPlacement(0,
-                                      G4ThreeVector(),
-                                      vacLV,
-                                      pvName.c_str(),
-                                      walls[arcNum],
-                                      false,
-                                      0)
-                   );
+    // We can make the physical volumes here (we don't need to keep them)
+    new G4PVPlacement(0,
+                      G4ThreeVector(),
+                      vacLVs[arcNum],
+                      pvName.c_str(),
+                      wallLVs_[arcNum],
+                      false,
+                      0);
   }
 }
 
 void gm2ringsim::VacuumChamber::makeTrackerPVs(
-          std::vector<G4VPhysicalVolume*>& vacs,
+          std::vector<G4LogicalVolume*>& vacLVs,
           const VacGeometry& g) {
   
   for(int arc=0; arc!=12; ++arc){
@@ -217,7 +223,7 @@ void gm2ringsim::VacuumChamber::makeTrackerPVs(
                                            G4ThreeVector(0,0,0),
                                            trackerTubs_L,
                                            ttPVName.c_str(),
-                                           vacs[arc] -> GetLogicalVolume(),
+                                           vacLVs[arc],
                                            false,
                                            0);
 
@@ -254,7 +260,7 @@ void gm2ringsim::VacuumChamber::makeTrackerPVs(
                                             G4ThreeVector(0,0,0),
                                             turnCounterTubs_L,
                                             "turnCounterPV",
-                                            vacs[arc] -> GetLogicalVolume(),
+                                            vacLVs[arc],
                                             false,
                                             0);
       
@@ -283,21 +289,26 @@ std::vector<G4LogicalVolume *> gm2ringsim::VacuumChamber::doBuildLVs() {
   // The chamber regions live within the walls
   // The various trackers live within the chamber regions
   //
-  // So only the walls will be passed back as everything else is internal
+  // We actually want Art to only know about the chamber regions, since
+  // that's what everything else is going to live in. So that's what we're going
+  // to pass back. We still need to hold onto the walls, because that's what
+  // we're actually going to place within the mother volume. 
   
-  // First. make the 12 wall regions
-  std::vector<G4LogicalVolume*> walls;
-  makeWallLVs(walls, g);
-    
-  // Make the 12 vacuum regions
-  std::vector<G4VPhysicalVolume*> vacs;
-  makeVacuumPVs(vacs, walls, g);
+  // First. make the 12 wall regions (the wallLVs are member data).
+  // The wallLVs go into member data
+  makeWallLVs(g);
+  
+  // Make the 12 vacuum LVs (we're going to store these)
+  std::vector<G4LogicalVolume*> vacLVs;
+  makeVacuumLVs(vacLVs, g);
+  
+  // Make the 12 vacuum PVs (we in fact don't need to store the vacPVs at this point)
+  makeVacuumPVs(vacLVs);
   
   // Make the tracker volumes
-  makeTrackerPVs(vacs, g);
+  makeTrackerPVs(vacLVs, g);
   
-  return walls;
-
+  return vacLVs;
 }
 
 // Build the physical volumes.
@@ -315,15 +326,24 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::VacuumChamber::doPlaceToPVs( std::v
     
     new G4PVPlacement(0,
                                       G4ThreeVector(),
-                                      lvs()[i],
+                                      wallLVs_[i],
                                       wallName.c_str(),
                                       arcsLVs[i],
                                       false,
                                       0);
     
     // We actually want ArtG4 to keep track of the chamber (the daughter of the wall)
-    chamberPVs.push_back( lvs()[i]->GetDaughter(0) );
-
+    chamberPVs.push_back( wallLVs_[i]->GetDaughter(0) );
+    
+    // Let's just check this for fun - comment this out if things work (should go into a test)
+    #if 1
+    if ( wallLVs_[i]->GetNoDaughters() != 1 ) cet::exception("VACUUM_CHAMBER") << "Bad number of daughters" << "\n";
+    
+    // Get the daughter
+    G4VPhysicalVolume* daughter = wallLVs_[i]->GetDaughter(0);
+    mf::LogInfo("Vacuum_chamber") << " Daughter is " << daughter->GetName() << "\n";
+    mf::LogInfo("Vacuum_chamber") << " chamberPV is " << chamberPVs[i]->GetName() << "\n";
+    #endif
   }
   
   return chamberPVs;

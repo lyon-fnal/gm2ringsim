@@ -23,7 +23,7 @@ G4VUserPhysicsList* gm2ringsim::Gm2PhysicsListService::makePhysicsList() {
   return thePhysicsList_;
 }
 
-void gm2ringsim::Gm2PhysicsListService::initialize() {
+void gm2ringsim::Gm2PhysicsListService::initializePhysicsList() {
   
   // We'd better have a physics list by this point
   if ( ! thePhysicsList_ ) {

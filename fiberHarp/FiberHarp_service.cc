@@ -51,10 +51,6 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::FiberHarp::doPlaceToPVs(std::vector
   
   for(int harpNumber = 0; harpNumber < geom_.nHarps; harpNumber++){ 
     if(geom_.harpType[harpNumber] != "HARP_OFF"){
-      // The wall should have one daughter (the vacuum chamber itself)
-      if (vacWalls[geom_.vacWallPos[harpNumber]]->GetNoDaughters() != 1 ) {
-	throw cet::exception("FIBERHARP") << "Whaaa?? My wall has no vacuum! Abort! \n";
-      }
       
       // Get the vacuum chamber logical volume from the wall
       G4LogicalVolume* vacLV = vacChambers[geom_.vacWallPos[harpNumber]];

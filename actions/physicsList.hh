@@ -33,7 +33,8 @@ class G4OpRayleigh;
 class G4OpMieHG;
 class G4OpBoundaryProcess;
 
-namespace gm2ringsim{
+namespace gm2ringsim
+{
   class physicsList : public G4VModularPhysicsList
   {
     
