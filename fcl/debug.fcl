@@ -17,7 +17,7 @@ process_name:myProcessName
 
 source: {
   module_type: EmptyEvent
-  maxEvents:  1
+  maxEvents:  10
 }
 
 services: {
@@ -38,11 +38,15 @@ services: {
      }
   }
 
-  user: {
+  user : {
+  
+    // Mandatory ArtG4 services
     DetectorHolder: {}
     ActionHolder: {}
-    RandomNumberGenerator: {}
     PhysicsListHolder: {}
+    RandomNumberGenerator: {}
+
+    // Geometry
     Geometry: {
       world: @local::world_geom
       arc:   @local::arc_geom
@@ -60,20 +64,16 @@ services: {
 
      }
 
-     
-    RunSettings : {
+     // Global simulation settings
+     RunSettings : {
       SpinTracking : {
         spinTrackingEnabled : false
-      }
+        }
       G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel
       //G2GPSSettings:  @local::G2GPS_storageVertex
       
       
     }
-
-
-     
-    // Detector(s) for the simulation
 
     // Action(s) for the simulation
     StackingAction: {  
@@ -82,11 +82,16 @@ services: {
           maxWavelength:950  //nm
     }
 
-    PhysicsList: {}
+    Gm2PhysicsList: {}
     TrackingAction : {
           name : "trackingAction"
     }
     ClockAction: {}	
+    G2PGA: {
+      name: "primary"
+    }
+
+    // Detectors
     World: {}	
     Arc: {}
     VacuumChamber: {}
@@ -139,18 +144,16 @@ out1: {
 
 physics: {
   producers: {
-    artg4Main: {
-      module_type: artg4Main
-      enableVisualization: true
-      macroPath: ".:./macros:../macros:../../macros"
-      visMacro: "vis.mac"
-     //     afterEvent : ui   
-     afterEvent: pause
-
-   }
+    artg4 : { 
+     module_type: artg4Main
+     enableVisualization: true
+     macroPath: ".:./macros:../macros:../../macros"
+     visMacro: "vis.mac"
+     afterEvent: ui  // (ui, pause, pass)
+     }
  }
 
-  path1: [ artg4Main ]
+  path1: [ artg4 ]
   stream1:  [ out1 ]
 
   trigger_paths: [ path1 ]

@@ -1,0 +1,93 @@
+#include "geom/world.fcl"
+#include "geom/fiberHarp.fcl"
+#include "geom/PGA.fcl"
+#include "geom/g2GPS.fcl"
+
+process_name:myProcessName
+
+source: {
+  module_type: EmptyEvent
+  maxEvents:  2}
+
+services: {
+
+  message : {
+     debugModules : ["*"]
+     suppressInfo : []
+     
+     destinations : {
+       LogToConsole : {
+         type : "cout"
+         threshold : "DEBUG"
+         
+         categories : {
+           default : { limit : 50 }
+         }
+       }
+     }
+  }
+
+  user : {
+  
+    // Mandatory ArtG4 services
+    DetectorHolder: {}
+    ActionHolder: {}
+    PhysicsListHolder: {}
+    RandomNumberGenerator: {}
+
+    // Geometry
+    Geometry: {
+      world: @local::world_geom
+      fiberHarp: @local::fiberHarp_geom
+    }
+
+    // Actions
+    SimpleParticleSource: {}
+    Gm2PhysicsList: {}
+    ClockAction: {}
+
+    // Detectors
+    World: {}
+    FiberHarp: {}
+    
+  } //user
+} //services
+
+// Override to make a test beam
+services.user.Geometry.world.world_x: 100
+services.user.Geometry.world.world_y: 100
+services.user.Geometry.world.world_z: 100
+
+services.user.FiberHarp.mother_category : world
+services.user.Geometry.fiberHarp.nHarps : 1
+services.user.Geometry.fiberHarp.RMagicScale : 0
+services.user.Geometry.fiberHarp.harpType : [1]
+services.user.Geometry.fiberHarp.vacWallPos: [0]
+services.user.Geometry.fiberHarp.azimuthalPos : [0]
+
+outputs: {
+out1: {
+  module_type: RootOutput   
+  fileName: "gm2ringsimout.root"
+  }
+}
+
+physics: {
+  producers: {
+    artg4 : { 
+     module_type: artg4Main
+     enableVisualization: true
+     macroPath: ".:./macros:../macros:../../macros"
+     visMacro: "vis.mac"
+     afterEvent: pass  // (ui, pause, pass)
+     }
+ }
+
+  path1: [ artg4 ]
+  stream1:  [ out1 ]
+
+  trigger_paths: [ path1 ]
+  end_paths: [ stream1 ]
+
+}
+
