@@ -7,6 +7,7 @@
 #include "geom/kicker.fcl"
 #include "geom/fiberHarp.fcl"
 #include "geom/station.fcl"
+#include "geom/calorimeter.fcl"
 #include "geom/collimator.fcl"
 #include "geom/PGA.fcl"
 #include "geom/g2GPS.fcl"
@@ -56,6 +57,7 @@ services: {
       kicker: @local::kicker_geom	
       fiberHarp: @local::fiberHarp_geom
       station: @local::station_geom
+      calorimeter: @local::calorimeter_geom
       collimator: @local::collimator_geom
       pga: @local::PGA_geom	
       traceback: @local::traceback_geom
@@ -99,6 +101,7 @@ services: {
     Kicker: {}
     FiberHarp: {}	   
     Station: {}
+    Calorimeter: {}
     Collimator : {}
     Traceback: {}
 
