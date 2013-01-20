@@ -10,6 +10,8 @@
 #include "Geant4/G4Event.hh"
 #include "Geant4/Randomize.hh"
 #include "gm2ringsim/actions/PGA/g2GeneralParticleSource.hh"
+#include "messagefacility/MessageLogger/MessageLogger.h"
+
 
 g2GeneralParticleSource::g2GeneralParticleSource()
   : settings_("G2GPSSettings"), //This should be in the fcl:
@@ -119,7 +121,7 @@ void g2GeneralParticleSource::setParticleDefinition(std::string newValues){
   G4ParticleDefinition* pd = particleTable_->FindParticle(name);
   if(pd != NULL)
     {
-      std::cout<<"setting particle to "<<newValues<<std::endl;
+      LOG_DEBUG("g2GeneralParticleSource") << "setting particle to "<<newValues;
       SetParticleDefinition( pd ); 
     }
   //}
