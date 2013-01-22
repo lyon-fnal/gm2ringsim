@@ -218,9 +218,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
   std::vector<G4VPhysicalVolume*> tracebackPVs;
   tracebackPVs.resize(lvs().size());
   
-  G4double const rHalf = geom_.r/2.;
-  G4double const tHalf = geom_.t/2.;
-  
+    
   //loop over the logical volumes
   unsigned int i = 0;
   unsigned int tracebackNum;
@@ -231,53 +229,13 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
     // (see http://www.boost.org/doc/libs/1_52_0/libs/format/doc/format.html )
     tracebackNum= geom_.whichTracebackLocations[i];
     std::string tracebackLabel( boost::str( boost::format("TracebackNumber[%02d]") % tracebackNum ));
-    int arcPosition = tracebackNum % 2;
     
-    G4ThreeVector windowEdge(geom_.rOut*std::cos(geom_.thetaOut[ arcPosition ]),
-                              geom_.rOut*std::sin(geom_.thetaOut[ arcPosition ]),
-                              0.);
-
-    G4ThreeVector unitAlong(std::cos(geom_.thetaIn[ arcPosition ] + geom_.windowAngle),
-                             std::sin(geom_.thetaIn[ arcPosition ] + geom_.windowAngle),
-                             0.);
     
-    G4ThreeVector unitVertical(0,0,-1.); // OK ... yes, up :-(
-    
-    G4ThreeVector unitNormal = unitAlong.cross(unitVertical); // OK
-    
-    G4double const vrots = std::sin( std::abs(geom_.vRotation) );
-    G4double const vrotc = std::cos(geom_.vRotation);
-    G4double const correctionAlong = (vrotc-1.)*rHalf + vrots*tHalf;
-    G4double const correctionNormal = vrots*rHalf + (vrotc-1.)*tHalf;
     // beamlike
     
-    // for the real g-2 station
-    G4ThreeVector pos =
-    // center the station on the center of the outer window edge
-    windowEdge
-    // move it in by the radial half width
-    - rHalf * unitAlong
-    // move it downstream by the thickness half width
-    + tHalf * unitNormal
-    // We have to move the station around so that it doesn't "whack"
-    // (technical term, that) into the outside of the vacuum walls
-    // when it's rotated
-    /** @bug doesn't include the r_rotation and t_rotation corrections
-     ... should probably get this by multiplying appropriate
-     rotation matrices, but this will take some thought... */
-    - correctionAlong * unitAlong
-    + correctionNormal * unitNormal
-    // finally, let's apply the user defined offsets
-    +geom_.rOffset * unitAlong
-    +geom_.tOffset * unitNormal
-    +geom_.vOffset * unitVertical;
+    G4RotationMatrix *rot = new G4RotationMatrix(0,0,0);
+    G4ThreeVector pos(0,0,0);
     
-    G4RotationMatrix *rot = new G4RotationMatrix(0,
-                                                 0,
-                                                 0);
-                                                 //geom_.thetaIn[ arcPosition ] + geom_.windowAngle - geom_.vRotation+ 90*degree);
-                                                 //0);
-    pos = G4ThreeVector(0,0,0);
     int arcNumber = floor(tracebackNum/2);
     
     
@@ -287,7 +245,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
                                              pos,
                                              aTracebackLV,
                                              tracebackLabel,
-                                             vacs[ arcNumber ]->GetDaughter(0)->GetLogicalVolume(),
+                                             vacs[ arcNumber ],
                                              false,
                                              0, true
                                              )
