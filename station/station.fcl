@@ -3,8 +3,8 @@ BEGIN_PROLOG
 
 station_geom : {
   // Dimensions for the stations
-  r: 210
-  v: 150
+  r: 226.1
+  v: 151.1
   t: 150
   r_in : 268.873 // in
   r_out: 276.149 // in

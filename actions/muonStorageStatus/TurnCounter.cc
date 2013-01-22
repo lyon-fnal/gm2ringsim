@@ -7,7 +7,7 @@
     - Kevin Lynch 2009
  */
 
-turnCounter& turnCounter::getInstance(){
-  static turnCounter t;
+gm2ringsim::TurnCounter& gm2ringsim::TurnCounter::getInstance(){
+  static TurnCounter t;
   return t;
 }

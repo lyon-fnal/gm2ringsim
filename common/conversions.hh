@@ -6,7 +6,6 @@
 namespace gm2ringsim {
 
   const double in = 25.4 * mm ;
-
 }
 
 #endif //CONVERSIONS_HH

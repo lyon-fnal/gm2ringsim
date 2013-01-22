@@ -33,7 +33,7 @@ gm2ringsim::RingHit::RingHit(G4Step* step) :
   position(step->GetPreStepPoint()->GetPosition()),
   momentum(step->GetPreStepPoint()->GetMomentum()),
   time(step->GetPreStepPoint()->GetGlobalTime()),
-  turnNum(turnCounter::getInstance().turns()),
+  turnNum(TurnCounter::getInstance().turns()),
   trackID(step->GetTrack()->GetTrackID()),
   //FIXMEvolumeUID(get_uid(step->GetPreStepPoint()->GetPhysicalVolume())),
   volumeUID(0),

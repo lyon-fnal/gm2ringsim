@@ -2,8 +2,12 @@
 #include "geom/arc.fcl"
 #include "geom/vac.fcl"
 #include "geom/inflector.fcl"
+#include "geom/quad.fcl"
+#include "geom/oct.fcl"
+#include "geom/kicker.fcl"
 #include "geom/fiberHarp.fcl"
 #include "geom/station.fcl"
+#include "geom/calorimeter.fcl"
 #include "geom/collimator.fcl"
 #include "geom/PGA.fcl"
 #include "geom/g2GPS.fcl"
@@ -13,7 +17,7 @@ process_name:myProcessName
 
 source: {
   module_type: EmptyEvent
-  maxEvents:  1
+  maxEvents:  10
 }
 
 services: {
@@ -34,55 +38,70 @@ services: {
      }
   }
 
-  user: {
+  user : {
+  
+    // Mandatory ArtG4 services
     DetectorHolder: {}
     ActionHolder: {}
-    RandomNumberGenerator: {}
     PhysicsListHolder: {}
+    RandomNumberGenerator: {}
+
+    // Geometry
     Geometry: {
       world: @local::world_geom
       arc:   @local::arc_geom
       vac:   @local::vac_geom
       inflector: @local::inflector_geom
+      quad: @local::quad_geom
+      octupole: @local::oct_geom
+      kicker: @local::kicker_geom	
       fiberHarp: @local::fiberHarp_geom
       station: @local::station_geom
+      calorimeter: @local::calorimeter_geom
       collimator: @local::collimator_geom
       pga: @local::PGA_geom	
       traceback: @local::traceback_geom
 
      }
-    RunSettings : {
+
+     // Global simulation settings
+     RunSettings : {
       SpinTracking : {
         spinTrackingEnabled : false
-      }
+        }
       G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel
       //G2GPSSettings:  @local::G2GPS_storageVertex
       
       
     }
 
-
-     
-    // Detector(s) for the simulation
-
     // Action(s) for the simulation
     StackingAction: {  
           name: "stackingAction"
-	  minWavelength:250 //nm
+          minWavelength:250 //nm
           maxWavelength:950  //nm
     }
 
-    PhysicsList: {}
+    Gm2PhysicsList: {}
     TrackingAction : {
           name : "trackingAction"
     }
     ClockAction: {}	
+    G2PGA: {
+      name: "primary"
+    }
+
+    // Detectors
     World: {}	
     Arc: {}
     VacuumChamber: {}
     Inflector:{}	
+    Quad: {}
+    Octupole: {}
+    Kicker: {}
     FiberHarp: {}	   
     Station: {}
+    Calorimeter: {}
     Collimator : {}
     Traceback: {}
 
@@ -98,9 +117,9 @@ services: {
 //            } //g2GPS Parameter Set
 //        } //PrimaryGeneratorAciton
 
-//      MuonStorageStatusAction: { 
-//        name: "MuonStorageStatusAction"
-//      }//MuonStorageStatusAction
+      MuonStorageStatusAction: { 
+        name: "MuonStorageStatusAction"
+      }//MuonStorageStatusAction
 //    RunAction: {
 //      name: "run"
 //    }//RunAction
@@ -125,18 +144,16 @@ out1: {
 
 physics: {
   producers: {
-    artg4Main: {
-      module_type: artg4Main
-      enableVisualization: true
-      macroPath: ".:./macros:../macros:../../macros"
-      visMacro: "vis.mac"
-     //     afterEvent : ui   
-     afterEvent: pause
-
-   }
+    artg4 : { 
+     module_type: artg4Main
+     enableVisualization: true
+     macroPath: ".:./macros:../macros:../../macros"
+     visMacro: "vis.mac"
+     afterEvent: ui  // (ui, pause, pass)
+     }
  }
 
-  path1: [ artg4Main ]
+  path1: [ artg4 ]
   stream1:  [ out1 ]
 
   trigger_paths: [ path1 ]

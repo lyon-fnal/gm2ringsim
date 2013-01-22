@@ -45,9 +45,12 @@ namespace gm2ringsim {
   private:
     G4String turnCounterSDName_;
     G4String trackerSDName_;
-    turnCounterSD *turnSD_;
+    TurnCounterSD *turnSD_;
     TrackerSD *trackerSD_;
-
+    
+    // We need to hang onto the wallLVs for placement later
+    std::vector<G4LogicalVolume*> wallLVs_;
+    
     // Private overriden methods
     
     // Create the logical volumes
@@ -59,13 +62,13 @@ namespace gm2ringsim {
         // Some internal methods
         G4UnionSolid* buildUnionSolid(const VacGeometry&, VacGeometry::typeToBuild, unsigned int);
       
-        void makeWallLVs(std::vector<G4LogicalVolume*>&, const VacGeometry&);
+        void makeWallLVs(const VacGeometry&);
+    
+        void makeVacuumLVs(std::vector<G4LogicalVolume*>&, const VacGeometry&);
       
-        void makeVacuumPVs(std::vector<G4VPhysicalVolume*>&,
-                           std::vector<G4LogicalVolume*>&,
-                           const VacGeometry&);
+        void makeVacuumPVs(std::vector<G4LogicalVolume*>&);
       
-        void makeTrackerPVs(std::vector<G4VPhysicalVolume*>&, const VacGeometry&);
+        void makeTrackerPVs(std::vector<G4LogicalVolume*>&, const VacGeometry&);
 
     };
 }

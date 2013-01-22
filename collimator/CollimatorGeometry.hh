@@ -29,12 +29,14 @@ namespace gm2ringsim{
     std::vector<double> azimuthalPos;
     std::vector<int> cVacWallArray;
     std::vector<int> collimatorType;
+    const std::vector<std::string> collimatorName;
 
     const double coll_Sphi[3];
     const double coll_Dphi[3];
 
     const bool display;
     std::vector<double> collimatorColor;
+
     void print();
   }; 
 }

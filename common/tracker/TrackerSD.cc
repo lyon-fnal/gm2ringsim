@@ -20,7 +20,7 @@
 #include "gm2ringsim/common/spin/SpinHit.hh"
 //#include "eventAction.hh"
 
-TrackerSD::TrackerSD(G4String name) : 
+gm2ringsim::TrackerSD::TrackerSD(G4String name) : 
   G4VSensitiveDetector( name ),
   printLevel_(0), drawLevel_(0)
   //  tsdm_(new TrackerSDMessenger(this)) 
@@ -40,13 +40,13 @@ TrackerSD::TrackerSD(G4String name) :
 // The destructor will never be called during the run of the program,
 // as SDs are never removed from the SDManager during the lifetime of
 // the program.
-TrackerSD::~TrackerSD(){
+gm2ringsim::TrackerSD::~TrackerSD(){
 }
 
-void TrackerSD::Initialize(G4HCofThisEvent* HCoTE){
+void gm2ringsim::TrackerSD::Initialize(G4HCofThisEvent* HCoTE){
   trackerHC_ = new TrackerHitsCollection
     ( SensitiveDetectorName, collectionName[0]);
-  spinHC_ = new SpinHitsCollection
+  spinHC_ = new gm2ringsim::SpinHitsCollection
     ( SensitiveDetectorName, collectionName[1]);
 
   G4int const trackerHCID = 
@@ -64,21 +64,21 @@ void TrackerSD::Initialize(G4HCofThisEvent* HCoTE){
   HCoTE->AddHitsCollection( spinHCID, spinHC_ );
 }
 
-G4bool TrackerSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){ 
+G4bool gm2ringsim::TrackerSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){ 
 
   if( thisStep->GetPreStepPoint()->GetPhysicalVolume() ==
       thisStep->GetPostStepPoint()->GetPhysicalVolume() )
     return false;
   
   trackerHC_->insert(new TrackerHit(thisStep));
-  spinHC_->insert(new SpinHit(thisStep));
+  spinHC_->insert(new gm2ringsim::SpinHit(thisStep));
 
   return true; 
 }
 
 
 
-void TrackerSD::EndOfEvent(G4HCofThisEvent*) {
+void gm2ringsim::TrackerSD::EndOfEvent(G4HCofThisEvent*) {
   G4int n = trackerHC_->entries();
   
   // Output junk ...
@@ -103,13 +103,13 @@ void TrackerSD::EndOfEvent(G4HCofThisEvent*) {
 
 
 
-G4int TrackerSD::PrintLevel(G4int newLevel){
+G4int gm2ringsim::TrackerSD::PrintLevel(G4int newLevel){
   G4int temp = printLevel_;
   printLevel_ = newLevel;
   return temp;
 }
 
-G4int TrackerSD::DrawLevel(G4int newLevel){
+G4int gm2ringsim::TrackerSD::DrawLevel(G4int newLevel){
   G4int temp = drawLevel_;
   drawLevel_ = newLevel;
   return temp;

@@ -16,41 +16,44 @@
 #include "gm2ringsim/common/tracker/TrackerHit.hh"
 #include "gm2ringsim/common/spin/SpinHit.hh"
 
-class TrackerSDMessenger;
+//class gm2ringsim::TrackerSDMessenger;
 
-/** Provides the in-ring beam tracker volumes with a sensitive
-    detector. 
+namespace gm2ringsim{ 
+  /** Provides the in-ring beam tracker volumes with a sensitive
+      detector. 
+      
+      This detector emits both trackerHit and spinHit collections for
+      position/momentum, trackerHit, and spin tracking, spinHit.
+      
+      Do NOT instantiate instances directly; utilize the SDHandleOwner
+      interface to obtain a pointer to the active implementation.
+      Otherwise, the enable/disable logic in Geant could go screwy. 
+  */
+  class TrackerSD : public G4VSensitiveDetector{
+    
+  public:
+    TrackerSD(G4String name);
+    ~TrackerSD();
+    
+    void Initialize(G4HCofThisEvent*);
+    G4bool ProcessHits(G4Step*, G4TouchableHistory*);
+    void EndOfEvent(G4HCofThisEvent*);
+    
+    G4int PrintLevel() const { return printLevel_; };
+    G4int PrintLevel(G4int newLevel);
+    
+    G4int DrawLevel() const { return drawLevel_; };
+    G4int DrawLevel(G4int newLevel);
+  private:
+    TrackerHitsCollection *trackerHC_;
+    gm2ringsim::SpinHitsCollection *spinHC_;
+    
+    G4int printLevel_, drawLevel_;
+    
+    //TrackerSDMessenger *tsdm_;
+  }; //class TrackerSD
 
-    This detector emits both trackerHit and spinHit collections for
-    position/momentum, trackerHit, and spin tracking, spinHit.
-
-    Do NOT instantiate instances directly; utilize the SDHandleOwner
-    interface to obtain a pointer to the active implementation.
-    Otherwise, the enable/disable logic in Geant could go screwy. 
-*/
-class TrackerSD : public G4VSensitiveDetector{
-
-public:
-  TrackerSD(G4String name);
-  ~TrackerSD();
-  
-  void Initialize(G4HCofThisEvent*);
-  G4bool ProcessHits(G4Step*, G4TouchableHistory*);
-  void EndOfEvent(G4HCofThisEvent*);
-
-  G4int PrintLevel() const { return printLevel_; };
-  G4int PrintLevel(G4int newLevel);
-
-  G4int DrawLevel() const { return drawLevel_; };
-  G4int DrawLevel(G4int newLevel);
-private:
-  TrackerHitsCollection *trackerHC_;
-  SpinHitsCollection *spinHC_;
-
-  G4int printLevel_, drawLevel_;
-
-  //TrackerSDMessenger *tsdm_;
-};
+}//namespace gm2ringsim
 
 
 

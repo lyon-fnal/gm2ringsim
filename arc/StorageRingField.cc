@@ -30,7 +30,7 @@
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 
-void storageRingField::GetFieldValue( const double Point[3],
+void gm2ringsim::storageRingField::GetFieldValue( const double Point[3],
 				      double *Bfield ) const {
   storageFieldController::getInstance().GetFieldValue(Point, Bfield);
 }
@@ -42,7 +42,7 @@ void storageRingField::GetFieldValue( const double Point[3],
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 
-storageFieldController::storageFieldController() : 
+gm2ringsim::storageFieldController::storageFieldController() : 
   central_(-B_magic()),
   centralimpl_(new uniformStorageImpl(central_)),
   fringeimpl_(new uniformStorageImpl(central_)),
@@ -50,16 +50,16 @@ storageFieldController::storageFieldController() :
   centralname_("uniform"), fringename_("uniform")
 {}
 
-storageFieldController const& storageFieldController::getInstance() {
+gm2ringsim::storageFieldController const& gm2ringsim::storageFieldController::getInstance() {
   static storageFieldController s;
   return s;
 }
 
 /** @bug Fix the hard coded constants in this member. */
-void storageFieldController::GetFieldValue( const double Point[3],
+void gm2ringsim::storageFieldController::GetFieldValue( const double Point[3],
 					    double *Bfield ) const {
 
-  double const xc = sqrt(Point[0]*Point[0]+Point[2]*Point[2])-R_magic();
+  double const xc = sqrt(Point[0]*Point[0]+Point[2]*Point[2])-gm2ringsim::R_magic();
   double const rc = std::sqrt(Point[1]*Point[1] + xc*xc);
   //  std::cout << "xc rc " << xc << ' ' << rc << '\n';
   if( rc <= 45.*mm ){
@@ -73,7 +73,7 @@ void storageFieldController::GetFieldValue( const double Point[3],
 }
 
 /** @bug There's some missing implementation in this member. */
-std::string storageFieldController::setCentralFieldImpl(std::string const& val){
+std::string gm2ringsim::storageFieldController::setCentralFieldImpl(std::string const& val){
   std::string old = centralname_;
   if( val == "uniform" ){
     centralimpl_ = 
@@ -92,7 +92,7 @@ std::string storageFieldController::setCentralFieldImpl(std::string const& val){
   return old;
 }
 
-std::string storageFieldController::setFringeFieldImpl(std::string const& val){
+std::string gm2ringsim::storageFieldController::setFringeFieldImpl(std::string const& val){
   std::string old = fringename_;
   if( val == "uniform" ){
     fringeimpl_ = 
@@ -106,7 +106,7 @@ std::string storageFieldController::setFringeFieldImpl(std::string const& val){
   return old;
 }
 
-double storageFieldController::central_field(double central){
+double gm2ringsim::storageFieldController::central_field(double central){
   double old = central_;
   central_ = central;
   centralimpl_->set_central(central_);
@@ -120,7 +120,7 @@ double storageFieldController::central_field(double central){
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 
-uniformStorageImpl::uniformStorageImpl(double central) :
+gm2ringsim::uniformStorageImpl::uniformStorageImpl(double central) :
   storageFieldImpl(central) {
   Field[0] = Field[2] = 0.;
   Field[1] = central_;
@@ -128,7 +128,7 @@ uniformStorageImpl::uniformStorageImpl(double central) :
 
 #include <cstring>
 
-void uniformStorageImpl::GetFieldValue(const double * /*Point[3]*/, 
+void gm2ringsim::uniformStorageImpl::GetFieldValue(const double * /*Point[3]*/, 
 					double *Bfield) const {
   std::memcpy(Bfield,Field,3*sizeof(double));
 }
@@ -141,7 +141,7 @@ void uniformStorageImpl::GetFieldValue(const double * /*Point[3]*/,
 ////////////////////////////////////////////////
 
 /** @bug This needs to use the error returns from the called members. */
-fringeStorageImpl::fringeStorageImpl(double central) :
+gm2ringsim::fringeStorageImpl::fringeStorageImpl(double central) :
   storageFieldImpl(central),
   fringe_map_name_("g2RunTimeFiles/g2StorageFringeFieldMap.dat"),
   mess_(new fringeStorageMessenger(this))
@@ -149,7 +149,7 @@ fringeStorageImpl::fringeStorageImpl(double central) :
   load_fringe_map();
 }
 
-std::string fringeStorageImpl::fringe_map_name(std::string const& new_name){
+std::string gm2ringsim::fringeStorageImpl::fringe_map_name(std::string const& new_name){
   if( new_name == fringe_map_name_ )
     return fringe_map_name_;
 
@@ -163,7 +163,7 @@ std::string fringeStorageImpl::fringe_map_name(std::string const& new_name){
 }
 
 /** @bug The return value doesn't mean anything. */
-bool fringeStorageImpl::load_fringe_map(){
+bool gm2ringsim::fringeStorageImpl::load_fringe_map(){
   // The format of the fringe map is expected to be as in the g2geant
   // bfield_dat files, with four columns:
   // R Y Br By
@@ -262,13 +262,13 @@ bool fringeStorageImpl::load_fringe_map(){
   return true;
 }
 
-void fringeStorageImpl::set_scale(){
+void gm2ringsim::fringeStorageImpl::set_scale(){
   G4ThreeVector B = map_->value(R_magic(),0.);
   scale_ = central_/B.y(); // this line gets the sign and magnitude rigt
   //  G4cout << "scale = " << scale_ << '\n';
 }
 
-void fringeStorageImpl::GetFieldValue( const double Point[3],
+void gm2ringsim::fringeStorageImpl::GetFieldValue( const double Point[3],
 				       double *Bfield ) const {
 
   //  NSF: g2MIGTRACE coordinates
@@ -319,7 +319,7 @@ void fringeStorageImpl::GetFieldValue( const double Point[3],
 ////////////////////////////////////////////////
 
 /** @bug Use the return value of the called member functions. */
-detailedMultipoleStorageImpl::detailedMultipoleStorageImpl(double central) :
+gm2ringsim::detailedMultipoleStorageImpl::detailedMultipoleStorageImpl(double central) :
   storageFieldImpl(central),
   multipole_map_name_("g2RunTimeFiles/g2StorageMultipoleField.dat"),
   data_(), theta_offset_(inflectorGeometry::getInstance().delta()),
@@ -329,7 +329,7 @@ detailedMultipoleStorageImpl::detailedMultipoleStorageImpl(double central) :
   //  std::cout << "theta_offset: " << theta_offset_ << '\n';
 }
 
-void detailedMultipoleStorageImpl::GetFieldValue( const double Point[3],
+void gm2ringsim::detailedMultipoleStorageImpl::GetFieldValue( const double Point[3],
 						  double *Bfield ) const {
   double const& x = Point[0];
   double const& y = Point[1];
@@ -359,7 +359,7 @@ void detailedMultipoleStorageImpl::GetFieldValue( const double Point[3],
   //  if( low < 0 || low >= 8999 )
   //    std::cout << low << ' ' << high << '\n';
 
-  double const xaperture = rglobal - R_magic();
+  double const xaperture = rglobal - gm2ringsim::R_magic();
   double const raperture= std::sqrt(xaperture*xaperture + y*y);
   double const phiaperture = std::atan2(y,xaperture);
 
@@ -380,7 +380,7 @@ void detailedMultipoleStorageImpl::GetFieldValue( const double Point[3],
   std::memcpy(Bfield,&Bresult[0],3*sizeof(double));   
 }
 
-G4ThreeVector detailedMultipoleStorageImpl::data_holder::
+G4ThreeVector gm2ringsim::detailedMultipoleStorageImpl::data_holder::
 calcB(double r, double phi) const {
   
   double Br = 0., By = 1.;
@@ -401,7 +401,7 @@ calcB(double r, double phi) const {
   return G4ThreeVector(Br,By,0);
 }
 
-double detailedMultipoleStorageImpl::theta_offset(double to){
+double gm2ringsim::detailedMultipoleStorageImpl::theta_offset(double to){
   double temp = theta_offset_;
   theta_offset_ = std::fmod(to, twopi);
   return temp;
@@ -409,7 +409,7 @@ double detailedMultipoleStorageImpl::theta_offset(double to){
 
 /** @bug Check the state of the is variable. */
 /** @bug The return value doesn't currently mean anything. */
-bool detailedMultipoleStorageImpl::load_multipole_map(){
+bool gm2ringsim::detailedMultipoleStorageImpl::load_multipole_map(){
   // The format of the multipole map is expected to be as in the
   // following format:
   // each entry consists of two lines, labeled in the g2track code as
@@ -501,7 +501,7 @@ bool detailedMultipoleStorageImpl::load_multipole_map(){
 }
 
 std::string 
-detailedMultipoleStorageImpl::multipole_map_name(std::string const& new_name){
+gm2ringsim::detailedMultipoleStorageImpl::multipole_map_name(std::string const& new_name){
   if( new_name == multipole_map_name_ )
     return multipole_map_name_;
 
@@ -521,7 +521,7 @@ detailedMultipoleStorageImpl::multipole_map_name(std::string const& new_name){
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 
-storageFieldMessenger::storageFieldMessenger(storageFieldController *sfc) :
+gm2ringsim::storageFieldMessenger::storageFieldMessenger(storageFieldController *sfc) :
   controller_(sfc)
 {
   std::string dir = "/g2MIGTRACE/storageField/";
@@ -585,7 +585,7 @@ storageFieldMessenger::storageFieldMessenger(storageFieldController *sfc) :
 #endif
 }
 
-storageFieldMessenger::~storageFieldMessenger(){
+gm2ringsim::storageFieldMessenger::~storageFieldMessenger(){
   delete getCentralValueCmd_;
   delete centralValueCmd_;
   delete fringeFieldCmd_;
@@ -593,7 +593,7 @@ storageFieldMessenger::~storageFieldMessenger(){
   delete storageFieldDir_;
 }
 
-void storageFieldMessenger::SetNewValue(G4UIcommand* command,G4String newval){
+void gm2ringsim::storageFieldMessenger::SetNewValue(G4UIcommand* command,G4String newval){
   if( command == centralFieldCmd_ ){
     if( newval == "get" || newval.size() == 0 ){
       G4cout << "The storage ring central field uses a "
@@ -632,7 +632,7 @@ void storageFieldMessenger::SetNewValue(G4UIcommand* command,G4String newval){
 }
 
 
-detailedMultipoleMessenger::
+gm2ringsim::detailedMultipoleMessenger::
 detailedMultipoleMessenger(detailedMultipoleStorageImpl* dmsi) :
   dmsi_(dmsi)
 {
@@ -664,14 +664,13 @@ detailedMultipoleMessenger(detailedMultipoleStorageImpl* dmsi) :
   
 }
 
-detailedMultipoleMessenger::~detailedMultipoleMessenger(){
+gm2ringsim::detailedMultipoleMessenger::~detailedMultipoleMessenger(){
   delete getThetaCmd_;
   delete setThetaCmd_;
   delete detailedMapCmd_;
   delete detailedMultipoleImplDir_;
 }
-
-void detailedMultipoleMessenger::SetNewValue(G4UIcommand *command, G4String newval){
+void gm2ringsim::detailedMultipoleMessenger::SetNewValue(G4UIcommand *command, G4String newval){
 
   if( command == detailedMapCmd_ ){
     if( newval.size() == 0 )
@@ -692,7 +691,7 @@ void detailedMultipoleMessenger::SetNewValue(G4UIcommand *command, G4String newv
 }
 
 
-fringeStorageMessenger::fringeStorageMessenger(fringeStorageImpl* fsi) :
+gm2ringsim::fringeStorageMessenger::fringeStorageMessenger(fringeStorageImpl* fsi) :
   fsi_(fsi)
 {
 
@@ -709,12 +708,12 @@ fringeStorageMessenger::fringeStorageMessenger(fringeStorageImpl* fsi) :
 
 }
 
-fringeStorageMessenger::~fringeStorageMessenger(){
+gm2ringsim::fringeStorageMessenger::~fringeStorageMessenger(){
   delete fringeMapCmd_;
   delete fringeImplDir_;
 }
 
-void fringeStorageMessenger::SetNewValue(G4UIcommand* command, G4String newval){
+void gm2ringsim::fringeStorageMessenger::SetNewValue(G4UIcommand* command, G4String newval){
   if( command == fringeMapCmd_ ){
     if( newval.size() == 0 )
       G4cout << "The fringe field map is loaded from "
@@ -731,7 +730,7 @@ void fringeStorageMessenger::SetNewValue(G4UIcommand* command, G4String newval){
     better way...  <-- WTF does this comment mean? I'm not even sure
     it's right anymore. */
 namespace {
-  storageFieldController const& r = storageFieldController::getInstance();
+  gm2ringsim::storageFieldController const& r = gm2ringsim::storageFieldController::getInstance();
 }
 
 
