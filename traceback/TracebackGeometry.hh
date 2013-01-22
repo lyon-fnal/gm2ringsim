@@ -30,11 +30,12 @@ namespace gm2ringsim {
     const double tRotation;
     const double rRotation;
     const double vRotation;
-    std::vector<double> tracebackRadial;
     const double tracebackZ;
     const double tracebackTheta;
     const double tracebackRadialShiftAngle;
-    std::vector<int> strawLocation;
+    std::vector<double> strawLocation;
+    std::vector<double> strawRadialExtent;
+    std::vector<double> strawRadialExtentHalf;
     std::vector<int> whichTracebackLocations;
     const bool displayTraceback;
     std::vector<double> tracebackColor;
@@ -46,7 +47,6 @@ namespace gm2ringsim {
     double rC;
     double thetaIn[2];
     double thetaC[2];
-    double tracebackRadialHalf[44];
     double tracebackZHalf;
     double tracebackThetaHalf;
     double tanTracebackRadialShiftAngle;

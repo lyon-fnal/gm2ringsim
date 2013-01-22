@@ -19,11 +19,12 @@ gm2ringsim::TracebackGeometry::TracebackGeometry(std::string const & detName) :
   tRotation( p.get<double>("tRotation") * deg),
   rRotation( p.get<double>("rRotation") * deg),
   vRotation( p.get<double>("vRotation") * deg),
-  tracebackRadial( p.get<std::vector<double>>("tracebackRadial")),
   tracebackZ( p.get<double>("tracebackZ")),
   tracebackTheta( p.get<double>("tracebackTheta")),
   tracebackRadialShiftAngle( p.get<double>("tracebackRadialShiftAngle") * deg),
-  strawLocation( p.get<std::vector<int>>("strawLocation")),
+  numberOfStrawChambers( p.get<int>("numberOfStrawChambers")),
+  strawLocation( p.get<std::vector<double>>("strawLocation")),
+  strawRadialExtent( p.get<std::vector<double>>("strawRadialExtent")),
   whichTracebackLocations( p.get<std::vector<int>>("whichTracebackLocations")),
   displayTraceback( p.get<bool>("displayTraceback") ),
   tracebackColor( p.get<std::vector<double>>("tracebackColor")),
@@ -42,10 +43,10 @@ gm2ringsim::TracebackGeometry::TracebackGeometry(std::string const & detName) :
     thetaC[i] = (thetaIn[i] + thetaOut[i])/2;
   }
   
-  for (unsigned int i = 0 ; i < 44; ++i){
-    tracebackRadialHalf[i] = tracebackRadial[i]/2;
+  for (unsigned int i = 0 ; i < strawRadialExtent.size() ; i ++){
+    strawRadialExtentHalf.push_back(strawRadialExtent[i]/2);
   }
-
+  
   tracebackZHalf = tracebackZ/2;
   tracebackThetaHalf = tracebackTheta/2;
   tanTracebackRadialShiftAngle = tan(tracebackRadialShiftAngle);
@@ -66,9 +67,9 @@ void gm2ringsim::TracebackGeometry::print() const{
   oss << "  tRotation=" << tRotation << "\n";
   oss << "  rRotation=" << rRotation << "\n";
   oss << "  vRotation=" << vRotation << "\n";
-  oss << "  tracebackRadial= "; for (auto entry : tracebackRadial) { oss << " " << entry; }; oss << "\n";
   oss << "  tracebackZ="<< tracebackZ << "\n";
   oss << "  tracebackTheta="<< tracebackTheta << "\n";
+  oss << "  strawRadialExtent="; for (auto entry: strawRadialExtent) { oss << " " << entry; }; oss<< "\n";
   oss << "  strawLocations="; for (auto entry : strawLocation) { oss << " " << entry; }; oss << "\n";
   oss << "  whichTracebackLocations="; for (auto entry : whichTracebackLocations) { oss << " " << entry; }; oss << "\n";
   oss << "  displayTraceback=" << displayTraceback << "\n";
