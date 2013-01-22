@@ -21,8 +21,6 @@ gm2ringsim::TracebackGeometry::TracebackGeometry(std::string const & detName) :
   vRotation( p.get<double>("vRotation") * deg),
   tracebackZ( p.get<double>("tracebackZ")),
   tracebackTheta( p.get<double>("tracebackTheta")),
-  tracebackRadialShiftAngle( p.get<double>("tracebackRadialShiftAngle") * deg),
-  numberOfStrawChambers( p.get<int>("numberOfStrawChambers")),
   strawLocation( p.get<std::vector<double>>("strawLocation")),
   strawRadialExtent( p.get<std::vector<double>>("strawRadialExtent")),
   whichTracebackLocations( p.get<std::vector<int>>("whichTracebackLocations")),
@@ -49,7 +47,6 @@ gm2ringsim::TracebackGeometry::TracebackGeometry(std::string const & detName) :
   
   tracebackZHalf = tracebackZ/2;
   tracebackThetaHalf = tracebackTheta/2;
-  tanTracebackRadialShiftAngle = tan(tracebackRadialShiftAngle);
 }
 
 void gm2ringsim::TracebackGeometry::print() const{

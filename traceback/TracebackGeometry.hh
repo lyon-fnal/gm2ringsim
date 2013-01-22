@@ -32,7 +32,6 @@ namespace gm2ringsim {
     const double vRotation;
     const double tracebackZ;
     const double tracebackTheta;
-    const double tracebackRadialShiftAngle;
     std::vector<double> strawLocation;
     std::vector<double> strawRadialExtent;
     std::vector<double> strawRadialExtentHalf;
