@@ -27,8 +27,9 @@
 namespace gm2ringsim {
   G4Allocator<StrawHit> StrawHitAllocator;
 }//namespace gm2ringsim
-gm2ringsim::StrawHit::StrawHit(G4Step *step) : 
-  global_pos(step->GetPreStepPoint()->GetPosition()),
+gm2ringsim::StrawHit::StrawHit(G4Step *step) :
+  position(step->GetPreStepPoint()->GetPosition()),
+  momentum(step->GetPreStepPoint()->GetMomentum()),
   energy_dep(step->GetTotalEnergyDeposit()),
   time(step->GetPreStepPoint()->GetGlobalTime()),
   turnNum(TurnCounter::getInstance().turns()),
@@ -37,13 +38,13 @@ gm2ringsim::StrawHit::StrawHit(G4Step *step) :
   G4TouchableHandle const touchy = step->GetPreStepPoint()->GetTouchableHandle();
   // from calorimeterConstruction.hh
   // radial,vertical,horizontal thickness
-  local_pos = 
-    touchy->GetHistory()->GetTopTransform().TransformPoint(global_pos);
+  local_position =
+    touchy->GetHistory()->GetTopTransform().TransformPoint(position);
   // see calorimeterConstruction.cc ... local coords are messed up,
   // but it's easier to fix it here than in the geometry... need a
   // reflection transform for the vertical coordinate, z().  The
   // radial is x(), while the thickness is y()
-  local_pos.setZ(-local_pos.z());
+  local_position.setZ(-local_position.z());
 
   /** @bug This is icky... */
   //DetectorStation[<num>].strawscope_{front,rear}_plane[<num>]
@@ -98,7 +99,7 @@ void gm2ringsim::StrawHit::Draw(){
   if(!pVVisManager)
     return;
 
-  G4Circle circle(global_pos);
+  G4Circle circle(position);
   circle.SetScreenSize(5);
   circle.SetFillStyle(G4Circle::filled);
   G4Colour colour(0.,1.,0.);
@@ -115,7 +116,7 @@ void gm2ringsim::StrawHit::Print(){
 	 << " StrawStave: " << StrawStave
 	 << " time: " << time
 	 << '\n';
-  G4cout << "\tlpos: " << local_pos << '\n';
+  G4cout << "\tlpos: " << local_position << '\n';
 }
 
 

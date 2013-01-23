@@ -52,6 +52,7 @@ void gm2ringsim::StrawSD::Initialize(G4HCofThisEvent* HCoTE){
 
 G4bool gm2ringsim::StrawSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){ 
   thisHC->insert(new StrawHit(thisStep));
+  std::cout<<"I hit a straw!"<<std::endl;
   return true;
 }
 
