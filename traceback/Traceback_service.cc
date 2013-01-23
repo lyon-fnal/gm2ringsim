@@ -232,17 +232,13 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
     
     
     // beamlike
-    
-    G4RotationMatrix *rot = new G4RotationMatrix(0,0,0);
-    G4ThreeVector pos(0,0,0);
-    
+      
     int arcNumber = floor(tracebackNum/2);
-    
     
     tracebackPVs.push_back(
                            new G4PVPlacement(
-                                             rot,
-                                             pos,
+                                             new G4RotationMatrix(0.0, 0.0, 0.0),
+                                             G4ThreeVector(),
                                              aTracebackLV,
                                              tracebackLabel,
                                              vacs[ arcNumber ],
