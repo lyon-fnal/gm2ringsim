@@ -290,13 +290,15 @@ void gm2ringsim::Traceback::doFillEventWithArtHits(G4HCofThisEvent * hc) {
     for ( auto e : geantHits ) {
       e->Print();
       // Copy this hit into the Art hit
-      myArtHits->emplace_back( e->position.x(),e->position.y(),e->position.z(),
-                              e->local_position.x(),e->local_position.y(),e->local_position.z(),
-                              e->momentum.x(), e->momentum.y(), e->momentum.z(),
-                              e->local_momentum.x(), e->local_momentum.y(), e->local_momentum.z(),
-                              e->time,
-                              e->trackID,
-                              e->volumeUID);
+        myArtHits->emplace_back( e->position.x(),e->position.y(),e->position.z(),
+                                e->local_position.x(),e->local_position.y(),
+                                e->local_position.z(),
+                                e->momentum.x(),e->momentum.y(),e->momentum.z(),
+                                e->local_momentum.x(),e->local_momentum.y(),
+                                e->local_momentum.z(),
+                                e->time,
+                                e->trackID,
+                                e->volumeUID);
       
     } //loop over geantHits
   } //if we have a myCollection

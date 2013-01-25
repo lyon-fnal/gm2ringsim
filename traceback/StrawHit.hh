@@ -21,20 +21,12 @@ namespace gm2ringsim {
   /** A G4VHit class to store data from strawscope hits. */
   class StrawHit : public G4VHit {
   public:
-    // local coordinates are, respectively:
-    // x() : the radial component, positive outward
-    // y() : the thickness (beamlike) component, positive downstream
-    // z() : the vertical component, positive up
     
-    G4ThreeVector position;
-    G4ThreeVector momentum;
-    G4ThreeVector local_position;
-    G4ThreeVector local_momentum;
-    G4double energy_dep;
+    G4ThreeVector position, local_position;
+    G4ThreeVector momentum, local_momentum;
     G4double time;
-    G4int turnNum, trackID, station, StrawPlane, StrawStave;
+    G4int trackID;
     G4int volumeUID;
-
     StrawHit(G4Step*);
     
     inline void* operator new(size_t);
