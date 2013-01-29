@@ -55,7 +55,7 @@ gm2ringsim::Traceback::Traceback(fhicl::ParameterSet const & p, art::ActivityReg
   strawSDname_("strawSD"),
   strawSD_(0)
 {
-  strawSD_ = artg4::getSensitiveDetector<StrawSD>(strawSDname_);
+  //strawSD_ = artg4::getSensitiveDetector<StrawSD>(strawSDname_);
 }
 
 
@@ -182,6 +182,9 @@ void gm2ringsim::Traceback::makeStrawDetectors(std::vector<G4VPhysicalVolume*>& 
       std::cout<<"geom_.strawLocation[sc]: "<<geom_.strawLocation[sc]<<std::endl;
       
       // We can make the physical volumes here
+      StrawSD* strawSD_ = artg4::getSensitiveDetector<StrawSD>(strawSDname_);
+      strawLV->SetSensitiveDetector( strawSD_ );
+
       straws.push_back( new G4PVPlacement(out_transform,
                                             strawLV,
                                             pvName.c_str(),
@@ -189,10 +192,7 @@ void gm2ringsim::Traceback::makeStrawDetectors(std::vector<G4VPhysicalVolume*>& 
                                             false,
                                             0)
                    );
-      StrawSD* strawSD_ = artg4::getSensitiveDetector<StrawSD>("StrawSD");
-
-      strawLV->SetSensitiveDetector( strawSD_ );
-
+    
     }
 
   }
@@ -278,19 +278,17 @@ void gm2ringsim::Traceback::doFillEventWithArtHits(G4HCofThisEvent * hc) {
   
   // The string here is unfortunately a magic constant. It's the string used
   // by the sensitive detector to identify the collection of hits.
-  G4int collectionID = fSDM->GetCollectionID(strawSDname_);
+  G4int collectionID = fSDM->GetCollectionID("strawSD");
   
   StrawHitsCollection* myCollection =
   static_cast<StrawHitsCollection*>(hc->GetHC(collectionID));
   // Check whether the collection exists
   if (NULL != myCollection) {
     std::vector<StrawHit*> geantHits = *(myCollection->GetVector());
-    
-    
     for ( auto e : geantHits ) {
       e->Print();
       // Copy this hit into the Art hit
-        myArtHits->emplace_back( e->position.x(),e->position.y(),e->position.z(),
+      myArtHits->emplace_back( e->position.x(),e->position.y(),e->position.z(),
                                 e->local_position.x(),e->local_position.y(),
                                 e->local_position.z(),
                                 e->momentum.x(),e->momentum.y(),e->momentum.z(),
