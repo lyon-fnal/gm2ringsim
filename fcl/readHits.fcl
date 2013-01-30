@@ -1,7 +1,7 @@
 
 services : {
   TFileService: {
-    fileName: "myout.root"
+    fileName: "data_out.root"
   }
 }
 
@@ -10,7 +10,7 @@ process_name: readHits
 source: {
    module_type: RootInput
    maxEvents:  -1
-   fileNames: [ "data01.root" ]
+   fileNames: [ "gm2ringsimout.root" ]
 }
 
 physics: {
