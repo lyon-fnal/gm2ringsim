@@ -79,8 +79,9 @@ void gm2ringsim::StrawHit::Draw(){
 //#include "rootStorageManager.hh"
 
 void gm2ringsim::StrawHit::Print(){
-    G4cout << " volumeUID: " << volumeUID
-    << " time: " << time
-    << " position: " << position
-    << "\n";
+  G4cout << "StrawHit::Print()" <<
+  G4cout << " \n\tvolumeUID: " << volumeUID
+  << " \n\t time: " << time
+  << " \n\t position: " << position
+  << "\n";
 }

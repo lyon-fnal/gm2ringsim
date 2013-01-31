@@ -178,9 +178,7 @@ void gm2ringsim::Traceback::makeStrawDetectors(std::vector<G4VPhysicalVolume*>& 
                       );
 
       std::string pvName = artg4::addNumberToName("StrawChamberPV", sc);   
-            
-      std::cout<<"geom_.strawLocation[sc]: "<<geom_.strawLocation[sc]<<std::endl;
-      
+                  
       // We can make the physical volumes here
       StrawSD* strawSD_ = artg4::getSensitiveDetector<StrawSD>(strawSDname_);
       strawLV->SetSensitiveDetector( strawSD_ );
@@ -285,18 +283,22 @@ void gm2ringsim::Traceback::doFillEventWithArtHits(G4HCofThisEvent * hc) {
   // Check whether the collection exists
   if (NULL != myCollection) {
     std::vector<StrawHit*> geantHits = *(myCollection->GetVector());
+    int i = 0;
+    std::cout<<"The number of events in the geantHits is: "<<geantHits.size()<<std::endl;
     for ( auto e : geantHits ) {
+      std::cout<<"The event number is: "<<i<<std::endl;
       e->Print();
       // Copy this hit into the Art hit
+      std::cout<<"The Hit in position.x(): "<<e->position.x()<<std::endl;
+      
       myArtHits->emplace_back( e->position.x(),e->position.y(),e->position.z(),
-                                e->local_position.x(),e->local_position.y(),
-                                e->local_position.z(),
+                                e->local_position.x(),e->local_position.y(), e->local_position.z(),
                                 e->momentum.x(),e->momentum.y(),e->momentum.z(),
-                                e->local_momentum.x(),e->local_momentum.y(),
-                                e->local_momentum.z(),
+                                e->local_momentum.x(),e->local_momentum.y(), e->local_momentum.z(),
                                 e->time,
                                 e->trackID,
                                 e->volumeUID);
+      i++;
       
     } //loop over geantHits
   } //if we have a myCollection
