@@ -88,7 +88,6 @@ void gm2ringsim::TrackingAction::fillEventWithArtStuff(art::Event & e)
 {
 
   // Make a unique pointer for the tracking object
-
   e.put(std::move(myArtHits_));
 }
 
