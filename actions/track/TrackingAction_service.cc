@@ -10,6 +10,7 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "artg4/services/ActionHolder_service.hh"
 #include "gm2ringsim/common/g2PreciseValues.hh"
+#include "artg4/pluginActions/physicalVolumeStore/physicalVolumeStore_service.hh"
 
 using std::string;
 
@@ -48,10 +49,10 @@ preUserTrackingAction(const G4Track * currentTrack)
   // Omit turns for now
   //  tr.turn = turnCounter::getInstance().turns();
 
-  //TODO
-  // We haven't yet set up the uid manager.
-  //  tr.volumeUID = get_uid(currentTrack->GetVolume());
-
+  // Get the volume ID
+  art::ServiceHandle<artg4::PhysicalVolumeStore> pvs;
+  tr.volumeUID = pvs->uidForPhysicalVolume( currentTrack->GetVolume() );
+  
   G4ThreeVector pos = currentTrack->GetPosition();
   tr.rhat = std::sqrt(pos.x()*pos.x() + pos.z()*pos.z()) - R_magic();
   tr.vhat = pos.y();

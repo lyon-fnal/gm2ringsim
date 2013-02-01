@@ -83,6 +83,9 @@ services: {
     }
 
     Gm2PhysicsList: {}
+    
+    physicalVolumeStore: {}
+    
     TrackingAction : {
           name : "trackingAction"
     }
@@ -146,7 +149,7 @@ physics: {
   producers: {
     artg4 : { 
      module_type: artg4Main
-     enableVisualization: true
+     enableVisualization: false
      macroPath: ".:./macros:../macros:../../macros"
      visMacro: "vis.mac"
      afterEvent: ui  // (ui, pause, pass)
