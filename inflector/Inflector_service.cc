@@ -54,6 +54,7 @@
 #include "gm2ringsim/inflector/InflectorHit.hh"
 
 #include "gm2ringsim/common/g2PreciseValues.hh"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <fstream>
 #include <sstream>
@@ -171,15 +172,15 @@ std::vector<G4LogicalVolume *> gm2ringsim::Inflector::doBuildLVs() {
   // Build the sensitive detectors for all logical volumes created above
   buildSensitiveDetectors();
   
-  printf("\n\n\n**************************************\n");
+  printf("\n\n\n*INFLECTOR_SERVICE*************************************\n");
   G4SDManager* SDman = G4SDManager::GetSDMpointer();
   SDman->ListTree();
-  printf("\n ++++++++++++++++++++++++++++++++++++++\n\n\n\n");
+  printf("\n +++INFLECTOR_SERVICE+++++++++++++++++++++++++++++++++++\n\n\n\n");
   
   sts_.print();
   infGeom_.print();
   getInflectorInfo();
-  std::cout<<"spin tracking enabled is :"<<spin_tracking_<<std::endl;
+  mf::LogInfo("Inflector_Service") <<"spin tracking enabled is :"<<spin_tracking_;
 
   //FIXME: Is this really what we want to do??
   std::vector<G4LogicalVolume *> l_inflector;
@@ -696,7 +697,7 @@ void gm2ringsim::Inflector::buildSensitiveDetectors(){
 
 // Build the Cryostat Physical Volumes
 void gm2ringsim::Inflector::buildCryostatWalls(){
-  std::cout<<"About to try to build the CryostatWalls\n";
+  mf::LogInfo("Inflector_Service")<<"About to try to build the CryostatWalls";
   parallelCryoWall_P_ = new G4PVPlacement(new G4RotationMatrix(infGeom_.parWall_alpha,      
 					  		       infGeom_.parWall_beta,
 					  		       infGeom_.parWall_gamma),

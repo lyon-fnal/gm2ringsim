@@ -226,7 +226,7 @@ void gm2ringsim::Quad::buildPlatesSandL(G4int quadRegion, G4int sectionType){
     printf("Getting plate parameters for q=%d,s=%d,p=%d\n",quadRegion,sectionType,plateType);
     plate_params p = get_plate_params(quadRegion, sectionType, plateType);
     p.print();
-    G4cout << p.rmin << ' ' << p.rmax << ' '
+    mf::LogDebug("Quad_service") << p.rmin << ' ' << p.rmax << ' '
     	   << p.zby2 << ' ' << p.sphi << ' '
     	   << p.dphi << '\n';
     G4Tubs *mainPlate_S = new G4Tubs("mainPlate_S", 
@@ -561,12 +561,13 @@ curl_params(G4double rmin_, G4double rmax_, G4double sign_) :
 
 void gm2ringsim::Quad::curl_params::
 print() {
-  std::cout<<"Curl Params:"<<std::endl;
-  std::cout<<"\t rmin: "<<rmin<<std::endl;
-  std::cout<<"\t rmax: "<<rmax<<std::endl;
-  std::cout<<"\t sign: "<<sign<<std::endl;
-  std::cout<<"\t is_curled:"<<is_curled<<std::endl;
-  std::cout<<"\t\t End of Curl Params"<<std::endl;
+  mf::LogInfo("Quad_service") << "\n"
+  <<"Curl Params:"
+  <<"\n\t rmin: "<<rmin
+  <<"\n\t rmax: "<<rmax
+  <<"\n\t sign: "<<sign
+  <<"\n\t is_curled:"<<is_curled
+  <<"\n\t\t End of Curl Params" << "\n";
 }
 
 

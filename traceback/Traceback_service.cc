@@ -10,6 +10,8 @@
 
 #include "gm2ringsim/traceback/TracebackGeometry.hh"
 
+#include "messagefacility/MessageLogger/MessageLogger.h"
+
 #include "boost/format.hpp"
 
 #include "Geant4/G4Box.hh"
@@ -107,12 +109,12 @@ void gm2ringsim::Traceback::makeStrawDetectors(std::vector<G4VPhysicalVolume*>& 
                 + moveTheta*geom_.tanTracebackRadialShiftAngle;
       
       }
-      std::cout<<"geom_.strawLocation[sc]: "<<geom_.strawLocation[sc]<<std::endl;
-      std::cout<<"moveTheta: "<<moveTheta<<std::endl;
+      mf::LogDebug("Traceback_service") <<"geom_.strawLocation[sc]: "<<geom_.strawLocation[sc]<<std::endl;
+      mf::LogDebug("Traceback_service")<<"moveTheta: "<<moveTheta<<std::endl;
       
       G4ThreeVector position (-moveR, -moveTheta, 0.0);
-      std::cout<<"Straw Chamber: "<<sc<<std::endl;
-      std::cout<<"Position: "<<position <<std::endl;
+      mf::LogDebug("Traceback_service")<<"Straw Chamber: "<<sc<<std::endl;
+      mf::LogDebug("Traceback_service")<<"Position: "<<position <<std::endl;
       // We can make the physical volumes here
       straws.push_back( new G4PVPlacement(0,
                                             position,
