@@ -50,8 +50,8 @@ preUserTrackingAction(const G4Track * currentTrack)
   //  tr.turn = turnCounter::getInstance().turns();
 
   // Get the volume ID
-  art::ServiceHandle<artg4::PhysicalVolumeStore> pvs;
-  tr.volumeUID = pvs->uidForPhysicalVolume( currentTrack->GetVolume() );
+  art::ServiceHandle<artg4::PhysicalVolumeStoreService> pvs;
+  tr.volumeUID = pvs->idGivenPhysicalVolume( currentTrack->GetVolume() );
   
   G4ThreeVector pos = currentTrack->GetPosition();
   tr.rhat = std::sqrt(pos.x()*pos.x() + pos.z()*pos.z()) - R_magic();
