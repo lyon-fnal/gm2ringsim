@@ -8,13 +8,7 @@
 #include "artg4/material/Materials.hh"
 #include "artg4/util/util.hh"
 
-#include "gm2ringsim/traceback/TracebackGeometry.hh"
-
-#include "messagefacility/MessageLogger/MessageLogger.h"
-
-#include "boost/format.hpp"
-
-#include "Geant4/G4Box.hh"
+//Geant4
 #include "Geant4/G4PVPlacement.hh"
 #include "Geant4/G4Transform3D.hh"
 #include "Geant4/G4RotationMatrix.hh"
@@ -183,20 +177,10 @@ void gm2ringsim::Traceback::makeStrawDetectors(std::vector<G4VPhysicalVolume*>& 
                       }
                       );
 
-      std::string pvName = artg4::addNumberToName("StrawChamberPV", sc);
-      if(sc != 0){
-        moveTheta = geom_.tracebackTheta*(geom_.strawLocation[sc]);
-
-        moveR =  geom_.tracebackRadialHalf[0]-geom_.tracebackRadialHalf[geom_.strawLocation[sc]]
-                + moveTheta*geom_.tanTracebackRadialShiftAngle;
+      std::string pvName = artg4::addNumberToName("StrawChamberPV", sc);   
+            
+      std::cout<<"geom_.strawLocation[sc]: "<<geom_.strawLocation[sc]<<std::endl;
       
-      }
-      mf::LogDebug("Traceback_service") <<"geom_.strawLocation[sc]: "<<geom_.strawLocation[sc]<<std::endl;
-      mf::LogDebug("Traceback_service")<<"moveTheta: "<<moveTheta<<std::endl;
-      
-      G4ThreeVector position (-moveR, -moveTheta, 0.0);
-      mf::LogDebug("Traceback_service")<<"Straw Chamber: "<<sc<<std::endl;
-      mf::LogDebug("Traceback_service")<<"Position: "<<position <<std::endl;
       // We can make the physical volumes here
       StrawSD* strawSD_ = artg4::getSensitiveDetector<StrawSD>(strawSDname_);
       strawLV->SetSensitiveDetector( strawSD_ );
