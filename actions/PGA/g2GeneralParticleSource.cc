@@ -121,7 +121,7 @@ void g2GeneralParticleSource::setParticleDefinition(std::string newValues){
   G4ParticleDefinition* pd = particleTable_->FindParticle(name);
   if(pd != NULL)
     {
-      LOG_DEBUG("g2GeneralParticleSource") << "setting particle to "<<newValues;
+      mf::LogDebug("g2GeneralParticleSource") << "setting particle to "<<newValues;
       SetParticleDefinition( pd ); 
     }
   //}

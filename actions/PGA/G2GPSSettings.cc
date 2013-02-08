@@ -76,21 +76,21 @@ oss << "  ene_sigma=" << ene_sigma << "\n";
 oss << "  tType=" << tType << "\n";
 oss << "  tMono=" << tMono << "\n";
 oss << "  tSigma=" << tSigma << "\n";
-mf::LogInfo("CATEGORY") << oss.str();
+mf::LogInfo("G2GPSSettings") << oss.str();
 }
 
 
 bool gm2ringsim::G2GPSSettings::contains(std::string s) {
   // parSetKeys_ is a vector of strings. If it contains s
   // return true, otherwise return false;
-  std::cout<<"Looking for a string "<<s<<std::endl;
+  mf::LogDebug("G2GPSSettings")<<"Looking for a string "<<s;
 
   auto result1 = std::find(parSetKeys_.begin(), parSetKeys_.end(), s);
   
   if (result1 != parSetKeys_.end()) 
     return true;
   
-  std::cout<<"string "<<s<<" was not found"<<std::endl;
+  mf::LogDebug("G2GPSSettings") <<"string "<<s<<" was not found";
   return false;
   
 }
