@@ -129,7 +129,7 @@ physics: {
      enableVisualization: false
      macroPath: ".:./macros:../macros:../../macros"
      visMacro: "vis.mac"
-     afterEvent: ui  // (ui, pause, pass)
+     afterEvent: pause  // (ui, pause, pass)
      }
   }
 

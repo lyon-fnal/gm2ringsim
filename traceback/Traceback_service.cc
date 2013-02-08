@@ -16,9 +16,38 @@
 
 #include "Geant4/G4Box.hh"
 #include "Geant4/G4PVPlacement.hh"
+#include "Geant4/G4Transform3D.hh"
+#include "Geant4/G4RotationMatrix.hh"
 #include "Geant4/G4VisAttributes.hh"
+#include "Geant4/G4RunManager.hh"
+#include "Geant4/G4UnitsTable.hh"
+#include "Geant4/G4ClassicalRK4.hh"
+#include "Geant4/G4Mag_UsualEqRhs.hh"
+#include "Geant4/G4Mag_SpinEqRhs.hh"
+#include "Geant4/G4UnitsTable.hh"
+#include "Geant4/G4UserLimits.hh"
+#include "Geant4/G4UImanager.hh"
+#include "Geant4/G4UniformMagField.hh"
+#include "Geant4/G4SDManager.hh"
+
+#include "Geant4/G4Box.hh"
 #include "Geant4/G4UserLimits.hh"
 #include "Geant4/G4UnionSolid.hh"
+#include "Geant4/G4SubtractionSolid.hh"
+#include "Geant4/G4Tubs.hh"
+#include "Geant4/G4Trap.hh"
+#include "Geant4/G4TwoVector.hh"
+
+#include "gm2ringsim/traceback/TracebackGeometry.hh"
+#include "gm2ringsim/traceback/strawSD.hh"
+#include "gm2ringsim/traceback/StrawArtRecord.hh"
+#include "gm2ringsim/traceback/StrawHit.hh"
+
+#include "gm2ringsim/vac/VacGeometry.hh"
+
+#include "boost/format.hpp"
+
+#include "gm2ringsim/vac/VacGeometry.hh"
 
 //#include CHANGE_ME: Add include for header for Art hit class
 
@@ -29,36 +58,72 @@ gm2ringsim::Traceback::Traceback(fhicl::ParameterSet const & p, art::ActivityReg
                    p.get<std::string>("category", "traceback"),
                    p.get<std::string>("mother_category", "vac")),
   geom_(myName()),
-  strawSDName_("straw"),
+  strawSDname_("strawSD"),
   strawSD_(0)
 {
-  strawSD_ = artg4::getSensitiveDetector<StrawSD>(strawSDName_);
+  //strawSD_ = artg4::getSensitiveDetector<StrawSD>(strawSDname_);
 }
-G4LogicalVolume* gm2ringsim::Traceback::makeATracebackLV() {
+
+
+
+G4LogicalVolume* gm2ringsim::Traceback::makeATracebackLV(int tracebackNum) {
   
-  G4double moveTheta;
-  G4double moveR;
+  const VacGeometry vacg("vac");
 
-  G4VSolid *solid = new G4Box("traceback_S1", geom_.tracebackRadialHalf[0], geom_.tracebackThetaHalf, geom_.tracebackZHalf);
+  G4Tubs *torus = new G4Tubs("torus",
+                             vacg.torus_rmin,
+                             vacg.torus_rmax[vacg.vacuumRegion],
+                             vacg.torus_z[vacg.vacuumRegion],
+                             vacg.torus_sphi, vacg.torus_dphi);
+  
+  G4Tubs *torus2 = new G4Tubs("torus2",
+                             vacg.torus_rmin-1,
+                             vacg.torus_rmax[vacg.vacuumRegion] + 10,
+                             vacg.torus_z[vacg.vacuumRegion]+10,
+                             vacg.torus_sphi-10*deg, vacg.torus_dphi+20*deg);
 
-  for(int i = 1; i!= 22; ++i){
-       
-    G4VSolid *s = new G4Box("traceback_this", geom_.tracebackRadialHalf[i], geom_.tracebackThetaHalf, geom_.tracebackZHalf);
-    
-    moveTheta = geom_.tracebackTheta + geom_.tracebackTheta*(i-1);
-    
-    moveR = (geom_.tracebackRadialHalf[0]-geom_.tracebackRadialHalf[i])+ moveTheta*geom_.tanTracebackRadialShiftAngle;
-    
-    G4ThreeVector moveThis (-moveR, -moveTheta, 0.0);
-    G4UnionSolid *solidThis = new G4UnionSolid("traceback_S",solid, s, 0, moveThis);
-    solid = solidThis;
-    
-  }
+  G4double
+  pPhi = 0., pAlp = 0.,
+  pTheta = (vacg.phi_a - vacg.phi_b)/2.,
+  pDz = vacg.z[vacg.vacuumRegion]/2.,
+  pDy = vacg.torus_z[vacg.vacuumRegion],
+  pDx12 = vacg.xL[vacg.vacuumRegion]/2.,
+  pDx34 = vacg.xS[vacg.vacuumRegion]/2.;
+  
+  G4Trap *out_scallop =
+  new G4Trap("out_scallop", pDz, pTheta, pPhi,
+             pDy, pDx12, pDx12, pAlp,
+             pDy, pDx34, pDx34, pAlp
+             );
+  
+  G4double
+  dz = -vacg.z[vacg.vacuumRegion]/2.,
+  dx = -dz*std::tan( (vacg.phi_b-vacg.phi_a)/2. ) + vacg.xS[vacg.vacuumRegion]/2.;
+  
+  // The little rotation is in the coordinates of the trapezoid,
+  G4TwoVector fixup(dz,dx);
+  fixup.rotate( -vacg.phi_a );
+  // flip to the coordinate system of the arcSection
+  fixup.setX(-fixup.x());
+  fixup += vacg.pt_a[vacg.vacuumRegion];
+  
+  
+  int arcPosition = tracebackNum % 2;
 
-  G4LogicalVolume *tracebackLV = new G4LogicalVolume(solid,
+  fixup.rotate(15.*degree*arcPosition);
+
+  G4Transform3D
+  out_transform(G4RotationMatrix( 0., 90.*degree, -vacg.phi_a+(-15*arcPosition-90.)*degree ),
+                  G4ThreeVector( fixup.x(), fixup.y(), 0. ) );
+
+  G4UnionSolid *torus_scallop = new G4UnionSolid("torus_scallop", torus, out_scallop, out_transform);
+  G4SubtractionSolid *scallop = new G4SubtractionSolid("scallop", torus_scallop, torus2);
+
+  //new G4UnionSolid("stupid",torus_scallop, torus_scallop);
+  G4LogicalVolume *tracebackLV = new G4LogicalVolume(scallop,
                                                      artg4Materials::Vacuum(),
                                                      "tracebackLV");
-   
+  
   artg4::setVisAtts(tracebackLV, geom_.displayTraceback, geom_.tracebackColor);
   return tracebackLV;
 
@@ -66,33 +131,50 @@ G4LogicalVolume* gm2ringsim::Traceback::makeATracebackLV() {
 // Build the logical volumes
 void gm2ringsim::Traceback::makeTracebackLVs(std::vector<G4LogicalVolume*>& tracebacks) {
   
-  // Create the vector of logical volumes
-  //std::vector<G4LogicalVolume*> tracebackLVs;
-  
-  // Build the logical volumes
+   // Build the logical volumes
   for ( unsigned int tracebackNumber = 0; tracebackNumber != geom_.whichTracebackLocations.size(); ++tracebackNumber ) {
     // Push this into the vector
-    tracebacks.push_back( makeATracebackLV());
+    tracebacks.push_back( makeATracebackLV(geom_.whichTracebackLocations[tracebackNumber]));
   }
 }
 
 void gm2ringsim::Traceback::makeStrawDetectors(std::vector<G4VPhysicalVolume*>& straws,std::vector<G4LogicalVolume*>& tracebacks){
+  
+  const VacGeometry vacg("vac");
+  
   for (unsigned int tb = 0; tb<geom_.whichTracebackLocations.size() ;tb++){
     for (unsigned int sc =0 ; sc<geom_.strawLocation.size(); sc++){
-    
-      G4double moveTheta=0.0;
-      G4double moveR=0.0;
-    
-      G4VSolid *strawSystem = new G4Box("strawSystem", geom_.tracebackRadialHalf[geom_.strawLocation[sc]]-10, geom_.tracebackThetaHalf-10, geom_.tracebackZHalf-10);
+      G4double
+      r = 7010,
+      y = 0,
+      phi = 12.8,
+      ys = geom_.strawLocation[sc],
+      deltaR =0;
+      
+      int arcPosition = geom_.whichTracebackLocations[tb] % 2;
+      deltaR = ys * sin(phi * deg);
+      r = r - deltaR;
+      r = r + geom_.strawRadialExtentHalf[sc];
+      y = sqrt(ys*ys - deltaR*deltaR);
+      
+      G4TwoVector fixup(r,y);
+
+      fixup.rotate(15.*degree*arcPosition);
+      G4Transform3D
+
+      out_transform(G4RotationMatrix( -13*deg -vacg.phi_a*arcPosition, 0, 0),
+                    G4ThreeVector(fixup.x(), fixup.y(), 0. ) );
+      
+      G4VSolid *strawSystem = new G4Box("strawSystem", geom_.strawRadialExtentHalf[sc], 20, geom_.tracebackZHalf-10);
     
       std::string strawLVName = artg4::addNumberToName("StrawChamberLV", sc);
 
       G4LogicalVolume* strawLV = new G4LogicalVolume(
-                                                   strawSystem,
-                                                   artg4Materials::Vacuum(),
-                                                   strawLVName,
-                                                   0,
-                                                   0);
+                                                     strawSystem,
+                                                     artg4Materials::Vacuum(),
+                                                     strawLVName,
+                                                     0,
+                                                     0);
     
       artg4::setVisAtts( strawLV, geom_.displayStraw, geom_.strawColor,
                       [] (G4VisAttributes* att) {
@@ -116,14 +198,17 @@ void gm2ringsim::Traceback::makeStrawDetectors(std::vector<G4VPhysicalVolume*>& 
       mf::LogDebug("Traceback_service")<<"Straw Chamber: "<<sc<<std::endl;
       mf::LogDebug("Traceback_service")<<"Position: "<<position <<std::endl;
       // We can make the physical volumes here
-      straws.push_back( new G4PVPlacement(0,
-                                            position,
+      StrawSD* strawSD_ = artg4::getSensitiveDetector<StrawSD>(strawSDname_);
+      strawLV->SetSensitiveDetector( strawSD_ );
+
+      straws.push_back( new G4PVPlacement(out_transform,
                                             strawLV,
                                             pvName.c_str(),
                                             tracebacks[tb],
                                             false,
                                             0)
                    );
+    
     }
 
   }
@@ -133,7 +218,7 @@ void gm2ringsim::Traceback::makeStrawDetectors(std::vector<G4VPhysicalVolume*>& 
 //Build the logical volumes
 std::vector<G4LogicalVolume *> gm2ringsim::Traceback::doBuildLVs() {
   geom_.print();
-  
+ 
   std::vector<G4LogicalVolume*> tracebacks;
   makeTracebackLVs(tracebacks);
   std::vector<G4VPhysicalVolume*> straws;
@@ -144,14 +229,11 @@ std::vector<G4LogicalVolume *> gm2ringsim::Traceback::doBuildLVs() {
 
 // Build the physical volumes
 std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vector<G4LogicalVolume*> vacs) {
-  //TracebackGeometry tg(myName());
   
   std::vector<G4VPhysicalVolume*> tracebackPVs;
   tracebackPVs.resize(lvs().size());
   
-  G4double const rHalf = geom_.r/2.;
-  G4double const tHalf = geom_.t/2.;
-  
+    
   //loop over the logical volumes
   unsigned int i = 0;
   unsigned int tracebackNum;
@@ -162,60 +244,19 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
     // (see http://www.boost.org/doc/libs/1_52_0/libs/format/doc/format.html )
     tracebackNum= geom_.whichTracebackLocations[i];
     std::string tracebackLabel( boost::str( boost::format("TracebackNumber[%02d]") % tracebackNum ));
-    int arcPosition = tracebackNum % 2;
     
-    G4ThreeVector windowEdge(geom_.rOut*std::cos(geom_.thetaOut[ arcPosition ]),
-                              geom_.rOut*std::sin(geom_.thetaOut[ arcPosition ]),
-                              0.);
-
-    G4ThreeVector unitAlong(std::cos(geom_.thetaIn[ arcPosition ] + geom_.windowAngle),
-                             std::sin(geom_.thetaIn[ arcPosition ] + geom_.windowAngle),
-                             0.);
     
-    G4ThreeVector unitVertical(0,0,-1.); // OK ... yes, up :-(
-    
-    G4ThreeVector unitNormal = unitAlong.cross(unitVertical); // OK
-    
-    G4double const vrots = std::sin( std::abs(geom_.vRotation) );
-    G4double const vrotc = std::cos(geom_.vRotation);
-    G4double const correctionAlong = (vrotc-1.)*rHalf + vrots*tHalf;
-    G4double const correctionNormal = vrots*rHalf + (vrotc-1.)*tHalf;
     // beamlike
-    
-    // for the real g-2 station
-    G4ThreeVector pos =
-    // center the station on the center of the outer window edge
-    windowEdge
-    // move it in by the radial half width
-    - rHalf * unitAlong
-    // move it downstream by the thickness half width
-    + tHalf * unitNormal
-    // We have to move the station around so that it doesn't "whack"
-    // (technical term, that) into the outside of the vacuum walls
-    // when it's rotated
-    /** @bug doesn't include the r_rotation and t_rotation corrections
-     ... should probably get this by multiplying appropriate
-     rotation matrices, but this will take some thought... */
-    - correctionAlong * unitAlong
-    + correctionNormal * unitNormal
-    // finally, let's apply the user defined offsets
-    +geom_.rOffset * unitAlong
-    +geom_.tOffset * unitNormal
-    +geom_.vOffset * unitVertical;
-    
-    G4RotationMatrix *rot = new G4RotationMatrix(0,
-                                                 0,
-                                                 geom_.thetaIn[ arcPosition ] + geom_.windowAngle - geom_.vRotation);
-    
+      
     int arcNumber = floor(tracebackNum/2);
-
+    
     tracebackPVs.push_back(
                            new G4PVPlacement(
-                                             rot,
-                                             pos,
+                                             new G4RotationMatrix(0.0, 0.0, 0.0),
+                                             G4ThreeVector(),
                                              aTracebackLV,
                                              tracebackLabel,
-                                             vacs[ arcNumber ]->GetDaughter(0)->GetLogicalVolume(),
+                                             vacs[ arcNumber ],
                                              false,
                                              0, true
                                              )
@@ -227,6 +268,8 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
 
 
 }
+
+
 //i want to take a vector of traceback locations [1,3,5] for example.
 //for each of those locations I want to put two straw chambers (planes for now)
 //those straw chambers should be at 20mm on either side of the edges of the box
@@ -235,14 +278,58 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
 // CHANGE_ME: You can delete the below if this detector creates no data
 
 // Declare to Art what we are producing
-//void gm2ringsim::Traceback::doCallArtProduces(art::EDProducer * producer) {
+void gm2ringsim::Traceback::doCallArtProduces(art::EDProducer * producer) {
+  producer->produces<StrawArtRecordCollection>(category());
 
-//}
+}
 
 // Actually add the data to the event
-//void gm2ringsim::Traceback::doFillEventWithArtHits(G4HCofThisEvent * hc) {
-    
-//}
+void gm2ringsim::Traceback::doFillEventWithArtHits(G4HCofThisEvent * hc) {
+
+  
+  std::unique_ptr<StrawArtRecordCollection> myArtHits(new StrawArtRecordCollection);
+  
+  // Find the collection ID for the hits
+  G4SDManager* fSDM = G4SDManager::GetSDMpointer();
+  
+  // The string here is unfortunately a magic constant. It's the string used
+  // by the sensitive detector to identify the collection of hits.
+  G4int collectionID = fSDM->GetCollectionID("strawSD");
+  
+  StrawHitsCollection* myCollection =
+  static_cast<StrawHitsCollection*>(hc->GetHC(collectionID));
+  // Check whether the collection exists
+  if (NULL != myCollection) {
+    std::vector<StrawHit*> geantHits = *(myCollection->GetVector());
+    for ( auto e : geantHits ) {
+      e->Print();
+      // Copy this hit into the Art hit
+      myArtHits->emplace_back( e->position.x(),e->position.y(),e->position.z(),
+                                e->local_position.x(),e->local_position.y(),
+                                e->local_position.z(),
+                                e->momentum.x(),e->momentum.y(),e->momentum.z(),
+                                e->local_momentum.x(),e->local_momentum.y(),
+                                e->local_momentum.z(),
+                                e->time,
+                                e->trackID,
+                                e->volumeUID);
+      
+    } //loop over geantHits
+  } //if we have a myCollection
+  
+  else {
+    throw cet::exception("Straw") << "Null collection of Geant tracker hits"
+    << ", aborting!" << std::endl;
+  }
+  // Now that we have our collection of artized hits, add them to the event.
+  // Get the event from the detector holder service
+  art::ServiceHandle<artg4::DetectorHolderService> detectorHolder;
+  art::Event & e = detectorHolder -> getCurrArtEvent();
+  
+  // Put the hits into the event                                                   
+  e.put(std::move(myArtHits), category());
+
+}
 
 using gm2ringsim::Traceback;
 DEFINE_ART_SERVICE(Traceback)

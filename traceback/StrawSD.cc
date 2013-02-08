@@ -58,7 +58,6 @@ G4bool gm2ringsim::StrawSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){
 void gm2ringsim::StrawSD::EndOfEvent(G4HCofThisEvent*) {
 
   G4int n = thisHC->entries();
-
   if(! (printLevel > 0 || drawLevel > 0) )
     return;
 
