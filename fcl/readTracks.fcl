@@ -1,0 +1,36 @@
+services: {
+
+  message : {
+     debugModules : ["*"]
+     suppressInfo : []
+     
+     destinations : {
+       LogToConsole : {
+         type : "cout"
+         threshold : "DEBUG"
+         
+         categories : {
+           default : { limit : 50 }
+         }
+       }
+     }
+  }
+}
+
+process_name: readTracks
+
+source: {
+   module_type: RootInput
+   maxEvents:  -1
+   fileNames: [ "gm2ringsimout.root" ]
+}
+
+physics: {
+  analyzers: {
+    readTracks: {
+      module_type: particleTrackAnalyzer
+    }
+  }
+  path1: [ readTracks ]
+  end_paths: [ path1 ]
+}

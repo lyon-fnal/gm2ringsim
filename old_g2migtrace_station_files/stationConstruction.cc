@@ -10,6 +10,8 @@
 #include "stationParameters.hh"
 #include "stationMessenger.hh"
 
+#include "messageFacility/MessageLogger/MessageLogger.h"
+
 #include "constructionMaterials.hh"
 #include "SDHandleOwner.hh"
 #include "geometryHelpers.hh"
@@ -42,7 +44,7 @@ namespace {
     {1 ,0}, {1 ,1}, 
     {2 ,0}, {2 ,1}, 
     {3 ,0}, {3 ,1}, 
-    {4 ,0}, {4 ,1}, 
+    {4 ,0}, {4 ,1},
     {5 ,0}, {5 ,1}, 
     {6 ,0}, {6 ,1}, 
     {7 ,0}, {7 ,1}, 
@@ -370,7 +372,7 @@ void stationConstruction::buildStation(G4int s/*tation*/){
   double totalDepth = wrappingDepth + xtalDepth + epoxyDepth + pmtDepth 
     + taperedoffset;
   if( totalDepth > this_p.calorimeter.thickness + taperedoffset )
-     std::cout << "WARNING: xtal + epoxy + pmt longer than calo mother volume!"
+     mf::LogWarning("StationConstruction") << "WARNING: xtal + epoxy + pmt longer than calo mother volume!"
 	       << std::endl ;
 
   double wrappingDepthCenter = ( this_p.calorimeter.thickness + taperedoffset - wrappingDepth ) / 2. ;
