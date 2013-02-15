@@ -14,6 +14,8 @@
 #include "artg4/pluginActions/physicalVolumeStore/PhysicalVolumeStoreData.hh"
 #include "artg4/pluginActions/physicalVolumeStore/physicalVolumeStore_service.hh"
 
+#include "artg4/util/dataFromRunOrService.hh"
+
 #include <vector>
 
 namespace gm2ringsim_ex {
@@ -31,16 +33,16 @@ private:
 
   // Declare member data here.
   
-  // Producer
-  std::string producerLabel_;
-  std::string producerInstance_;
+  // Physical Volume Store data
+  std::string pvsProducerLabel_;
+  std::string pvsInstanceLabel_;
   
 };
 
 
 gm2ringsim_ex::particleTrackAnalyzer::particleTrackAnalyzer(fhicl::ParameterSet const & p) :
-  producerLabel_( p.get<std::string>("producerLabel", "artg4")),
-  producerInstance_( p.get<std::string>("producerInstance", ""))
+  pvsProducerLabel_( p.get<std::string>("pvsProducerLabel", "artg4")),
+  pvsInstanceLabel_( p.get<std::string>("pvsInstanceLabel", ""))
 { }
 
 gm2ringsim_ex::particleTrackAnalyzer::~particleTrackAnalyzer()
@@ -48,10 +50,11 @@ gm2ringsim_ex::particleTrackAnalyzer::~particleTrackAnalyzer()
   // Clean up dynamic memory and other resources here.
 }
 
-void gm2ringsim_ex::particleTrackAnalyzer::analyze(art::Event const &)
+void gm2ringsim_ex::particleTrackAnalyzer::analyze(art::Event const & e)
 {
-  // Let's get the physical volume store
-  const artg4::PhysicalVolumeStoreData & pvs = art::ServiceHandle< artg4::PhysicalVolumeStoreService >() -> getData();
+  // Let's get the physical volume store. It's either in the run or the service
+  auto const & pvs = artg4::dataFromRunOrService<artg4::PhysicalVolumeStoreData, artg4::PhysicalVolumeStoreService>(
+       e.getRun(), pvsProducerLabel_, pvsInstanceLabel_);
   
   mf::LogInfo("ParticleTrackAnalyzer") << "There are " << pvs.size() << " entries in the PVS";
   
