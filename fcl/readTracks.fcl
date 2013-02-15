@@ -15,6 +15,11 @@ services: {
        }
      }
   }
+  
+  user : {
+    physicalVolumeStore : {}
+    ActionHolder : {}
+  }
 }
 
 process_name: readTracks
