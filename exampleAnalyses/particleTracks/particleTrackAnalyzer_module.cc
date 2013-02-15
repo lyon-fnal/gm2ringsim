@@ -14,6 +14,8 @@
 #include "artg4/pluginActions/physicalVolumeStore/PhysicalVolumeStoreData.hh"
 #include "artg4/pluginActions/physicalVolumeStore/physicalVolumeStore_service.hh"
 
+#include "artg4/util/dataFromRunOrService.hh"
+
 #include <vector>
 
 namespace gm2ringsim_ex {
@@ -26,23 +28,21 @@ public:
   virtual ~particleTrackAnalyzer();
 
   void analyze(art::Event const & e) override;
-  
-  const artg4::PhysicalVolumeStoreData & getPVS(art::Run const & r);
-  
+    
 private:
 
   // Declare member data here.
   
-  // Producer
-  std::string producerLabel_;
-  std::string producerInstance_;
+  // Physical Volume Store data
+  std::string pvsProducerLabel_;
+  std::string pvsInstanceLabel_;
   
 };
 
 
 gm2ringsim_ex::particleTrackAnalyzer::particleTrackAnalyzer(fhicl::ParameterSet const & p) :
-  producerLabel_( p.get<std::string>("producerLabel", "artg4")),
-  producerInstance_( p.get<std::string>("producerInstance", ""))
+  pvsProducerLabel_( p.get<std::string>("pvsProducerLabel", "artg4")),
+  pvsInstanceLabel_( p.get<std::string>("pvsInstanceLabel", ""))
 { }
 
 gm2ringsim_ex::particleTrackAnalyzer::~particleTrackAnalyzer()
@@ -50,49 +50,11 @@ gm2ringsim_ex::particleTrackAnalyzer::~particleTrackAnalyzer()
   // Clean up dynamic memory and other resources here.
 }
 
-
-const artg4::PhysicalVolumeStoreData & gm2ringsim_ex::particleTrackAnalyzer::getPVS(art::Run const & r) {
-  // Is it in the Run record? The following will get ALL
-  // instances of PhysicalVolumeStoreData. You can then loop
-  // thtrough through them, examine the provenance, and choose the
-  // one you want. 
-  std::vector< art::Handle<artg4::PhysicalVolumeStoreData> > pvsHV;
-  r.getManyByType(pvsHV);
-  
-  if ( ! pvsHV.empty() ) {
-    // We found something in the run record. Let's see what it is.
-    for ( auto aHandle : pvsHV ) {
-      // Check the provenance for the handle
-      art::Provenance const * prov = aHandle.provenance();
-      
-      // Check the module label
-      if ( producerLabel_.empty() || producerLabel_ == prov->moduleLabel() ) {
-        // Check the instance label
-        if ( producerInstance_.empty() || producerInstance_ == prov->productInstanceName() ) {
-          // This is it!
-          mf::LogDebug("ParticleTrackAnalyzer") << "Getting PVS from Run record";
-          return *aHandle;
-        }
-      }
-    }
-  }
-  
-  // If we've made it this far, then we could not find the physical volume store
-  // in the Run record. So let's look a the service
-
-  mf::LogDebug("ParticleTrackAnalyzer") << "Cannot find PVS in Run record. Trying PhysicalVolumeStoreService.";
-
-  // This should throw an exception if the service can't be found
-  art::ServiceHandle<artg4::PhysicalVolumeStoreService> pvsS;
-  
-  mf::LogDebug("ParticleTrackAnalyzer") << "Getting PVS from service";
-  return pvsS->getData();
-}
-
 void gm2ringsim_ex::particleTrackAnalyzer::analyze(art::Event const & e)
 {
-  // Let's get the physical volume store
-  const artg4::PhysicalVolumeStoreData & pvs = getPVS( e.getRun() );
+  // Let's get the physical volume store. It's either in the run or the service
+  auto const & pvs = artg4::dataFromRunOrService<artg4::PhysicalVolumeStoreData, artg4::PhysicalVolumeStoreService>(
+       e.getRun(), pvsProducerLabel_, pvsInstanceLabel_);
   
   mf::LogInfo("ParticleTrackAnalyzer") << "There are " << pvs.size() << " entries in the PVS";
   
