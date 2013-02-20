@@ -17,7 +17,7 @@ process_name:myProcessName
 
 source: {
   module_type: EmptyEvent
-  maxEvents:  10
+  maxEvents:  100
 }
 
 services: {
@@ -152,7 +152,7 @@ physics: {
      enableVisualization: true
      macroPath: ".:./macros:../macros:../../macros"
      visMacro: "vis.mac"
-     afterEvent: pause  // (ui, pause, pass)
+     afterEvent: pass  // (ui, pause, pass)
      }
   }
   analyzers: {
