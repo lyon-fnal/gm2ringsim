@@ -7,6 +7,8 @@
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "gm2ringsim/actions/muonStorageStatus/EventRecord.hh"
 
+#include "messagefacility/MessageLogger/MessageLogger.h"
+
 #include "Geant4/globals.hh"
 
 #include "Geant4/G4Event.hh"
@@ -112,7 +114,7 @@ void gm2ringsim::MuonStorageStatusAction::beginOfRunAction(const G4Run *currentR
   // Initialization per run
   muonStorageCounter_ = 0;
   //FIXME:TEMP to use currentRun
-  std::cout<<"currentRunID is "<<currentRun->GetRunID()<<std::endl;
+  mf::LogDebug("MuonStorageAction_service")<<"currentRunID is "<<currentRun->GetRunID()<<std::endl;
   
   // FIXME: ARTIFY
   // Cannot use this block yet because RootStorageManager not implemented

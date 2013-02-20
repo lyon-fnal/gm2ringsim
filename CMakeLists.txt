@@ -133,6 +133,7 @@ add_subdirectory( fiberHarp )
 add_subdirectory( station )
 add_subdirectory( calo )
 add_subdirectory( collimator )
+add_subdirectory (exampleAnalyses)
 
 # Packaging facility
 include(UseCPack)

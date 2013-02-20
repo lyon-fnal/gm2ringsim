@@ -25,6 +25,8 @@
 
 #include "gm2ringsim/kicker/KickerField.hh"
 #include "gm2ringsim/arc/StorageRingField.hh"
+#include "messagefacility/MessageLogger/MessageLogger.h"
+
 
 namespace kickParams {
 

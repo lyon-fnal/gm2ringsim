@@ -30,10 +30,12 @@ services: {
        LogToConsole : {
          type : "cout"
          threshold : "DEBUG"
-         
-         categories : {
-           default : { limit : 50 }
-         }
+       }
+       LogToFile : {
+         type : "file"
+         filename : "gm2ringsim.log"
+         append : false
+         threshold : "DEBUG"
        }
      }
   }
@@ -54,25 +56,21 @@ services: {
       inflector: @local::inflector_geom
       quad: @local::quad_geom
       octupole: @local::oct_geom
-      kicker: @local::kicker_geom	
+      kicker: @local::kicker_geom
       fiberHarp: @local::fiberHarp_geom
       station: @local::station_geom
       calorimeter: @local::calorimeter_geom
       collimator: @local::collimator_geom
-      pga: @local::PGA_geom	
+      pga: @local::PGA_geom
       traceback: @local::traceback_geom
-
      }
 
      // Global simulation settings
      RunSettings : {
-      SpinTracking : {
+       SpinTracking : {
         spinTrackingEnabled : false
-        }
-      G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel
-      //G2GPSSettings:  @local::G2GPS_storageVertex
-      
-      
+       }
+       G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel
     }
 
     // Action(s) for the simulation
@@ -82,11 +80,15 @@ services: {
           maxWavelength:950  //nm
     }
 
+    physicalVolumeStore: {}
     Gm2PhysicsList: {}
+
     TrackingAction : {
           name : "trackingAction"
     }
-    ClockAction: {}	
+
+    ClockAction: {}
+
     G2PGA: {
       name: "primary"
     }
@@ -95,42 +97,20 @@ services: {
     World: {}	
     Arc: {}
     VacuumChamber: {}
-    Inflector:{}	
+    Inflector:{}
     Quad: {}
     Octupole: {}
     Kicker: {}
-    FiberHarp: {}	   
+    FiberHarp: {}
     Station: {}
     Calorimeter: {}
     Collimator : {}
     Traceback: {}
 
-    G2PGA: {
-      name: "primary"
-    }
- 
-//    PrimaryGeneratorAction: {
-//            name: "primary"	
-//	    muonGasVerbosity : true
-//            g2GPS : {
-//	      useMuonGasGun: true
-//            } //g2GPS Parameter Set
-//        } //PrimaryGeneratorAciton
 
-      MuonStorageStatusAction: { 
-        name: "MuonStorageStatusAction"
-      }//MuonStorageStatusAction
-//    RunAction: {
-//      name: "run"
-//    }//RunAction
-
-
-//    EventAction: {
-//      name: "event"
-//      // heartbeatFreq :  100
-//      // heartbeatLength: 0
-//    }//EventAction
-    
+//    MuonStorageStatusAction: {
+//      name: "MuonStorageStatusAction"
+//    }
 
   } //user:
 } //services:
@@ -146,18 +126,26 @@ physics: {
   producers: {
     artg4 : { 
      module_type: artg4Main
-     enableVisualization: true
+     enableVisualization: false
      macroPath: ".:./macros:../macros:../../macros"
      visMacro: "vis.mac"
      afterEvent: pause  // (ui, pause, pass)
      }
- }
+  }
+
+  analyzers: {
+    readTracks: {
+      module_type: particleTrackAnalyzer
+    }
+  }
+
 
   path1: [ artg4 ]
+  readPath: [ readTracks ]
   stream1:  [ out1 ]
 
   trigger_paths: [ path1 ]
-  end_paths: [ stream1 ]
+  end_paths: [ readPath, stream1 ]
 
 }
 
