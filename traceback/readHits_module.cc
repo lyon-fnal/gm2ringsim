@@ -46,6 +46,8 @@ private:
   TH1F *h_x_global;
   TH1F *h_y_global;
   TH1F *h_z_global;
+  TH1F *h_r_global;
+  TH1F *h_myr_global;
   TH1F *h_px_global;
   TH1F *h_py_global;
   TH1F *h_pz_global;
@@ -63,6 +65,8 @@ private:
   float tf_x_global;
   float tf_y_global;
   float tf_z_global;
+  float tf_r_global;
+  float tf_myr_global;
   float tf_px_global;
   float tf_py_global;
   float tf_pz_global;
@@ -104,6 +108,8 @@ tree_dir_       ( p.get<std::string>("tree_dir"         ) )
   h_x_global= histDir.make<TH1F>("global_hitX","Global X of hits",50, -6000.0, 6000.0);
   h_y_global= histDir.make<TH1F>("global_hitY","Global Y of hits",50, -70.0, 70.0);
   h_z_global= histDir.make<TH1F>("global_hitZ","Global Z of hits",50, 3000.0, 5000.0);
+  h_r_global= histDir.make<TH1F>("global_hitR","Global R of the hits",50,6800,7050);
+  h_myr_global = histDir.make<TH1F>("global_hitMYR","Global MyR of the hits",50,6800,7050);
   h_px_global= histDir.make<TH1F>("global_hitpX","Global pX of hits",50, -100.0, 100.0);
   h_py_global= histDir.make<TH1F>("global_hitpY","Global pY of hits",50, -100.0, 100.0);
   h_pz_global= histDir.make<TH1F>("global_hitpZ","Global pZ of hits",50, -100.0, 100.0);
@@ -122,18 +128,20 @@ tree_dir_       ( p.get<std::string>("tree_dir"         ) )
   
   // Create the tree
   t_hitTree_ = treeDir.make<TTree>("hitTree", "Tree of hits");
-  t_hitTree_->Branch("x_global", &tf_x_global, "x/F");
-  t_hitTree_->Branch("y_global", &tf_y_global, "y/F");
-  t_hitTree_->Branch("z_global", &tf_z_global, "z/F");
-  t_hitTree_->Branch("px_global", &tf_x_global, "x/F");
-  t_hitTree_->Branch("py_global", &tf_y_global, "y/F");
-  t_hitTree_->Branch("pz_global", &tf_z_global, "z/F");
-  t_hitTree_->Branch("x_local", &tf_x_local, "x/F");
-  t_hitTree_->Branch("y_local", &tf_y_local, "y/F");
-  t_hitTree_->Branch("z_local", &tf_z_local, "z/F");
-  t_hitTree_->Branch("px_local", &tf_x_local, "x/F");
-  t_hitTree_->Branch("py_local", &tf_y_local, "y/F");
-  t_hitTree_->Branch("pz_local", &tf_z_local, "z/F");
+  t_hitTree_->Branch("x_global", &tf_x_global, "x_global/F");
+  t_hitTree_->Branch("y_global", &tf_y_global, "y_global/F");
+  t_hitTree_->Branch("z_global", &tf_z_global, "z_global/F");
+  t_hitTree_->Branch("r_global", &tf_r_global, "r_global/F");
+  t_hitTree_->Branch("myr_global", &tf_myr_global, "myr_global/F");
+  t_hitTree_->Branch("px_global", &tf_px_global, "px_global/F");
+  t_hitTree_->Branch("py_global", &tf_py_global, "py_global/F");
+  t_hitTree_->Branch("pz_global", &tf_pz_global, "pz_global/F");
+  t_hitTree_->Branch("x_local", &tf_x_local, "x_local/F");
+  t_hitTree_->Branch("y_local", &tf_y_local, "y_local/F");
+  t_hitTree_->Branch("z_local", &tf_z_local, "z_local/F");
+  t_hitTree_->Branch("px_local", &tf_px_local, "px_local/F");
+  t_hitTree_->Branch("py_local", &tf_py_local, "py_local/F");
+  t_hitTree_->Branch("pz_local", &tf_pz_local, "pz_local/F");
 
 }
 
@@ -161,6 +169,8 @@ void gm2ringsim::readHits::analyze(art::Event const &e) {
     h_x_global -> Fill(hdata.x_global);
     h_y_global -> Fill(hdata.y_global);
     h_z_global -> Fill(hdata.z_global);
+    h_r_global -> Fill(hdata.r_global);
+    h_myr_global -> Fill(hdata.myr_global);
     h_px_global -> Fill(hdata.px_global);
     h_py_global -> Fill(hdata.py_global);
     h_pz_global -> Fill(hdata.pz_global);
@@ -175,6 +185,8 @@ void gm2ringsim::readHits::analyze(art::Event const &e) {
     tf_x_global=hdata.x_global;
     tf_y_global=hdata.y_global;
     tf_z_global=hdata.z_global;
+    tf_r_global=hdata.r_global;
+    tf_myr_global=hdata.myr_global;
     tf_px_global=hdata.px_global;
     tf_py_global=hdata.py_global;
     tf_pz_global=hdata.pz_global;

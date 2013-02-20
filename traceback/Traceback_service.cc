@@ -71,7 +71,7 @@ G4LogicalVolume* gm2ringsim::Traceback::makeATracebackLV(int tracebackNum) {
                              vacg.torus_sphi, vacg.torus_dphi);
   
   G4Tubs *torus2 = new G4Tubs("torus2",
-                             vacg.torus_rmin-1,
+                             vacg.torus_rmin-10,
                              vacg.torus_rmax[vacg.vacuumRegion] + 10,
                              vacg.torus_z[vacg.vacuumRegion]+10,
                              vacg.torus_sphi-10*deg, vacg.torus_dphi+20*deg);
@@ -139,13 +139,14 @@ void gm2ringsim::Traceback::makeStrawDetectors(std::vector<G4VPhysicalVolume*>& 
   for (unsigned int tb = 0; tb<geom_.whichTracebackLocations.size() ;tb++){
     for (unsigned int sc =0 ; sc<geom_.strawLocation.size(); sc++){
       G4double
-      r = 7010,
+      r = 7020,
       y = 0,
       phi = 12.8,
       ys = geom_.strawLocation[sc],
       deltaR =0;
       
       int arcPosition = geom_.whichTracebackLocations[tb] % 2;
+      
       deltaR = ys * sin(phi * deg);
       r = r - deltaR;
       r = r + geom_.strawRadialExtentHalf[sc];
@@ -163,6 +164,7 @@ void gm2ringsim::Traceback::makeStrawDetectors(std::vector<G4VPhysicalVolume*>& 
     
       std::string strawLVName = artg4::addNumberToName("StrawChamberLV", sc);
 
+      strawLVName = artg4::addNumberToName(strawLVName,tb);
       G4LogicalVolume* strawLV = new G4LogicalVolume(
                                                      strawSystem,
                                                      artg4Materials::Vacuum(),
@@ -177,7 +179,6 @@ void gm2ringsim::Traceback::makeStrawDetectors(std::vector<G4VPhysicalVolume*>& 
                       }
                       );
 
-      std::string pvName = artg4::addNumberToName("StrawChamberPV", sc);   
                   
       // We can make the physical volumes here
       StrawSD* strawSD_ = artg4::getSensitiveDetector<StrawSD>(strawSDname_);
@@ -185,10 +186,10 @@ void gm2ringsim::Traceback::makeStrawDetectors(std::vector<G4VPhysicalVolume*>& 
 
       straws.push_back( new G4PVPlacement(out_transform,
                                             strawLV,
-                                            pvName.c_str(),
+                                            strawLVName.c_str(),
                                             tracebacks[tb],
                                             false,
-                                            0)
+                                            0, true)
                    );
     
     }
@@ -226,7 +227,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
     // (see http://www.boost.org/doc/libs/1_52_0/libs/format/doc/format.html )
     tracebackNum= geom_.whichTracebackLocations[i];
     std::string tracebackLabel( boost::str( boost::format("TracebackNumber[%02d]") % tracebackNum ));
-    
+
     
     // beamlike
       
@@ -284,14 +285,16 @@ void gm2ringsim::Traceback::doFillEventWithArtHits(G4HCofThisEvent * hc) {
   if (NULL != myCollection) {
     std::vector<StrawHit*> geantHits = *(myCollection->GetVector());
     int i = 0;
+    float my_r;
     std::cout<<"The number of events in the geantHits is: "<<geantHits.size()<<std::endl;
     for ( auto e : geantHits ) {
       std::cout<<"The event number is: "<<i<<std::endl;
       e->Print();
       // Copy this hit into the Art hit
       std::cout<<"The Hit in position.x(): "<<e->position.x()<<std::endl;
-      
-      myArtHits->emplace_back( e->position.x(),e->position.y(),e->position.z(),
+      std::cout<<"The position in r: "<<e->position.r()<<std::endl;
+      my_r = sqrt(e->position.x()*e->position.x() + e->position.z()*e->position.z());
+      myArtHits->emplace_back( e->position.x(),e->position.y(),e->position.z(),e->position.r(),my_r,
                                 e->local_position.x(),e->local_position.y(), e->local_position.z(),
                                 e->momentum.x(),e->momentum.y(),e->momentum.z(),
                                 e->local_momentum.x(),e->local_momentum.y(), e->local_momentum.z(),
