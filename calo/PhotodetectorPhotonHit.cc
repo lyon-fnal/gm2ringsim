@@ -2,7 +2,9 @@
  
     Implements the photodetector photon hit data storage classes.
  
-    Ported to Art from g2migtrace file pmtPhotonHit.cc (Werner Sun, 2011)
+    Ported to Art from g2migtrace file pmtPhotonHit.cc
+        @author Werner Sun
+        @date 2011
  
     @author Robin Bjorkquist
     @date 2013

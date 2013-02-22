@@ -2,7 +2,9 @@
  
     Implements the "stop and kill" photodetector sensitive detector.
  
-    Ported to Art from g2migtrace file pmtSD.cc (Kevin Lynch, 2009)
+    Ported to Art from g2migtrace file pmtSD.cc
+        @author Kevin Lynch
+        @date 2009
  
     @author Robin Bjorkquist
     @date 2013
@@ -11,6 +13,8 @@
 #include "PhotodetectorSD.hh"
 // >>>> temporarily comment out PhotonHitCorrelator
 //#include "PhotonHitCorrelator.hh"
+
+#include "Calorimeter_service.hh" // need this for addPhotonToName
 
 #include "Geant4/G4ios.hh"
 #include "Geant4/G4SDManager.hh"
@@ -27,11 +31,12 @@
 // >>>> need to fix hard-coded photodetector number
 static const int nPhotodetectors = 24 * 35 ;
 
-gm2ringsim::PhotodetectorSD::PhotodetectorSD(G4String name, G4String photonName) :
+gm2ringsim::PhotodetectorSD::PhotodetectorSD(G4String name) :
 G4VSensitiveDetector( name ),
 printLevel(0), drawLevel(0)
 {
     collectionName.insert( name );
+    G4String photonName = Calorimeter::addPhotonToName(name);
     collectionName.insert( photonName ) ;
     
     photodetectorID = new G4int[ nPhotodetectors ] ;

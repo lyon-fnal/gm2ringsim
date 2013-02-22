@@ -6,7 +6,9 @@
     Provides the declaration of a "stops and kills" photodetector
     sensitive detector.
  
-    Ported to Art from g2migtrace file pmtSD.hh (Werner Sun, 2011)
+    Ported to Art from g2migtrace file pmtSD.hh
+        @author Werner Sun
+        @date 2011
  
     @author Robin Bjorkquist
     @date 2013
@@ -33,7 +35,7 @@ namespace gm2ringsim {
 class PhotodetectorSD : public G4VSensitiveDetector{
     
 public:
-    PhotodetectorSD(G4String name, G4String photonName);
+    PhotodetectorSD(G4String name);
     ~PhotodetectorSD();
     
     void Initialize(G4HCofThisEvent*);

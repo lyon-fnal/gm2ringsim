@@ -13,6 +13,8 @@
 #include <iostream>
 #include <vector>
 
+#include "gm2ringsim/calo/PhotodetectorSD.hh"
+
 // Art Includes
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
@@ -44,7 +46,16 @@ namespace gm2ringsim {
         // We always need a virtual destructor
         virtual ~Calorimeter() {};
         
+        // Return name for photodetector hit collection
+        static G4String getPhotodetectorName() {return "PhotodetectorSD";}
+        
+        // Add "photon" to name
+        static G4String addPhotonToName(G4String name) {return "photon" + name;}
+        
     private:
+        
+        G4String photodetectorSDname_;
+        PhotodetectorSD *photodetectorSD_;
         
         // Private overriden methods
         
@@ -59,12 +70,10 @@ namespace gm2ringsim {
         
 
         // Tell Art what we'll produce
-
-        // CHANGE_ME: Delete the next two functions if no hits
-        //virtual void doCallArtProduces(art::EDProducer * producer) override;
+        virtual void doCallArtProduces(art::EDProducer * producer) override;
         
         // Actually add the data to the event
-        //virtual void doFillEventWithArtHits(G4HCofThisEvent * hc) override;
+        virtual void doFillEventWithArtHits(G4HCofThisEvent * hc) override;
         
     };
 }

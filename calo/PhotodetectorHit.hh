@@ -6,7 +6,9 @@
     Declares the data structures required to store photodetector hit
     information.
  
-    Ported to Art from g2migtrace file pmtHit.hh (Werner Sun, 2011)
+    Ported to Art from g2migtrace file pmtHit.hh
+        @author Werner Sun
+        @date 2011
  
     @author Robin Bjorkquist
     @date 2013

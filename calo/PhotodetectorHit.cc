@@ -1,11 +1,13 @@
 /** @file PhotodetectorHit.cc
  
- Implements the photodetector hit data storage classes.
+    Implements the photodetector hit data storage classes.
  
- Ported to Art from g2migtrace file pmtHit.cc (Werner Sun, 2011)
+    Ported to Art from g2migtrace file pmtHit.cc
+        @author Werner Sun
+        @date 2011
  
- @author Robin Bjorkquist
- @date 2013
+    @author Robin Bjorkquist
+    @date 2013
  */
 
 #include "PhotodetectorHit.hh"
