@@ -8,7 +8,7 @@
 /run/verbose 2
 #
 # Use this open statement to create an OpenGL view:
-/vis/open OGL 900x800-0+0
+/vis/open OGL 1200x800-0+0
 #
 # Use this open statement to create a .prim file suitable for
 # viewing in DAWN:
@@ -86,8 +86,8 @@
 
 #for viewing a traceback
 /vis/viewer/set/viewpointThetaPhi 90. 90.
-/vis/viewer/panTo 4 6
-/vis/viewer/zoomTo 5
+/vis/viewer/panTo -1.75 -6.5
+/vis/viewer/zoomTo 15
 /vis/viewer/refresh
 #
 # Specify style (surface or wireframe):

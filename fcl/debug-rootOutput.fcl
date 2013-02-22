@@ -17,7 +17,7 @@ process_name:myProcessName
 
 source: {
   module_type: EmptyEvent
-  maxEvents:  100
+  maxEvents:  25
 }
 
 services: {
@@ -84,7 +84,7 @@ services: {
           minWavelength:250 //nm
           maxWavelength:950  //nm
     }
-
+    physicalVolumeStore: {}
     Gm2PhysicsList: {}
     TrackingAction : {
           name : "trackingAction"
@@ -152,7 +152,7 @@ physics: {
      enableVisualization: true
      macroPath: ".:./macros:../macros:../../macros"
      visMacro: "vis.mac"
-     afterEvent: pass  // (ui, pause, pass)
+     afterEvent: pause  // (ui, pause, pass)
      }
   }
   analyzers: {
