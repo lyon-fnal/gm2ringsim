@@ -1,0 +1,28 @@
+
+services : {
+  TFileService: {
+    fileName: "data_out.root"
+  }
+}
+
+process_name: readHits
+
+source: {
+   module_type: RootInput
+   maxEvents:  -1
+   fileNames: [ "gm2ringsimout.root" ]
+}
+
+physics: {
+  analyzers: {
+    strawChambers: {
+      module_type: readHits
+      hist_dir: ""
+      tree_dir: ""
+      hitModuleLabel: artg4
+      instanceName: "traceback"
+    }
+  }
+  path1: [ strawChambers ]
+  end_paths: [ path1 ]
+}

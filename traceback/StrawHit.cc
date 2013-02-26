@@ -31,7 +31,7 @@ gm2ringsim::StrawHit::StrawHit(G4Step* step) :
     trackID(step->GetTrack()->GetTrackID()) //,
     //FIXME  volumeUID(get_uid(step->GetPreStepPoint()->GetPhysicalVolume()))
 {
-    G4StepPoint* preStepPoint = step->GetPreStepPoint();
+    /*G4StepPoint* preStepPoint = step->GetPreStepPoint();
     G4TouchableHandle theTouchable = preStepPoint->GetTouchableHandle();
     G4ThreeVector worldPosition = preStepPoint->GetPosition();
     
@@ -55,8 +55,29 @@ gm2ringsim::StrawHit::StrawHit(G4Step* step) :
             local_position = history->GetTransform(depth).TransformPoint(worldPosition);
             
         }
-    }
-    
+    }*/
+  
+  
+  G4StepPoint* preStepPoint = step->GetPreStepPoint();
+  G4TouchableHandle theTouchable = preStepPoint->GetTouchableHandle();
+  //position in world coordinates
+
+  G4ThreeVector worldPosition = preStepPoint->GetPosition();
+  const G4NavigationHistory *history =  theTouchable->GetHistory();
+  //momentum in world coordinates
+
+  G4ThreeVector world_momentum = preStepPoint->GetMomentum();
+  
+  G4int depth = history->GetDepth();
+  G4VPhysicalVolume *vol = history->GetVolume(depth);
+  if ( vol ) {
+    G4RotationMatrix rotInv = history->GetTransform(depth).NetRotation().inverse();
+    //momentum in detector coordinates
+    local_momentum = world_momentum.transform(rotInv);
+    //position in detector coordinates
+    local_position = history->GetTransform(depth).TransformPoint(worldPosition);
+  }
+  
     }
 
 
@@ -79,8 +100,9 @@ void gm2ringsim::StrawHit::Draw(){
 //#include "rootStorageManager.hh"
 
 void gm2ringsim::StrawHit::Print(){
-    G4cout << " volumeUID: " << volumeUID
-    << " time: " << time
-    << " position: " << position
-    << "\n";
+  G4cout << "StrawHit::Print()" <<
+  " \n\tvolumeUID: " << volumeUID
+  << " \n\t time: " << time
+  << " \n\t position: " << position
+  << "\n";
 }
