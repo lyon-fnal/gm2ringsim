@@ -1,16 +1,16 @@
-#ifndef PhotodetectorArtRecord_hh
-#define PhotodetectorArtRecord_hh
+#ifndef PhotodetectorPhotonArtRecord_hh
+#define PhotodetectorPhotonArtRecord_hh
 
-/** @file PhotodetectorArtRecord.hh
+/** @file PhotodetectorPhotonArtRecord.hh
  
-    Implements the photodetector hit stored in the Art output file
+ Implements the photodetector photon hit stored in the Art output file
  
-    Ported to Art from g2migtrace file pmtRecord.rhh
-        @author Werner Sun
-        @date 2011
+ Ported to Art from g2migtrace file pmtPhotonRecord.rhh
+ @author Werner Sun
+ @date 2011
  
-    @author Robin Bjorkquist
-    @date 2013
+ @author Robin Bjorkquist
+ @date 2013
  */
 
 #include <vector>
@@ -20,7 +20,7 @@
 #endif // __GCCXML__
 
 namespace gm2ringsim {
-    struct PhotodetectorArtRecord {
+    struct PhotodetectorPhotonArtRecord {
         
         /** Current value of turn counter for the @b primary that caused
          this hit. */
@@ -51,35 +51,47 @@ namespace gm2ringsim {
          Zero in the center, increasing vertically. */
         float v;
         
-        /** Global time of the photodetector hit. */
+        /** Global time of the photodetector photon hit. */
         float time;
         
-        /** Number of photons with photon detection efficiency applied */
-        int nphoton ;
+        /** Momentum along the @r direction, MeV. */
+        float pr;
         
-        /** Photon energy, summed over detected photons */
+        /** Momentum along the @t direction, MeV. */
+        float pt;
+        
+        /** Momentum along the @v direction, MeV. */
+        float pv;
+        
+        /** Photon energy */
         float e;
         
-        PhotodetectorArtRecord() :
+        /** Does photon pass efficiency simulation? */
+        bool accepted ;
+        
+        PhotodetectorPhotonArtRecord() :
         turn(0), caloNum(0), photodetectorNum(0), trackID(0),
-        r(0.), t(0.), v(0.), time(0.), nphoton(0), e(0.)
+        r(0.), t(0.), v(0.), time(0.),
+        pr(0.), pt(0.), pv(0.), e(0.), accepted( false )
         {}
         
-        virtual ~PhotodetectorArtRecord(){};
+        virtual ~PhotodetectorPhotonArtRecord(){};
         
         // ROOT doesn't need to know the rest
 #ifndef __GCCXML__
-        PhotodetectorArtRecord(int n, int cn, int pn, int id,
-                               float r, float t, float v,
-                               float time, float np, float e) :
+        PhotodetectorPhotonArtRecord(int n, int cn, int pn, int id,
+                               float r, float t, float v, float time,
+                               float pr, float pt, float pv, float e,
+                               float accept) :
         turn(n), caloNum(cn), photodetectorNum(pn), trackID(id),
-        r(r), t(t), v(v), time(time), nphoton(np), e(e)
+        r(r), t(t), v(v), time(time),
+        pr(pr), pt(pt), pv(pv), e(e), accepted(accept)
         {}
         
 #endif // __GCCXML__
-    }; //end of PhotodetectorArtRecord struct
+    }; //end of PhotodetectorPhotonArtRecord struct
     
-    typedef std::vector<PhotodetectorArtRecord> PhotodetectorArtRecordCollection;
+    typedef std::vector<PhotodetectorPhotonArtRecord> PhotodetectorPhotonArtRecordCollection;
 } // end namespace gm2ringsim
 
-#endif // PhotodetectorArtRecord_hh
+#endif // PhotodetectorPhotonArtRecord_hh

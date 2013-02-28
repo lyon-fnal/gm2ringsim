@@ -54,7 +54,6 @@ namespace gm2ringsim {
         
     private:
         
-        G4String photodetectorSDname_;
         PhotodetectorSD *photodetectorSD_;
         
         // Private overriden methods
@@ -74,6 +73,12 @@ namespace gm2ringsim {
         
         // Actually add the data to the event
         virtual void doFillEventWithArtHits(G4HCofThisEvent * hc) override;
+        
+        // Add photodetector hits to the event
+        void doFillEventWithPhotodetectorHits(G4HCofThisEvent * hc);
+        
+        // Add photodetector photon hits to the event
+        void doFillEventWithPhotodetectorPhotonHits(G4HCofThisEvent *hc);
         
     };
 }

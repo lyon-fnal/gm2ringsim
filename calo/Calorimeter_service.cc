@@ -33,7 +33,9 @@
 #include "gm2ringsim/station/StationGeometry.hh"
 
 #include "gm2ringsim/calo/PhotodetectorHit.hh"
+#include "gm2ringsim/calo/PhotodetectorPhotonHit.hh"
 #include "gm2ringsim/calo/PhotodetectorArtRecord.hh"
+#include "gm2ringsim/calo/PhotodetectorPhotonArtRecord.hh"
 
 // Constructor for the service
 gm2ringsim::Calorimeter::Calorimeter(fhicl::ParameterSet const & p, art::ActivityRegistry & ) :
@@ -41,8 +43,7 @@ DetectorBase(p,
              p.get<std::string>("name", "calorimeter"),
              p.get<std::string>("category", "calorimeter"),
              p.get<std::string>("mother_category", "station")),
-    photodetectorSDname_("photodetectorSD"),
-    photodetectorSD_(artg4::getSensitiveDetector<PhotodetectorSD>(photodetectorSDname_))
+    photodetectorSD_(artg4::getSensitiveDetector<PhotodetectorSD>(getPhotodetectorName()))
 {}
 
 G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeometry& caloGeom, int calorimeterNumber ) {
@@ -447,10 +448,16 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Calorimeter::doPlaceToPVs( std::vec
 // Declare to Art what we are producing
 void gm2ringsim::Calorimeter::doCallArtProduces(art::EDProducer * producer) {
     producer->produces<PhotodetectorArtRecordCollection>(category());
+    producer->produces<PhotodetectorPhotonArtRecordCollection>(category());
 }
 
 // Actually add the data to the event
 void gm2ringsim::Calorimeter::doFillEventWithArtHits(G4HCofThisEvent * hc) {
+    doFillEventWithPhotodetectorHits(hc);
+    doFillEventWithPhotodetectorPhotonHits(hc);
+}
+
+void gm2ringsim::Calorimeter::doFillEventWithPhotodetectorHits(G4HCofThisEvent * hc) {
     std::unique_ptr<PhotodetectorArtRecordCollection> myArtHits(new PhotodetectorArtRecordCollection);
     
     // Find the collection ID for the hits
@@ -458,7 +465,7 @@ void gm2ringsim::Calorimeter::doFillEventWithArtHits(G4HCofThisEvent * hc) {
     
     // The string here is unfortunately a magic constant. It's the string used
     // by the sensitive detector to identify the collection of hits.
-    G4int collectionID = fSDM->GetCollectionID(photodetectorSDname_);
+    G4int collectionID = fSDM->GetCollectionID(getPhotodetectorName());
     PhotodetectorHitsCollection* myCollection =
     static_cast<PhotodetectorHitsCollection*>(hc->GetHC(collectionID));
     
@@ -492,8 +499,59 @@ void gm2ringsim::Calorimeter::doFillEventWithArtHits(G4HCofThisEvent * hc) {
     
     // Put the hits into the event
     e.put(std::move(myArtHits), category());
-
+    
+ 
 }
+
+void gm2ringsim::Calorimeter::doFillEventWithPhotodetectorPhotonHits(G4HCofThisEvent * hc) {
+    std::unique_ptr<PhotodetectorPhotonArtRecordCollection> myArtHits(new PhotodetectorPhotonArtRecordCollection);
+    
+    // Find the collection ID for the hits
+    G4SDManager* fSDM = G4SDManager::GetSDMpointer();
+    
+    // The string here is unfortunately a magic constant. It's the string used
+    // by the sensitive detector to identify the collection of hits.
+    G4int collectionID = fSDM->GetCollectionID(addPhotonToName(getPhotodetectorName()));
+    PhotodetectorPhotonHitsCollection* myCollection =
+    static_cast<PhotodetectorPhotonHitsCollection*>(hc->GetHC(collectionID));
+    
+    // Check whether the collection exists
+    if (NULL != myCollection) {
+        std::vector<PhotodetectorPhotonHit*> geantHits = *(myCollection->GetVector());
+        
+        for ( auto e : geantHits ) {
+            // Copy this hit into the Art hit
+            myArtHits->emplace_back( e->turnNum,
+                                    e->caloNum,
+                                    e->photodetectorNum,
+                                    e->trackID,
+                                    e->local_pos.x(), // radial coordinate
+                                    e->local_pos.z(), // thickness coordinate
+                                    e->local_pos.y(), // vertical coordinate
+                                    e->time,
+                                    e->local_mom.x(),
+                                    e->local_mom.z(),
+                                    e->local_mom.y(),
+                                    e->energy,
+                                    e->accepted );
+        }
+    }
+    else {
+        throw cet::exception("Photodetector") << "Null collection of Geant photodetector photon hits"
+        << ", aborting!" << std::endl;
+    }
+    
+    // Now that we have our collection of artized hits, add them to the event.
+    // Get the event from the detector holder service
+    art::ServiceHandle<artg4::DetectorHolderService> detectorHolder;
+    art::Event & e = detectorHolder -> getCurrArtEvent();
+    
+    // Put the hits into the event
+    e.put(std::move(myArtHits), category());
+    
+    
+}
+
 
 using gm2ringsim::Calorimeter;
 DEFINE_ART_SERVICE(Calorimeter)
