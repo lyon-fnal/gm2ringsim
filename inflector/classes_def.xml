@@ -1,0 +1,8 @@
+<!--  art::Wrapper lines need only top level data product objects  -->
+
+<lcgdict>
+    <!-- For TrackerHits - note that using the typedef will not work here-->
+    <class name="gm2ringsim::InflectorArtRecord"/>
+    <class name="std::vector< gm2ringsim::InflectorArtRecord >"/>
+    <class name="art::Wrapper< std::vector< gm2ringsim::InflectorArtRecord > >"/>
+</lcgdict>

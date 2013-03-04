@@ -1,0 +1,33 @@
+// Calorimeter geometry
+BEGIN_PROLOG
+
+calorimeter_geom : {
+  // PbF2 crystal and array parameters
+  nXtalRows: 6
+  nXtalCols: 9
+  wrappingGap: 0.01 // cm
+  crystalCaloBuffer : 0.01 // cm
+  xtalWidth:  2.5 // cm
+  xtalHeight: 2.5 // cm
+  xtalDepth: 14.0 // cm
+  // optical surfaces
+  sideWrapping:  "Black"
+  frontWrapping: "Black"
+  backWrapping:  "Black"
+  // photodetector parameters
+  photodetectorShape: "Square"
+  photodetectorSize:    1.2  // cm
+  photodetectorDepth:   0.05 // cm
+  opticalCouplingDepth: 0.05 // cm
+  // visualization options
+  displayCalorimeterBox:  true
+  displayWrappingVolumes: true
+  displayCrystalArray:    true
+  calorimeterColor :     [0.85, 0.44, 0.84, 1.0] // purple
+  xtalColor :            [0.0,  1.0,  0.0,  1.0] // green
+  photodetectorColor :   [0.0,  0.0,  1.0,  1.0] // blue
+  opticalCouplingColor : [1.0,  0.0,  0.0,  1.0] // red
+  wrappingColor :        [1.0,  0.5,  0.0,  1.0] // orange
+
+}
+END_PROLOG

@@ -1,0 +1,12 @@
+// World geometry
+BEGIN_PROLOG
+world_geom : {
+  // Dimensions of the world (lab) in mm
+  world_x: 14000
+  world_y: 3500
+  world_z: 11000
+  
+  display : true
+  worldColor : [ 0.5, 0.5, 0.5, 1.0 ]
+}
+END_PROLOG
