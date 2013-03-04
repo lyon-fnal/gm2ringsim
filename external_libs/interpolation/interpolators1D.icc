@@ -123,7 +123,7 @@ uniform_spline_interpolator(double xmin, double xmax,
 
 template<class Payload> template<class PointIter, class DataIter>
 uniform_spline_interpolator<Payload>::
-uniform_spline_interpolator(PointIter xbegin, PointIter xend,
+uniform_spline_interpolator(PointIter xbegin, PointIter xend __attribute__((unused)),
 			    DataIter databegin, DataIter dataend) : 
   data_(databegin, dataend), 
   xmin_(*xbegin), 
