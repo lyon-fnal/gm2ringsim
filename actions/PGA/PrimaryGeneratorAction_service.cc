@@ -94,7 +94,7 @@ void gm2ringsim::PrimaryGeneratorAction::generatePrimaries(G4Event* evt) {
     G4double randY_SR = 0.*mm; // vertical     
 
       
-      //FIXME: Is using G4RandGuass::shoot in this manner problematic?
+      //FIXME: Is using G4RandGauss::shoot in this manner problematic?
       // see: http://mu2e.fnal.gov/public/hep/computing/Random.shtml#fireShoot
       // BK, Nov 2012
 

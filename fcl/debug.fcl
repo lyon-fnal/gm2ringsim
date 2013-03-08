@@ -89,8 +89,13 @@ services: {
 
     ClockAction: {}
 
-    G2PGA: {
-      name: "primary"
+//    G2PGA: {
+//      name: "primary"
+//    }
+
+    MuonGasPGA: {
+        name: "muongas"
+        muonGasVerbosity: false
     }
 
     // Detectors
@@ -108,9 +113,9 @@ services: {
     Traceback: {}
 
 
-//    MuonStorageStatusAction: {
-//      name: "MuonStorageStatusAction"
-//    }
+    MuonStorageStatusAction: {
+      name: "MuonStorageStatusAction"
+    }
 
   } //user:
 } //services:

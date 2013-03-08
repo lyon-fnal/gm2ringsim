@@ -12,7 +12,8 @@
 */
 
 // Get the PGA header
-#include "gm2ringsim/actions/PGA/G2PGA_service.hh"
+#include "gm2ringsim/actions/PGA/MuonGasPGA_service.hh"
+
 
 // ART includes
 #include "art/Framework/Services/Registry/ServiceMacros.h"
@@ -40,33 +41,37 @@
 using std::endl;
 
 // Constructor
-gm2ringsim::G2PGA::G2PGA(fhicl::ParameterSet const& p, art::ActivityRegistry&) :
+gm2ringsim::MuonGasPGA::MuonGasPGA(fhicl::ParameterSet const& p, art::ActivityRegistry&) :
   artg4::PrimaryGeneratorActionBase(p.get<std::string>("name")),
   settings_("G2GPSSettings"),
+  
   //par_g2GPS_(p.get<fhicl::ParameterSet>("G2GPSSettings", fhicl::ParameterSet())),
-  gps_( 0 )     // Must not intialize here because Geant isn't ready yet
+  gps_( 0 ),     // Must not initialize here because Geant isn't ready yet
+  muonGasVerbosity_ (p.get<bool>("muonGasVerbosity", 0))
 {}
 
-gm2ringsim::G2PGA::~G2PGA(){
+gm2ringsim::MuonGasPGA::~MuonGasPGA(){
   delete gps_;
 }
 
 
 // initialize
-void gm2ringsim::G2PGA::initialize() {
-
-  gps_ = new g2GeneralParticleSource();
-
+void gm2ringsim::MuonGasPGA::initialize() {
+  
+  //  particleGun_ = new G4ParticleGun(1);
+  // Read the parameter set and figure out what sort of gun to use
+  gps_ = new g2MuonGasSource();
+  gps_ -> SetVerbosity(muonGasVerbosity_);
 }
 
-// EndOfG2PGA
-void gm2ringsim::G2PGA::generatePrimaries(G4Event* evt) {
+// EndOfMuonGasPGA
+void gm2ringsim::MuonGasPGA::generatePrimaries(G4Event* evt) {
 
   gps_->GeneratePrimaryVertex( evt );
- 
+
   
 } // generatePrimaries
 
 
-using gm2ringsim::G2PGA;
-DEFINE_ART_SERVICE(G2PGA)
+using gm2ringsim::MuonGasPGA;
+DEFINE_ART_SERVICE(MuonGasPGA)

@@ -54,7 +54,7 @@ public:
   g2GeneralParticleSource();
   ~g2GeneralParticleSource();
   
-  void GeneratePrimaryVertex(G4Event*);
+  void GeneratePrimaryVertex(G4Event*) override;
   
   G4int GetNumberofSource() { return G4int(sourceVector.size()); };
   void ListSource();
