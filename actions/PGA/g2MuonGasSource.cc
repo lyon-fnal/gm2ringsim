@@ -28,8 +28,12 @@ using std::endl;
 // Constructor
 gm2ringsim::g2MuonGasSource::g2MuonGasSource() :
   muonGasGun_(),
+  g2GPS_(),
   muonGasVerbosity_ (0)
-{ }
+{
+  muonGasGun_ = new G4ParticleGun();
+  g2GPS_ = new g2GeneralParticleSource();
+}
 
 gm2ringsim::g2MuonGasSource::~g2MuonGasSource() 
 { }
@@ -40,12 +44,15 @@ void gm2ringsim::g2MuonGasSource::SetVerbosity(bool verbose){
 
 // EndOfPrimaryGeneratorAction
 void gm2ringsim::g2MuonGasSource::GeneratePrimaryVertex(G4Event* evt) {
+
   mf::LogInfo("g2MuonGasSource") << "GeneratePrimaryVertex";
   static G4double particleLifetime=0; // initialize
   static G4bool firstVertex = true;
+  
   if( firstVertex ){
     G4String defaultParticle = "mu-";
     G4String particle = g2GPS_ ->GetParticleDefinition()->GetParticleName();
+    
     if( g2GPS_ ->GetParticleDefinition()!=NULL && particle!=defaultParticle ){
       muonGasGun_ ->SetParticleDefinition( g2GPS_ ->GetParticleDefinition() );
     } else {
@@ -55,6 +62,7 @@ void gm2ringsim::g2MuonGasSource::GeneratePrimaryVertex(G4Event* evt) {
     // Store PDGLifeTime and then define it to be 0 so we can decay the muons manually
     particleLifetime = muonGasGun_ ->GetParticleDefinition()->GetPDGLifeTime();
     muonGasGun_ ->GetParticleDefinition()->SetPDGLifeTime(0.);
+    
     firstVertex = false;
   }
   
@@ -228,9 +236,9 @@ void gm2ringsim::g2MuonGasSource::GeneratePrimaryVertex(G4Event* evt) {
   }
   
   //  FIRE    
-  
+  mf::LogInfo("g2MuonGasSource") << "About to call muonGasGun_->GeneratePrimaryVertex";  
   muonGasGun_->GeneratePrimaryVertex( evt );
-  
+    mf::LogInfo("g2MuonGasSource") << "Just got back from calling muonGasGun_->GeneratePrimaryVertex";  
 } // generatePrimaries
 
 
