@@ -37,7 +37,7 @@ namespace gm2ringsim {
     G4int DrawLevel() const { return drawLevel; };
     G4int DrawLevel(G4int newLevel);
   private:
-    inflectorHitsCollection *thisHC;
+    InflectorHitsCollection *thisHC;
     
     G4int printLevel, drawLevel;
     

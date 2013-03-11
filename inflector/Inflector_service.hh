@@ -45,6 +45,8 @@
 #include "gm2ringsim/inflector/InflectorSD.hh"
 #include "gm2ringsim/common/ring/RingSD.hh"
 #include "gm2ringsim/actions/SpinTrackingSettings.hh"
+#include "gm2ringsim/inflector/InflectorArtRecord.hh"
+#include "gm2ringsim/inflector/InflectorHit.hh"
 
 // Within a namespace
 namespace gm2ringsim {
@@ -226,7 +228,7 @@ namespace gm2ringsim {
       
       G4ThreeVector calc_position() const;
       G4RotationMatrix *calc_rotation();
-      
+      InflectorArtRecord convert(InflectorHit* );
       // inflectorMessenger *InflectorMessenger;
 
       connection_t conn_;
