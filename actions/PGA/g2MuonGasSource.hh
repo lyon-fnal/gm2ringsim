@@ -26,16 +26,16 @@
 #include "Geant4/G4RotationMatrix.hh"
 //#include "Geant4/G4VPrimaryVertex.hh"
 
-#include "gm2ringsim/actions/PGA/g2GeneralParticleSource.hh"
+#include "gm2ringsim/actions/PGA/G2GeneralParticleSource.hh"
 // Get the helper files
 
 namespace gm2ringsim
 {
-  class g2MuonGasSource : public G4VPrimaryGenerator
+  class G2MuonGasSource : public G4VPrimaryGenerator
   {
   public:
-    g2MuonGasSource();
-    ~g2MuonGasSource();
+    G2MuonGasSource();
+    ~G2MuonGasSource();
     
     void GeneratePrimaryVertex(G4Event*) override;
     
@@ -46,10 +46,10 @@ namespace gm2ringsim
     
   private:
     G4ParticleGun* muonGasGun_;
-    g2GeneralParticleSource* g2GPS_;
+    G2GeneralParticleSource* g2GPS_;
     bool muonGasVerbosity_;
     
-  }; // End g2MuonGasSource class
+  }; // End G2MuonGasSource class
 } //namespace gm2ringsim
 
 #endif //G2MUONGASSOURCE_HH

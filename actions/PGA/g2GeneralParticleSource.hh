@@ -1,9 +1,9 @@
 #ifndef G2GENERALPARTICLESOUCE_HHa
 #define G2GENERALPARTICLESOUCE_HHa
 
-/** @file g2GeneralParticleSource.hh
+/** @file G2GeneralParticleSource.hh
 
-    g2GeneralParticleSource is a modified and updated version of the
+    G2GeneralParticleSource is a modified and updated version of the
     GPS included with the distribution of GEANT4, details below.  I
     will add brief code documentation throughout the g2GPS files, with
     more detailed comments in the sections more relevant to g2MIGTRACE.
@@ -12,11 +12,11 @@
     allowing the use of their code...by which I mean I stole it
     unabashedly...
     
-    g2GPS uses the following modified modules:
-    - g2GeneralParticleSource -> expanded from original G4
-    - g2GeneralParticleSourceMessenger -> expanded and completely overhauled
-    - g2SingleParticleSource -> expanded and completely overhauled
-    - g2SPSTimeDistribution -> newly scripted for g2GPS
+    G2GPS uses the following modified modules:
+    - G2GeneralParticleSource -> expanded from original G4
+    - G2GeneralParticleSourceMessenger -> expanded and completely overhauled
+    - G2SingleParticleSource -> expanded and completely overhauled
+    - G2SPSTimeDistribution -> newly scripted for G2GPS
     
 
     Original authorship information:
@@ -41,20 +41,20 @@
 
 #include "Geant4/G4Event.hh"
 #include "Geant4/G4ParticleTable.hh"
-#include "gm2ringsim/actions/PGA/g2SingleParticleSource.hh"
+#include "gm2ringsim/actions/PGA/G2SingleParticleSource.hh"
 #include "gm2ringsim/actions/PGA/G2GPSSettings.hh"
 
 /** Provides a modified General Particle Source to include time
     distribution */
 
 namespace gm2ringsim {
-  class g2GeneralParticleSource : public G4VPrimaryGenerator
+  class G2GeneralParticleSource : public G4VPrimaryGenerator
   {
     //
   public:
     
-    g2GeneralParticleSource();
-    ~g2GeneralParticleSource();
+    G2GeneralParticleSource();
+    ~G2GeneralParticleSource();
     
     void GeneratePrimaryVertex(G4Event*) override;
     
@@ -62,14 +62,14 @@ namespace gm2ringsim {
     void ListSource();
     void SetCurrentSourceto(G4int) ;
     void SetCurrentSourceIntensity(G4double);
-    g2SingleParticleSource* GetCurrentSource() {return currentSource;};
+    G2SingleParticleSource* GetCurrentSource() {return currentSource;};
     G4int GetCurrentSourceIndex() { return currentSourceIdx; };
     G4double GetCurrentSourceIntensity() { return sourceIntensity[currentSourceIdx]; };
     void ClearAll();
     void AddaSource (G4double);
     void DeleteaSource(G4int);
     
-    // g2GeneralParticleSourceMessengerSettings
+    // G2GeneralParticleSourceMessengerSettings
     void implementSettings();
   
     void setParticleDefinition(std::string newValues);
@@ -171,8 +171,8 @@ namespace gm2ringsim {
     G4String muonGasGunTransverseDistrDefault;
     ///////////////////////////////////////////////////
     G4int currentSourceIdx;
-    g2SingleParticleSource* currentSource;
-    std::vector <g2SingleParticleSource*> sourceVector;
+    G2SingleParticleSource* currentSource;
+    std::vector <G2SingleParticleSource*> sourceVector;
     std::vector <G4double> sourceIntensity;
     std::vector <G4double>sourceProbability;
     

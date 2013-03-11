@@ -12,7 +12,7 @@
 */
 
 // Get the PGA header
-#include "gm2ringsim/actions/PGA/PrimaryGeneratorAction_service.hh"
+#include "gm2ringsim/actions/PGA/obsoletePrimaryGeneratorAction_service.hh"
 
 // ART includes
 #include "art/Framework/Services/Registry/ServiceMacros.h"
@@ -27,7 +27,7 @@
 #include "Geant4/Randomize.hh"
 
 // g2migtrace helpers
-#include "gm2ringsim/actions/PGA/g2GeneralParticleSource.hh"
+#include "gm2ringsim/actions/PGA/G2GeneralParticleSource.hh"
 #include "gm2ringsim/common/g2PreciseValues.hh"
 
 #define randFromDistr CLHEP::RandGeneral
@@ -58,7 +58,7 @@ gm2ringsim::PrimaryGeneratorAction::~PrimaryGeneratorAction(){
 void gm2ringsim::PrimaryGeneratorAction::initialize() {
   
   //  particleGun_ = new G4ParticleGun(1);
-  g2GPS_ = new g2GeneralParticleSource();
+  g2GPS_ = new G2GeneralParticleSource();
   muonGasGun_ = new G4ParticleGun();
   inflectorGun_ = new G4ParticleGun();
 

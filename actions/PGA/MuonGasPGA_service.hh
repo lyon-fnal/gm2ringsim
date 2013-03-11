@@ -20,9 +20,9 @@
 #include "Geant4/G4RotationMatrix.hh"
 
 // Get the helper files
-#include "gm2ringsim/actions/PGA/g2GeneralParticleSource.hh"
+#include "gm2ringsim/actions/PGA/G2GeneralParticleSource.hh"
 #include "gm2ringsim/actions/PGA/G2GPSSettings.hh"
-#include "gm2ringsim/actions/PGA/g2MuonGasSource.hh"
+#include "gm2ringsim/actions/PGA/G2MuonGasSource.hh"
 
 namespace gm2ringsim
 {
@@ -40,7 +40,7 @@ namespace gm2ringsim
     
     // Replace these settings 
     G2GPSSettings settings_;
-    g2MuonGasSource* gps_;
+    G2MuonGasSource* gps_;
     bool muonGasVerbosity_;
 
   }; // End MuonGasPGA class 

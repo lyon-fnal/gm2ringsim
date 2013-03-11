@@ -1,4 +1,4 @@
-/** @file g2SingleParticleSource.cc
+/** @file G2SingleParticleSource.cc
 
     Provides the modified distribution of the G4SingleParticleSource
     that includes time distribution.
@@ -18,11 +18,11 @@
 #include "Geant4/G4TrackingManager.hh"
 #include "Geant4/G4Track.hh"
 
-#include "gm2ringsim/actions/PGA/g2SingleParticleSource.hh"
+#include "gm2ringsim/actions/PGA/G2SingleParticleSource.hh"
 //#include "inflectorConstruction.hh"
 #include "gm2ringsim/inflector/inflectorGeometry.hh"
 
-g2SingleParticleSource::g2SingleParticleSource()
+gm2ringsim::G2SingleParticleSource::G2SingleParticleSource()
 {
   // Initialise all variables with some reasonable defaults
 
@@ -47,7 +47,7 @@ g2SingleParticleSource::g2SingleParticleSource()
   angGenerator->SetBiasRndm(biasRndm);
   eneGenerator = new G4SPSEneDistribution();
   eneGenerator->SetBiasRndm(biasRndm);
-  timeGenerator = new g2SPSTimeDistribution();
+  timeGenerator = new G2SPSTimeDistribution();
   timeGenerator->SetBiasRndm(biasRndm);
 
   // Set the verbosity default 
@@ -70,12 +70,12 @@ g2SingleParticleSource::g2SingleParticleSource()
 }
 
 
-g2SingleParticleSource::~g2SingleParticleSource()
+gm2ringsim::G2SingleParticleSource::~G2SingleParticleSource()
 {}
 
 
-// Function called by g2GPS to create the vertex
-void g2SingleParticleSource::GeneratePrimaryVertex(G4Event *evt)
+// Function called by G2GPS to create the vertex
+void gm2ringsim::G2SingleParticleSource::GeneratePrimaryVertex(G4Event *evt)
 {
   if(particle_definition==NULL) return;
   
@@ -93,7 +93,7 @@ void g2SingleParticleSource::GeneratePrimaryVertex(G4Event *evt)
 }
 
 
-void g2SingleParticleSource::UseImportedParticles(G4Event *evt)
+void gm2ringsim::G2SingleParticleSource::UseImportedParticles(G4Event *evt)
 {
   // When this function is called, importVector has been loaded with
   // all the particles.  First, static member function of
@@ -214,7 +214,7 @@ void g2SingleParticleSource::UseImportedParticles(G4Event *evt)
 }
 
  
-void g2SingleParticleSource::UseInternallyGenerateParticles(G4Event *evt)
+void gm2ringsim::G2SingleParticleSource::UseInternallyGenerateParticles(G4Event *evt)
 {
   // Generate a position
   particle_position = posGenerator->GenerateOne();
@@ -275,7 +275,7 @@ void g2SingleParticleSource::UseInternallyGenerateParticles(G4Event *evt)
 
 
 
-void g2SingleParticleSource::SetParticleDefinition
+void gm2ringsim::G2SingleParticleSource::SetParticleDefinition
   (G4ParticleDefinition* aParticleDefinition)
 {
   particle_definition = aParticleDefinition;
@@ -284,7 +284,7 @@ void g2SingleParticleSource::SetParticleDefinition
 
 
 // UI function to set the verbosity
-void g2SingleParticleSource::SetVerbosity(int vL)
+void gm2ringsim::G2SingleParticleSource::SetVerbosity(int vL)
 {
   verbosityLevel = vL;
   posGenerator->SetVerbosity(vL);
@@ -295,15 +295,15 @@ void g2SingleParticleSource::SetVerbosity(int vL)
 }
 
 // UI function to determine source of to-br-injected particles
-void g2SingleParticleSource::SetImportFlag(G4bool flag)
+void gm2ringsim::G2SingleParticleSource::SetImportFlag(G4bool flag)
 { importFlag = flag; }
 
 // UI function to set the type of particle import file
-void g2SingleParticleSource::SetImportFileType(G4String type)
+void gm2ringsim::G2SingleParticleSource::SetImportFileType(G4String type)
 { importFileType = type; }
 
 // UI function to set the structure of the particle import file
-void g2SingleParticleSource::SetImportFileStructure(G4String /*type*/)
+void gm2ringsim::G2SingleParticleSource::SetImportFileStructure(G4String /*type*/)
 {
   G4cout << "\n" << "**** WARNING ****: THIS FUNCTION HAS NOT YET BEEN IMPLEMENTED!!"
 	 << "\n" << "                   YOU, THEREFORE, HAVE ACCOMPLISHED NOTHING BY"
@@ -311,7 +311,7 @@ void g2SingleParticleSource::SetImportFileStructure(G4String /*type*/)
 }
 
 // UI function to load the specified particle file
-void g2SingleParticleSource::LoadImportFile(G4String fName)
+void gm2ringsim::G2SingleParticleSource::LoadImportFile(G4String fName)
 {
   // Create the stream and open the user-specified file
   std::ifstream importParticles;
@@ -388,7 +388,7 @@ void g2SingleParticleSource::LoadImportFile(G4String fName)
 }
 
 
-void g2SingleParticleSource::ClearImportData()
+void gm2ringsim::G2SingleParticleSource::ClearImportData()
 { 
   // If the vector has data, clear it all out!
   if(importVector.size() != 0){

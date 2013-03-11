@@ -27,8 +27,8 @@
 #include "Geant4/Randomize.hh"
 
 // g2migtrace helpers
-#include "gm2ringsim/actions/PGA/g2GeneralParticleSource.hh"
-#include "gm2ringsim/actions/PGA/g2MuonGasSource.hh"
+#include "gm2ringsim/actions/PGA/G2GeneralParticleSource.hh"
+#include "gm2ringsim/actions/PGA/G2MuonGasSource.hh"
 
 #include "gm2ringsim/common/g2PreciseValues.hh"
 
@@ -55,7 +55,7 @@ gm2ringsim::G2PGA::~G2PGA(){
 // initialize
 void gm2ringsim::G2PGA::initialize() {
 
-  gps_ = new g2GeneralParticleSource();
+  gps_ = new G2GeneralParticleSource();
 
 }
 

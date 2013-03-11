@@ -1,3 +1,8 @@
+// NOTE: THIS WAS THE INITIAL ATTEMPT TO PORT OVER THE PGA FROM 
+// G2MIGTRACE
+// THIS HAS BEEN SPLIT UP INTO TWO NEW SERVICES
+// G2PGA_SERVICE , AND
+// MUONGASPGA_SERVICE
 #ifndef PRIMARYGENERATORACTION_SERVICE_HH
 #define PRIMARYGENERATORACTION_SERVICE_HH
 
@@ -29,7 +34,7 @@
 #include "Geant4/G4RotationMatrix.hh"
 
 // Get the helper files
-#include "gm2ringsim/actions/PGA/g2GeneralParticleSource.hh"
+#include "gm2ringsim/actions/PGA/G2GeneralParticleSource.hh"
 
 namespace gm2ringsim
 {
@@ -46,7 +51,7 @@ namespace gm2ringsim
    
   private:
     fhicl::ParameterSet par_g2GPS_;
-    g2GeneralParticleSource* g2GPS_;
+    G2GeneralParticleSource* g2GPS_;
     G4ParticleGun* muonGasGun_;
     G4ParticleGun* inflectorGun_;
     bool muonGasVerbosity_;

@@ -1,4 +1,4 @@
-/** @file g2GeneralParticleSource.cc
+/** @file G2GeneralParticleSource.cc
 
     Provides the implementations of the modified General Particle
     Source.
@@ -9,11 +9,11 @@
 
 #include "Geant4/G4Event.hh"
 #include "Geant4/Randomize.hh"
-#include "gm2ringsim/actions/PGA/g2GeneralParticleSource.hh"
+#include "gm2ringsim/actions/PGA/G2GeneralParticleSource.hh"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 
-gm2ringsim::g2GeneralParticleSource::g2GeneralParticleSource()
+gm2ringsim::G2GeneralParticleSource::G2GeneralParticleSource()
   : settings_("G2GPSSettings"), //This should be in the fcl:
     multiple_vertex(false), 
     bypass_gps(false),
@@ -27,11 +27,11 @@ gm2ringsim::g2GeneralParticleSource::g2GeneralParticleSource()
   sourceVector.clear();
   sourceIntensity.clear();
   sourceProbability.clear();
-  currentSource = new g2SingleParticleSource();
+  currentSource = new G2SingleParticleSource();
   sourceVector.push_back(currentSource);
   sourceIntensity.push_back(1.);
   currentSourceIdx = G4int(sourceVector.size() - 1);
-  //theMessenger = new g2GeneralParticleSourceMessenger(this);
+  //theMessenger = new G2GeneralParticleSourceMessenger(this);
   //theMessenger->SetParticleGun(currentSource);
   IntensityNormalization();
 
@@ -42,7 +42,7 @@ gm2ringsim::g2GeneralParticleSource::g2GeneralParticleSource()
 
 }
   
-void gm2ringsim::g2GeneralParticleSource::implementSettings(){
+void gm2ringsim::G2GeneralParticleSource::implementSettings(){
   if (settings_.contains("particle"))
     setParticleDefinition(settings_.particle);
   if (settings_.contains("pos_type"))
@@ -99,7 +99,7 @@ void gm2ringsim::g2GeneralParticleSource::implementSettings(){
 }
 
 
-void gm2ringsim::g2GeneralParticleSource::setParticleDefinition(std::string newValues){
+void gm2ringsim::G2GeneralParticleSource::setParticleDefinition(std::string newValues){
   //FIXME: implement fShootIon
   //if (newValues =="ion") {
   //  fShootIon = true;
@@ -121,7 +121,7 @@ void gm2ringsim::g2GeneralParticleSource::setParticleDefinition(std::string newV
   G4ParticleDefinition* pd = particleTable_->FindParticle(name);
   if(pd != NULL)
     {
-      mf::LogDebug("g2GeneralParticleSource") << "setting particle to "<<newValues;
+      mf::LogDebug("G2GeneralParticleSource") << "setting particle to "<<newValues;
       SetParticleDefinition( pd ); 
     }
   //}
@@ -129,118 +129,118 @@ void gm2ringsim::g2GeneralParticleSource::setParticleDefinition(std::string newV
 }
 
 
-void gm2ringsim::g2GeneralParticleSource::setPosType(std::string newValues){
+void gm2ringsim::G2GeneralParticleSource::setPosType(std::string newValues){
   //else if(command == typeCmd1)
   currentSource->GetPosDist()->SetPosDisType(newValues);
 }
 
-void gm2ringsim::g2GeneralParticleSource::setPosShape(std::string shape){
+void gm2ringsim::G2GeneralParticleSource::setPosShape(std::string shape){
   //else if(command == typeCmd1)
   currentSource->GetPosDist()->SetPosDisShape(shape);
 }
 
 
-void gm2ringsim::g2GeneralParticleSource::setCentreCoords(std::vector<double> pos){
+void gm2ringsim::G2GeneralParticleSource::setCentreCoords(std::vector<double> pos){
   G4ThreeVector p(pos[0],pos[1],pos[2]);
   currentSource->GetPosDist()->SetCentreCoords(p);
   
 }
 
-void gm2ringsim::g2GeneralParticleSource::setPosRot1(std::vector<double> rot){
+void gm2ringsim::G2GeneralParticleSource::setPosRot1(std::vector<double> rot){
   G4ThreeVector r(rot[0],rot[1],rot[2]);
   currentSource->GetPosDist()->SetPosRot1(r);
 }
-void gm2ringsim::g2GeneralParticleSource::setPosRot2(std::vector<double> rot){
+void gm2ringsim::G2GeneralParticleSource::setPosRot2(std::vector<double> rot){
   G4ThreeVector r(rot[0],rot[1],rot[2]);
   currentSource->GetPosDist()->SetPosRot2(r);
 }
 
-// void g2GeneralParticleSource::
-void gm2ringsim::g2GeneralParticleSource::setHalfX(double hx){
+// void G2GeneralParticleSource::
+void gm2ringsim::G2GeneralParticleSource::setHalfX(double hx){
   
   currentSource->GetPosDist()->SetHalfX(hx);
 }
 
-void gm2ringsim::g2GeneralParticleSource::setHalfY(double hy){
+void gm2ringsim::G2GeneralParticleSource::setHalfY(double hy){
 
   currentSource->GetPosDist()->SetHalfY(hy);
 }
 
-void gm2ringsim::g2GeneralParticleSource::setPosSigmaX(double sigx){
+void gm2ringsim::G2GeneralParticleSource::setPosSigmaX(double sigx){
   currentSource->GetPosDist()->SetBeamSigmaInX(sigx);
 }
  
-void gm2ringsim::g2GeneralParticleSource::setPosSigmaY(double sigy){
+void gm2ringsim::G2GeneralParticleSource::setPosSigmaY(double sigy){
   currentSource->GetPosDist()->SetBeamSigmaInY(sigy);
 }
 
-void gm2ringsim::g2GeneralParticleSource::setPosSigmaR(double sigr){
+void gm2ringsim::G2GeneralParticleSource::setPosSigmaR(double sigr){
   currentSource->GetPosDist()->SetBeamSigmaInR(sigr);
 }
 
-void gm2ringsim::g2GeneralParticleSource::setPosRadius(double rad){
+void gm2ringsim::G2GeneralParticleSource::setPosRadius(double rad){
   currentSource->GetPosDist()->SetRadius(rad);
 }
 
-void gm2ringsim::g2GeneralParticleSource::setAngRot1(std::vector<double> rot){
+void gm2ringsim::G2GeneralParticleSource::setAngRot1(std::vector<double> rot){
   G4ThreeVector r(rot[0],rot[1],rot[2]);
   G4String a = "angref1";
   currentSource->GetAngDist()->DefineAngRefAxes(a,r);
   
 }
-void gm2ringsim::g2GeneralParticleSource::setAngRot2(std::vector<double> rot){
+void gm2ringsim::G2GeneralParticleSource::setAngRot2(std::vector<double> rot){
   G4ThreeVector r(rot[0],rot[1],rot[2]);
    G4String a = "angref2";
   currentSource->GetAngDist()->DefineAngRefAxes(a,r);
   
 }
   
-void gm2ringsim::g2GeneralParticleSource::setAngType(std::string ang_type){
+void gm2ringsim::G2GeneralParticleSource::setAngType(std::string ang_type){
   currentSource->GetAngDist()->SetAngDistType(ang_type);
 }
-void gm2ringsim::g2GeneralParticleSource::setAngSigmaX(double sigx){
+void gm2ringsim::G2GeneralParticleSource::setAngSigmaX(double sigx){
   currentSource->GetAngDist()->SetBeamSigmaInAngX(sigx);
 
  }
-void gm2ringsim::g2GeneralParticleSource::setAngSigmaY(double sigy){
+void gm2ringsim::G2GeneralParticleSource::setAngSigmaY(double sigy){
   currentSource->GetAngDist()->SetBeamSigmaInAngY(sigy); }
 
-void gm2ringsim::g2GeneralParticleSource::setAngSigmaR(double sigr){
+void gm2ringsim::G2GeneralParticleSource::setAngSigmaR(double sigr){
   currentSource->GetAngDist()->SetBeamSigmaInAngR(sigr); 
   //  currentSource->GetAngDist()->SetBeamSigmaInAngR(
 }
 
-void gm2ringsim::g2GeneralParticleSource::setEnergyType(std::string eType){
+void gm2ringsim::G2GeneralParticleSource::setEnergyType(std::string eType){
   currentSource->GetEneDist()->SetEnergyDisType(eType);
 }
-void gm2ringsim::g2GeneralParticleSource::setMonoEnergy(double newValues){
+void gm2ringsim::G2GeneralParticleSource::setMonoEnergy(double newValues){
   currentSource->GetEneDist()->SetMonoEnergy(newValues);//monoenergyCmd1->GetNewDoubleValue(newValues));
   
 }
-void gm2ringsim::g2GeneralParticleSource::setEnergySigma(double eSigma){
+void gm2ringsim::G2GeneralParticleSource::setEnergySigma(double eSigma){
   currentSource->GetEneDist()->SetBeamSigmaInE(eSigma);
 }
 
-void gm2ringsim::g2GeneralParticleSource::setTimeType(std::string tType){
+void gm2ringsim::G2GeneralParticleSource::setTimeType(std::string tType){
   currentSource->GetTimeDist()->SetTimeDisType(tType);
  }
-void gm2ringsim::g2GeneralParticleSource::setTimeMono(double tMono){ 
+void gm2ringsim::G2GeneralParticleSource::setTimeMono(double tMono){ 
   currentSource->GetTimeDist()->SetTimeMono(tMono);
 }
-void gm2ringsim::g2GeneralParticleSource::setTimeSigma(double tSigma){
+void gm2ringsim::G2GeneralParticleSource::setTimeSigma(double tSigma){
   currentSource->GetTimeDist()->SetBeamSigmaInT(tSigma);
  }
 
 
 
-gm2ringsim::g2GeneralParticleSource::~g2GeneralParticleSource()
+gm2ringsim::G2GeneralParticleSource::~G2GeneralParticleSource()
 {
   //  delete theMessenger;
 }
 
-void gm2ringsim::g2GeneralParticleSource::AddaSource(G4double aV)
+void gm2ringsim::G2GeneralParticleSource::AddaSource(G4double aV)
 {
-  currentSource = new g2SingleParticleSource();
+  currentSource = new G2SingleParticleSource();
   //theMessenger->SetParticleGun(currentSource);
   sourceVector.push_back(currentSource);
   sourceIntensity.push_back(aV);
@@ -248,7 +248,7 @@ void gm2ringsim::g2GeneralParticleSource::AddaSource(G4double aV)
   IntensityNormalization();
 }
 
-void gm2ringsim::g2GeneralParticleSource::IntensityNormalization()
+void gm2ringsim::G2GeneralParticleSource::IntensityNormalization()
 {
   G4double total  = 0.;
   size_t i = 0 ;
@@ -262,14 +262,14 @@ void gm2ringsim::g2GeneralParticleSource::IntensityNormalization()
   normalised = true;
 } 
 
-void gm2ringsim::g2GeneralParticleSource::ListSource()
+void gm2ringsim::G2GeneralParticleSource::ListSource()
 {
   G4cout << " The number of particle source is " << sourceIntensity.size() << G4endl;
   for (size_t i = 0 ; i < sourceIntensity.size(); i++) 
     G4cout << "   source " << i << " intensity is " << sourceIntensity[i] << G4endl;
 }
 
-void gm2ringsim::g2GeneralParticleSource::SetCurrentSourceto(G4int aV)
+void gm2ringsim::G2GeneralParticleSource::SetCurrentSourceto(G4int aV)
 {
   size_t id = size_t (aV) ;
   if ( id <= sourceIntensity.size() ) {
@@ -283,13 +283,13 @@ void gm2ringsim::g2GeneralParticleSource::SetCurrentSourceto(G4int aV)
   }
 }
 
-void gm2ringsim::g2GeneralParticleSource::SetCurrentSourceIntensity(G4double aV)
+void gm2ringsim::G2GeneralParticleSource::SetCurrentSourceIntensity(G4double aV)
 {
   sourceIntensity[currentSourceIdx] = aV;
   normalised = false;
 }
 
-void gm2ringsim::g2GeneralParticleSource::ClearAll()
+void gm2ringsim::G2GeneralParticleSource::ClearAll()
 {
   currentSourceIdx = -1;
   currentSource = 0;
@@ -298,7 +298,7 @@ void gm2ringsim::g2GeneralParticleSource::ClearAll()
   sourceProbability.clear();
 }
 
-void gm2ringsim::g2GeneralParticleSource::DeleteaSource(G4int aV)
+void gm2ringsim::G2GeneralParticleSource::DeleteaSource(G4int aV)
 {
   size_t id = size_t (aV) ;
   if ( id <= sourceIntensity.size() ) {
@@ -320,7 +320,7 @@ void gm2ringsim::g2GeneralParticleSource::DeleteaSource(G4int aV)
   }
 } 
 
-void gm2ringsim::g2GeneralParticleSource::GeneratePrimaryVertex(G4Event* evt)
+void gm2ringsim::G2GeneralParticleSource::GeneratePrimaryVertex(G4Event* evt)
 {
   if (!multiple_vertex){
     if (sourceIntensity.size() > 1) {

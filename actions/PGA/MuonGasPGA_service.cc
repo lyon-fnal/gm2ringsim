@@ -28,8 +28,8 @@
 #include "Geant4/Randomize.hh"
 
 // g2migtrace helpers
-#include "gm2ringsim/actions/PGA/g2GeneralParticleSource.hh"
-#include "gm2ringsim/actions/PGA/g2MuonGasSource.hh"
+#include "gm2ringsim/actions/PGA/G2GeneralParticleSource.hh"
+#include "gm2ringsim/actions/PGA/G2MuonGasSource.hh"
 
 #include "gm2ringsim/common/g2PreciseValues.hh"
 
@@ -60,7 +60,7 @@ void gm2ringsim::MuonGasPGA::initialize() {
   
   //  particleGun_ = new G4ParticleGun(1);
   // Read the parameter set and figure out what sort of gun to use
-  gps_ = new g2MuonGasSource();
+  gps_ = new G2MuonGasSource();
   gps_ -> SetVerbosity(muonGasVerbosity_);
 }
 

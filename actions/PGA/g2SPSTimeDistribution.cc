@@ -1,4 +1,4 @@
-/** @file g2SPSTimeDistribution.cc
+/** @file G2SPSTimeDistribution.cc
 
     Implements the General Particle Source time distribution
     interface. 
@@ -8,9 +8,9 @@
 
 #include "Geant4/Randomize.hh"
 
-#include "gm2ringsim/actions/PGA/g2SPSTimeDistribution.hh"
+#include "gm2ringsim/actions/PGA/G2SPSTimeDistribution.hh"
 
-g2SPSTimeDistribution::g2SPSTimeDistribution()
+gm2ringsim::G2SPSTimeDistribution::G2SPSTimeDistribution()
 {
   // Initialise all variables
   particle_time = 0.;
@@ -29,66 +29,66 @@ g2SPSTimeDistribution::g2SPSTimeDistribution()
   verbosityLevel = 0 ;
 }
 
-g2SPSTimeDistribution::~g2SPSTimeDistribution()
+gm2ringsim::G2SPSTimeDistribution::~G2SPSTimeDistribution()
 {}
 
 
-void g2SPSTimeDistribution::SetTimeDisType(G4String DisType)
+void gm2ringsim::G2SPSTimeDistribution::SetTimeDisType(G4String DisType)
 {
   timeDisType = DisType;
 }
 
 
-void g2SPSTimeDistribution::SetTimeMin(G4double tMin)
+void gm2ringsim::G2SPSTimeDistribution::SetTimeMin(G4double tMin)
 {
   timeMin = tMin;
 }
 
 
-void g2SPSTimeDistribution::SetTimeMax(G4double tMax)
+void gm2ringsim::G2SPSTimeDistribution::SetTimeMax(G4double tMax)
 {
   timeMax = tMax;
 }
 
 
-void g2SPSTimeDistribution::SetTimeMono(G4double tMono)
+void gm2ringsim::G2SPSTimeDistribution::SetTimeMono(G4double tMono)
 {
   timeMono = tMono;
 }
 
 
-void g2SPSTimeDistribution::SetBeamSigmaInT(G4double t)
+void gm2ringsim::G2SPSTimeDistribution::SetBeamSigmaInT(G4double t)
 {
   timeSE = t;
 }
 
 
-void g2SPSTimeDistribution::SetTimeZero(G4double zero)
+void gm2ringsim::G2SPSTimeDistribution::SetTimeZero(G4double zero)
 {
   timeZero = zero;
 }
 
 
-void g2SPSTimeDistribution::SetTimeGradient(G4double grad)
+void gm2ringsim::G2SPSTimeDistribution::SetTimeGradient(G4double grad)
 {
   timeGrad = grad;
 }
 
 
-void g2SPSTimeDistribution::SetTimeInterCept(G4double cept)
+void gm2ringsim::G2SPSTimeDistribution::SetTimeInterCept(G4double cept)
 {
   timeCept = cept;
 }
 
 
-void g2SPSTimeDistribution::GenerateMonoChronologic()
+void gm2ringsim::G2SPSTimeDistribution::GenerateMonoChronologic()
 {
   // Method to generate MonoEnergetic particles.
   particle_time = timeMono;
 }
 
 
-void g2SPSTimeDistribution::GenerateGaussEnergies()
+void gm2ringsim::G2SPSTimeDistribution::GenerateGaussEnergies()
 {
   // Method to generate Gaussian particles.
   particle_time = G4RandGauss::shoot(timeMono,timeSE);
@@ -96,7 +96,7 @@ void g2SPSTimeDistribution::GenerateGaussEnergies()
 }
 
 
-void g2SPSTimeDistribution::GenerateLinearEnergies(G4bool bArb = false)
+void gm2ringsim::G2SPSTimeDistribution::GenerateLinearEnergies(G4bool bArb = false)
 {
   G4double rndm;
   G4double timeMaxsq = std::pow(timeMax,2.); //Emax squared
@@ -142,7 +142,7 @@ void g2SPSTimeDistribution::GenerateLinearEnergies(G4bool bArb = false)
 }
 
 
-G4double g2SPSTimeDistribution::GenerateOne(G4ParticleDefinition* a)
+G4double gm2ringsim::G2SPSTimeDistribution::GenerateOne(G4ParticleDefinition* a)
 {
   particle_definition = a;
   particle_time = -1.;

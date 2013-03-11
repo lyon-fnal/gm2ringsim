@@ -29,7 +29,7 @@
 #include "Geant4/G4RotationMatrix.hh"
 
 // Get the helper files
-#include "gm2ringsim/actions/PGA/g2GeneralParticleSource.hh"
+#include "gm2ringsim/actions/PGA/G2GeneralParticleSource.hh"
 #include "gm2ringsim/actions/PGA/G2GPSSettings.hh"
 
 namespace gm2ringsim
@@ -44,9 +44,9 @@ namespace gm2ringsim
     void generatePrimaries( G4Event* ) override;
    
   private:
-//    fhicl::ParameterSet par_g2GPS_;
+//    fhicl::ParameterSet par_G2GPS_;
     G2GPSSettings settings_;
-    g2GeneralParticleSource* gps_;
+    G2GeneralParticleSource* gps_;
 
   }; // End G2PGA class 
 }

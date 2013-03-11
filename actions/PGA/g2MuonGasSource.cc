@@ -1,5 +1,5 @@
 // Get the PGA header
-#include "gm2ringsim/actions/PGA/PrimaryGeneratorAction_service.hh"
+#include "gm2ringsim/actions/PGA/obsoletePrimaryGeneratorAction_service.hh"
 
 // ART includes
 #include "art/Framework/Services/Registry/ServiceMacros.h"
@@ -15,7 +15,7 @@
 
 // g2migtrace helpers
 
-#include "gm2ringsim/actions/PGA/g2MuonGasSource.hh"
+#include "gm2ringsim/actions/PGA/G2MuonGasSource.hh"
 #include "gm2ringsim/common/g2PreciseValues.hh"
 
 #define randFromDistr CLHEP::RandGeneral
@@ -26,26 +26,26 @@
 using std::endl;
 
 // Constructor
-gm2ringsim::g2MuonGasSource::g2MuonGasSource() :
+gm2ringsim::G2MuonGasSource::G2MuonGasSource() :
   muonGasGun_(),
   g2GPS_(),
   muonGasVerbosity_ (0)
 {
   muonGasGun_ = new G4ParticleGun();
-  g2GPS_ = new g2GeneralParticleSource();
+  g2GPS_ = new G2GeneralParticleSource();
 }
 
-gm2ringsim::g2MuonGasSource::~g2MuonGasSource() 
+gm2ringsim::G2MuonGasSource::~G2MuonGasSource() 
 { }
 
-void gm2ringsim::g2MuonGasSource::SetVerbosity(bool verbose){
+void gm2ringsim::G2MuonGasSource::SetVerbosity(bool verbose){
   muonGasVerbosity_ = verbose;
 }
 
 // EndOfPrimaryGeneratorAction
-void gm2ringsim::g2MuonGasSource::GeneratePrimaryVertex(G4Event* evt) {
+void gm2ringsim::G2MuonGasSource::GeneratePrimaryVertex(G4Event* evt) {
 
-  mf::LogInfo("g2MuonGasSource") << "GeneratePrimaryVertex";
+  mf::LogInfo("G2MuonGasSource") << "GeneratePrimaryVertex";
   static G4double particleLifetime=0; // initialize
   static G4bool firstVertex = true;
   
@@ -236,13 +236,13 @@ void gm2ringsim::g2MuonGasSource::GeneratePrimaryVertex(G4Event* evt) {
   }
   
   //  FIRE    
-  mf::LogInfo("g2MuonGasSource") << "About to call muonGasGun_->GeneratePrimaryVertex";  
+  mf::LogInfo("G2MuonGasSource") << "About to call muonGasGun_->GeneratePrimaryVertex";  
   muonGasGun_->GeneratePrimaryVertex( evt );
-    mf::LogInfo("g2MuonGasSource") << "Just got back from calling muonGasGun_->GeneratePrimaryVertex";  
+    mf::LogInfo("G2MuonGasSource") << "Just got back from calling muonGasGun_->GeneratePrimaryVertex";  
 } // generatePrimaries
 
 
-G4double gm2ringsim::g2MuonGasSource::randXFromE821()
+G4double gm2ringsim::G2MuonGasSource::randXFromE821()
 {
   // The following is taken from Fig. 20 of the E821 Final Report, G.W. Bennet et al, Phys. Rev. D 73, 072003 (2006 )
   static G4int const nBins = 36;
@@ -278,7 +278,7 @@ G4double gm2ringsim::g2MuonGasSource::randXFromE821()
   return myRandX_SR;
 }
 
-G4double gm2ringsim::g2MuonGasSource::randTFromE989()
+G4double gm2ringsim::G2MuonGasSource::randTFromE989()
 {
   //  NSF: E989 Tri-Gaussian longitudinal profile.  The beam is 100 ns "long", and is 
   //  comprised of a large central Gaussian flanked on either side by two smaller,     
