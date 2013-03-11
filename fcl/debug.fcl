@@ -89,14 +89,14 @@ services: {
 
     ClockAction: {}
 
-//    G2PGA: {
-//      name: "primary"
-//    }
-
-    MuonGasPGA: {
-        name: "muongas"
-        muonGasVerbosity: false
+    G2PGA: {
+      name: "primary"
     }
+
+//    MuonGasPGA: {
+//        name: "muongas"
+//        muonGasVerbosity: false
+//    }
 
     // Detectors
     World: {}	
