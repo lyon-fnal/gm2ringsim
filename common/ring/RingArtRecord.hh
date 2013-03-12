@@ -93,5 +93,6 @@ namespace gm2ringsim{
   typedef std::vector<RingArtRecord> RingArtRecordCollection;
 
 }//namespace gm2ringsim
+
 #endif // RINGRECORD_HH
   

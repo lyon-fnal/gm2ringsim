@@ -1,8 +1,8 @@
 // Tracker detector service for 
 
 // Include guards
-#ifndef RING_HH
-#define RING_HH
+#ifndef RING_SERVICE_HH
+#define RING_SERVICE_HH
 
 // Includes
 #include "fhiclcpp/ParameterSet.h"
@@ -50,14 +50,14 @@ namespace gm2ringsim {
     virtual std::vector<G4VPhysicalVolume*> doPlaceToPVs( std::vector<G4LogicalVolume*>) override;
     
     // Tell Art what we'll produce
-    virtual void doCallArtProduces(art::EDProducer * producer) override;
+        virtual void doCallArtProduces(art::EDProducer * producer) override;
     
     // Actually add the data to the event
-    virtual void doFillEventWithArtHits(G4HCofThisEvent * hc) override;
+     virtual void doFillEventWithArtHits(G4HCofThisEvent * hc) override;
 
     RingArtRecord convert(RingHit* );
 
   };
 }
 
-#endif
+#endif //RING_SERVICE_HH

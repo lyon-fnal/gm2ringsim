@@ -19,7 +19,7 @@ gm2ringsim::Ring::Ring(fhicl::ParameterSet const & p, art::ActivityRegistry & ) 
   DetectorBase(p,
 	       p.get<std::string>("name", "Ring"),
 	       p.get<std::string>("category", "Ring"),
-	       p.get<std::string>("mother_category", "world")),
+	       p.get<std::string>("mother_category", "vac")),
   ringSDname_("ringSD"),
   ringSD_(artg4::getSensitiveDetector<RingSD>(ringSDname_))
 {
@@ -29,25 +29,28 @@ gm2ringsim::Ring::Ring(fhicl::ParameterSet const & p, art::ActivityRegistry & ) 
 // Build the logical volumes
 std::vector<G4LogicalVolume *> gm2ringsim::Ring::doBuildLVs() {
   std::vector<G4LogicalVolume *> dummy;
-
   return dummy;
 }
 
 // Build the physical volumes
 std::vector<G4VPhysicalVolume *> gm2ringsim::Ring::doPlaceToPVs(std::vector<G4LogicalVolume*> ){
-  
   std::vector<G4VPhysicalVolume *> dummy;
   return dummy;
 }
 
 // Declare to Art what we are producing
-void gm2ringsim::Ring::doCallArtProduces(art::EDProducer * producer) {
+void gm2ringsim::Ring::doCallArtProduces(art::EDProducer *producer) {
+  mf::LogInfo("Ring_service") << "About to doCallArtProduces";
   producer->produces<RingArtRecordCollection>(category());
+  mf::LogInfo("Ring_service") << "done with doCallArtProduces";
 }
-//
+
+
 // Actually add the data to the event
-void gm2ringsim::Ring::doFillEventWithArtHits(G4HCofThisEvent *hc) {
-    std::unique_ptr<RingArtRecordCollection> myArtHits(new RingArtRecordCollection);
+
+void gm2ringsim::Ring::doFillEventWithArtHits(G4HCofThisEvent * hc) {
+  mf::LogInfo("Ring") << "About to doFillEventWithArtHits";
+  std::unique_ptr<RingArtRecordCollection> myArtHits(new RingArtRecordCollection);
   
   // Find the collection ID for the hits
   G4SDManager* fSDM = G4SDManager::GetSDMpointer();
@@ -80,6 +83,7 @@ void gm2ringsim::Ring::doFillEventWithArtHits(G4HCofThisEvent *hc) {
   e.put(std::move(myArtHits), category());
 
 }
+
 
 gm2ringsim::RingArtRecord gm2ringsim::Ring::convert(RingHit* prh){
   RingArtRecord rr;
@@ -151,7 +155,6 @@ gm2ringsim::RingArtRecord gm2ringsim::Ring::convert(RingHit* prh){
 
 }
 
-
-
 using gm2ringsim::Ring;
+
 DEFINE_ART_SERVICE(Ring)
