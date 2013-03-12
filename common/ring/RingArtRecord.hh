@@ -57,7 +57,7 @@ namespace gm2ringsim{
     /** Total energy loss. */
     float deltaE;
     
-    ~RingArtRecord();
+    ~RingArtRecord(){};
     RingArtRecord() : 
       x_loc(0), y_loc(0), z_loc(0),
       px_loc(0),py_loc(0),pz_loc(0),
