@@ -46,7 +46,6 @@
 #include "Geant4/G4UniformMagField.hh"
 #include "Geant4/G4SDManager.hh"
 
-
 #include "gm2ringsim/inflector/InflectorField.hh"
 #include "gm2ringsim/inflector/inflectorGeometry.hh"
 #include "gm2ringsim/inflector/InflectorSD.hh"
@@ -66,7 +65,6 @@
 #include <tr1/functional>
 
 #include <boost/algorithm/string.hpp>
-
 
 //#include CHANGE_ME: Add include for header for Art hit class
 
@@ -152,9 +150,6 @@ gm2ringsim::Inflector::~Inflector(){
   //  delete InflectorMessenger;
   delete inflectorRotation_;
 }
-
-
-
 
 
 // Build the logical volumes
@@ -1058,27 +1053,27 @@ void gm2ringsim::Inflector::generateGPSMacros(){
   // This will need to generate a fcl instead of a g2migtrace input file
 }
 
-// CHANGE_ME: You can delete the below if this detector creates no data
-
 // Declare to Art what we are producing
 void gm2ringsim::Inflector::doCallArtProduces(art::EDProducer * producer) {
+
   producer->produces<InflectorArtRecordCollection>(category());
+
 }
 
 // Actually add the data to the event
 void gm2ringsim::Inflector::doFillEventWithArtHits(G4HCofThisEvent *hc) {
    
   std::unique_ptr<InflectorArtRecordCollection> myArtHits(new InflectorArtRecordCollection);
-
   // Find the collection ID for the hits
   G4SDManager* fSDM = G4SDManager::GetSDMpointer();
 
-  // The string here is unfortunately a magic constant. It's the string used       
-  // by the sensitive detector to identify the collection of hits.                 
+  // The string here is unfortunately a magic constant. It's the string used      // by the sensitive detector to identify the collection of hits.                 
   G4int collectionID = fSDM->GetCollectionID(inflectorSDname_);
-  
+
   InflectorHitsCollection* myCollection =
     static_cast<InflectorHitsCollection*>(hc->GetHC(collectionID));
+  
+  
   // Check whether the collection exists                                           
   if (NULL != myCollection) {
     std::vector<InflectorHit*> geantHits = *(myCollection->GetVector());
@@ -1089,17 +1084,6 @@ void gm2ringsim::Inflector::doFillEventWithArtHits(G4HCofThisEvent *hc) {
       // Copy this hit into the Art hit                                         
 
       myArtHits->push_back( convert(e));
-      /*
-      myArtHits->emplace_back( e->position.x(),e->position.y(),e->position.z(),
-			       e->local_position.x(),e->local_position.y(),
-			       e->local_position.z(),
-			       e->momentum.x(),e->momentum.y(),e->momentum.z(),
-			       e->local_momentum.x(),e->local_momentum.y(),
-			       e->local_momentum.z(),
-			       e->time,
-			       e->trackID,
-			       e->volumeUID);
-      */
 
     } //loop over geantHits
   } //if we have a myCollection
@@ -1108,6 +1092,7 @@ void gm2ringsim::Inflector::doFillEventWithArtHits(G4HCofThisEvent *hc) {
     throw cet::exception("Inflector") << "Null collection of Geant tracker hits"
 				      << ", aborting!" << std::endl;
   }
+
   // Now that we have our collection of artized hits, add them to the event.
   // Get the event from the detector holder service                                
   art::ServiceHandle<artg4::DetectorHolderService> detectorHolder;
@@ -1123,7 +1108,6 @@ gm2ringsim::InflectorArtRecord gm2ringsim::Inflector::convert(InflectorHit* e){
   InflectorArtRecord ir;
   inflectorGeometry const& ig = infGeom_.ig;
 
-  
   ir.time = e->time;
   ir.trackID = e->trackID;
   ir.volumeUID = e->volumeUID;
@@ -1165,8 +1149,7 @@ gm2ringsim::InflectorArtRecord gm2ringsim::Inflector::convert(InflectorHit* e){
 
     return ir;
 
-}
-
+} //Inflector::convert
 
 
 G4ThreeVector gm2ringsim::Inflector::calc_position() const  {
