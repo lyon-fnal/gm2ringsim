@@ -53,7 +53,7 @@ namespace gm2ringsim {
     //
   public:
     
-    G2GeneralParticleSource();
+    G2GeneralParticleSource(std::string set="G2GPSSettings");
     ~G2GeneralParticleSource();
     
     void GeneratePrimaryVertex(G4Event*) override;
@@ -159,7 +159,7 @@ namespace gm2ringsim {
     void IntensityNormalization();
     
   private:
-    gm2ringsim::G2GPSSettings settings_;
+    G2GPSSettings settings_;
     G4ParticleTable *particleTable_;
     G4bool multiple_vertex;
     G4bool normalised;

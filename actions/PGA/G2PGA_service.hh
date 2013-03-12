@@ -45,6 +45,7 @@ namespace gm2ringsim
    
   private:
 //    fhicl::ParameterSet par_G2GPS_;
+    std::string G2GPSString_;
     G2GPSSettings settings_;
     G2GeneralParticleSource* gps_;
 
