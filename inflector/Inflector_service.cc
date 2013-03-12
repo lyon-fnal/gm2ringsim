@@ -51,6 +51,9 @@
 #include "gm2ringsim/inflector/InflectorSD.hh"
 #include "gm2ringsim/inflector/InflectorArtRecord.hh"
 #include "gm2ringsim/inflector/InflectorHit.hh"
+#include "gm2ringsim/common/ring/Ring_service.hh"
+
+#include "gm2ringsim/common/ring/RingArtRecord.hh"
 
 #include "gm2ringsim/common/g2PreciseValues.hh"
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -1057,6 +1060,7 @@ void gm2ringsim::Inflector::generateGPSMacros(){
 void gm2ringsim::Inflector::doCallArtProduces(art::EDProducer * producer) {
 
   producer->produces<InflectorArtRecordCollection>(category());
+  producer->produces<RingArtRecordCollection>(category());
 
 }
 
@@ -1064,16 +1068,31 @@ void gm2ringsim::Inflector::doCallArtProduces(art::EDProducer * producer) {
 void gm2ringsim::Inflector::doFillEventWithArtHits(G4HCofThisEvent *hc) {
    
   std::unique_ptr<InflectorArtRecordCollection> myArtHits(new InflectorArtRecordCollection);
+  std::unique_ptr<RingArtRecordCollection> myRingHits(new RingArtRecordCollection);
   // Find the collection ID for the hits
   G4SDManager* fSDM = G4SDManager::GetSDMpointer();
 
   // The string here is unfortunately a magic constant. It's the string used      // by the sensitive detector to identify the collection of hits.                 
   G4int collectionID = fSDM->GetCollectionID(inflectorSDname_);
+  G4int ringCollID = fSDM->GetCollectionID(ringSDname_);
 
   InflectorHitsCollection* myCollection =
     static_cast<InflectorHitsCollection*>(hc->GetHC(collectionID));
   
+  RingHitsCollection* myRingColl = 
+    static_cast<RingHitsCollection*>(hc->GetHC(ringCollID));
   
+  if (NULL != myRingColl){
+    std::vector<RingHit*> ringHits = *(myRingColl->GetVector());
+
+    for (auto e: ringHits){
+      myRingHits->push_back (convert(e));
+    }
+  }
+  else {
+    throw cet::exception("Inflector") << "Null collection of Ring hits"
+				      << ", aborting!" << std::endl;
+  }
   // Check whether the collection exists                                           
   if (NULL != myCollection) {
     std::vector<InflectorHit*> geantHits = *(myCollection->GetVector());
@@ -1098,20 +1117,24 @@ void gm2ringsim::Inflector::doFillEventWithArtHits(G4HCofThisEvent *hc) {
   art::ServiceHandle<artg4::DetectorHolderService> detectorHolder;
   art::Event & e = detectorHolder -> getCurrArtEvent();
 
-  // Put the hits into the event                                                   
+  // Put the hits into the event                                               
+  e.put (std::move(myRingHits),category());
   e.put(std::move(myArtHits), category());
 }
 
-//This came from the RootStorageManager code
-// inflectorRecord convert (InflectorHit* pih)
-gm2ringsim::InflectorArtRecord gm2ringsim::Inflector::convert(InflectorHit* e){
-  InflectorArtRecord ir;
-  inflectorGeometry const& ig = infGeom_.ig;
-
-  ir.time = e->time;
-  ir.trackID = e->trackID;
-  ir.volumeUID = e->volumeUID;
-   // hard stuff
+namespace gm2ringsim {
+  
+  //This came from the RootStorageManager code
+  // inflectorRecord convert (InflectorHit* pih)
+  InflectorArtRecord convert(InflectorHit* e){
+    InflectorArtRecord ir;
+    InflectorGeom infGeom("inflector");
+    inflectorGeometry const& ig = infGeom.ig;
+    
+    ir.time = e->time;
+    ir.trackID = e->trackID;
+    ir.volumeUID = e->volumeUID;
+    // hard stuff
     // inflector coordinates:
     // x_inf is the offset from the middle of the aperture in the
     // thinner direction, the "horizontal" or most radial direction
@@ -1119,38 +1142,40 @@ gm2ringsim::InflectorArtRecord gm2ringsim::Inflector::convert(InflectorHit* e){
     // inflector
     // y_inf is the offset from the middle of the aperture in the
     // thicker direction, the "vertical" or most axial direction
-
-   G4ThreeVector xformed = e->position;
+    
+    G4ThreeVector xformed = e->position;
     // undo the transformations in inflectorContruction.cc
     xformed.rotateY(-ig.delta());
     xformed -= G4ThreeVector(R_magic()+ig.aperture_off(),0.,0.);
     xformed.rotateY(-ig.gamma());
     xformed.rotateX(ig.zeta());
     xformed += G4ThreeVector(0.,0.,ig.length());
-
+    
     //    G4cout << "xformed: " << xformed << '\n';
-
+    
     ir.x_inf = xformed.x();
     ir.y_inf = xformed.y();
     ir.z_inf = xformed.z();
-
-
+    
+    
     ir.x_loc  = e->local_position.x();
     ir.y_loc  = e->local_position.y();
     ir.z_loc  = e->local_position.z();
-
+    
     ir.px_inf = e->momentum.x();
     ir.py_inf = e->momentum.y();
     ir.pz_inf = e->momentum.z();
-
+    
     ir.px_loc = e->local_momentum.x();
     ir.py_loc = e->local_momentum.y();
     ir.pz_loc = e->local_momentum.z();
-
+    
     return ir;
-
-} //Inflector::convert
-
+    
+  } //convert
+}//namespace gm2ringsim
+  
+  
 
 G4ThreeVector gm2ringsim::Inflector::calc_position() const  {
   //FIXME: removed const temporarily //const {
