@@ -52,13 +52,13 @@ namespace gm2ringsim {
     virtual std::vector<G4VPhysicalVolume*> doPlaceToPVs( std::vector<G4LogicalVolume*>) override;
     
     // Tell Art what we'll produce
-        virtual void doCallArtProduces(art::EDProducer * producer) override;
+    virtual void doCallArtProduces(art::EDProducer * producer) override;
     
     // Actually add the data to the event
-     virtual void doFillEventWithArtHits(G4HCofThisEvent * hc) override;
-
+    virtual void doFillEventWithArtHits(G4HCofThisEvent * hc) override;
+    
   };
-
- }//namespace gm2ringsim
+  
+}//namespace gm2ringsim
 
 #endif //TRACKER_SERVICE_HH

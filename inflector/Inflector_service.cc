@@ -51,9 +51,6 @@
 #include "gm2ringsim/inflector/InflectorSD.hh"
 #include "gm2ringsim/inflector/InflectorArtRecord.hh"
 #include "gm2ringsim/inflector/InflectorHit.hh"
-#include "gm2ringsim/common/ring/ring_util.hh"
-
-#include "gm2ringsim/common/ring/RingArtRecord.hh"
 
 #include "gm2ringsim/common/g2PreciseValues.hh"
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -1060,7 +1057,6 @@ void gm2ringsim::Inflector::generateGPSMacros(){
 void gm2ringsim::Inflector::doCallArtProduces(art::EDProducer * producer) {
 
   producer->produces<InflectorArtRecordCollection>(category());
-  producer->produces<RingArtRecordCollection>(category());
 
 }
 
@@ -1068,36 +1064,18 @@ void gm2ringsim::Inflector::doCallArtProduces(art::EDProducer * producer) {
 void gm2ringsim::Inflector::doFillEventWithArtHits(G4HCofThisEvent *hc) {
    
   std::unique_ptr<InflectorArtRecordCollection> myArtHits(new InflectorArtRecordCollection);
-  std::unique_ptr<RingArtRecordCollection> myRingHits(new RingArtRecordCollection);
   // Find the collection ID for the hits
   G4SDManager* fSDM = G4SDManager::GetSDMpointer();
 
   // The string here is unfortunately a magic constant. It's the string used      // by the sensitive detector to identify the collection of hits.                 
   G4int collectionID = fSDM->GetCollectionID(inflectorSDname_);
-  G4int ringCollID = fSDM->GetCollectionID(ringSDname_);
 
   InflectorHitsCollection* myCollection =
     static_cast<InflectorHitsCollection*>(hc->GetHC(collectionID));
-  
-  RingHitsCollection* myRingColl = 
-    static_cast<RingHitsCollection*>(hc->GetHC(ringCollID));
-  
-  if (NULL != myRingColl){
-    std::vector<RingHit*> ringHits = *(myRingColl->GetVector());
 
-    for (auto e: ringHits){
-      myRingHits->push_back (convert(e));
-    }
-  }
-  else {
-    throw cet::exception("Inflector") << "Null collection of Ring hits"
-				      << ", aborting!" << std::endl;
-  }
   // Check whether the collection exists                                           
   if (NULL != myCollection) {
     std::vector<InflectorHit*> geantHits = *(myCollection->GetVector());
-    
-    
     for ( auto e : geantHits ) {
       e->Print();
       // Copy this hit into the Art hit                                         
@@ -1118,7 +1096,6 @@ void gm2ringsim::Inflector::doFillEventWithArtHits(G4HCofThisEvent *hc) {
   art::Event & e = detectorHolder -> getCurrArtEvent();
 
   // Put the hits into the event                                               
-  e.put (std::move(myRingHits),category());
   e.put(std::move(myArtHits), category());
 }
 

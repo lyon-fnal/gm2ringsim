@@ -17,7 +17,6 @@
 #include "Geant4/G4VPhysicalVolume.hh"
 #include "Geant4/G4FieldManager.hh"
 
-
 #include <vector>
 #include <map>
 #include <string>
@@ -66,12 +65,6 @@ namespace gm2ringsim {
       
       // CHANGE_ME: Delete the next two functions if no hits
 
-      // Tell Art what we'll produce
-    virtual void doCallArtProduces(art::EDProducer * producer) override;
-      
-      // Actually add the data to the event
-    virtual void doFillEventWithArtHits(G4HCofThisEvent * hc) override;
-      
     
     void buildQuadsSandL();
     void buildQuads(std::vector<G4LogicalVolume*>&);

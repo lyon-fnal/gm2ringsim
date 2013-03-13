@@ -34,7 +34,6 @@
 
 #include "gm2ringsim/quad/Quad_service.hh"
 #include "gm2ringsim/quad/QuadField.hh"
-#include "gm2ringsim/common/ring/ring_util.hh"
 
 #include "gm2ringsim/common/g2PreciseValues.hh"
 #include "gm2ringsim/common/ring/RingSD.hh"
@@ -326,10 +325,7 @@ void gm2ringsim::Quad::buildInnerOuterSupports(G4int quadRegion, G4int sectionTy
 			  ptr -> GetLogicalVolume(),
 			  false,
 			  0);
-
-
    }
-
 }
 
 void gm2ringsim::Quad::buildInnerOuterSupportsSandL(G4int quadRegion, G4int sectionType) { 
@@ -445,9 +441,6 @@ void gm2ringsim::Quad::buildInnerOuterSupportsSandL(G4int quadRegion, G4int sect
       genericOuterSupport_L_[quadRegion][sectionType][sPair]->SetSensitiveDetector( ringSD );
       
   } // Loop overs supportPairs
-  
-
-
 }
 
 // Placeholder to possible implement the top/bottom quadrupole plate
@@ -471,9 +464,6 @@ void gm2ringsim::Quad::assignFieldManagers(){
         genericQuadRegion_L_[i][j]->
           SetFieldManager(withSpin_[i][j], true);
       }
-
-
-
 }
 
 void gm2ringsim::Quad::buildFieldManagers(G4int quadRegion, G4int sectionType) {
@@ -507,42 +497,9 @@ void gm2ringsim::Quad::buildFieldManagers(G4int quadRegion, G4int sectionType) {
   
 }
 
-
-
-
 // CHANGE_ME: You can delete the below if this detector creates no data
 
 // Declare to Art what we are producing
-void gm2ringsim::Quad::doCallArtProduces(art::EDProducer * producer) {
-  producer->produces<RingArtRecordCollection>(category());
-}
-
-// Actually add the data to the event
-void gm2ringsim::Quad::doFillEventWithArtHits(G4HCofThisEvent * hc) {
-
-   std::unique_ptr<RingArtRecordCollection> myRingHits(new RingArtRecordCollection);
-  // Find the collection ID for the hits
-  G4SDManager* fSDM = G4SDManager::GetSDMpointer();
-
-  // The string here is unfortunately a magic constant. It's the string used      // by the sensitive detector to identify the collection of hits.                 
-  G4int ringCollID = fSDM->GetCollectionID("RingSD");
-
-  RingHitsCollection* myRingColl = 
-    static_cast<RingHitsCollection*>(hc->GetHC(ringCollID));
-  
-  if (NULL != myRingColl){
-    std::vector<RingHit*> ringHits = *(myRingColl->GetVector());
-    mf::LogInfo("Quad_service")<< "There are "<<ringHits.size() <<" hits in the quad ringSD";
-    for (auto e: ringHits){
-      myRingHits->push_back (convert(e));
-    }
-  }
-  else {
-    throw cet::exception("Quad") << "Null collection of Ring hits"
-				      << ", aborting!" << std::endl;
-  }
-
-}
 
 gm2ringsim::Quad::plate_params::
 plate_params() :

@@ -23,7 +23,7 @@ gm2ringsim::VacuumChamber::VacuumChamber(fhicl::ParameterSet const & p, art::Act
 	       p.get<std::string>("category", "vac"),
 	       p.get<std::string>("mother_category", "arc")),
   turnCounterSDName_("TurnCounter"),
-  trackerSDName_("Tracker"),
+  trackerSDName_("TrackerSD"),
   turnSD_(0),   // will set below
   trackerSD_(0), // will set below
   wallLVs_()
@@ -347,51 +347,6 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::VacuumChamber::doPlaceToPVs( std::v
   }
   
   return chamberPVs;
-}
-
-// Declare to Art what we are producing
-void gm2ringsim::VacuumChamber::doCallArtProduces(art::EDProducer *producer) {
-  mf::LogInfo("VacuumChamber_service") << "About to doCallArtProduces";
-  producer->produces<TrackerArtRecordCollection>(category());
-  mf::LogInfo("VacuumChamber_service") << "done with doCallArtProduces";
-}
-
-
-void gm2ringsim::VacuumChamber::doFillEventWithArtHits(G4HCofThisEvent * hc) {
-  mf::LogInfo("VacuumChamber_service") << "About to doFillEventWithArtHits";
-  std::unique_ptr<TrackerArtRecordCollection> myArtHits(new TrackerArtRecordCollection);
-  
-  // Find the collection ID for the hits
-  G4SDManager* fSDM = G4SDManager::GetSDMpointer();
-
-  // The string here is unfortunately a magic constant. It's the string used
-  // by the sensitive detector to identify the collection of hits.
-  G4int collectionID = fSDM->GetCollectionID(trackerSDName_);
-  mf::LogInfo("VacuumChamber_service") << "Identified the tracker collectionID as "<<collectionID;
-  TrackerHitsCollection* myCollection = 
-    static_cast<TrackerHitsCollection*>(hc->GetHC(collectionID));
-
-  // Check whether the collection exists
-  if (NULL != myCollection) {
-    std::vector<TrackerHit*> geantHits = *(myCollection->GetVector());
-    mf::LogInfo("Tracker") << "The size of the TrackerHit vector is "<<geantHits.size();
-    for ( auto e : geantHits ) {
-      myArtHits->push_back(convert(e));
-    }
-  } 
-  else {
-    throw cet::exception("Tracker") << "Null collection of Geant Tracker hits"
-				      << ", aborting!" << std::endl;
-  }
-
-  // Now that we have our collection of artized hits, add them to the event.
-  // Get the event from the detector holder service
-  art::ServiceHandle<artg4::DetectorHolderService> detectorHolder;
-  art::Event & e = detectorHolder -> getCurrArtEvent();
-
-  // Put the hits into the event
-  e.put(std::move(myArtHits), category());
-
 }
 
 

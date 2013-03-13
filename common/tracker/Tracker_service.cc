@@ -20,7 +20,7 @@ gm2ringsim::Tracker::Tracker(fhicl::ParameterSet const & p, art::ActivityRegistr
 	       p.get<std::string>("name", "Tracker"),
 	       p.get<std::string>("category", "Tracker"),
 	       p.get<std::string>("mother_category", "vac")),
-  trackerSDname_("trackerSD"),
+  trackerSDname_("TrackerSD"),
   trackerSD_(artg4::getSensitiveDetector<TrackerSD>(trackerSDname_))
 {
 
