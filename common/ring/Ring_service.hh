@@ -23,6 +23,7 @@
 #include "artg4/Core/DetectorBase.hh"
 
 #include "gm2ringsim/common/ring/RingArtRecord.hh"
+#include "gm2ringsim/common/ring/ring_util.hh"
 
 // Within a namespace
 namespace gm2ringsim {
@@ -57,8 +58,6 @@ namespace gm2ringsim {
 
   };
 
-  //helper function
-  RingArtRecord convert(RingHit* prh);
 }//namespace gm2ringsim
 
 #endif //RING_SERVICE_HH

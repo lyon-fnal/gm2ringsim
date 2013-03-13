@@ -34,7 +34,7 @@
 
 #include "gm2ringsim/quad/Quad_service.hh"
 #include "gm2ringsim/quad/QuadField.hh"
-#include "gm2ringsim/common/ring/Ring_service.hh"
+#include "gm2ringsim/common/ring/ring_util.hh"
 
 #include "gm2ringsim/common/g2PreciseValues.hh"
 #include "gm2ringsim/common/ring/RingSD.hh"

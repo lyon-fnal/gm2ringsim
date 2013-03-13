@@ -51,7 +51,7 @@
 #include "gm2ringsim/inflector/InflectorSD.hh"
 #include "gm2ringsim/inflector/InflectorArtRecord.hh"
 #include "gm2ringsim/inflector/InflectorHit.hh"
-#include "gm2ringsim/common/ring/Ring_service.hh"
+#include "gm2ringsim/common/ring/ring_util.hh"
 
 #include "gm2ringsim/common/ring/RingArtRecord.hh"
 
