@@ -331,6 +331,7 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
             
             // Still need to set the sensitive detector here!
             photodetector_L->SetSensitiveDetector(photodetectorSD_);
+
             
             // Wrap the crystals with materials specified:
             // --- Define the optical surface for the long side :
@@ -382,7 +383,11 @@ std::vector<G4LogicalVolume *> gm2ringsim::Calorimeter::doBuildLVs() {
     CalorimeterGeometry caloGeom(myName());
     caloGeom.print();
     
-
+    // make sure sensitive detector has the right number of photodetectors
+    int nCalo = 24;
+    int nPhotodetectors = nCalo * caloGeom.nXtalRows * caloGeom.nXtalCols;
+    photodetectorSD_->setPhotodetectorNum(nPhotodetectors);
+    
     // Create the vector of logical volumes
     std::vector<G4LogicalVolume*> calorimeterLVs;
     

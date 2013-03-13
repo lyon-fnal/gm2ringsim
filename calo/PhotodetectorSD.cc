@@ -28,9 +28,6 @@
 
 #include "CLHEP/Random/RandFlat.h"
 
-// >>>> need to fix hard-coded photodetector number
-static const int nPhotodetectors = 24 * 35 ;
-
 gm2ringsim::PhotodetectorSD::PhotodetectorSD(G4String name) :
 G4VSensitiveDetector( name ),
 printLevel(0), drawLevel(0)
@@ -39,7 +36,7 @@ printLevel(0), drawLevel(0)
     G4String photonName = Calorimeter::addPhotonToName(name);
     collectionName.insert( photonName ) ;
     
-    photodetectorID = new G4int[ nPhotodetectors ] ;
+    std::vector<int> photodetectorID_ ;
     
     // Register with SDManager
     G4SDManager* SDman = G4SDManager::GetSDMpointer();
@@ -49,9 +46,7 @@ printLevel(0), drawLevel(0)
 // The destructor will never be called during the run of the program,
 // as SDs are never removed from the SDManager during the lifetime of
 // the program.
-gm2ringsim::PhotodetectorSD::~PhotodetectorSD(){
-    delete [] photodetectorID ;
-}
+gm2ringsim::PhotodetectorSD::~PhotodetectorSD(){}
 
 void gm2ringsim::PhotodetectorSD::Initialize(G4HCofThisEvent* HCoTE){
     
@@ -69,9 +64,9 @@ void gm2ringsim::PhotodetectorSD::Initialize(G4HCofThisEvent* HCoTE){
     HCoTE->AddHitsCollection( thisHCID, thisHC );
     HCoTE->AddHitsCollection( thisPhotonHCID, thisPhotonHC );
     
-    for( G4int i = 0 ; i < nPhotodetectors ; ++i )
+    for( G4int i = 0 ; i < nPhotodetectors_ ; ++i )
     {
-        photodetectorID[ i ] = -1 ;
+        photodetectorID_.push_back(-1) ;
     }
 }
 
@@ -104,12 +99,6 @@ G4bool gm2ringsim::PhotodetectorSD::ProcessHits(G4Step* thisStep, G4TouchableHis
         G4double photodetectorFront = -feely->GetSolid()->DistanceToOut(origin,minuszhat); // local z-coord of photodetector front
         if (fabs(local_pos.z() - photodetectorFront) < 0.0001) // checks that photon entered front face of photodetector
         {                // if not, skip processing the hit (but still kill the track at the end)
-            
-            
-            //	  G4cout << "track ID " << thisStep->GetTrack()->GetTrackID()
-            //                << " y-coord = " << local_pos.y()
-            //                << " diff = " << local_pos.y() - photodetectorFront << G4endl;
-            
             
             // Store ALL photons
             PhotodetectorPhotonHit* ph = new PhotodetectorPhotonHit(thisStep) ;
@@ -384,14 +373,14 @@ G4bool gm2ringsim::PhotodetectorSD::ProcessHits(G4Step* thisStep, G4TouchableHis
             // 		<< " pdg " << track->GetParticleDefinition()->GetPDGEncoding()
             // 		<< std::endl ;
             
-            if(photodetectorID[copyID]==-1)
+            if(photodetectorID_[copyID]==-1)
             {
                 PhotodetectorHit* pHit = new PhotodetectorHit( thisStep );
                 pHit->energy = thisStep->GetPreStepPoint()->GetTotalEnergy() ;
                 ++( pHit->nphoton ) ;
                 
                 G4int icell = thisHC->insert( pHit );
-                photodetectorID[copyID] = icell - 1;
+                photodetectorID_[copyID] = icell - 1;
                 
                 //  	 std::cout << " New PhotodetectorHit on photodetectorID " << copyID
                 //  		   << " track " << track->GetTrackID()
@@ -402,25 +391,18 @@ G4bool gm2ringsim::PhotodetectorSD::ProcessHits(G4Step* thisStep, G4TouchableHis
             }
             else
             { 
-                ( *thisHC )[ photodetectorID[ copyID ] ]->energy +=
+                ( *thisHC )[ photodetectorID_[ copyID ] ]->energy +=
                 thisStep->GetPreStepPoint()->GetTotalEnergy() ;
-                ++( ( *thisHC )[ photodetectorID[ copyID ] ]->nphoton ) ;
+                ++( ( *thisHC )[ photodetectorID_[ copyID ] ]->nphoton ) ;
                 
                 // 	 std::cout << " Incremented PhotodetectorHit on photodetectorID " << copyID
                 // 		   << " track " << track->GetTrackID()
                 // 		   << " pdg " << track->GetParticleDefinition()->GetPDGEncoding()
-                // 		   << " energy " << ( *thisHC )[ photodetectorID[ copyID ] ]->energy
-                // 		   << " nphoton " << ( *thisHC )[ photodetectorID[ copyID ] ]->nphoton
+                // 		   << " energy " << ( *thisHC )[ photodetectorID_[ copyID ] ]->energy
+                // 		   << " nphoton " << ( *thisHC )[ photodetectorID_[ copyID ] ]->nphoton
                 // 		   << std::endl ;
             }
         }
-        //         else 
-        //          {
-        // 	     G4cout << "track ID " << thisStep->GetTrack()->GetTrackID()
-        //                  << " y-coord = " << local_pos.y()
-        //                  << " diff = " << local_pos.y() - photodetectorFront
-        //                  << " rejected, not at photodetector front"   << G4endl;
-        //          }
     }
     
     thisStep->GetTrack()->SetTrackStatus(fStopAndKill);

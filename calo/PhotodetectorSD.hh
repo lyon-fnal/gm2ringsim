@@ -47,13 +47,19 @@ public:
     
     G4int DrawLevel() const { return drawLevel; };
     G4int DrawLevel(G4int newLevel);
+    
+    void setPhotodetectorNum(int n) { nPhotodetectors_ = n; };
+    
+    
 private:
     PhotodetectorHitsCollection *thisHC;
     PhotodetectorPhotonHitsCollection *thisPhotonHC;
     
     G4int printLevel, drawLevel;
     
-    int* photodetectorID ;
+    int nPhotodetectors_;
+    
+    std::vector<int> photodetectorID_ ;
 };
 
 } // namespace gm2ringsim
