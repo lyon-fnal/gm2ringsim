@@ -1,0 +1,11 @@
+<!--  art::Wrapper lines need only top level data product objects  -->
+
+<lcgdict>
+    <!-- For TrackerHits - note that using the typedef will not work here-->
+    <class name="gm2ringsim::PhotodetectorArtRecord"/>
+    <class name="gm2ringsim::PhotodetectorPhotonArtRecord"/>
+    <class name="std::vector< gm2ringsim::PhotodetectorArtRecord >"/>
+    <class name="std::vector< gm2ringsim::PhotodetectorPhotonArtRecord >"/>
+    <class name="art::Wrapper< std::vector< gm2ringsim::PhotodetectorArtRecord > >"/>
+    <class name="art::Wrapper< std::vector< gm2ringsim::PhotodetectorPhotonArtRecord > >"/>
+</lcgdict>
