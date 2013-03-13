@@ -118,7 +118,6 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
   int strawInTBNumber;
   
   //loop over the logical volumes
-  mf::LogInfo("TRACEBACK") << "The size of lvs(): "<< lvs().size();
   for ( auto aStrawLV : lvs() ) {
     // We to name the station including its station number
     // g2migtrace used sprintf. Let's use boost::format instead
@@ -145,15 +144,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
     y = sqrt(ys*ys - deltaR*deltaR);
     
     G4TwoVector fixup(r,y);
-    mf::LogInfo("TRACEBACK") << "I is: " << i <<"\n"
-                             << "strawInTBNumber is: "<<strawInTBNumber<<"\n"
-                             << "r is: "<< r <<"\n"
-                             << "fixup.x() " << fixup.x() << "\n"
-                             << "y is: "<< y <<"\n"
-                             << "fixup.y() " << fixup.y() << "\n"
-                             << "arcPosition is: "<< arcPosition << "\n"
-                             << "arcNumber is: " << arcNumber << "\n";
-    
+        
     fixup.rotate(15.*degree*arcPosition);
         
     G4Transform3D out_transform(G4RotationMatrix( -13*deg -vacg.phi_a*arcPosition, 0, 0),
