@@ -16,7 +16,7 @@ namespace gm2ringsim {
     G2GPSSettings(std::string const &);
     void print() const;
     virtual bool contains(std::string) override;
-    
+
     std::string particle;
     std::string pos_type;
     std::vector<double> pos_rot1;

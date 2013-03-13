@@ -140,7 +140,7 @@ G4LogicalVolume* gm2ringsim::FiberHarp::BuildFiberHarp(G4int harpNumber){
     sprintf(s, ".support[%d]", supportNumber);
     name += s;
     
-    G4VSolid *box;
+    G4VSolid *box = 0;
     G4ThreeVector placement;
     G4double supportPos = (geom_.supportWidth + geom_.fiberLength)/2;
     if(supportNumber == 0)
@@ -163,6 +163,10 @@ G4LogicalVolume* gm2ringsim::FiberHarp::BuildFiberHarp(G4int harpNumber){
 			 0*deg, -30*deg, 0*deg);
 	placement = G4ThreeVector(supportPos + geom_.supportLength/4, 0, 0);
       } 
+    }
+
+    if ( ! box ) {
+        throw cet::exception("FIBERHARP") << "Fiberharp was not set correctly\n";
     }
 
     G4LogicalVolume *boxLogical = new G4LogicalVolume(box,  

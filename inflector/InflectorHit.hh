@@ -20,7 +20,7 @@
 namespace gm2ringsim {
   /** A G4VHit derived class to store particle tracking data inside the
       inflector aperture as collected by the inflectorSD. */
-  class inflectorHit : public G4VHit {
+  class InflectorHit : public G4VHit {
     
   public:
     
@@ -35,7 +35,7 @@ namespace gm2ringsim {
     /** Global volume ID for the hit inflector tracking volume. */
     G4int volumeUID;
     
-    inflectorHit(G4Step*);
+    InflectorHit(G4Step*);
     
     inline void* operator new(size_t);
     inline void  operator delete(void*);
@@ -43,23 +43,23 @@ namespace gm2ringsim {
     void Draw();
     void Print();
     
-  }; // class inflectorHit
+  }; // class InflectorHit
   
 
-  typedef G4THitsCollection<inflectorHit> inflectorHitsCollection;
-  extern G4Allocator<inflectorHit> inflectorHitAllocator;
+  typedef G4THitsCollection<InflectorHit> InflectorHitsCollection;
+  extern G4Allocator<InflectorHit> InflectorHitAllocator;
   
 } //namespace gm2ringsim
-inline void* gm2ringsim::inflectorHit::operator new(size_t)
+inline void* gm2ringsim::InflectorHit::operator new(size_t)
 {
   void *aHit;
-  aHit = (void *) inflectorHitAllocator.MallocSingle();
+  aHit = (void *) InflectorHitAllocator.MallocSingle();
   return aHit;
 }
 
-inline void gm2ringsim::inflectorHit::operator delete(void *aHit)
+inline void gm2ringsim::InflectorHit::operator delete(void *aHit)
 {
-  inflectorHitAllocator.FreeSingle ((inflectorHit*) aHit);
+  InflectorHitAllocator.FreeSingle ((InflectorHit*) aHit);
 }
 
 

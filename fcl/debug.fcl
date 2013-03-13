@@ -93,8 +93,14 @@ services: {
       name: "primary"
     }
 
+//    MuonGasPGA: {
+//        name: "muongas"
+//        muonGasVerbosity: false
+//    }
+
     // Detectors
     World: {}	
+    Ring: {} 
     Arc: {}
     VacuumChamber: {}
     Inflector:{}
@@ -108,9 +114,9 @@ services: {
     Traceback: {}
 
 
-//    MuonStorageStatusAction: {
-//      name: "MuonStorageStatusAction"
-//    }
+    MuonStorageStatusAction: {
+      name: "MuonStorageStatusAction"
+    }
 
   } //user:
 } //services:

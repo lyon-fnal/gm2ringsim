@@ -33,7 +33,7 @@
 #include "Geant4/G4TwoVector.hh"
 
 #include "gm2ringsim/traceback/TracebackGeometry.hh"
-#include "gm2ringsim/traceback/strawSD.hh"
+#include "gm2ringsim/traceback/StrawSD.hh"
 #include "gm2ringsim/traceback/StrawArtRecord.hh"
 #include "gm2ringsim/traceback/StrawHit.hh"
 

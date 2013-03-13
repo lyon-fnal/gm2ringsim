@@ -38,7 +38,7 @@ gm2ringsim::InflectorSD::~InflectorSD(){
 
 void gm2ringsim::InflectorSD::Initialize(G4HCofThisEvent* HCoTE){
 
-  thisHC = new inflectorHitsCollection
+  thisHC = new InflectorHitsCollection
     ( SensitiveDetectorName, collectionName[0]);
 
   G4int const thisHCID = 
@@ -57,7 +57,7 @@ G4bool gm2ringsim::InflectorSD::ProcessHits(G4Step* thisStep, G4TouchableHistory
       thisStep->GetPostStepPoint()->GetPhysicalVolume() )
     return false;
   
-  thisHC->insert(new inflectorHit(thisStep));
+  thisHC->insert(new InflectorHit(thisStep));
 
   return true; 
 }

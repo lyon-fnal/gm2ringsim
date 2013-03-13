@@ -1,6 +1,6 @@
-/** @file inflectorHit.cc
+/** @file InflectorHit.cc
 
-    Implements the member functions of the inflectorHit class.
+    Implements the member functions of the InflectorHit class.
 
     @author Kevin Lynch
     @date 2009
@@ -20,11 +20,12 @@
 #include "Geant4/G4Navigator.hh" 
 
 #include "gm2ringsim/inflector/InflectorHit.hh"
+
 //FIXME: do i need this?#include "g2UniqueObjectManager.rhh"
 namespace gm2ringsim {
-  G4Allocator<inflectorHit> inflectorHitAllocator;
+  G4Allocator<InflectorHit> InflectorHitAllocator;
 }
-gm2ringsim::inflectorHit::inflectorHit(G4Step* step) : 
+gm2ringsim::InflectorHit::InflectorHit(G4Step* step) : 
   position(step->GetPreStepPoint()->GetPosition()),
   momentum(step->GetPreStepPoint()->GetMomentum()),
   time(step->GetPreStepPoint()->GetGlobalTime()),
@@ -80,7 +81,7 @@ gm2ringsim::inflectorHit::inflectorHit(G4Step* step) :
 }
 
 
-void gm2ringsim::inflectorHit::Draw(){
+void gm2ringsim::InflectorHit::Draw(){
 #ifdef G4VIS_USE
   G4VVisManager* pVVisManager = G4VVisManager::GetConcreteInstance();
   if(!pVVisManager)
@@ -98,7 +99,7 @@ void gm2ringsim::inflectorHit::Draw(){
 
 //#include "rootStorageManager.hh"
 
-void gm2ringsim::inflectorHit::Print(){
+void gm2ringsim::InflectorHit::Print(){
   G4cout << " volumeUID: " << volumeUID
 	 << " time: " << time
 	 << " position: " << position

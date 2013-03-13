@@ -1,8 +1,7 @@
 // General Particle Source geometry
 BEGIN_PROLOG
 G2GPS_storageVertex: {
-
-  particle : muminus
+   particle : muminus
    pos_type : Beam
    pos_rot1 :[ 1, 0 ,0 ]
    pos_rot2 :[0, 1,  0]

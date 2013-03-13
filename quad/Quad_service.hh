@@ -29,6 +29,9 @@
 #include "gm2ringsim/actions/SpinTrackingSettings.hh"
 #include "gm2ringsim/common/ring/RingSD.hh"
 
+#include "gm2ringsim/common/ring/RingArtRecord.hh"
+#include "gm2ringsim/common/ring/RingHit.hh"
+
 // Get the base class for the service
 #include "artg4/Core/DetectorBase.hh"
 
@@ -64,10 +67,10 @@ namespace gm2ringsim {
       // CHANGE_ME: Delete the next two functions if no hits
 
       // Tell Art what we'll produce
-      //        virtual void doCallArtProduces(art::EDProducer * producer) override;
+    virtual void doCallArtProduces(art::EDProducer * producer) override;
       
       // Actually add the data to the event
-      //virtual void doFillEventWithArtHits(G4HCofThisEvent * hc) override;
+    virtual void doFillEventWithArtHits(G4HCofThisEvent * hc) override;
       
     
     void buildQuadsSandL();
@@ -182,8 +185,7 @@ namespace gm2ringsim {
     // quad region, section  
     G4FieldManager *withoutSpin_[4][2];
     G4FieldManager *withSpin_[4][2];
-    
- 
+
     //      enum plate_type {INNERPLATE, OUTERPLATE, TOPPLATE, BOTTOMPLATE, plate_type_end};
     
     // enum plate_section {SECTION13, SECTION26, plate_section_end};

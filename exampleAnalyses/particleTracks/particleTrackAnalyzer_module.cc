@@ -14,7 +14,7 @@
 #include "artg4/pluginActions/physicalVolumeStore/PhysicalVolumeStoreData.hh"
 #include "artg4/pluginActions/physicalVolumeStore/physicalVolumeStore_service.hh"
 
-#include "artg4/util/dataFromRunOrService.hh"
+#include "artg4/util/DataFromRunOrService.hh"
 
 #include <vector>
 
