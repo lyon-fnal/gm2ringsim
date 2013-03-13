@@ -62,11 +62,9 @@ namespace gm2ringsim {
         virtual void doFillEventWithArtHits(G4HCofThisEvent * hc) override;
       
       // Convenience functions
-        G4LogicalVolume* makeATracebackLV(int);
         //G4UnionSolid* buildScallopSolid();
 
-        void makeTracebackLVs(std::vector<G4LogicalVolume*>&);
-        void makeStrawDetectors(std::vector<G4VPhysicalVolume*>&, std::vector<G4LogicalVolume*>& );
+        //void makeStrawLVDetectors(std::vector<G4LogicalVolume*>&);
 
     };
 }
