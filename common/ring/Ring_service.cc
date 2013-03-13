@@ -20,7 +20,7 @@ gm2ringsim::Ring::Ring(fhicl::ParameterSet const & p, art::ActivityRegistry & ) 
 	       p.get<std::string>("name", "Ring"),
 	       p.get<std::string>("category", "Ring"),
 	       p.get<std::string>("mother_category", "vac")),
-  ringSDname_("ringSD"),
+  ringSDname_("RingSD"),
   ringSD_(artg4::getSensitiveDetector<RingSD>(ringSDname_))
 {
 
