@@ -51,7 +51,7 @@ namespace gm2ringsim{
       rhat(0), vhat(0), theta(0), time(0), p(0), prhat(0), pvhat(0),
       turn(-1), volumeUID(0), trackID(-1) {}
 
-    ~TrackerArtRecord();
+    ~TrackerArtRecord(){};
     
 #ifndef __GCCXML__
     TrackerArtRecord(float rin, float vin, float thetain,
