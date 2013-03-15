@@ -34,7 +34,7 @@ namespace gm2ringsim {
          Increases in the downstream direction. */
         float z_global;
         float r_global;
-      float myr_global;
+        float myr_global;
         /** Momentum component parallel to the x_global axis. */
         float px_global;
         /** Momentum component parallel to the y_global axis. */

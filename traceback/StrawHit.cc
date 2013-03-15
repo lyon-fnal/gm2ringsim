@@ -31,31 +31,6 @@ gm2ringsim::StrawHit::StrawHit(G4Step* step) :
     trackID(step->GetTrack()->GetTrackID()) //,
     //FIXME  volumeUID(get_uid(step->GetPreStepPoint()->GetPhysicalVolume()))
 {
-    /*G4StepPoint* preStepPoint = step->GetPreStepPoint();
-    G4TouchableHandle theTouchable = preStepPoint->GetTouchableHandle();
-    G4ThreeVector worldPosition = preStepPoint->GetPosition();
-    
-    const G4NavigationHistory *history =  theTouchable->GetHistory();
-        
-    G4ThreeVector myPoint = position;
-    G4Navigator* theNavigator = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
-    G4VPhysicalVolume* myVolume = theNavigator->LocateGlobalPointAndSetup(myPoint);
-    //FIXME: printing this since it is needed to compile
-    G4cout << "Volume Name = " << myVolume->GetName() << G4endl;
-    
-    local_momentum = momentum;
-    
-    G4int start = history->GetDepth();
-    G4int depth = start;
-    G4VPhysicalVolume *vol = history->GetVolume(depth);
-    if ( 1 ) {
-        if ( vol ) {
-            G4RotationMatrix rotInv = history->GetTransform(depth).NetRotation().inverse();
-            local_momentum = local_momentum.transform(rotInv); //.transform(rotM);
-            local_position = history->GetTransform(depth).TransformPoint(worldPosition);
-            
-        }
-    }*/
   
   
   G4StepPoint* preStepPoint = step->GetPreStepPoint();
@@ -78,7 +53,7 @@ gm2ringsim::StrawHit::StrawHit(G4Step* step) :
     local_position = history->GetTransform(depth).TransformPoint(worldPosition);
   }
   
-    }
+}
 
 
 void gm2ringsim::StrawHit::Draw(){

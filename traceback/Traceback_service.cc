@@ -124,9 +124,10 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
     // (see http://www.boost.org/doc/libs/1_52_0/libs/format/doc/format.html )
     
     tracebackNumber = i/numberOfStrawsPerTB;
-    std::string tracebackLabel( boost::str( boost::format("TracebackNumber[%02d]") % i ));
-    mf::LogInfo("TRACEBACK") << "tracebackLabel: " << tracebackLabel;
     strawInTBNumber = i%numberOfStrawsPerTB;
+
+    std::string tracebackLabel( boost::str( boost::format("TracebackNumber[%d][%d]") %tracebackNumber %strawInTBNumber));
+    mf::LogInfo("TRACEBACK") << "tracebackLabel: " << tracebackLabel;
 
     G4double
     r = 7020,
