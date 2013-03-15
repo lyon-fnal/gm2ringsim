@@ -89,6 +89,9 @@ void gm2ringsim::TrackingAction::fillEventWithArtStuff(art::Event & e)
 
   // Make a unique pointer for the tracking object
   e.put(std::move(myArtHits_));
+  
+  // myArtHits_ is now invalid. Assign to a new one
+  myArtHits_ = std::unique_ptr<TrackingActionArtRecordCollection>( new TrackingActionArtRecordCollection() );
 }
 
 using gm2ringsim::TrackingAction;
