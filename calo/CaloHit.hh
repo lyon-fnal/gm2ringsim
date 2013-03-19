@@ -1,0 +1,71 @@
+#ifndef CaloHit_hh
+#define CaloHit_hh
+
+/** @file CaloHit.hh
+ 
+    Declares the data structures required to store calorimeter hit
+    information.
+ 
+    Ported to Art from g2migtrace file caloHit.hh
+        @author Kevn Lynch
+        @date 2009
+ 
+    @author Robin Bjorkquist
+    @date 2013
+ */
+
+#include "Geant4/G4VHit.hh"
+#include "Geant4/G4THitsCollection.hh"
+#include "Geant4/G4Allocator.hh"
+#include "Geant4/G4ThreeVector.hh"
+#include "Geant4/G4Step.hh"
+#include "Geant4/globals.hh"
+
+namespace gm2ringsim{
+/** A G4VHit class to store data from calorimeter hits. */
+class CaloHit : public G4VHit {
+public:
+    // local coordinates are, respectively:
+    // x() : radial component, positive outward
+    // y() : thickness component, positive downstream
+    // z() : vertical component, positive up
+        
+    G4ThreeVector global_pos, global_mom; // get from prestep pt, which
+    // is in the calo volume
+    // (isn't it?), and get in the
+    // coordinate system of the
+    // calorimeter
+    G4ThreeVector local_pos, local_mom;
+    G4double time;
+    G4int turnNum; // obtained from turn counter
+    G4int trackID;
+    G4int caloNum;
+        
+    CaloHit(G4Step*);
+    
+    inline void* operator new(size_t);
+    inline void  operator delete(void*);
+        
+    void Draw();
+    void Print();
+        
+};
+    
+typedef G4THitsCollection<CaloHit> CaloHitsCollection;
+extern G4Allocator<CaloHit> CaloHitAllocator;
+} // namespace gm2ringsim
+    
+inline void* gm2ringsim::CaloHit::operator new(size_t)
+{
+    void *aHit;
+    aHit = (void *) CaloHitAllocator.MallocSingle();
+    return aHit;
+}
+
+inline void gm2ringsim::CaloHit::operator delete(void *aHit)
+{
+    CaloHitAllocator.FreeSingle ((CaloHit*) aHit);
+}
+    
+
+#endif // CaloHit_hh

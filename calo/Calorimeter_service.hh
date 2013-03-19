@@ -13,6 +13,7 @@
 #include <iostream>
 #include <vector>
 
+#include "gm2ringsim/calo/CaloSD.hh"
 #include "gm2ringsim/calo/PhotodetectorSD.hh"
 
 // Art Includes
@@ -46,7 +47,8 @@ namespace gm2ringsim {
         // We always need a virtual destructor
         virtual ~Calorimeter() {};
         
-        // Return name for photodetector hit collection
+        // Return names for hit collections
+        static G4String getCaloName() {return "CaloSD";}
         static G4String getPhotodetectorName() {return "PhotodetectorSD";}
         
         // Add "photon" to name
@@ -54,6 +56,7 @@ namespace gm2ringsim {
         
     private:
         
+        CaloSD *caloSD_;
         PhotodetectorSD *photodetectorSD_;
         
         // Private overriden methods
@@ -73,6 +76,9 @@ namespace gm2ringsim {
         
         // Actually add the data to the event
         virtual void doFillEventWithArtHits(G4HCofThisEvent * hc) override;
+        
+        // Add calorimeter hits to the event
+        void doFillEventWithCaloHits(G4HCofThisEvent * hc);
         
         // Add photodetector hits to the event
         void doFillEventWithPhotodetectorHits(G4HCofThisEvent * hc);
