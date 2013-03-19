@@ -78,7 +78,7 @@ void gm2ringsim::CaloElectronPGA::initialize() {
     G4ThreeVector xhatLocal(1., 0., 0.);
 	G4ThreeVector yhatLocal(0.*mm, 1.*mm, 0.*mm);
 
-    G4double phi = -5. * deg; // aim particle straight into calo 9
+    G4double phi = -5. * deg; // aim particle straight into calo 8
 	G4double angle = phi + theta;
 	localPos = localPos - 74.5 * yhatLocal; // .5 mm in front of front face
 	G4ThreeVector adjustedPos( localPos.x() * std::cos(phi) + std::sin(phi) * localPos.y(),

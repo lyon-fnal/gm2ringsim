@@ -1,14 +1,12 @@
-//
-//  CalorimeterGeometry.h
-//  gm2ringsim
-//
-//  Created by Lawrence Gibbons on 12/15/12.
-//  Copyright (c) 2012 Cornell University. All rights reserved.
-//
-
-// Include guards
 #ifndef __gm2ringsim_CalorimeterGeometry__
 #define __gm2ringsim_CalorimeterGeometry__
+
+/** @file CalorimeterGeometry.hh
+ 
+ @author Lawrence Gibbons
+ @date 2012
+ 
+*/
 
 // system includes
 #include <iostream>
@@ -61,7 +59,7 @@ namespace gm2ringsim{
 
         // parameters of bounding calorimeter box.  Unlike in g2migtrace, we
         // define these parameters from crystal and array parameters
-        // themselves so that they are guaranteed tojust barely enclose the
+        // themselves so that they are guaranteed to just barely enclose the
         // crystals + wrappings + photodetector
         double radial;
         double vertical;
