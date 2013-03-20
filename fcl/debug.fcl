@@ -17,7 +17,7 @@ process_name:myProcessName
 
 source: {
   module_type: EmptyEvent
-  maxEvents:  10
+  maxEvents:  1
 }
 
 services: {
@@ -81,7 +81,17 @@ services: {
     }
 
     physicalVolumeStore: {}
-    Gm2PhysicsList: {}
+    Gm2PhysicsList: {
+      muonDecayMode: "none"
+      PhysicsListConfiguration: {
+        defaultCutValue: 1.  // mm
+        useHadronicPhysics: true
+	useSynchrotronPhysics: false
+	useQStoppingPhysics: false
+	useIonPhysics: false
+	useNeutronTrackingCut: false
+      }
+    }
 
     TrackingAction : {
           name : "trackingAction"

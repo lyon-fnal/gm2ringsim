@@ -5,6 +5,7 @@
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 
 #include "gm2ringsim/actions/physicsList.hh"
+#include "gm2ringsim/actions/physicsListQGSP_BERT.hh"
 
 #include <boost/algorithm/string.hpp>
 
@@ -12,14 +13,17 @@ gm2ringsim::Gm2PhysicsListService::Gm2PhysicsListService(fhicl::ParameterSet con
   PhysicsListServiceBase(),
   muonDecayMode_(p.get<std::string>("muonDecayMode", "")),
   verboseLevel_(p.get<int>("verboseLevel", 0)),
-  thePhysicsList_(0)
+  thePhysicsList_(0),
+  p_(p)
 {}
 
 G4VUserPhysicsList* gm2ringsim::Gm2PhysicsListService::makePhysicsList() {
   
   // Construct a new Physics List
-  thePhysicsList_ = new physicsList();
+  //thePhysicsList_ = new physicsList();
   
+  thePhysicsList_ = (physicsList*) new physicsListQGSP_BERT(p_.get<fhicl::ParameterSet>("PhysicsListConfiguration"));
+
   return thePhysicsList_;
 }
 

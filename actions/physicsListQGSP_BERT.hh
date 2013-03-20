@@ -17,11 +17,13 @@
 
 #include "gm2ringsim/actions/physicsList.hh"
 
+#include "art/Framework/Services/Registry/ServiceMacros.h"
+
 namespace gm2ringsim {
   class physicsListQGSP_BERT : public physicsList {
     
   public:
-    physicsListQGSP_BERT();
+    physicsListQGSP_BERT(fhicl::ParameterSet const & p);
     ~physicsListQGSP_BERT();
     
   private:

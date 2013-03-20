@@ -28,6 +28,7 @@ namespace gm2ringsim {
     std::string muonDecayMode_;
     int verboseLevel_;
     physicsList* thePhysicsList_;
+    fhicl::ParameterSet p_;
   };
   
 }
