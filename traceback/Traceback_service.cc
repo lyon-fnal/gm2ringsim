@@ -112,7 +112,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
   
   const VacGeometry vacg("vac");
   int i = 0;
-  int tracebackNumber;
+  int tracebackIndex, tracebackNumber;
   int numberOfStraws = lvs().size();
   int numberOfStrawsPerTB = numberOfStraws/geom_.whichTracebackLocations.size();
   int strawInTBNumber;
@@ -122,29 +122,39 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
     // We to name the station including its station number
     // g2migtrace used sprintf. Let's use boost::format instead
     // (see http://www.boost.org/doc/libs/1_52_0/libs/format/doc/format.html )
-    
-    tracebackNumber = i/numberOfStrawsPerTB;
+    tracebackIndex = i/numberOfStrawsPerTB;
+    tracebackNumber = geom_.whichTracebackLocations[tracebackIndex];
     strawInTBNumber = i%numberOfStrawsPerTB;
+
+    mf::LogInfo("TRACEBACL") << "i:                   "<<i << "\n"
+                             << "tracebackIndex:      "<<tracebackIndex << "\n"
+                             << "tracebackAtZero:     "<< geom_.whichTracebackLocations[0] << "\n"
+                             << "numberOfStrawsPerTB: "<< numberOfStrawsPerTB << "\n"
+                             << "tracebackAtIndex:    "<< tracebackNumber << "\n"
+                             << "strawInTBNumber:     "<<strawInTBNumber << "\n";
+    
+
+    
 
     std::string tracebackLabel( boost::str( boost::format("TracebackNumber[%d][%d]") %tracebackNumber %strawInTBNumber));
     mf::LogInfo("TRACEBACK") << "tracebackLabel: " << tracebackLabel;
 
     G4double
-    r = 7020,
-    y = 0,
+    x = 7020,
+    z = 0,
     phi = 12.8,
-    ys = geom_.strawLocation[strawInTBNumber],
-    deltaR =0;
+    ds = geom_.strawLocation[strawInTBNumber],
+    deltaX =0;
     
-    int arcPosition = geom_.whichTracebackLocations[tracebackNumber] % 2;
-    int arcNumber = floor(geom_.whichTracebackLocations[tracebackNumber]/2);
+    int arcPosition = tracebackNumber % 2;
+    int arcNumber = floor(tracebackNumber/2);
 
-    deltaR = ys * sin(phi * deg);
-    r = r - deltaR;
-    r = r + geom_.strawRadialExtentHalf[strawInTBNumber];
-    y = sqrt(ys*ys - deltaR*deltaR);
+    deltaX = ds * sin(phi * deg);
+    x = x - deltaX;
+    x = x + geom_.strawRadialExtentHalf[strawInTBNumber];
+    z = sqrt(ds*ds - deltaX*deltaX);
     
-    G4TwoVector fixup(r,y);
+    G4TwoVector fixup(x,z);
         
     fixup.rotate(15.*degree*arcPosition);
         
@@ -215,7 +225,9 @@ void gm2ringsim::Traceback::doFillEventWithArtHits(G4HCofThisEvent * hc) {
                                 e->local_momentum.x(),e->local_momentum.y(), e->local_momentum.z(),
                                 e->time,
                                 e->trackID,
-                                e->volumeUID);
+                                e->volumeUID,
+                                e->traceback,
+                                e->straw);
       i++;
       
     } //loop over geantHits

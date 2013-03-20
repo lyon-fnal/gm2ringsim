@@ -27,6 +27,8 @@ namespace gm2ringsim {
     G4double time;
     G4int trackID;
     G4int volumeUID;
+    G4int traceback, straw;
+
     StrawHit(G4Step*);
     
     inline void* operator new(size_t);

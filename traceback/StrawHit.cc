@@ -31,9 +31,27 @@ gm2ringsim::StrawHit::StrawHit(G4Step* step) :
     trackID(step->GetTrack()->GetTrackID()) //,
     //FIXME  volumeUID(get_uid(step->GetPreStepPoint()->GetPhysicalVolume()))
 {
+  // The name is HARP[m].fiber[n] or HARP[m].support[n]
+  std::string name = step->GetPreStepPoint()->GetPhysicalVolume()->GetName();
   
+  // get traceback number
+  std::string::size_type left_tb = name.find_first_of('[');
+  std::string::size_type right_tb = name.find_first_of(']');
+  std::string num_tb(name, left_tb+1, right_tb-1);
+  std::istringstream iss_tb(num_tb);
+  iss_tb >> traceback;
   
-  G4StepPoint* preStepPoint = step->GetPreStepPoint();
+  // get straw chamber number
+  std::string::size_type left_sc = name.find_last_of('[');
+  std::string::size_type right_sc = name.find_last_of(']');
+  std::string num_sc(name, left_sc+1, right_sc-1);
+  std::istringstream iss_sc(num_sc);
+  iss_sc >> straw;
+
+  
+  G4StepPoint* preStepPoint  = step->GetPreStepPoint();
+  //G4StepPoint* postStepPoint = step->GetPostStepPoint();
+  
   G4TouchableHandle theTouchable = preStepPoint->GetTouchableHandle();
   //position in world coordinates
 
