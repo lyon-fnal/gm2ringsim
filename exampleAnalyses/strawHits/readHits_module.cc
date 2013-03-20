@@ -175,7 +175,6 @@ void gm2ringsim::readHits::analyze(art::Event const &e) {
     h_y_global -> Fill(hdata.y_global);
     h_z_global -> Fill(hdata.z_global);
     h_r_global -> Fill(hdata.r_global);
-    h_myr_global -> Fill(hdata.myr_global);
     h_px_global -> Fill(hdata.px_global);
     h_py_global -> Fill(hdata.py_global);
     h_pz_global -> Fill(hdata.pz_global);
@@ -191,7 +190,6 @@ void gm2ringsim::readHits::analyze(art::Event const &e) {
     tf_y_global=hdata.y_global;
     tf_z_global=hdata.z_global;
     tf_r_global=hdata.r_global;
-    tf_myr_global=hdata.myr_global;
     tf_px_global=hdata.px_global;
     tf_py_global=hdata.py_global;
     tf_pz_global=hdata.pz_global;
