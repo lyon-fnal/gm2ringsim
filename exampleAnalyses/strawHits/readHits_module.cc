@@ -78,7 +78,7 @@ private:
   float tf_pz_local;
   int tf_traceback_number;
   int tf_straw_number;
-
+  int tf_track_ID;
 };
 
 
@@ -146,7 +146,7 @@ tree_dir_       ( p.get<std::string>("tree_dir"         ) )
   t_hitTree_->Branch("pz_local", &tf_pz_local, "pz_local/F");
   t_hitTree_->Branch("tracebackNumber", &tf_traceback_number, "tracebackNumber/I");
   t_hitTree_->Branch("strawNumber", &tf_straw_number, "strawNumber/I");
-
+  t_hitTree_->Branch("trackID",&tf_track_ID,"trackID/I");
 
 }
 
@@ -169,6 +169,7 @@ void gm2ringsim::readHits::analyze(art::Event const &e) {
   // Resolve the handle
   StrawArtRecordCollection const & hits = *hitDataHandle;
   // Let's use the nice C++11 vector iteration
+  
   for ( auto hdata : hits) {
     //hdata is a strawartrecord
     h_x_global -> Fill(hdata.x_global);
@@ -199,9 +200,10 @@ void gm2ringsim::readHits::analyze(art::Event const &e) {
     tf_px_local=hdata.px_local;
     tf_py_local=hdata.py_local;
     tf_pz_local=hdata.pz_local;
+    
     tf_traceback_number = hdata.tracebackNumber;
     tf_straw_number = hdata.strawNumber;
-
+    tf_track_ID = hdata.trackID;
     t_hitTree_->Fill();
     
   }
