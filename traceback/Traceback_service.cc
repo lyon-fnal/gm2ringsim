@@ -126,18 +126,8 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
     tracebackNumber = geom_.whichTracebackLocations[tracebackIndex];
     strawInTBNumber = i%numberOfStrawsPerTB;
 
-    mf::LogInfo("TRACEBACL") << "i:                   "<<i << "\n"
-                             << "tracebackIndex:      "<<tracebackIndex << "\n"
-                             << "tracebackAtZero:     "<< geom_.whichTracebackLocations[0] << "\n"
-                             << "numberOfStrawsPerTB: "<< numberOfStrawsPerTB << "\n"
-                             << "tracebackAtIndex:    "<< tracebackNumber << "\n"
-                             << "strawInTBNumber:     "<<strawInTBNumber << "\n";
     
-
-    
-
     std::string tracebackLabel( boost::str( boost::format("TracebackNumber[%d][%d]") %tracebackNumber %strawInTBNumber));
-    mf::LogInfo("TRACEBACK") << "tracebackLabel: " << tracebackLabel;
 
     G4double
     x = 7020,
@@ -211,13 +201,9 @@ void gm2ringsim::Traceback::doFillEventWithArtHits(G4HCofThisEvent * hc) {
     std::vector<StrawHit*> geantHits = *(myCollection->GetVector());
     int i = 0;
     float my_r;
-    std::cout<<"The number of events in the geantHits is: "<<geantHits.size()<<std::endl;
     for ( auto e : geantHits ) {
-      std::cout<<"The event number is: "<<i<<std::endl;
       e->Print();
       // Copy this hit into the Art hit
-      std::cout<<"The Hit in position.x(): "<<e->position.x()<<std::endl;
-      std::cout<<"The position in r: "<<e->position.r()<<std::endl;
       my_r = sqrt(e->position.x()*e->position.x() + e->position.z()*e->position.z());
       myArtHits->emplace_back( e->position.x(),e->position.y(),e->position.z(),e->position.r(),my_r,
                                 e->local_position.x(),e->local_position.y(), e->local_position.z(),
