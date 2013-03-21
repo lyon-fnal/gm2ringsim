@@ -8,13 +8,15 @@
 
 #include "artg4/services/PhysicsListServiceBase.hh"
 
+#include "Geant4/G4String.hh"
+
 #include <string>
 
 class G4VUserPhysicsList;
 
 namespace gm2ringsim {
   
-  class physicsList;
+  class Gm2ModularPhysicsList;
 
   class Gm2PhysicsListService : public artg4::PhysicsListServiceBase {
     
@@ -26,9 +28,9 @@ namespace gm2ringsim {
     
   private:
     std::string muonDecayMode_;
+    G4String physicsListName_;
     int verboseLevel_;
-    physicsList* thePhysicsList_;
-    fhicl::ParameterSet p_;
+    Gm2ModularPhysicsList* thePhysicsList_;
   };
   
 }

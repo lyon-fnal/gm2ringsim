@@ -83,15 +83,8 @@ services: {
     physicalVolumeStore: {}
     Gm2PhysicsList: {
       muonDecayMode: "none"
-      PhysicsListConfiguration: {
-        defaultCutValue: 1.  // mm
-        useHadronicPhysics: false
-	useSynchrotronPhysics: false
-	useQStoppingPhysics: false
-	useIonPhysics: false
-	useNeutronTrackingCut: false
-      }
-    }
+      physicsListName: "FTFP_BERT"
+   }
 
     TrackingAction : {
           name : "trackingAction"
