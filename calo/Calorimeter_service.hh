@@ -1,10 +1,15 @@
-//
-//  Calorimeter_service.h
-//  g2ringsim_xcode
-//
-//  Created by Lawrence Gibbons on 12/21/12.
-//  Copyright (c) 2012 Lawrence Gibbons. All rights reserved.
-//
+/** @file Calorimeter_service.hh
+ 
+    Ported to Art from g2migtrace file stationConstruction.hh
+        @author Kevin Lynch
+        @date 2011
+ 
+    @author Lawrence Gibbons
+    @date 2012
+ 
+    @author Robin Bjorkquist
+    @date 2013
+ */
 
 // Include guards
 #ifndef __g2ringsim__Calorimeter_service__
@@ -14,6 +19,7 @@
 #include <vector>
 
 #include "gm2ringsim/calo/CaloSD.hh"
+#include "gm2ringsim/calo/XtalSD.hh"
 #include "gm2ringsim/calo/PhotodetectorSD.hh"
 
 // Art Includes
@@ -49,6 +55,7 @@ namespace gm2ringsim {
         
         // Return names for hit collections
         static G4String getCaloName() {return "CaloSD";}
+        static G4String getXtalName() {return "XtalSD";}
         static G4String getPhotodetectorName() {return "PhotodetectorSD";}
         
         // Add "photon" to name
@@ -57,6 +64,7 @@ namespace gm2ringsim {
     private:
         
         CaloSD *caloSD_;
+        XtalSD *xtalSD_;
         PhotodetectorSD *photodetectorSD_;
         
         // Private overriden methods
@@ -79,7 +87,13 @@ namespace gm2ringsim {
         
         // Add calorimeter hits to the event
         void doFillEventWithCaloHits(G4HCofThisEvent * hc);
+
+        // Add xtal hits to the event
+        void doFillEventWithXtalHits(G4HCofThisEvent * hc);
         
+        // Add xtal photon hits to the event
+        void doFillEventWithXtalPhotonHits(G4HCofThisEvent *hc);
+
         // Add photodetector hits to the event
         void doFillEventWithPhotodetectorHits(G4HCofThisEvent * hc);
         

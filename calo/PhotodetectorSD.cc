@@ -11,9 +11,7 @@
  */
 
 #include "PhotodetectorSD.hh"
-// >>>> temporarily comment out PhotonHitCorrelator
-//#include "PhotonHitCorrelator.hh"
-
+#include "PhotonHitCorrelator.hh"
 #include "Calorimeter_service.hh" // need this for addPhotonToName
 
 #include "Geant4/G4ios.hh"
@@ -35,9 +33,7 @@ printLevel(0), drawLevel(0)
     collectionName.insert( name );
     G4String photonName = Calorimeter::addPhotonToName(name);
     collectionName.insert( photonName ) ;
-    
-    std::vector<int> photodetectorID_ ;
-    
+        
     // Register with SDManager
     G4SDManager* SDman = G4SDManager::GetSDMpointer();
     SDman->AddNewDetector(this);
@@ -342,8 +338,7 @@ G4bool gm2ringsim::PhotodetectorSD::ProcessHits(G4Step* thisStep, G4TouchableHis
             double rand = CLHEP::RandFlat::shoot() ;
             if( rand > eff ) // photon not accepted by detector
             {
-                // >>>> temporarily comment out PhotonHitCorrelator
-//                PhotonHitCorrelator::getInstance().registerPhotodetectorTrack( track->GetTrackID(), false );
+                PhotonHitCorrelator::getInstance().registerPhotodetectorTrack( track->GetTrackID(), false );
                 thisStep->GetTrack()->SetTrackStatus(fStopAndKill);
                 return true ; // a photon hit has been generated, even if not accepted
             }
@@ -352,8 +347,7 @@ G4bool gm2ringsim::PhotodetectorSD::ProcessHits(G4Step* thisStep, G4TouchableHis
             
             // Mark stored photon as accepted
             ph->accepted = true ;
-            // >>>> temporarily comment out PhotonHitCorrelator
- //           PhotonHitCorrelator::getInstance().registerPhotodetectorTrack( track->GetTrackID(), true );
+            PhotonHitCorrelator::getInstance().registerPhotodetectorTrack( track->GetTrackID(), true );
             
             //       std::cout << "Photodetector Track " << track->GetTrackID()
             // 		<< " name " << track->GetParticleDefinition()->GetParticleName()

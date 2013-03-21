@@ -33,9 +33,14 @@
 #include "gm2ringsim/station/StationGeometry.hh"
 
 #include "gm2ringsim/calo/CaloHit.hh"
+#include "gm2ringsim/calo/XtalHit.hh"
+#include "gm2ringsim/calo/XtalPhotonHit.hh"
 #include "gm2ringsim/calo/PhotodetectorHit.hh"
 #include "gm2ringsim/calo/PhotodetectorPhotonHit.hh"
+
 #include "gm2ringsim/calo/CaloArtRecord.hh"
+#include "gm2ringsim/calo/XtalArtRecord.hh"
+#include "gm2ringsim/calo/XtalPhotonArtRecord.hh"
 #include "gm2ringsim/calo/PhotodetectorArtRecord.hh"
 #include "gm2ringsim/calo/PhotodetectorPhotonArtRecord.hh"
 
@@ -46,6 +51,7 @@ gm2ringsim::Calorimeter::Calorimeter(fhicl::ParameterSet const & p, art::Activit
              p.get<std::string>("category", "calorimeter"),
              p.get<std::string>("mother_category", "station")),
     caloSD_(0),
+    xtalSD_(0),
     photodetectorSD_(0)
 {}
 
@@ -257,6 +263,9 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
             // --- xtal visual attributes
             artg4::setVisAtts(xtal_L, caloGeom.displayCrystalArray, caloGeom.xtalColor);
             
+            // --- xtal sensitive detector
+            xtal_L->SetSensitiveDetector(xtalSD_);
+            
             // --- place xtal volume inside caloBound volume
             std::ostringstream xtalName;
             xtalName << "xtal[" << std::setfill('0') << std::setw(2) << calorimeterNumber+1 << ']';
@@ -418,12 +427,14 @@ std::vector<G4LogicalVolume *> gm2ringsim::Calorimeter::doBuildLVs() {
     
     // sensitive detectors
     caloSD_ = artg4::getSensitiveDetector<CaloSD>(getCaloName());
+    xtalSD_ = artg4::getSensitiveDetector<XtalSD>(getXtalName());
     photodetectorSD_ = artg4::getSensitiveDetector<PhotodetectorSD>(getPhotodetectorName());
 
-    // make sure sensitive detector has the right number of photodetectors
+    // make sure sensitive detectors has the right number of xtals/photodetectors
     int nCalo = 24;
-    int nPhotodetectors = nCalo * caloGeom.nXtalRows * caloGeom.nXtalCols;
-    photodetectorSD_->setPhotodetectorNum(nPhotodetectors);
+    int nXtals = nCalo * caloGeom.nXtalRows * caloGeom.nXtalCols;
+    xtalSD_->setXtalNum(nXtals);
+    photodetectorSD_->setPhotodetectorNum(nXtals);
     
     // Create the vector of logical volumes
     std::vector<G4LogicalVolume*> calorimeterLVs;
@@ -501,6 +512,8 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Calorimeter::doPlaceToPVs( std::vec
 // Declare to Art what we are producing
 void gm2ringsim::Calorimeter::doCallArtProduces(art::EDProducer * producer) {
     producer->produces<CaloArtRecordCollection>(category());
+    producer->produces<XtalArtRecordCollection>(category());
+    producer->produces<XtalPhotonArtRecordCollection>(category());
     producer->produces<PhotodetectorArtRecordCollection>(category());
     producer->produces<PhotodetectorPhotonArtRecordCollection>(category());
 }
@@ -508,6 +521,8 @@ void gm2ringsim::Calorimeter::doCallArtProduces(art::EDProducer * producer) {
 // Actually add the data to the event
 void gm2ringsim::Calorimeter::doFillEventWithArtHits(G4HCofThisEvent * hc) {
     doFillEventWithCaloHits(hc);
+    doFillEventWithXtalHits(hc);
+    doFillEventWithXtalPhotonHits(hc);
     doFillEventWithPhotodetectorHits(hc);
     doFillEventWithPhotodetectorPhotonHits(hc);
 }
@@ -544,6 +559,106 @@ void gm2ringsim::Calorimeter::doFillEventWithCaloHits(G4HCofThisEvent * hc) {
     }
     else {
         throw cet::exception("Calorimeter") << "Null collection of Geant calorimeter hits"
+        << ", aborting!" << std::endl;
+    }
+    
+    // Now that we have our collection of artized hits, add them to the event.
+    // Get the event from the detector holder service
+    art::ServiceHandle<artg4::DetectorHolderService> detectorHolder;
+    art::Event & e = detectorHolder -> getCurrArtEvent();
+    
+    // Put the hits into the event
+    e.put(std::move(myArtHits), category());
+    
+}
+
+void gm2ringsim::Calorimeter::doFillEventWithXtalHits(G4HCofThisEvent * hc) {
+    std::unique_ptr<XtalArtRecordCollection> myArtHits(new XtalArtRecordCollection);
+    
+    // Find the collection ID for the hits
+    G4SDManager* fSDM = G4SDManager::GetSDMpointer();
+    
+    // The string here is unfortunately a magic constant. It's the string used
+    // by the sensitive detector to identify the collection of hits.
+    G4int collectionID = fSDM->GetCollectionID(getXtalName());
+    XtalHitsCollection* myCollection =
+    static_cast<XtalHitsCollection*>(hc->GetHC(collectionID));
+    
+    // Check whether the collection exists
+    if (NULL != myCollection) {
+        std::vector<XtalHit*> geantHits = *(myCollection->GetVector());
+        
+        for ( auto e : geantHits ) {
+            // Copy this hit into the Art hit
+            myArtHits->emplace_back( e->turnNum,
+                                    e->caloNum,
+                                    e->xtalNum,
+                                    e->trackID,
+                                    e->parentID,
+                                    e->local_pos.x(), // radial coordinate
+                                    e->local_pos.z(), // thickness coordinate
+                                    e->local_pos.y(), // vertical coordinate
+                                    e->time,
+                                    e->local_mom.x(),
+                                    e->local_mom.z(),
+                                    e->local_mom.y(),
+                                    e->energy,
+                                    e->energyDep,
+                                    e->trackLength,
+                                    e->pdgID,
+                                    e->nphoton,
+                                    e->ephoton );
+        }
+    }
+    else {
+        throw cet::exception("Xtal") << "Null collection of Geant xtal hits"
+        << ", aborting!" << std::endl;
+    }
+    
+    // Now that we have our collection of artized hits, add them to the event.
+    // Get the event from the detector holder service
+    art::ServiceHandle<artg4::DetectorHolderService> detectorHolder;
+    art::Event & e = detectorHolder -> getCurrArtEvent();
+    
+    // Put the hits into the event
+    e.put(std::move(myArtHits), category());
+    
+}
+
+void gm2ringsim::Calorimeter::doFillEventWithXtalPhotonHits(G4HCofThisEvent * hc) {
+    std::unique_ptr<XtalPhotonArtRecordCollection>
+                    myArtHits(new XtalPhotonArtRecordCollection);
+    
+    // Find the collection ID for the hits
+    G4SDManager* fSDM = G4SDManager::GetSDMpointer();
+    
+    // The string here is unfortunately a magic constant. It's the string used
+    // by the sensitive detector to identify the collection of hits.
+    G4int collectionID = fSDM->GetCollectionID(addPhotonToName(getXtalName()));
+    XtalPhotonHitsCollection* myCollection =
+    static_cast<XtalPhotonHitsCollection*>(hc->GetHC(collectionID));
+    
+    // Check whether the collection exists
+    if (NULL != myCollection) {
+        std::vector<XtalPhotonHit*> geantHits = *(myCollection->GetVector());
+        
+        for ( auto e : geantHits ) {
+            // Copy this hit into the Art hit
+            myArtHits->emplace_back( e->caloNum,
+                                    e->xtalNum,
+                                    e->trackID,
+                                    e->local_pos.x(), // radial coordinate
+                                    e->local_pos.z(), // thickness coordinate
+                                    e->local_pos.y(), // vertical coordinate
+                                    e->cosTheta,
+                                    e->phi,
+                                    e->energy,
+                                    e->transmitted,
+                                    e->detected );
+        }
+    }
+    else {
+        throw cet::exception("Xtal") << "Null collection of Geant xtal photon hits"
         << ", aborting!" << std::endl;
     }
     

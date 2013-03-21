@@ -3,12 +3,18 @@
 <lcgdict>
     <!-- For TrackerHits - note that using the typedef will not work here-->
     <class name="gm2ringsim::CaloArtRecord"/>
+    <class name="gm2ringsim::XtalArtRecord"/>
+    <class name="gm2ringsim::XtalPhotonArtRecord"/>
     <class name="gm2ringsim::PhotodetectorArtRecord"/>
     <class name="gm2ringsim::PhotodetectorPhotonArtRecord"/>
     <class name="std::vector< gm2ringsim::CaloArtRecord >"/>
+    <class name="std::vector< gm2ringsim::XtalArtRecord >"/>
+    <class name="std::vector< gm2ringsim::XtalPhotonArtRecord >"/>
     <class name="std::vector< gm2ringsim::PhotodetectorArtRecord >"/>
     <class name="std::vector< gm2ringsim::PhotodetectorPhotonArtRecord >"/>
     <class name="art::Wrapper< std::vector< gm2ringsim::CaloArtRecord > >"/>
+    <class name="art::Wrapper< std::vector< gm2ringsim::XtalArtRecord > >"/>
+    <class name="art::Wrapper< std::vector< gm2ringsim::XtalPhotonArtRecord > >"/>
     <class name="art::Wrapper< std::vector< gm2ringsim::PhotodetectorArtRecord > >"/>
     <class name="art::Wrapper< std::vector< gm2ringsim::PhotodetectorPhotonArtRecord > >"/>
 </lcgdict>
