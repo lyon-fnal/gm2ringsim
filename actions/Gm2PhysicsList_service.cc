@@ -30,13 +30,10 @@ G4VUserPhysicsList* gm2ringsim::Gm2PhysicsListService::makePhysicsList() {
   // Construct a new Physics List
   //thePhysicsList_ = new physicsList();
   
-  printf("gm2ringsim::Gm2PhysicsListService::makePhysicsList()\n");
-
   G4PhysListFactory factory;
   G4VModularPhysicsList *mPL = factory.GetReferencePhysList(physicsListName_);
 
   if(mPL){
-    printf("We have a valid modular physics list\n");
     thePhysicsList_ = new Gm2ModularPhysicsList(mPL);
   }
   else{
