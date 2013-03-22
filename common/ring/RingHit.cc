@@ -21,6 +21,7 @@
 #include "Geant4/G4Navigator.hh" 
 
 #include "gm2ringsim/common/ring/RingHit.hh"
+#include "artg4/pluginActions/physicalVolumeStore/physicalVolumeStore_service.hh"
 
 #include "gm2ringsim/actions/muonStorageStatus/TurnCounter.hh"
 //#include "rootStorageManager.hh"
@@ -42,6 +43,9 @@ gm2ringsim::RingHit::RingHit(G4Step* step) :
 	 step->GetPreStepPoint()->GetKineticEnergy())
 {
 
+  art::ServiceHandle<artg4::PhysicalVolumeStoreService> pvs;
+  volumeUID = pvs->idGivenPhysicalVolume( step->GetPreStepPoint()->GetPhysicalVolume() );
+  
   G4StepPoint* preStepPoint = step->GetPreStepPoint();
   G4TouchableHandle theTouchable = preStepPoint->GetTouchableHandle();
   G4ThreeVector worldPosition = preStepPoint->GetPosition();
