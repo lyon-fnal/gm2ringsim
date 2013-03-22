@@ -40,6 +40,7 @@ gm2ringsim::CalorimeterGeometry::CalorimeterGeometry(std::string const & detName
   photodetectorColor(    p.get<std::vector<double>>("photodetectorColor")  ),
   opticalCouplingColor(  p.get<std::vector<double>>("opticalCouplingColor")),
   wrappingColor(         p.get<std::vector<double>>("wrappingColor")       ),
+  killShowers(           p.get<bool>("killShowers")                 ),
   radial(0),
   vertical(0),
   thickness(0)
@@ -81,11 +82,16 @@ void gm2ringsim::CalorimeterGeometry::print() {
     oss << "  photodetectorDepth =   " << photodetectorDepth   << "\n";
     oss << "  opticalCouplingDepth = " << opticalCouplingDepth << "\n";
     
-    oss << "  displayCalorimeterBox = " << displayCalorimeterBox << "\n";
-    oss << "  calorimeterColor: "; for (auto entry : calorimeterColor) { oss << " " << entry; }; oss << "\n";
-    oss << "  xtalColor:        "; for (auto entry : xtalColor) { oss << " " << entry; }; oss << "\n";
-    oss << "  xtalColor:        "; for (auto entry : xtalColor) { oss << " " << entry; }; oss << "\n";
+    oss << "  displayCalorimeterBox =  " << displayCalorimeterBox << "\n";
+    oss << "  displayWrappingVolumes = " << displayWrappingVolumes << "\n";
+    oss << "  displayCrystalArray =    " << displayCrystalArray << "\n";
+    oss << "  calorimeterColor:     "; for (auto entry : calorimeterColor) { oss << " " << entry; }; oss << "\n";
+    oss << "  xtalColor:            "; for (auto entry : xtalColor) { oss << " " << entry; }; oss << "\n";
+    oss << "  photodetectorColor:   "; for (auto entry : photodetectorColor) { oss << " " << entry; }; oss << "\n";
+    oss << "  opticalCouplingColor: "; for (auto entry : opticalCouplingColor) { oss << " " << entry; }; oss << "\n";
+    oss << "  wrappingColor:        "; for (auto entry : wrappingColor) { oss << " " << entry; }; oss << "\n";
     
+    oss << "  killShowers = " << killShowers << "\n";
 	
     mf::LogInfo("CALORIMETERGEOMETRY") << oss.str();
     

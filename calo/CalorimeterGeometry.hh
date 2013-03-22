@@ -55,6 +55,13 @@ namespace gm2ringsim{
         const std::vector<double> opticalCouplingColor;
         const std::vector<double> wrappingColor;
         
+        // whether or not to track particles through the calorimeter
+        // killShowers = true kills all tracks that enter calo
+        //      (caloHits are recorded)
+        // killShowers = false allows particles to enter the calorimeter
+        //       and interact with the PbF2 crystals
+        const bool killShowers;
+        
         // The following constants are derived
 
         // parameters of bounding calorimeter box.  Unlike in g2migtrace, we
