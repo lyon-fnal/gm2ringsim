@@ -98,6 +98,8 @@ services: {
 //        muonGasVerbosity: false
 //    }
 
+//    CaloElectronPGA: {}
+
     // Detectors
     World: {}	
     Ring: {}    // This is for the RingHits
