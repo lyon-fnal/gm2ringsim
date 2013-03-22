@@ -89,16 +89,16 @@ services: {
 
     ClockAction: {}
 
-//    G2PGA: {
-//      name: "primary"
-//    }
+    G2PGA: {
+      name: "primary"
+    }
 
 //    MuonGasPGA: {
 //        name: "muongas"
 //        muonGasVerbosity: false
 //    }
 
-    CaloElectronPGA: {}
+//    CaloElectronPGA: {}
 
     // Detectors
     World: {}	
@@ -135,7 +135,7 @@ physics: {
   producers: {
     artg4 : { 
      module_type: artg4Main
-     enableVisualization: true
+     enableVisualization: false
      macroPath: ".:./macros:../macros:../../macros"
      visMacro: "vis.mac"
      afterEvent: pause  // (ui, pause, pass)
