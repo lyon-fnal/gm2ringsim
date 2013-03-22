@@ -20,6 +20,7 @@
 gm2ringsim::Gm2PhysicsListService::Gm2PhysicsListService(fhicl::ParameterSet const & p, art::ActivityRegistry &) :
   PhysicsListServiceBase(),
   muonDecayMode_(p.get<std::string>("muonDecayMode", "")),
+  pionDecayEnabled_(p.get<bool>("pionDecayEnabled", true)),
   physicsListName_(G4String(p.get<std::string>("physicsListName", "FTFP_BERT"))),
   verboseLevel_(p.get<int>("verboseLevel", 0)),
   thePhysicsList_(0)
@@ -59,7 +60,7 @@ void gm2ringsim::Gm2PhysicsListService::initializePhysicsList() {
   
   // If "none" or "disable" then turn off decay
   if (muonDecayMode_ == "none" || muonDecayMode_ == "disable") {
-    thePhysicsList_->disableDecay();
+    thePhysicsList_->disableMuonDecay();
   }
   
   // Isotropic decay?
@@ -72,6 +73,8 @@ void gm2ringsim::Gm2PhysicsListService::initializePhysicsList() {
     thePhysicsList_->enableSMDecay();
   }
   
+  if(!pionDecayEnabled_) thePhysicsList_->disablePionDecay();
+
   printf("========= At the end of initializePhyscsList()\n");
   printf("========= mu+:\n");  
   G4MuonPlus::MuonPlus()->GetProcessManager()->DumpInfo();

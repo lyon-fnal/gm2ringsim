@@ -39,6 +39,10 @@ namespace gm2ringsim
     
     /** Completely disables muon decay and pion decays */
     void disableDecay();
+    /** Completely disables muon decay */
+    void disableMuonDecay();
+    /** Completely disables pion decay */
+    void disablePionDecay();
     /** Enables isotropic muon and pion decays. */
     void enableIsotropicDecay();
     /** Enables full standard model, spin dependent muon and pion decays */

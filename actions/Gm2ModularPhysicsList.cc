@@ -48,6 +48,9 @@
 #include "Geant4/G4LossTableManager.hh"
 #include "Geant4/G4EmSaturation.hh"
 
+#include <iostream>
+using namespace std;
+
 gm2ringsim::Gm2ModularPhysicsList::Gm2ModularPhysicsList() : verboseLevel_(1),
 			     decayStatus_(decay_init),
 			     decayPhysicsList_(new G4DecayPhysics),
@@ -64,35 +67,6 @@ gm2ringsim::Gm2ModularPhysicsList::Gm2ModularPhysicsList(G4VModularPhysicsList *
   physics_(new PhysicsListVector) 
 {
   Initialize();
-}
-
-void gm2ringsim::Gm2ModularPhysicsList::Initialize(){
-  defaultCutValue = 1*mm;
-
-  physics_ -> push_back(new G4EmStandardPhysics);
-  
-  // This was commented out in g2MIGTRACE already
-  /*
-  G4EmExtraPhysics *eep = new G4EmExtraPhysics;
-  G4String on("on");
-  eep->Synch(on);
-  eep->GammaNuclear(on);
-  eep->MuonNuclear(on);
-  physics_->push_back(eep);
-
-  physics_->push_back(new G4HadronDElasticPhysics );
-  physics_->push_back(new  G4QStoppingPhysics );
-  physics_->push_back(new G4IonBinaryCascadePhysics );
-  physics_->push_back(new G4NeutronTrackingCut );
-  */
-  verboseLevel(verboseLevel_);
-
-  theCerenkovProcess           = NULL;
-  theScintillationProcess      = NULL;
-  theAbsorptionProcess         = NULL;
-  theRayleighScatteringProcess = NULL;
-  theMieHGScatteringProcess    = NULL;
-  theBoundaryProcess           = NULL;
 }
 
 gm2ringsim::Gm2ModularPhysicsList::~Gm2ModularPhysicsList(){
@@ -230,12 +204,12 @@ G4int gm2ringsim::Gm2ModularPhysicsList::verboseLevel(G4int level) {
   return t; 
 }
 
-
-
-
-/// PRIVATES
-
 void gm2ringsim::Gm2ModularPhysicsList::disableDecay(){
+  disablePionDecay();
+  disableMuonDecay();
+}
+
+void gm2ringsim::Gm2ModularPhysicsList::disableMuonDecay(){
   if( decayStatus_ == decay_none )
     return;
 
@@ -275,6 +249,36 @@ void gm2ringsim::Gm2ModularPhysicsList::disableDecay(){
   decayStatus_ = decay_none;
 }
 
+void gm2ringsim::Gm2ModularPhysicsList::disablePionDecay(){
+
+  G4ProcessTable* table = G4ProcessTable::GetProcessTable();
+  G4ProcessManager *manager;
+  G4VProcess *process1;
+
+  // for pi+
+  process1 = table->FindProcess("Decay",G4PionPlus::PionPlus());
+  manager = G4PionPlus::PionPlus()->GetProcessManager();
+
+  if( manager ){
+    if( process1 ){
+      manager->RemoveProcess(process1);
+    }
+    else printf("Didn't find process Decay\n");
+  } else {
+    cout << "Couldn't get PionPlus process manager ... to remove decays!\n";
+  }
+
+  // for pi-
+  process1 = table->FindProcess("Decay",G4PionMinus::PionMinus());
+  manager = G4PionMinus::PionMinus()->GetProcessManager();
+
+  if( manager ){
+    if( process1 )
+      manager->RemoveProcess(process1);
+  } else {
+    cout << "Couldn't get PionMinus process manager ... to remove decays!\n";
+  }
+}
 
 void gm2ringsim::Gm2ModularPhysicsList::enableIsotropicDecay(){
   if( decayStatus_ == decay_isotropic )
@@ -306,6 +310,38 @@ void gm2ringsim::Gm2ModularPhysicsList::enableSMDecay(){
   decayStatus_ = decay_standard;
 }
 
+
+
+/// PRIVATES
+
+void gm2ringsim::Gm2ModularPhysicsList::Initialize(){
+  defaultCutValue = 1*mm;
+
+  physics_ -> push_back(new G4EmStandardPhysics);
+  
+  // This was commented out in g2MIGTRACE already
+  /*
+  G4EmExtraPhysics *eep = new G4EmExtraPhysics;
+  G4String on("on");
+  eep->Synch(on);
+  eep->GammaNuclear(on);
+  eep->MuonNuclear(on);
+  physics_->push_back(eep);
+
+  physics_->push_back(new G4HadronDElasticPhysics );
+  physics_->push_back(new  G4QStoppingPhysics );
+  physics_->push_back(new G4IonBinaryCascadePhysics );
+  physics_->push_back(new G4NeutronTrackingCut );
+  */
+  verboseLevel(verboseLevel_);
+
+  theCerenkovProcess           = NULL;
+  theScintillationProcess      = NULL;
+  theAbsorptionProcess         = NULL;
+  theRayleighScatteringProcess = NULL;
+  theMieHGScatteringProcess    = NULL;
+  theBoundaryProcess           = NULL;
+}
 
 template<class T> void gm2ringsim::Gm2ModularPhysicsList::pionDecay(){
   G4ProcessTable* table = G4ProcessTable::GetProcessTable();

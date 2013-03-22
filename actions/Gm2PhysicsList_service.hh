@@ -28,6 +28,7 @@ namespace gm2ringsim {
     
   private:
     std::string muonDecayMode_;
+    bool pionDecayEnabled_;
     G4String physicsListName_;
     int verboseLevel_;
     Gm2ModularPhysicsList* thePhysicsList_;
