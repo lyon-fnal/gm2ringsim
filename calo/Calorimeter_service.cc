@@ -268,7 +268,7 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
             
             // --- place xtal volume inside caloBound volume
             std::ostringstream xtalName;
-            xtalName << "xtal[" << std::setfill('0') << std::setw(2) << calorimeterNumber+1 << ']';
+            xtalName << "xtal[" << std::setfill('0') << std::setw(2) << calorimeterNumber << ']';
             G4PVPlacement* xtal_P =
                 new G4PVPlacement( 0,
                                   xtalPos,
@@ -314,7 +314,7 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
                 // --- optical coupling logical volume
                 opticalCoupling_L = new G4LogicalVolume( opticalCoupling_S,
                                                          artg4Materials::BicronBC630(),
-                                                         "opticalCoulpling_L");
+                                                         "opticalCoupling_L");
                 // --- photodetector shape
                 G4Tubs* photodetector_S = new G4Tubs( "photodetector_S",
                                                      0, photodetectorSize / 2,
@@ -341,7 +341,7 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
 
             // --- place optical coupling volume inside backWrapping volume
             std::ostringstream ocName;
-            ocName << "opticalCoupling[" << std::setfill('0') << std::setw(2) << calorimeterNumber+1 << ']';
+            ocName << "opticalCoupling[" << std::setfill('0') << std::setw(2) << calorimeterNumber << ']';
 
             G4PVPlacement* opticalCoupling_P =
                 new G4PVPlacement(0,
@@ -354,7 +354,7 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
 
             // --- place photodetector volume inside caloBound volume
             std::ostringstream pdName;
-            pdName << "photodetector[" << std::setfill('0') << std::setw(2) << calorimeterNumber+1 << ']';
+            pdName << "photodetector[" << std::setfill('0') << std::setw(2) << calorimeterNumber << ']';
 
             // G4PVPlacement* photodetector_P =
             new G4PVPlacement( 0,
