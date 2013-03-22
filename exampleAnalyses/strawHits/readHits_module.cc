@@ -98,7 +98,7 @@ private:
   std::map<int, std::vector<float>> track_r_global_positions;
   
   std::map<int, std::vector<int>> track_tracebackNumbers;
-  std::map<int, std::vector<gm2ringsim::myTrack>> track_positions;
+  std::map<int, gm2ringsim::myTrack> track_positions;
   //Tree to hold track location information
   TTree *t_trackTree_;
   
@@ -250,24 +250,28 @@ void gm2ringsim::readHits::analyze(art::Event const &e) {
     track_tracebackNumbers[hdata.trackID].push_back(hdata.tracebackNumber);
     
     myTrack oneTrack;
-
+    
+    if (track_positions.find(hdata.trackID) == track_positions.end() ) {
+      oneTrack = oneTrack;
+    }
+    else {
+      oneTrack = track_positions[hdata.trackID];
+    }
     TVector3 the_position(hdata.x_global, hdata.y_global, hdata.z_global);
     oneTrack.strawPlanes.push_back(hdata.strawNumber);
     oneTrack.tracebackLocations.push_back(hdata.tracebackNumber);
     oneTrack.position.push_back(the_position);
-    track_positions[hdata.trackID].push_back(oneTrack);
+    track_positions[hdata.trackID] = oneTrack;
    
     t_hitTree_->Fill();
     
   }
   
   for (auto& a : track_positions){
-    std::cout<<"The track number is: "<<a.first<<std::endl;
-    for (auto t : a.second){
-      std::cout<<"The size of the straws is: "<<t.strawPlanes.size()<<std::endl;
-      for (auto straw : t.strawPlanes)
-        std::cout<<"The straw number is: "<<straw<<std::endl;
-    }
+    std::cout<<"The Track number is: "<<a.first<<std::endl;
+    std::cout<<"The number of Straw Planes hit is: "<<a.second.strawPlanes.size()<<std::endl;
+    for (auto s : a.second.strawPlanes)
+      std::cout<<"The straw number is: "<<s<<std::endl;
   }
 }
 
