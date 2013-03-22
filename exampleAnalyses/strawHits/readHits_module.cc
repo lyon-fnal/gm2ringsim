@@ -91,25 +91,12 @@ private:
   int tf_traceback_number;
   int tf_straw_number;
   int tf_track_ID;
-  
-  std::map<int, std::vector<float>> track_x_global_positions;
-  std::map<int, std::vector<float>> track_y_global_positions;
-  std::map<int, std::vector<float>> track_z_global_positions;
-  std::map<int, std::vector<float>> track_r_global_positions;
-  
-  std::map<int, std::vector<int>> track_tracebackNumbers;
+    
   std::map<int, gm2ringsim::myTrack> track_positions;
   //Tree to hold track location information
   TTree *t_trackTree_;
   
-  
-  std::vector<float> tt_x_global_positions;
-  std::vector<float> tt_y_global_positions;
-  std::vector<float> tt_z_global_positions;
-  std::vector<float> tt_r_global_positions;
-  
   std::vector<int> tt_tracebackNumbers;
-  //std::vector<float> x_global_positions;
 };
 
 
@@ -180,10 +167,6 @@ tree_dir_       ( p.get<std::string>("tree_dir"         ) )
   t_hitTree_->Branch("trackID",&tf_track_ID,"trackID/I");
   
   t_trackTree_ = treeDir.make<TTree>("trackTree", "Tree of tracks");
-  t_trackTree_->Branch("x_global_positions",&tt_x_global_positions);
-  t_trackTree_->Branch("y_global_positions",&tt_y_global_positions);
-  t_trackTree_->Branch("z_global_positions",&tt_z_global_positions);
-  t_trackTree_->Branch("r_global_positions",&tt_r_global_positions);
   t_trackTree_->Branch("track_tracebackNumber",&tt_tracebackNumbers);
 
 
@@ -243,20 +226,14 @@ void gm2ringsim::readHits::analyze(art::Event const &e) {
     tf_traceback_number = hdata.tracebackNumber;
     tf_straw_number = hdata.strawNumber;
     tf_track_ID = hdata.trackID;
-    track_x_global_positions[hdata.trackID].push_back(hdata.x_global);
-    track_y_global_positions[hdata.trackID].push_back(hdata.y_global);
-    track_z_global_positions[hdata.trackID].push_back(hdata.z_global);
-    track_r_global_positions[hdata.trackID].push_back(hdata.r_global);
-    track_tracebackNumbers[hdata.trackID].push_back(hdata.tracebackNumber);
     
     myTrack oneTrack;
     
-    if (track_positions.find(hdata.trackID) == track_positions.end() ) {
-      oneTrack = oneTrack;
-    }
-    else {
+    if (track_positions.find(hdata.trackID) != track_positions.end() ) {
+      
       oneTrack = track_positions[hdata.trackID];
     }
+    
     TVector3 the_position(hdata.x_global, hdata.y_global, hdata.z_global);
     oneTrack.strawPlanes.push_back(hdata.strawNumber);
     oneTrack.tracebackLocations.push_back(hdata.tracebackNumber);
