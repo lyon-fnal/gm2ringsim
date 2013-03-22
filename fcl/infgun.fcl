@@ -17,7 +17,7 @@ process_name:myProcessName
 
 source: {
   module_type: EmptyEvent
-  maxEvents:  2500
+  maxEvents:  250
 }
 
 services: {
