@@ -45,6 +45,7 @@ namespace gm2ringsim
     bool StartUpstreamCryo_;
     bool StartDownstream_;
     bool StartPerfect_;
+    bool GenGaussian_;
     double LaunchAngle_;
     double StorageOffset_;
     double Emittance_;
@@ -52,6 +53,7 @@ namespace gm2ringsim
     double BetaY_;
     double AlphaX_;
     double AlphaY_;
+    double Pmean_;
     double dPOverP_;
     double SigmaT_;
     

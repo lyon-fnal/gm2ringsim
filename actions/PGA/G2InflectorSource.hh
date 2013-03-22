@@ -60,6 +60,9 @@ namespace gm2ringsim
     void SetStartPerfect( bool aBool ){ StartPerfect=aBool; }
     bool GetStartPerfect( ){ return StartPerfect; }
     
+    void SetGenGaussian( bool aBool ){ GenGaussian=aBool; }
+    bool GetGenGaussian( ){ return GenGaussian; }
+    
     void SetLaunchAngle( double aDouble ){ LaunchAngle=aDouble; }
     double GetLaunchAngle( ){ return LaunchAngle; }
     
@@ -80,6 +83,9 @@ namespace gm2ringsim
     
     void SetAlphaY( double aDouble ){ AlphaY=aDouble; }
     double GetAlphaY( ){ return AlphaY; }
+    
+    void SetPmean( double aDouble ){ Pmean=aDouble; }
+    double GetPmean( ){ return Pmean; }
     
     void SetdPOverP( double aDouble ){ dPOverP=aDouble; }
     double GetdPOverP( ){ return dPOverP; }
@@ -103,6 +109,7 @@ namespace gm2ringsim
     bool StartUpstreamCryo;
     bool StartDownstream;
     bool StartPerfect;
+    bool GenGaussian;
     double LaunchAngle;
     double StorageOffset;
     double Emittance;
@@ -110,6 +117,7 @@ namespace gm2ringsim
     double BetaY;
     double AlphaX;
     double AlphaY;
+    double Pmean;
     double dPOverP;
     double SigmaT;
 

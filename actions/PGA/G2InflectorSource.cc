@@ -46,6 +46,7 @@ gm2ringsim::G2InflectorSource::G2InflectorSource() :
   StartUpstreamCryo(false),
   StartDownstream(true),
   StartPerfect(false),
+  GenGaussian(false),
   LaunchAngle(0.0),
   StorageOffset(0.0),
   Emittance(40.0),
@@ -53,6 +54,7 @@ gm2ringsim::G2InflectorSource::G2InflectorSource() :
   BetaY(7.6),
   AlphaX(0.0),
   AlphaY(0.0),
+  Pmean(0.005),
   dPOverP(0.005),
   SigmaT(50)
 {
@@ -367,6 +369,8 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
   }      
 
   dP_over_P = GetdPOverP();
+  Pmean = GetPmean();
+  if ( Pmean < 0 ) { Pmean = pMagic(); }
     
   //  Fermilab tells us the beam will have a |deltaP/P| of 0.15% (in the downstream direction)
 
@@ -490,6 +494,12 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
 
     G4cout << "Pmagic = " << pMagic() << G4endl;
     G4cout << "Rmagic = " << R_magic() << G4endl;
+    if ( GetGenGaussian() ) {
+      G4cout << "Generating beam from a Gaussian Distribution." << G4endl;
+    }
+    else {
+      G4cout << "Generating beam from a Uniform Distribution." << G4endl;
+    }
     if ( GetStartDownstream() ) {
       G4cout << "STARTING Downstream Of The Inflector Mandrel." << G4endl;
     }
@@ -535,6 +545,7 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
     G4cout << "sigma(y)  = " << sigmaY0 << G4endl;
     G4cout << "sigma(x') = " << sigmaX0Prime << G4endl;
     G4cout << "sigma(y') = " << sigmaY0Prime << G4endl;
+    G4cout << "<P>       = " << Pmean << G4endl;
     G4cout << "dP/P      = " << dP_over_P << G4endl;
       
     G4cout << "Inflector Coordinates:" << G4endl;

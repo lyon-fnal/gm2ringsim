@@ -49,6 +49,7 @@ gm2ringsim::InflectorPGA::InflectorPGA(fhicl::ParameterSet const& p, art::Activi
   StartUpstreamCryo_(p.get<bool>("StartUpstreamCryo", false)),
   StartDownstream_(p.get<bool>("StartDownstream", false)),
   StartPerfect_(p.get<bool>("StartPerfect", false)),
+  GenGaussian_(p.get<bool>("GenGaussian", true)),
   LaunchAngle_(p.get<double>("LaunchAngle", -9999.9)),
   StorageOffset_(p.get<double>("StorageOffset", -9999.9)),
   Emittance_(p.get<double>("Emittance", -9999.9)),
@@ -56,6 +57,7 @@ gm2ringsim::InflectorPGA::InflectorPGA(fhicl::ParameterSet const& p, art::Activi
   BetaY_(p.get<double>("BetaY", -9999.9)),
   AlphaX_(p.get<double>("AlphaX", -9999.9)),
   AlphaY_(p.get<double>("AlphaY", -9999.9)),
+  Pmean_(p.get<double>("Pmean", -9999.9)),
   dPOverP_(p.get<double>("dPOverP", -9999.9)),
   SigmaT_(p.get<double>("SigmaT", -9999.9)) 
 {
@@ -66,6 +68,7 @@ gm2ringsim::InflectorPGA::InflectorPGA(fhicl::ParameterSet const& p, art::Activi
     G4cout << "  StartUpstreamCryo   " << StartUpstreamCryo_ << G4endl;
     G4cout << "  StartDownstream     " << StartDownstream_ << G4endl;
     G4cout << "  StartPerfect        " << StartPerfect_ << G4endl;
+    G4cout << "  GenGaussian         " << GenGaussian_ << G4endl;
     G4cout << "  LaunchAngle         " << LaunchAngle_ << G4endl;
     G4cout << "  StorageOffset       " << StorageOffset_ << G4endl;
     G4cout << "  Emittance           " << Emittance_ << G4endl;
@@ -74,6 +77,7 @@ gm2ringsim::InflectorPGA::InflectorPGA(fhicl::ParameterSet const& p, art::Activi
     G4cout << "  AlphaX              " << AlphaX_ << G4endl;
     G4cout << "  AlphaY              " << AlphaY_ << G4endl;
     G4cout << "  dPOverP             " << dPOverP_ << G4endl;
+    G4cout << "  Pmean               " << Pmean_ << G4endl;
     G4cout << "  SigmaT              " << SigmaT_ << G4endl;
   }
 }
@@ -95,6 +99,7 @@ void gm2ringsim::InflectorPGA::initialize() {
   gps_ -> SetStartUpstreamCryo(StartUpstreamCryo_);
   gps_ -> SetStartDownstream(StartDownstream_);
   gps_ -> SetStartPerfect(StartPerfect_);
+  gps_ -> SetGenGaussian(GenGaussian_);
   gps_ -> SetLaunchAngle(LaunchAngle_);
   gps_ -> SetStorageOffset(StorageOffset_);
   gps_ -> SetEmittance(Emittance_);
@@ -103,6 +108,7 @@ void gm2ringsim::InflectorPGA::initialize() {
   gps_ -> SetAlphaX(AlphaX_);
   gps_ -> SetAlphaY(AlphaY_);
   gps_ -> SetdPOverP(dPOverP_);
+  gps_ -> SetPmean(Pmean_);
   gps_ -> SetSigmaT(SigmaT_);
   G4cout << "Done calling InflectorPGA::initialize()" << G4endl;
   //////////////////////////////////
