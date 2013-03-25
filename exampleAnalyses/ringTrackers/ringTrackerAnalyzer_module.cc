@@ -248,7 +248,7 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
   inflectorhitModuleLabel_ ( p.get<std::string>("inflectorhitModuleLabel",  "artg4"   ) ),
   ringhitModuleLabel_ ( p.get<std::string>("ringhitModuleLabel",  "artg4"   ) ),
   ringtrackerinstanceName_   ( p.get<std::string>("ringtrackerinstanceName",    "Tracker"     ) ),
-  truthinstanceName_   ( p.get<std::string>("truthinstanceName",    "TrackingAction"     ) ),
+  truthinstanceName_   ( p.get<std::string>("truthinstanceName",    ""     ) ),
   inflectorinstanceName_   ( p.get<std::string>("inflectorinstanceName",    "inflector"     ) ),
   ringinstanceName_   ( p.get<std::string>("ringinstanceName",    "Ring"     ) ),
   pvsProducerLabel_( p.get<std::string>("pvsProducerLabel", "artg4")),
@@ -258,6 +258,7 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
   beamstart_      ( p.get<std::string>("beamstart") ),
   maxturnsreal_   ( p.get<int>("maxturns", 200) )
 {
+  //truthinstanceName_   ( p.get<std::string>("truthinstanceName",    "TrackingAction"     ) ),
   // You could require that hist_dir and tree_dir have some real strings, but what if the
   // user just leaves them blank. We then want to use the top level directory.
   // Note that the TFileService handle dereferences to an object that inherits from
