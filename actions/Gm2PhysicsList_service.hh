@@ -14,6 +14,8 @@
 
 class G4VUserPhysicsList;
 class G4VModularPhysicsList;
+class G4ParticleTable;
+class G4PTblDicIterator;
 class G4Cerenkov;
 class G4Scintillation;
 class G4OpAbsorption;
@@ -68,6 +70,7 @@ namespace gm2ringsim {
     G4String physicsListName_;
     int verboseLevel_;
     G4VModularPhysicsList* thePhysicsList_;
+    G4ParticleTable::G4PTblDicIterator *theParticleIterator_;
 
     enum decayStatus { decay_init, decay_none, decay_isotropic, decay_standard };
     decayStatus decayStatus_;

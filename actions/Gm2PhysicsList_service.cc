@@ -9,6 +9,7 @@
 #include "Geant4/G4PhysListFactory.hh"
 
 #include "Geant4/G4ProcessTable.hh"
+#include "Geant4/G4ParticleTable.hh"
 #include "Geant4/G4ProcessManager.hh"
 
 #include "Geant4/G4DecayPhysics.hh"
@@ -46,6 +47,9 @@
 #include "Geant4/G4LossTableManager.hh"
 #include "Geant4/G4EmSaturation.hh"
 
+#include <iostream>
+using namespace std;
+
 gm2ringsim::Gm2PhysicsListService::Gm2PhysicsListService(fhicl::ParameterSet const & p, art::ActivityRegistry &) :
   PhysicsListServiceBase(),
   muonDecayMode_(p.get<std::string>("muonDecayMode", "")),
@@ -53,6 +57,7 @@ gm2ringsim::Gm2PhysicsListService::Gm2PhysicsListService(fhicl::ParameterSet con
   physicsListName_(G4String(p.get<std::string>("physicsListName", "FTFP_BERT"))),
   verboseLevel_(p.get<int>("verboseLevel", 0)),
   thePhysicsList_(0),
+  theParticleIterator_(G4ParticleTable::GetParticleTable()->GetIterator()),
   decayStatus_(decay_init),
   theCerenkovProcess(0),
   theScintillationProcess(0),
@@ -152,9 +157,9 @@ void gm2ringsim::Gm2PhysicsListService::ConstructAdditionalProcess(){
   G4OpticalSurfaceModel themodel = unified;
   theBoundaryProcess->SetModel(themodel);
 
-  theParticleIterator->reset();
-  while( (*theParticleIterator)() ){
-     G4ParticleDefinition* particle = theParticleIterator->value();
+  theParticleIterator_->reset();
+  while( (*theParticleIterator_)() ){
+     G4ParticleDefinition* particle = theParticleIterator_->value();
      G4ProcessManager* pmanager = particle->GetProcessManager();
      G4String particleName = particle->GetParticleName();
      if (theCerenkovProcess->IsApplicable(*particle)) {
@@ -196,20 +201,6 @@ G4String gm2ringsim::Gm2PhysicsListService::currentDecay(){
   }
 
   return t;
-}
-
-G4int gm2ringsim::Gm2PhysicsListService::verboseLevel(G4int level) { 
-  G4int t(verboseLevel_); 
-  verboseLevel_ = level; 
-  SetVerboseLevel(verboseLevel_);
-
-  PhysicsListVector::const_iterator b = physics_->begin(), e = physics_->end();
-  while( b!=e ){
-    (*b)->SetVerboseLevel(verboseLevel_);
-    ++b;
-  }
-
-  return t; 
 }
 
 void gm2ringsim::Gm2PhysicsListService::disableDecay(){
@@ -419,12 +410,11 @@ void gm2ringsim::Gm2PhysicsListService::polDecayChannel(){
   G4MuonMinus::MuonMinus()->SetDecayTable(dt);
 }
 
-/*
 void gm2ringsim::Gm2PhysicsListService::enableStepLimiter(){
-  theParticleIterator->reset();
+  theParticleIterator_->reset();
 
-  while ((*theParticleIterator)()) {
-    G4ParticleDefinition* particle = theParticleIterator->value();
+  while ((*theParticleIterator_)()) {
+    G4ParticleDefinition* particle = theParticleIterator_->value();
     G4ProcessManager* pmanager = particle->GetProcessManager();
     G4String particleName = particle->GetParticleName();
     G4double charge = particle->GetPDGCharge();
@@ -447,7 +437,6 @@ void gm2ringsim::Gm2PhysicsListService::enableStepLimiter(){
     }
   }
 }
-*/
 
 using gm2ringsim::Gm2PhysicsListService;
 DEFINE_ART_SERVICE(Gm2PhysicsListService)
