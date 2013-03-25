@@ -13,11 +13,16 @@
 #include <string>
 
 class G4VUserPhysicsList;
+class G4VModularPhysicsList;
+class G4Cerenkov;
+class G4Scintillation;
+class G4OpAbsorption;
+class G4OpRayleigh;
+class G4OpMieHG;
+class G4OpBoundaryProcess;
 
 namespace gm2ringsim {
   
-  class Gm2ModularPhysicsList;
-
   class Gm2PhysicsListService : public artg4::PhysicsListServiceBase {
     
   public:
@@ -26,14 +31,55 @@ namespace gm2ringsim {
     virtual G4VUserPhysicsList* makePhysicsList() override;
     virtual void initializePhysicsList() override;
     
+    void ConstructAdditionalProcess();
+
+    /** Completely disables muon decay and pion decays */
+    void disableDecay();
+    /** Completely disables muon decay */
+    void disableMuonDecay();
+    /** Completely disables pion decay */
+    void disablePionDecay();
+    /** Enables isotropic muon and pion decays. */
+    void enableIsotropicDecay();
+    /** Enables full standard model, spin dependent muon and pion decays */
+    void enableSMDecay();
+    /** Returns a status string containing the sping decay type. */
+    G4String currentDecay();
+    
+    /** Gets the output verbosity that propogates to each contained
+	physics process. */
+    G4int verboseLevel() const { return verboseLevel_; }
+    /** Sets the output verbosity that propogates to each contained
+	physics process. */
+    G4int verboseLevel(G4int level);
+    
   private:
+
+    void enableStepLimiter();
+    
+    // working code
+    template<class T> void pionDecay();
+    template<class T> void muonDecay();
+    void unpolDecayChannel();
+    void polDecayChannel();
+
     std::string muonDecayMode_;
     bool pionDecayEnabled_;
     G4String physicsListName_;
     int verboseLevel_;
-    Gm2ModularPhysicsList* thePhysicsList_;
-  };
-  
+    G4VModularPhysicsList* thePhysicsList_;
+
+    enum decayStatus { decay_init, decay_none, decay_isotropic, decay_standard };
+    decayStatus decayStatus_;
+    
+    // From N06 example
+    G4Cerenkov*          theCerenkovProcess;
+    G4Scintillation*     theScintillationProcess;
+    G4OpAbsorption*      theAbsorptionProcess;
+    G4OpRayleigh*        theRayleighScatteringProcess;
+    G4OpMieHG*           theMieHGScatteringProcess;
+    G4OpBoundaryProcess* theBoundaryProcess;
+  };  
 }
 
 #endif
