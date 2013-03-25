@@ -286,13 +286,13 @@ void gm2ringsim::Traceback::doFillEventWithArtHits(G4HCofThisEvent * hc) {
     std::vector<StrawHit*> geantHits = *(myCollection->GetVector());
     int i = 0;
     float my_r;
-    std::cout<<"The number of events in the geantHits is: "<<geantHits.size()<<std::endl;
+    //std::cout<<"The number of events in the geantHits is: "<<geantHits.size()<<std::endl;
     for ( auto e : geantHits ) {
-      std::cout<<"The event number is: "<<i<<std::endl;
-      e->Print();
+      //std::cout<<"The event number is: "<<i<<std::endl;
+      //e->Print();
       // Copy this hit into the Art hit
-      std::cout<<"The Hit in position.x(): "<<e->position.x()<<std::endl;
-      std::cout<<"The position in r: "<<e->position.r()<<std::endl;
+      //std::cout<<"The Hit in position.x(): "<<e->position.x()<<std::endl;
+      //std::cout<<"The position in r: "<<e->position.r()<<std::endl;
       my_r = sqrt(e->position.x()*e->position.x() + e->position.z()*e->position.z());
       myArtHits->emplace_back( e->position.x(),e->position.y(),e->position.z(),e->position.r(),my_r,
                                 e->local_position.x(),e->local_position.y(), e->local_position.z(),
