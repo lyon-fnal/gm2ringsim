@@ -107,11 +107,13 @@ services: {
 	BetaY:  19.0763
 	AlphaX:  0.0
 	AlphaY:  0.0
+	Pmean: -1
 	dPOverP: 0.005
 	StartUpstream:  false
 	StartUpstreamCryo:  false
 	StartDownstream:  false
 	StartPerfect:  true
+	GenGaussian: false
 	LaunchAngle: 0.0
 	StorageOffset: 0.0
     }

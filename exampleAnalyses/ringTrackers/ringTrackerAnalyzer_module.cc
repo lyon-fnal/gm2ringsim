@@ -23,6 +23,7 @@
 // Hit includes
 #include "gm2ringsim/traceback/StrawArtRecord.hh"
 #include "gm2ringsim/common/tracker/TrackerArtRecord.hh"
+#include "gm2ringsim/common/ring/RingArtRecord.hh"
 #include "gm2ringsim/actions/track/TrackingActionArtRecord.hh"
 #include "gm2ringsim/inflector/InflectorArtRecord.hh"
 
@@ -107,9 +108,11 @@ private:
   std::string ringtrackerhitModuleLabel_;
   std::string truthhitModuleLabel_;
   std::string inflectorhitModuleLabel_;
+  std::string ringhitModuleLabel_;
   std::string ringtrackerinstanceName_;
   std::string truthinstanceName_;
   std::string inflectorinstanceName_;
+  std::string ringinstanceName_;
 
   // Physical Volume Store data
   std::string pvsProducerLabel_;
@@ -199,6 +202,31 @@ private:
 
 
 
+  int Nsystemtrackers;
+  string rhitnames[9];
+  int kInflectorHit;
+  int kStrawSystemHit;
+  int kCaloSystemHit;
+  int kXtalSystemHit;
+  TH1F *h_SystemHitTracker_Nhits[10][2];
+  TH2F *h_SystemHitTracker_XZ[10][2];
+  TH2F *h_SystemHitTracker_RhoY[10][2];
+  TH2F *h_SystemHitTracker_RhoTime[10][2];
+  TH2F *h_SystemHitTracker_YTime[10][2];
+  TH1F *h_SystemHitTracker_DeltaPx[10][2];
+  TH1F *h_SystemHitTracker_DeltaPy[10][2];
+
+  int Nringhits;
+  string inames[22];
+  TH1F *h_RingHitTracker_Nhits[25][2];
+  TH2F *h_RingHitTracker_XZ[25][2];
+  TH2F *h_RingHitTracker_RhoY[25][2];
+  TH2F *h_RingHitTracker_RhoTime[25][2];
+  TH2F *h_RingHitTracker_YTime[25][2];
+  TH1F *h_RingHitTracker_DeltaPx[25][2];
+  TH1F *h_RingHitTracker_DeltaPy[25][2];
+
+
 
 
   // Loop over the 8 tracking detectors "virtual"
@@ -218,9 +246,11 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
   ringtrackerhitModuleLabel_ ( p.get<std::string>("ringtrackerhitModuleLabel",  "artg4"   ) ),
   truthhitModuleLabel_ ( p.get<std::string>("truthhitModuleLabel",  "artg4"   ) ),
   inflectorhitModuleLabel_ ( p.get<std::string>("inflectorhitModuleLabel",  "artg4"   ) ),
+  ringhitModuleLabel_ ( p.get<std::string>("ringhitModuleLabel",  "artg4"   ) ),
   ringtrackerinstanceName_   ( p.get<std::string>("ringtrackerinstanceName",    "Tracker"     ) ),
   truthinstanceName_   ( p.get<std::string>("truthinstanceName",    "TrackingAction"     ) ),
   inflectorinstanceName_   ( p.get<std::string>("inflectorinstanceName",    "inflector"     ) ),
+  ringinstanceName_   ( p.get<std::string>("ringinstanceName",    "Ring"     ) ),
   pvsProducerLabel_( p.get<std::string>("pvsProducerLabel", "artg4")),
   pvsInstanceLabel_( p.get<std::string>("pvsInstanceLabel", "")),
   hist_dir_       ( p.get<std::string>("hist_dir"         ) ),
@@ -262,6 +292,45 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
   Nstoredtrackers = 11;
   Ninflectortrackers = 9;
   Nringtrackers = 17;
+
+  Nsystemtrackers = 9;
+  rhitnames[0] = "Inflector";
+  rhitnames[1] = "Cryostat" ;
+  rhitnames[2] = "Quad" ;
+  rhitnames[3] = "Kicker" ;
+  rhitnames[4] = "Collimator" ;
+  rhitnames[5] = "Vacuum" ;
+  rhitnames[6] = "StrawTracker" ;
+  rhitnames[7] = "Calo" ;
+  rhitnames[8] = "Xtal";
+  kInflectorHit = 0;
+  kStrawSystemHit = 6;
+  kCaloSystemHit = 7;
+  kXtalSystemHit = 8;
+
+  Nringhits = 22;  
+  inames[0] = "UpstreamEndFlange"; 
+  inames[1] =  "UpstreamEquivalentNbTi"; 
+  inames[2] = "UpstreamEquivalentAl"; 
+  inames[3] = "UpstreamEquivalentCu"; 
+  inames[4] = "UpstreamWindow"; 
+  inames[5] = "DownstreamWindow"; 
+  inames[6] = "DownstreamEquivalentNbTi"; 
+  inames[7] = "DownstreamEquivalentAl"; 
+  inames[8] = "DownstreamEquivalentCu"; 
+  inames[9] = "DownstreamEndFlange"; 
+  inames[10] =  "Mandrel"; 
+  inames[11] = "Quad10"; 
+  inames[12] = "Quad20"; 
+  inames[13] = "Quad30"; 
+  inames[14] = "Quad40"; 
+  inames[15] = "Quad11"; 
+  inames[16] = "Quad21"; 
+  inames[17] = "Quad31"; 
+  inames[18] = "Quad41"; 
+  inames[19] = "Kicker1"; 
+  inames[20] = "Kicker2"; 
+  inames[21] = "Kicker3";
 
   fill = true;
 
@@ -629,6 +698,112 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
 
 
 
+
+
+
+
+  for ( int st = 0; st < 2; st++ ) {
+    string stname = "";
+    if ( st == 1 ) { stname = "_Stored"; }
+
+    for ( int i = 0; i < Nsystemtrackers; i++ ) {
+      if ( fill ) {
+	hname << rhitnames[i] << "Hits" << stname << "_XZ";
+	h_SystemHitTracker_XZ[i][st] = new TH2F(hname.str().c_str(), "", Rbin_Ring/2, Rmin_Ring, Rmax_Ring, Rbin_Ring/2, Rmin_Ring, Rmax_Ring);
+	h_SystemHitTracker_XZ[i][st]->SetYTitle("x_{ring} [mm]");
+	h_SystemHitTracker_XZ[i][st]->SetXTitle("z_{ring} [mm]");
+	hname.str("");
+	
+	hname << rhitnames[i] << "Hits" << stname << "_RhoY";
+	h_SystemHitTracker_RhoY[i][st] = new TH2F(hname.str().c_str(), "", Rhobin_Ring/2, Rhomin_Ring, Rhomax_Ring, Ybin_Ring/2, Ymin_Ring, Ymax_Ring);
+	h_SystemHitTracker_RhoY[i][st]->SetXTitle("x_{ring} #equiv R - R_{m} [mm]");
+	h_SystemHitTracker_RhoY[i][st]->SetYTitle("y_{ring} [mm]");
+	hname.str("");
+	
+	hname << rhitnames[i] << "Hits" << stname << "_RhoTime";
+	h_SystemHitTracker_RhoTime[i][st] = new TH2F(hname.str().c_str(), "", 20000, 0.0, 200, Rhobin_Ring/2, Rhomin_Ring, Rhomax_Ring);
+	h_SystemHitTracker_RhoTime[i][st]->SetYTitle("x_{ring} #equiv R - R_{m} [mm]");
+	h_SystemHitTracker_RhoTime[i][st]->SetXTitle("t_{ring} [#mus]");
+	hname.str("");
+	
+	hname << rhitnames[i] << "Hits" << stname << "_YTime";
+	h_SystemHitTracker_YTime[i][st] = new TH2F(hname.str().c_str(), "", 20000, 0.0, 200, Ybin_Ring/2, Ymin_Ring, Ymax_Ring);
+	h_SystemHitTracker_YTime[i][st]->SetYTitle("y_{ring} [mm]");
+	h_SystemHitTracker_YTime[i][st]->SetXTitle("t_{ring} [#mus]");
+	hname.str("");
+	
+	hname << rhitnames[i] << "Hits" << stname << "_DeltaPy";
+	h_SystemHitTracker_DeltaPy[i][st] = new TH1F(hname.str().c_str(), "", 3*YPrimebin_Ring, 3*YPrimemin_Ring, 3*YPrimemax_Ring);
+	h_SystemHitTracker_DeltaPy[i][st]->SetXTitle("#Delta#hat{p}_{y} [MeV]");
+	hname.str("");
+	
+	hname << rhitnames[i] << "Hits" << stname << "_DeltaPx";
+	h_SystemHitTracker_DeltaPx[i][st] = new TH1F(hname.str().c_str(), "", 3*XPrimebin_Ring, 3*XPrimemin_Ring, 3*XPrimemax_Ring);
+	h_SystemHitTracker_DeltaPx[i][st]->SetXTitle("#Delta#hat{p}_{x} [MeV]");
+	hname.str("");
+      
+	hname << rhitnames[i] << stname << "_Nhits";
+	h_SystemHitTracker_Nhits[i][st] = new TH1F(hname.str().c_str(), "", 10, -0.5, 9.5);
+	h_SystemHitTracker_Nhits[i][st]->SetXTitle("Number of energy deposits");
+	hname.str("");
+      }
+    }
+  }
+  
+  string inames[22] = {"UpstreamEndFlange",  "UpstreamEquivalentNbTi", "UpstreamEquivalentAl", "UpstreamEquivalentCu", "UpstreamWindow", "DownstreamWindow", "DownstreamEquivalentNbTi", "DownstreamEquivalentAl", "DownstreamEquivalentCu", "DownstreamEndFlange",  "Mandrel", "Quad10", "Quad20", "Quad30", "Quad40", "Quad11", "Quad21", "Quad31", "Quad41", "Kicker1", "Kicker2", "Kicker3"};
+  Nringhits = 22;
+  for ( int st = 0; st < 2; st++ ) {
+    string stname = "";
+    if ( st == 1 ) { stname = "_Stored"; }
+    
+    for ( int i = 0; i < Nringhits; i++ ) {
+      
+      if ( fill ) {
+	hname << inames[i] << "Hits" << stname << "_XZ";
+	h_RingHitTracker_XZ[i][st] = new TH2F(hname.str().c_str(), "", Rbin_Ring/2, Rmin_Ring, Rmax_Ring, Rbin_Ring/2, Rmin_Ring, Rmax_Ring);
+	h_RingHitTracker_XZ[i][st]->SetYTitle("x_{ring} [mm]");
+	h_RingHitTracker_XZ[i][st]->SetXTitle("z_{ring} [mm]");
+	hname.str("");
+	
+	hname << inames[i] << "Hits" << stname << "_RhoY";
+	h_RingHitTracker_RhoY[i][st] = new TH2F(hname.str().c_str(), "", Rhobin_Ring/2, Rhomin_Ring, Rhomax_Ring, Ybin_Ring/2, Ymin_Ring, Ymax_Ring);
+	h_RingHitTracker_RhoY[i][st]->SetXTitle("x_{ring} #equiv R - R_{m} [mm]");
+	h_RingHitTracker_RhoY[i][st]->SetYTitle("y_{ring} [mm]");
+	hname.str("");
+	
+	hname << inames[i] << "Hits" << stname << "_RhoTime";
+	h_RingHitTracker_RhoTime[i][st] = new TH2F(hname.str().c_str(), "", 20000, 0.0, 200, Rhobin_Ring/2, Rhomin_Ring, Rhomax_Ring);
+	h_RingHitTracker_RhoTime[i][st]->SetYTitle("x_{ring} #equiv R - R_{m} [mm]");
+	h_RingHitTracker_RhoTime[i][st]->SetXTitle("t_{ring} [#mus]");
+	hname.str("");
+	
+	hname << inames[i] << "Hits" << stname << "_YTime";
+	h_RingHitTracker_YTime[i][st] = new TH2F(hname.str().c_str(), "", 20000, 0.0, 200, Ybin_Ring/2, Ymin_Ring, Ymax_Ring);
+	h_RingHitTracker_YTime[i][st]->SetYTitle("y_{ring} [mm]");
+	h_RingHitTracker_YTime[i][st]->SetXTitle("t_{ring} [#mus]");
+	hname.str("");
+	
+	hname << inames[i] << "Hits" << stname << "_DeltaPy";
+	h_RingHitTracker_DeltaPy[i][st] = new TH1F(hname.str().c_str(), "", 3*YPrimebin_Ring, 3*YPrimemin_Ring, 3*YPrimemax_Ring);
+	h_RingHitTracker_DeltaPy[i][st]->SetXTitle("#Delta#hat{p}_{y} [MeV]");
+	hname.str("");
+	
+	hname << inames[i] << "Hits" << stname << "_DeltaPx";
+	h_RingHitTracker_DeltaPx[i][st] = new TH1F(hname.str().c_str(), "", 3*XPrimebin_Ring, 3*XPrimemin_Ring, 3*XPrimemax_Ring);
+	h_RingHitTracker_DeltaPx[i][st]->SetXTitle("#Delta#hat{p}_{x} [MeV]");
+	hname.str("");
+      
+	hname << inames[i] << stname << "_Nhits";
+	h_RingHitTracker_Nhits[i][st] = new TH1F(hname.str().c_str(), "", 10, -0.5, 9.5);
+	h_RingHitTracker_Nhits[i][st]->SetXTitle("Number of energy deposits");
+	hname.str("");
+      }
+    }
+  }
+
+
+
+
   if ( beamstart_ == "UpstreamCryo" || beamstart_ == "upstream_cryo" ) {
     xAxis.SetXYZ(0.9952 , 0 , -0.09736);
     yAxis.SetXYZ(0 , 1 , 0);
@@ -705,12 +880,12 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
   mf::LogInfo("ParticleTrackAnalyzer") << "There are " << pvs.size() << " entries in the PVS";
   
   // Print it out
-  for ( unsigned int i = 0; i < pvs.size(); ++i ) {
-    mf::LogInfo("ParticleTrackAnalyzer") << "PhysicalVolume #" << i << " = " << pvs.stringGivenID(i);
-    cout << "\t" << "PhysicalVolume #" << i << " = " << pvs.stringGivenID(i) << endl;
-  }
+//   for ( unsigned int i = 0; i < pvs.size(); ++i ) {
+//     mf::LogInfo("ParticleTrackAnalyzer") << "PhysicalVolume #" << i << " = " << pvs.stringGivenID(i);
+//     cout << "\t" << "PhysicalVolume #" << i << " = " << pvs.stringGivenID(i) << endl;
+//   }
   
-  return;
+  //return;
   
  
   
@@ -721,6 +896,7 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
   art::Handle< TrackerArtRecordCollection > ringtrackerhitDataHandle;
   art::Handle< TrackingActionArtRecordCollection > truthhitDataHandle;
   art::Handle< InflectorArtRecordCollection > inflectorhitDataHandle;
+  art::Handle< RingArtRecordCollection > ringhitDataHandle;
   
   // Fill the handle (note the use of the member data)
   std::cout<<"Event ID: "<<e.id()<<std::endl;
@@ -729,14 +905,18 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
   e.getByLabel(ringtrackerhitModuleLabel_, ringtrackerinstanceName_, ringtrackerhitDataHandle);
   e.getByLabel(truthhitModuleLabel_, truthinstanceName_, truthhitDataHandle);
   e.getByLabel(inflectorhitModuleLabel_, inflectorinstanceName_, inflectorhitDataHandle);
+  e.getByLabel(ringhitModuleLabel_, ringinstanceName_, ringhitDataHandle);
   
   // Resolve the handle
   //StrawArtRecordCollection const & hits = *hitDataHandle;
   TrackerArtRecordCollection const & ringtrackerhits = *ringtrackerhitDataHandle;
   TrackingActionArtRecordCollection const & truthhits = *truthhitDataHandle;
   InflectorArtRecordCollection const & inflectorhits = *inflectorhitDataHandle;
+  RingArtRecordCollection const & ringhits = *ringhitDataHandle;
   // Let's use the nice C++11 vector iteration
   //int i = 0;
+
+  cout << "Got it" << endl;
 
   //-----------------
   // Pass Information
@@ -1112,14 +1292,14 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
 	  h_RingTracker_XprimeYprimeTime[1]->Fill(1000*prhat, 1000*pvhat);
 	    
 	  if ( time > 2e4 ) {
-	    //pass_20us = true;
+	    pass_20us = true;
 	    h_RingTracker_XprimeXTime[2]->Fill(rhat, 1000*prhat);
 	    h_RingTracker_YprimeYTime[2]->Fill(vhat, 1000*pvhat);
 	    h_RingTracker_RhoYTime[2]->Fill(rhat, vhat);
 	    h_RingTracker_XprimeYprimeTime[2]->Fill(1000*prhat, 1000*pvhat);
 		  
 	    if ( time > 5e4 ) {
-	      //pass_50us = true;
+	      pass_50us = true;
 	      h_RingTracker_XprimeXTime[3]->Fill(rhat, 1000*prhat);
 	      h_RingTracker_YprimeYTime[3]->Fill(vhat, 1000*pvhat);
 	      h_RingTracker_RhoYTime[3]->Fill(rhat, vhat);
@@ -1298,7 +1478,7 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
       //cout << "Event: " << i << "\t" << " w/ {rho,theta,y} = {" << rhat << " , " << theta << " , " << vhat << "} and Vol[" << track_volume_name << "]" << endl;
       //double dT = (time - t0)/(29.3*2200.0);
 
-      double dT = myturn + theta/TMath::TwoPi();;
+      double dT = myturn + theta/TMath::TwoPi();
       //cout << theta << "\t" << dT << endl;
 
       if ( fill ) {
@@ -1324,6 +1504,127 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
       }
     }
   } // loop over ring tracker hits
+
+
+
+      
+  //-----------------
+  // Ring Information
+  //-----------------  
+  cout << " -- Ring -- " << endl;
+  int systemhits[10];
+  int numringhits[30];
+  
+  for ( int sh = 0; sh < 10; sh++ ) { systemhits[sh] = 0; }
+  for ( int rh = 0; rh < 30; rh++ ) { numringhits[rh] = 0; }
+
+  
+      
+  for ( auto ringhit : ringhits) {
+    int ringtrackID   = ringhit.trackID;
+    int ringvolumeUID = ringhit.volumeUID;    
+    double rhat = ringhit.rhat;
+    double vhat = ringhit.vhat;
+    double ringtheta = ringhit.theta;
+    double x_ring = (rhat+7112) * cos(ringtheta);
+    double z_ring = (rhat+7112) * sin(ringtheta);    
+    double ringtime = ringhit.time;
+    double deltaE = -1*ringhit.deltaE;
+    if ( deltaE <= 0.0 ) { deltaE = 1e-10; }
+    double deltaPrhat = ringhit.deltaPrhat;
+    double deltaPvhat = ringhit.deltaPvhat;
+ 
+
+    cout << "VID = " << ringvolumeUID << " \tName = " << pvs.stringGivenID(ringvolumeUID) << endl;
+
+    if ( ringtrackID == 1 ) {
+	    
+	    
+      //bool foundhit = false;
+      // 	    if ( IsSomething(uom, volumeUID, "Equivalent") ||
+      // 		 IsSomething(uom, volumeUID, "Window")  ||
+      // 		 IsSomething(uom, volumeUID, "Flange")  ||
+      // 		 IsSomething(uom, volumeUID, "Mandrel") ) {
+      if ( 1 ) {
+	int system = kInflectorHit;
+	systemhits[system]++;
+	if ( fill ) {
+	  for ( int st = 0; st < 2; st++ ) {
+	    if ( st == 1 && pass_final == false ) { continue; }
+	    h_SystemHitTracker_XZ[system][st]->Fill(z_ring, x_ring, deltaE);
+	    h_SystemHitTracker_RhoY[system][st]->Fill(rhat, vhat, deltaE);
+	    h_SystemHitTracker_DeltaPy[system][st]->Fill(deltaPvhat);
+	    h_SystemHitTracker_DeltaPx[system][st]->Fill(deltaPrhat);		  	    
+	    double dT = ringtime/1000;
+	    h_SystemHitTracker_YTime[system][st]->Fill(dT, vhat, deltaE);
+	    h_SystemHitTracker_RhoTime[system][st]->Fill(dT, rhat, deltaE);
+	  }
+	}
+      }
+
+      for ( int system = 0; system < Nsystemtrackers; system++ ) {
+	if ( system == kInflectorHit || 
+	     system == kCaloSystemHit ||
+	     system == kStrawSystemHit ||
+	     system == kXtalSystemHit ) { continue; }
+	if ( 1 ) {
+	  systemhits[system]++;
+	  if ( fill ) { 
+	    for ( int st = 0; st < 2; st++ ) {
+	      //cout << "\t" << system << "\t" << st << "\t" << pass_final << endl;
+	      if ( st == 1 && pass_final == false ) { continue; }
+	      h_SystemHitTracker_XZ[system][st]->Fill(z_ring, x_ring, deltaE);
+	      h_SystemHitTracker_RhoY[system][st]->Fill(rhat, vhat, deltaE);
+	      h_SystemHitTracker_DeltaPy[system][st]->Fill(deltaPvhat);
+	      h_SystemHitTracker_DeltaPx[system][st]->Fill(deltaPrhat);
+	      //cout << system << "\t" << deltaPvhat << endl;
+	      double dT = ringtime/1000;
+	      h_SystemHitTracker_YTime[system][st]->Fill(dT, vhat, deltaE);
+	      h_SystemHitTracker_RhoTime[system][st]->Fill(dT, rhat, deltaE);
+	    }
+	  }
+	}
+      }
+
+
+
+      for ( int ringhit = 0; ringhit < Nringhits; ringhit++ ) {
+	if ( 1 ) {
+	  numringhits[ringhit]++;
+	  if ( fill ) { 
+	    for ( int st = 0; st < 2; st++ ) {
+	      //cout << "\t" << ringhit << "\t" << st << "\t" << pass_final << endl;
+	      if ( st == 1 && pass_final == false ) { continue; }		    
+	      h_RingHitTracker_XZ[ringhit][st]->Fill(z_ring, x_ring, deltaE);
+	      h_RingHitTracker_RhoY[ringhit][st]->Fill(rhat, vhat, deltaE);
+	      h_RingHitTracker_DeltaPy[ringhit][st]->Fill(deltaPvhat);
+	      h_RingHitTracker_DeltaPx[ringhit][st]->Fill(deltaPrhat);
+	      //if ( st == 0 ) {cout << inames[ringhit] << "\t" << deltaPvhat << "\t" << deltaPrhat << endl;}
+	      double dT = ringtime/1000;
+	      h_RingHitTracker_YTime[ringhit][st]->Fill(dT, vhat, deltaE);
+	      h_RingHitTracker_RhoTime[ringhit][st]->Fill(dT, rhat, deltaE);
+	    }
+	  }
+	}
+      }
+    }
+  }
+
+  for ( int system = 0; system < Nsystemtrackers; system++ ) {
+    for ( int st = 0; st < 2; st++ ) {
+      if ( st == 1 && pass_final == false ) { continue; }
+      h_SystemHitTracker_Nhits[system][st]->Fill(systemhits[system]);
+    }
+  }
+
+  for ( int rhit = 0; rhit < Nringhits; rhit++ ) {
+    for ( int st = 0; st < 2; st++ ) {
+      if ( st == 1 && pass_final == false ) { continue; }
+      h_RingHitTracker_Nhits[rhit][st]->Fill(numringhits[rhit]);
+    }
+  }
+
+
 
 
 
@@ -1373,10 +1674,10 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
     double yprime_truth = truthmom.Dot(yAxis)/truthmom.Mag();	  
     //double zprime_truth = truthmom.Dot(zAxis)/truthmom.Mag();
     
-//     x_gen = x_truth;
-//     y_gen = y_gen;
-//     xprime_gen = xprime_truth;
-//     yprime_gen = yprime_truth;
+    //     x_gen = x_truth;
+    //     y_gen = y_gen;
+    //     xprime_gen = xprime_truth;
+    //     yprime_gen = yprime_truth;
     
     double rhat_offset = 274.3;
     rhat -= rhat_offset;

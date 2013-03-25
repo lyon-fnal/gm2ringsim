@@ -24,6 +24,8 @@
 #include <iostream>
 #include <cmath>
 
+#include "TMath.h"
+
 using std::endl;
 
 // Constructor
@@ -280,24 +282,42 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
   G4double gammaY0 = 1/betaY0;
 
 
-  //  Again, we'll generate random positions/momenta by shooting 99% Gaussians, whice I've
-  //  assumed represent the bounding ellipse in phase space.  The user is free to change
-  //  the "containment" by specifying different values of numSigmaX, numSigmaY, numSigmaXPrime, 
-  //  numSigmaYPrime.
-  G4double sigmaX0 = std::sqrt( epsilonX*betaX0 )/numSigmaX;
-  G4double sigmaY0 = std::sqrt( epsilonY*betaY0 )/numSigmaY;
-  G4double sigmaX0Prime = std::sqrt( epsilonX*gammaX0 )/numSigmaXPrime;
-  G4double sigmaY0Prime = std::sqrt( epsilonY*gammaY0 )/numSigmaYPrime;
-  //
-  x0 = G4RandGauss::shoot(0.,sigmaX0);
-  y0 = G4RandGauss::shoot(0.,sigmaY0);
-  x0Prime = G4RandGauss::shoot(0.,sigmaX0Prime);
-  y0Prime = G4RandGauss::shoot(0.,sigmaY0Prime);
+  G4double sigmaX0 = 0.0;
+  G4double sigmaY0 = 0.0;
+  G4double sigmaX0Prime = 0.0;
+  G4double sigmaY0Prime = 0.0;   
+  if ( GetGenGaussian() ) {
+    //  Again, we'll generate random positions/momenta by shooting 99% Gaussians, whice I've
+    //  assumed represent the bounding ellipse in phase space.  The user is free to change
+    //  the "containment" by specifying different values of numSigmaX, numSigmaY, numSigmaXPrime, 
+    //  numSigmaYPrime.
+    sigmaX0 = std::sqrt( epsilonX*betaX0 )/numSigmaX;
+    sigmaY0 = std::sqrt( epsilonY*betaY0 )/numSigmaY;
+    sigmaX0Prime = std::sqrt( epsilonX*gammaX0 )/numSigmaXPrime;
+    sigmaY0Prime = std::sqrt( epsilonY*gammaY0 )/numSigmaYPrime;
+    
+    x0 = G4RandGauss::shoot(0.,sigmaX0);
+    y0 = G4RandGauss::shoot(0.,sigmaY0);
+    x0Prime = G4RandGauss::shoot(0.,sigmaX0Prime);
+    y0Prime = G4RandGauss::shoot(0.,sigmaY0Prime);
+  }
+  else {
+    bool inside = false;
+    while ( inside == false ) {	
+      x0 = (2*G4UniformRand()-1) * std::sqrt( epsilonX*betaX0 );
+      x0Prime = (2*G4UniformRand()-1) * std::sqrt( epsilonX*gammaX0 );
+	
+      if ( TMath::Power(x0Prime/TMath::Sqrt(epsilonX*gammaX0), 2) + TMath::Power(x0/TMath::Sqrt(epsilonX*betaX0), 2) < 1 ) { inside = true; }
+    }
 
-  //x0 = 0.0;
-  //y0 = 0.0;
-  //x0Prime = 0.0;
-  //y0Prime = 0.0;
+    inside = false;
+    while ( inside == false ) {
+      y0 = (2*G4UniformRand()-1) * std::sqrt( epsilonY*betaY0 );
+      y0Prime = (2*G4UniformRand()-1) * std::sqrt( epsilonY*gammaY0 );
+      
+      if ( TMath::Power(y0Prime/TMath::Sqrt(epsilonY*gammaY0), 2) + TMath::Power(y0/TMath::Sqrt(epsilonY*betaY0), 2) < 1 ) { inside = true; }      
+    }
+  }
 
   //  Propagate the particle from the "naught" coordinates back to the injection point
   randX = x0 + sX*x0Prime;
@@ -541,10 +561,18 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
     G4cout << "alphaX    = " << alphaX << G4endl;
     G4cout << "alphaY    = " << alphaY << G4endl;
 
-    G4cout << "sigma(x)  = " << sigmaX0 << G4endl;
-    G4cout << "sigma(y)  = " << sigmaY0 << G4endl;
-    G4cout << "sigma(x') = " << sigmaX0Prime << G4endl;
-    G4cout << "sigma(y') = " << sigmaY0Prime << G4endl;
+    if ( GetGenGaussian() ) {
+      G4cout << "sigma(x)  = " << sigmaX0 << G4endl;
+      G4cout << "sigma(y)  = " << sigmaY0 << G4endl;
+      G4cout << "sigma(x') = " << sigmaX0Prime << G4endl;
+      G4cout << "sigma(y') = " << sigmaY0Prime << G4endl;
+    }
+    else {
+      G4cout << "sqrt(emit*betaX) = " << std::sqrt( epsilonX*betaX0 ) << G4endl;
+      G4cout << "sqrt(emit*gamX)  = " << std::sqrt( epsilonX*gammaX0 ) << G4endl;
+      G4cout << "sqrt(emit*betaY) = " << std::sqrt( epsilonY*betaY0 ) << G4endl;
+      G4cout << "sqrt(emit*gamY)  = " << std::sqrt( epsilonY*gammaY0 ) << G4endl;
+    }
     G4cout << "<P>       = " << Pmean << G4endl;
     G4cout << "dP/P      = " << dP_over_P << G4endl;
       
