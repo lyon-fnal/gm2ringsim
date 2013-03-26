@@ -35,8 +35,7 @@
 #include "Geant4/G4IonBinaryCascadePhysics.hh"
 #include "Geant4/G4NeutronTrackingCut.hh"
 
-#include "Geant4/G4StepLimiter.hh"
-#include "Geant4/G4UserSpecialCuts.hh"
+#include "Geant4/G4StepLimiterBuilder.hh"
 
 #include "Geant4/G4Cerenkov.hh"
 #include "Geant4/G4Scintillation.hh"
@@ -80,6 +79,10 @@ G4VUserPhysicsList* gm2ringsim::Gm2PhysicsListService::makePhysicsList() {
     throw cet::exception("Gm2PhysicsList_service") << "G4PhysListFactory did not find requested list " << physicsListName_ << ".\n";
   }
 
+  // This used to be done in enableStepLimiter() in g2migtrace but has been implemented in the G4StepLimiterBuilder() for 
+  // GEANT4 provided physics lists
+  thePhysicsList_->RegisterPhysics(new G4StepLimiterBuilder());
+
   return thePhysicsList_;
 }
 
@@ -113,21 +116,17 @@ void gm2ringsim::Gm2PhysicsListService::initializePhysicsList() {
     this->enableSMDecay();
   }
   
+  // pion decay switch
   if(!pionDecayEnabled_) this->disablePionDecay();
 
   printf("========= At the end of initializePhyscsList()\n");
   printf("========= mu+:\n");  
   G4MuonPlus::MuonPlus()->GetProcessManager()->DumpInfo();
-
-  printf("\n\n========= pi+:\n");  
-  G4PionPlus::PionPlus()->GetProcessManager()->DumpInfo();
 }
 
 void gm2ringsim::Gm2PhysicsListService::ConstructAdditionalProcess(){
   disableDecay();
   this->pionDecay<G4Decay>();
-
-  enableStepLimiter();
 
   decayStatus_ = decay_none;  
 
@@ -408,34 +407,6 @@ void gm2ringsim::Gm2PhysicsListService::polDecayChannel(){
   dt->Insert( new G4MuonDecayChannelWithSpin("mu-", 0.986) );
   dt->Insert( new G4MuonRadiativeDecayChannelWithSpin("mu-", 0.014) );
   G4MuonMinus::MuonMinus()->SetDecayTable(dt);
-}
-
-void gm2ringsim::Gm2PhysicsListService::enableStepLimiter(){
-  theParticleIterator_->reset();
-
-  while ((*theParticleIterator_)()) {
-    G4ParticleDefinition* particle = theParticleIterator_->value();
-    G4ProcessManager* pmanager = particle->GetProcessManager();
-    G4String particleName = particle->GetParticleName();
-    G4double charge = particle->GetPDGCharge();
-    
-    if (!pmanager) {
-      G4cerr << "Particle " << particleName << "without a Process Manager";
-    }
-    
-    if (charge != 0.0) {
-      // All charged particles should have a step limiter
-      // to make sure that the steps do not get too long.
-      pmanager->AddDiscreteProcess(new G4StepLimiter());
-      pmanager->AddDiscreteProcess(new G4UserSpecialCuts());
-    } else if (particleName == "neutron") {
-      // time cuts for ONLY neutrons:
-      pmanager->AddDiscreteProcess(new G4UserSpecialCuts());
-    } else {
-      // Energy cuts for all other neutral particles
-      pmanager->AddDiscreteProcess(new G4UserSpecialCuts());
-    }
-  }
 }
 
 using gm2ringsim::Gm2PhysicsListService;

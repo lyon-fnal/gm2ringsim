@@ -57,8 +57,6 @@ namespace gm2ringsim {
     
   private:
 
-    void enableStepLimiter();
-    
     // working code
     template<class T> void pionDecay();
     template<class T> void muonDecay();
