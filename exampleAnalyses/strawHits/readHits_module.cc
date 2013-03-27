@@ -11,6 +11,7 @@
 #include "TH1F.h"
 #include "TTree.h"
 #include "TVector3.h"
+#include "TH2F.h"
 #include "art/Framework/Services/Optional/TFileService.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 
@@ -28,7 +29,7 @@ namespace gm2ringsim {
 struct gm2ringsim::myTrack{
   std::vector<int> strawPlanes;
   std::vector<int> tracebackLocations;
-  
+  std::vector<int> trackID;
   std::vector<TVector3> position;
   
 };
@@ -69,7 +70,6 @@ private:
   TH1F *h_px_local;
   TH1F *h_py_local;
   TH1F *h_pz_local;
-
   // The root-tuple
   TTree * t_hitTree_;
   
@@ -92,12 +92,12 @@ private:
   int tf_straw_number;
   int tf_track_ID;
     
-  std::map<int, gm2ringsim::myTrack> track_positions;
   //Tree to hold track location information
   TTree *t_trackTree_;
-  
-  std::vector<int> tt_tracebackNumbers;
-};
+  int strawNumber[9];
+  float globalR[9];
+  int nplane;
+  };
 
 
 gm2ringsim::readHits::readHits(fhicl::ParameterSet const &p) :
@@ -138,8 +138,7 @@ tree_dir_       ( p.get<std::string>("tree_dir"         ) )
   h_z_local= histDir.make<TH1F>("local_hitZ","Local Z of hits",50, -3000, 0.0);
   h_px_local= histDir.make<TH1F>("local_hitpX","Local pX of hits",50, -500.0, 500.0);
   h_py_local= histDir.make<TH1F>("local_hitpY","Local pY of hits",50, -500.0, 500.0);
-  h_pz_local= histDir.make<TH1F>("lpca;_hitpZ","Local pZ of hits",50, -500.0, 500.0);
-  
+  h_pz_local= histDir.make<TH1F>("local_hitpZ","Local pZ of hits",50, -500.0, 500.0);
   // Do the tree next
   art::TFileDirectory treeDir = *tfs;
   if ( ! tree_dir_.empty() ) {
@@ -167,7 +166,9 @@ tree_dir_       ( p.get<std::string>("tree_dir"         ) )
   t_hitTree_->Branch("trackID",&tf_track_ID,"trackID/I");
   
   t_trackTree_ = treeDir.make<TTree>("trackTree", "Tree of tracks");
-  t_trackTree_->Branch("track_tracebackNumber",&tt_tracebackNumbers);
+  t_trackTree_->Branch("strawNumber",strawNumber,"strawNumber[9]/I");
+  t_trackTree_->Branch("globalR",globalR,"globalR[9]/F");
+  t_trackTree_->Branch("nplane",&nplane,"nplane/I");
 
 
 }
@@ -191,7 +192,8 @@ void gm2ringsim::readHits::analyze(art::Event const &e) {
   // Resolve the handle
   StrawArtRecordCollection const & hits = *hitDataHandle;
   // Let's use the nice C++11 vector iteration
-  
+  //std::cout<<"The number of hits is: "<<hits.size()<<std::endl;
+  myTrack track_info;;
   for ( auto hdata : hits) {
     //hdata is a strawartrecord
     h_x_global -> Fill(hdata.x_global);
@@ -208,7 +210,6 @@ void gm2ringsim::readHits::analyze(art::Event const &e) {
     h_py_local -> Fill(hdata.py_local);
     h_pz_local -> Fill(hdata.pz_local);
 
-    
     tf_x_global=hdata.x_global;
     tf_y_global=hdata.y_global;
     tf_z_global=hdata.z_global;
@@ -226,30 +227,39 @@ void gm2ringsim::readHits::analyze(art::Event const &e) {
     tf_traceback_number = hdata.tracebackNumber;
     tf_straw_number = hdata.strawNumber;
     tf_track_ID = hdata.trackID;
-    
-    myTrack oneTrack;
-    
-    if (track_positions.find(hdata.trackID) != track_positions.end() ) {
-      
-      oneTrack = track_positions[hdata.trackID];
-    }
-    
-    TVector3 the_position(hdata.x_global, hdata.y_global, hdata.z_global);
-    oneTrack.strawPlanes.push_back(hdata.strawNumber);
-    oneTrack.tracebackLocations.push_back(hdata.tracebackNumber);
-    oneTrack.position.push_back(the_position);
-    track_positions[hdata.trackID] = oneTrack;
-   
+        
+    TVector3 the_position(hdata.x_global, hdata.z_global, hdata.y_global);
+    track_info.strawPlanes.push_back(hdata.strawNumber);
+    track_info.tracebackLocations.push_back(hdata.tracebackNumber);
+    track_info.position.push_back(the_position);
+    track_info.trackID.push_back(hdata.trackID);
+  
     t_hitTree_->Fill();
     
   }
+
+  std::vector<int>::iterator it;
+  it = std::unique (track_info.tracebackLocations.begin(), track_info.tracebackLocations.end());
   
-  for (auto& a : track_positions){
-    std::cout<<"The Track number is: "<<a.first<<std::endl;
-    std::cout<<"The number of Straw Planes hit is: "<<a.second.strawPlanes.size()<<std::endl;
-    for (auto s : a.second.strawPlanes)
-      std::cout<<"The straw number is: "<<s<<std::endl;
-  }
+  track_info.tracebackLocations.resize( std::distance(track_info.tracebackLocations.begin(),it) );
+  std::cout<<"tracebackLocations.size(): "<<track_info.tracebackLocations.size()<<std::endl;
+  
+  if(track_info.tracebackLocations.size() == 1){
+ 	 for(int plane= 0; plane!=9; ++plane){
+   	strawNumber[plane] = 0;
+   }
+
+  	nplane = track_info.strawPlanes.size();
+  	std::cout<<nplane<<std::endl;
+  	for (int i = 0; i<nplane; i++){
+			int planeHit = track_info.strawPlanes[i];
+			strawNumber[planeHit] = 1;
+			globalR[planeHit] = track_info.position[i].Perp();
+  
+		}
+
+   	t_trackTree_->Fill();
+	}
 }
 
 using gm2ringsim::readHits;

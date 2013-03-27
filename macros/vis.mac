@@ -90,10 +90,9 @@
 #/vis/viewer/zoomTo 64
 
 #for viewing a traceback
-
 #/vis/viewer/set/viewpointThetaPhi 90. 90.
-#/vis/viewer/panTo -1.75 -6.5
-#/vis/viewer/zoomTo 15
+#/vis/viewer/panTo 6 -2.5
+#/vis/viewer/zoomTo 7
 #/vis/viewer/refresh
 #
 # Specify style (surface or wireframe):
