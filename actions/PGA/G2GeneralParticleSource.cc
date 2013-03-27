@@ -94,6 +94,8 @@ void gm2ringsim::G2GeneralParticleSource::implementSettings(){
     setTimeMono(settings_.tMono);
   if (settings_.contains("tSigma"))
     setTimeSigma(settings_.tSigma);
+  if (settings_.contains("polarization"))
+    setPolarization(settings_.polarization);
 
     settings_.print();
 }
@@ -231,7 +233,10 @@ void gm2ringsim::G2GeneralParticleSource::setTimeSigma(double tSigma){
   currentSource->GetTimeDist()->SetBeamSigmaInT(tSigma);
  }
 
-
+void gm2ringsim::G2GeneralParticleSource::setPolarization(std::vector<double> pol){
+  G4ThreeVector p(pol[0],pol[1],pol[2]);
+  SetParticlePolarization(p);  
+}
 
 gm2ringsim::G2GeneralParticleSource::~G2GeneralParticleSource()
 {

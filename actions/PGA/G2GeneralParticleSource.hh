@@ -103,7 +103,7 @@ namespace gm2ringsim {
     void setTimeMono(double tMono);
     void setTimeSigma(double tSigma);
     
-    
+    void setPolarization(std::vector<double> pol);
     // Set the verbosity level.
     void SetVerbosity(G4int i) {currentSource->SetVerbosity(i);} ;
     

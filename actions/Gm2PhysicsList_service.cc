@@ -118,10 +118,6 @@ void gm2ringsim::Gm2PhysicsListService::initializePhysicsList() {
   
   // pion decay switch
   if(!pionDecayEnabled_) this->disablePionDecay();
-
-  printf("========= At the end of initializePhyscsList()\n");
-  printf("========= mu+:\n");  
-  G4MuonPlus::MuonPlus()->GetProcessManager()->DumpInfo();
 }
 
 void gm2ringsim::Gm2PhysicsListService::ConstructAdditionalProcess(){
@@ -300,7 +296,7 @@ void gm2ringsim::Gm2PhysicsListService::enableSMDecay(){
   disableDecay();
 
   this->muonDecay<G4DecayWithSpin>();
-
+  
   polDecayChannel();
 
   this->pionDecay<G4PionDecayMakeSpin>();
