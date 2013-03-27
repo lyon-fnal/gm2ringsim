@@ -28,6 +28,7 @@ calorimeter_geom : {
   photodetectorColor :   [0.0,  0.0,  1.0,  1.0] // blue
   opticalCouplingColor : [1.0,  0.0,  0.0,  1.0] // red
   wrappingColor :        [1.0,  0.5,  0.0,  1.0] // orange
+  killShowers : true
 
 }
 END_PROLOG

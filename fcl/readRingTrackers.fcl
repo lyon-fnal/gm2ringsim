@@ -1,0 +1,49 @@
+services: {
+
+  TFileService: {
+    fileName: "myout.root"
+  }
+
+  message : {
+     debugModules : ["*"]
+     suppressInfo : []
+     
+     destinations : {
+       LogToConsole : {
+         type : "cout"
+         threshold : "DEBUG"
+         
+         categories : {
+           default : { limit : 50 }
+         }
+       }
+     }
+  }
+  
+  user : {
+    physicalVolumeStore : {}
+    ActionHolder : {}
+  }
+}
+
+process_name: readRingTrackers
+
+source: {
+   module_type: RootInput
+   maxEvents:  -1
+   fileNames: [ "gm2ringsimout.root" ]
+}
+
+physics: {
+  analyzers: {
+    readRingTrackers: {
+      module_type: ringTrackerAnalyzer
+      hist_dir: ""
+      tree_dir: ""
+      beamstart: "CentralOrbit"
+      maxturns: 10
+    }
+  }
+  path1: [ readRingTrackers ]
+  end_paths: [ path1 ]
+}

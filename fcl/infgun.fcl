@@ -4,7 +4,7 @@
 #include "geom/inflector.fcl"
 #include "geom/quad.fcl"
 #include "geom/oct.fcl"
-#include "geom/kicker.fcl"
+#include "geom/kicker_nokick.fcl"
 #include "geom/fiberHarp.fcl"
 #include "geom/station.fcl"
 #include "geom/calorimeter.fcl"
@@ -17,7 +17,7 @@ process_name:myProcessName
 
 source: {
   module_type: EmptyEvent
-  maxEvents:  100
+  maxEvents:  25
 }
 
 services: {
@@ -29,13 +29,13 @@ services: {
      destinations : {
        LogToConsole : {
          type : "cout"
-         threshold : "DEBUG"
+         threshold : "ERROR"
        }
        LogToFile : {
          type : "file"
          filename : "gm2ringsim.log"
          append : false
-         threshold : "DEBUG"
+         threshold : "ERROR"
        }
      }
   }
@@ -70,7 +70,7 @@ services: {
        SpinTracking : {
         spinTrackingEnabled : false
        }
-       G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel
+      G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel
     }
 
     // Action(s) for the simulation
@@ -89,16 +89,34 @@ services: {
 
     ClockAction: {}
 
-    G2PGA: {
-      name: "primary"
-    }
+//    G2PGA: {
+//	      name: "primary"
+//    }
 
 //    MuonGasPGA: {
 //        name: "muongas"
 //        muonGasVerbosity: false
 //    }
 
-//    CaloElectronPGA: {}
+    InflectorPGA: {
+        name: "inflectorgun"
+        inflectorVerbosity: true
+	SigmaT: 25
+	Emittance: 1.0
+	BetaX:  7.66477
+	BetaY:  19.0763
+	AlphaX:  0.0
+	AlphaY:  0.0
+	Pmean: -1
+	dPOverP: 0.005
+	StartUpstream:  false
+	StartUpstreamCryo:  false
+	StartDownstream:  false
+	StartPerfect:  true
+	GenGaussian: false
+	LaunchAngle: 0.0
+	StorageOffset: 0.0
+    }
 
     // Detectors
     World: {}	
@@ -119,6 +137,8 @@ services: {
 
     MuonStorageStatusAction: {
       name: "MuonStorageStatusAction"
+      turnsForStorage: 101
+      heartbeatFreq: 10
     }
 
   } //user:
@@ -142,15 +162,10 @@ physics: {
      }
   }
 
-  analyzers: {
-    readTracks: {
-      module_type: particleTrackAnalyzer
-    }
-  }
 
 
   path1: [ artg4 ]
-  readPath: [ readTracks ]
+  readPath: [ ]
   stream1:  [ out1 ]
 
   trigger_paths: [ path1 ]
