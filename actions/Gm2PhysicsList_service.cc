@@ -118,7 +118,6 @@ void gm2ringsim::Gm2PhysicsListService::initializePhysicsList() {
   
   // pion decay switch
   if(!pionDecayEnabled_) this->disablePionDecay();
-
 }
 
 void gm2ringsim::Gm2PhysicsListService::ConstructAdditionalProcess(){
@@ -248,28 +247,32 @@ void gm2ringsim::Gm2PhysicsListService::disablePionDecay(){
 
   G4ProcessTable* table = G4ProcessTable::GetProcessTable();
   G4ProcessManager *manager;
-  G4VProcess *process1;
+  G4VProcess *process1, *process2;
 
   // for pi+
   process1 = table->FindProcess("Decay",G4PionPlus::PionPlus());
+  process2 = table->FindProcess("DecayWithSpin",G4PionPlus::PionPlus());
   manager = G4PionPlus::PionPlus()->GetProcessManager();
 
   if( manager ){
-    if( process1 ){
+    if( process1 )
       manager->RemoveProcess(process1);
-    }
-    else printf("Didn't find process Decay\n");
+    if( process2 )
+      manager->RemoveProcess(process2);
   } else {
     cout << "Couldn't get PionPlus process manager ... to remove decays!\n";
   }
 
   // for pi-
   process1 = table->FindProcess("Decay",G4PionMinus::PionMinus());
+  process2 = table->FindProcess("DecayWithSpin",G4PionMinus::PionMinus());
   manager = G4PionMinus::PionMinus()->GetProcessManager();
 
   if( manager ){
     if( process1 )
       manager->RemoveProcess(process1);
+    if( process2 )
+      manager->RemoveProcess(process2);
   } else {
     cout << "Couldn't get PionMinus process manager ... to remove decays!\n";
   }
