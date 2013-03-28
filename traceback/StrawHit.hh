@@ -16,6 +16,7 @@
 #include "Geant4/G4ThreeVector.hh"
 #include "Geant4/G4Step.hh"
 #include "Geant4/globals.hh"
+#include "Geant4/G4String.hh"
 
 namespace gm2ringsim {
   /** A G4VHit class to store data from strawscope hits. */
@@ -28,7 +29,7 @@ namespace gm2ringsim {
     G4int trackID;
     G4int volumeUID;
     G4int traceback, straw;
-
+    G4String particle_name;
     StrawHit(G4Step*);
     
     inline void* operator new(size_t);

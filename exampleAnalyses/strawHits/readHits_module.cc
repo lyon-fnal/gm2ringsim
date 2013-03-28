@@ -31,7 +31,7 @@ struct gm2ringsim::myTrack{
   std::vector<int> tracebackLocations;
   std::vector<int> trackID;
   std::vector<TVector3> position;
-  
+  std::vector<int> is_e;
 };
 
 // The class
@@ -97,6 +97,7 @@ private:
   int strawNumber[9];
   float globalR[9];
   int nplane;
+  int is_e[9];
   };
 
 
@@ -169,7 +170,7 @@ tree_dir_       ( p.get<std::string>("tree_dir"         ) )
   t_trackTree_->Branch("strawNumber",strawNumber,"strawNumber[9]/I");
   t_trackTree_->Branch("globalR",globalR,"globalR[9]/F");
   t_trackTree_->Branch("nplane",&nplane,"nplane/I");
-
+  t_trackTree_->Branch("is_e",is_e,"is_e[9]/I");
 
 }
 
@@ -232,31 +233,33 @@ void gm2ringsim::readHits::analyze(art::Event const &e) {
     track_info.strawPlanes.push_back(hdata.strawNumber);
     track_info.tracebackLocations.push_back(hdata.tracebackNumber);
     track_info.position.push_back(the_position);
-    track_info.trackID.push_back(hdata.trackID);
-  
+    track_info.trackID.push_back(hdata.trackID); 
+    track_info.is_e.push_back(hdata.e_true); 
     t_hitTree_->Fill();
     
   }
 
-  std::vector<int>::iterator it;
-  it = std::unique (track_info.tracebackLocations.begin(), track_info.tracebackLocations.end());
+  std::vector<int>::iterator it_tb;
+  it_tb = std::unique (track_info.tracebackLocations.begin(), track_info.tracebackLocations.end());
+  track_info.tracebackLocations.resize( std::distance(track_info.tracebackLocations.begin(),it_tb) );
   
-  track_info.tracebackLocations.resize( std::distance(track_info.tracebackLocations.begin(),it) );
-  std::cout<<"tracebackLocations.size(): "<<track_info.tracebackLocations.size()<<std::endl;
+  std::vector<int>::iterator it_ise;
+  it_ise = std::unique (track_info.is_e.begin(), track_info.is_e.end());
+  track_info.is_e.resize(std::distance(track_info.is_e.begin(),it_ise));
   
-  if(track_info.tracebackLocations.size() == 1){
+  if(track_info.tracebackLocations.size() == 1 && track_info.is_e.size() == 1 && track_info.is_e[0] == 1){
  	 for(int plane= 0; plane!=9; ++plane){
-   	strawNumber[plane] = 0;
-   }
+    	strawNumber[plane] = 0;
+        is_e[plane]=0;
+     }
 
   	nplane = track_info.strawPlanes.size();
   	std::cout<<nplane<<std::endl;
   	for (int i = 0; i<nplane; i++){
-			int planeHit = track_info.strawPlanes[i];
-			strawNumber[planeHit] = 1;
-			globalR[planeHit] = track_info.position[i].Perp();
-  
-		}
+	    int planeHit = track_info.strawPlanes[i];
+		strawNumber[planeHit] = 1;
+		globalR[planeHit] = track_info.position[i].Perp();
+	}
 
    	t_trackTree_->Fill();
 	}

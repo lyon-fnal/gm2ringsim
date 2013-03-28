@@ -48,6 +48,7 @@ gm2ringsim::StrawHit::StrawHit(G4Step* step) :
   std::istringstream iss_sc(num_sc);
   iss_sc >> straw;
 
+  particle_name = step->GetTrack()->GetParticleDefinition()->GetParticleName();
   
   G4StepPoint* preStepPoint  = step->GetPreStepPoint();
   //G4StepPoint* postStepPoint = step->GetPostStepPoint();
@@ -97,5 +98,6 @@ void gm2ringsim::StrawHit::Print(){
   " \n\tvolumeUID: " << volumeUID
   << " \n\t time: " << time
   << " \n\t position: " << position
+  << " \n\t particle: " << particle_name
   << "\n";
 }
