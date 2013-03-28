@@ -58,21 +58,7 @@ private:
   std::string hist_dir_, tree_dir_;
   
   // The histograms
-  TH1F *h_x_global;
-  TH1F *h_y_global;
-  TH1F *h_z_global;
-  TH1F *h_r_global;
-  TH1F *h_myr_global;
-  TH1F *h_px_global;
-  TH1F *h_py_global;
-  TH1F *h_pz_global;
-  TH1F *h_x_local;
-  TH1F *h_y_local;
-  TH1F *h_z_local;
-  TH1F *h_px_local;
-  TH1F *h_py_local;
-  TH1F *h_pz_local;
-  // The root-tuple
+ 
   TTree * t_hitTree_;
   
   // Variables for the tree
@@ -80,7 +66,6 @@ private:
   float tf_y_global;
   float tf_z_global;
   float tf_r_global;
-  float tf_myr_global;
   float tf_px_global;
   float tf_py_global;
   float tf_pz_global;
@@ -99,7 +84,6 @@ private:
   int strawNumber[9];
   float globalR[9];
   int nplane;
-  int is_e[9];
   };
 
 
@@ -128,21 +112,7 @@ tree_dir_       ( p.get<std::string>("tree_dir"         ) )
   }
   
   // Create the histogram objects
-  h_x_global= histDir.make<TH1F>("global_hitX","Global X of hits",50, -6000.0, 6000.0);
-  h_y_global= histDir.make<TH1F>("global_hitY","Global Y of hits",50, -70.0, 70.0);
-  h_z_global= histDir.make<TH1F>("global_hitZ","Global Z of hits",50, 3000.0, 5000.0);
-  h_r_global= histDir.make<TH1F>("global_hitR","Global R of the hits",50,6800,7050);
-  h_myr_global = histDir.make<TH1F>("global_hitMYR","Global MyR of the hits",50,6800,7050);
-  h_px_global= histDir.make<TH1F>("global_hitpX","Global pX of hits",50, -100.0, 100.0);
-  h_py_global= histDir.make<TH1F>("global_hitpY","Global pY of hits",50, -100.0, 100.0);
-  h_pz_global= histDir.make<TH1F>("global_hitpZ","Global pZ of hits",50, -100.0, 100.0);
-  h_x_local= histDir.make<TH1F>("local_hitX","Local X of hits",50, -3000.0, 0.0);
-  h_y_local= histDir.make<TH1F>("local_hitY","Local Y of hits",50, -50.0, 50.0);
-  h_z_local= histDir.make<TH1F>("local_hitZ","Local Z of hits",50, -3000, 0.0);
-  h_px_local= histDir.make<TH1F>("local_hitpX","Local pX of hits",50, -500.0, 500.0);
-  h_py_local= histDir.make<TH1F>("local_hitpY","Local pY of hits",50, -500.0, 500.0);
-  h_pz_local= histDir.make<TH1F>("local_hitpZ","Local pZ of hits",50, -500.0, 500.0);
-  // Do the tree next
+    // Do the tree next
   art::TFileDirectory treeDir = *tfs;
   if ( ! tree_dir_.empty() ) {
     treeDir = tfs->mkdir( tree_dir_ );
@@ -154,7 +124,6 @@ tree_dir_       ( p.get<std::string>("tree_dir"         ) )
   t_hitTree_->Branch("y_global", &tf_y_global, "y_global/F");
   t_hitTree_->Branch("z_global", &tf_z_global, "z_global/F");
   t_hitTree_->Branch("r_global", &tf_r_global, "r_global/F");
-  t_hitTree_->Branch("myr_global", &tf_myr_global, "myr_global/F");
   t_hitTree_->Branch("px_global", &tf_px_global, "px_global/F");
   t_hitTree_->Branch("py_global", &tf_py_global, "py_global/F");
   t_hitTree_->Branch("pz_global", &tf_pz_global, "pz_global/F");
@@ -169,6 +138,7 @@ tree_dir_       ( p.get<std::string>("tree_dir"         ) )
   t_hitTree_->Branch("trackID",&tf_track_ID,"trackID/I");
   
   t_trackTree_ = treeDir.make<TTree>("trackTree", "Tree of tracks");
+  
   t_trackTree_->Branch("strawNumber",strawNumber,"strawNumber[9]/I");
   t_trackTree_->Branch("globalR",globalR,"globalR[9]/F");
   t_trackTree_->Branch("nplane",&nplane,"nplane/I");
@@ -198,20 +168,6 @@ void gm2ringsim::readHits::analyze(art::Event const &e) {
   myTrack track_info;;
   for ( auto hdata : hits) {
     //hdata is a strawartrecord
-    h_x_global -> Fill(hdata.x_global);
-    h_y_global -> Fill(hdata.y_global);
-    h_z_global -> Fill(hdata.z_global);
-    h_r_global -> Fill(hdata.r_global);
-    h_px_global -> Fill(hdata.px_global);
-    h_py_global -> Fill(hdata.py_global);
-    h_pz_global -> Fill(hdata.pz_global);
-    h_x_local -> Fill(hdata.x_local);
-    h_y_local -> Fill(hdata.y_local);
-    h_z_local -> Fill(hdata.z_local);
-    h_px_local -> Fill(hdata.px_local);
-    h_py_local -> Fill(hdata.py_local);
-    h_pz_local -> Fill(hdata.pz_local);
-
     tf_x_global=hdata.x_global;
     tf_y_global=hdata.y_global;
     tf_z_global=hdata.z_global;
@@ -229,7 +185,7 @@ void gm2ringsim::readHits::analyze(art::Event const &e) {
     tf_traceback_number = hdata.tracebackNumber;
     tf_straw_number = hdata.strawNumber;
     tf_track_ID = hdata.trackID;
-        
+    
     TVector3 the_position(hdata.x_global, hdata.z_global, hdata.y_global);
     track_info.strawPlanes.push_back(hdata.strawNumber);
     track_info.tracebackLocations.push_back(hdata.tracebackNumber);
@@ -256,26 +212,34 @@ void gm2ringsim::readHits::analyze(art::Event const &e) {
   bool is_one_traceback=false;
   bool is_all_electrons=false;
   bool is_muon_parent=false;
+  bool is_in_order = false;
+  
+  std::vector<int> strawNumberCompare = track_info.strawPlanes;
+  
+  std::sort(strawNumberCompare.begin(),strawNumberCompare.end());    
+
+  if(strawNumberCompare == track_info.strawPlanes) is_in_order = true;
   
   if (track_info.tracebackLocations.size() == 1) is_one_traceback = true;
   if (track_info.particle_name.size() == 1 && track_info.particle_name[0] == "e-") is_all_electrons = true;
   if (track_info.parentID.size() == 1 && track_info.parentID[0] == 1) is_muon_parent = true;
   
-  if(is_one_traceback && is_all_electrons && is_muon_parent){
+  if(is_one_traceback && is_all_electrons && is_muon_parent && is_in_order){
  	 for(int plane= 0; plane!=9; ++plane){
     	strawNumber[plane] = 0;
-        is_e[plane]=0;
-     }
+      globalR[plane]=0;
+   }
 
-  	nplane = track_info.strawPlanes.size();
-  	std::cout<<nplane<<std::endl;
-  	for (int i = 0; i<nplane; i++){
+   nplane = track_info.strawPlanes.size();
+   std::cout<<"nplane: "<<nplane<<std::endl;
+   for (int i = 0; i<nplane; i++){
+     std::cout<<"track_info.strawPlanes[i]: "<<track_info.strawPlanes[i]<<std::endl;
 	    int planeHit = track_info.strawPlanes[i];
-		strawNumber[planeHit] = 1;
-		globalR[planeHit] = track_info.position[i].Perp();
-	}
+      strawNumber[planeHit] = 1;
+      globalR[planeHit] = track_info.position[i].Perp();
+   }
 
-   	t_trackTree_->Fill();
+   t_trackTree_->Fill();
 	}
 }
 
