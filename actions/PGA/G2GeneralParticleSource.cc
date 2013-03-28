@@ -113,7 +113,7 @@ void gm2ringsim::G2GeneralParticleSource::implementSettings(){
 
 void gm2ringsim::G2GeneralParticleSource::checkForConsistency(){
   // This function checks that we actually have a polarized gun or pion V-A decay and subsequent V-A muon decay if we 
-  // do spin tracking. Otherwise spin tracking would not really make sense and cost additional CPU
+  // do spin tracking and vice versa. If any of these options are on, we want them all on or we might have additional CPU usage for nothing
   
   // Let's check which of the following are switched on:
   // 
@@ -139,8 +139,9 @@ void gm2ringsim::G2GeneralParticleSource::checkForConsistency(){
 
   // 4) pion gun with V-A decay 
   bool polarizedPionGun = false;
+  //    a) do we have a pion gun? and b) is pion decay producing polarized muons?
   if(GetParticleDefinition() == G4PionPlus::PionPlus() || GetParticleDefinition() == G4PionMinus::PionMinus()){
-    // FIXME: Not sure if the following will identify that the pion V-A decay is on. Will need to revisit once the V-A decay has bin implemented.
+    // FIXME: Not sure if the following will identify that the pion V-A decay is on. Will need to revisit once the V-A decay has been implemented.
     if(table->FindProcess("DecayWithSpin",G4PionPlus::PionPlus()) && 
        table->FindProcess("DecayWithSpin",G4PionMinus::PionMinus())){
       polarizedPionGun = true;
