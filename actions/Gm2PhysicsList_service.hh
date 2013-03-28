@@ -58,7 +58,7 @@ namespace gm2ringsim {
   private:
 
     // working code
-    template<class T> void pionDecay();
+    template<class T> void pionDecay(const char *decayName="");
     template<class T> void muonDecay();
     void unpolDecayChannel();
     void polDecayChannel();

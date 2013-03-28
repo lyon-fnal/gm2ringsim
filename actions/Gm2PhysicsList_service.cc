@@ -118,6 +118,7 @@ void gm2ringsim::Gm2PhysicsListService::initializePhysicsList() {
   
   // pion decay switch
   if(!pionDecayEnabled_) this->disablePionDecay();
+
 }
 
 void gm2ringsim::Gm2PhysicsListService::ConstructAdditionalProcess(){
@@ -299,7 +300,7 @@ void gm2ringsim::Gm2PhysicsListService::enableSMDecay(){
   
   polDecayChannel();
 
-  this->pionDecay<G4PionDecayMakeSpin>();
+  this->pionDecay<G4PionDecayMakeSpin>("DecayWithSpin");
 
   decayStatus_ = decay_standard;
 }
@@ -308,37 +309,45 @@ void gm2ringsim::Gm2PhysicsListService::enableSMDecay(){
 
 /// PRIVATES
 
-template<class T> void gm2ringsim::Gm2PhysicsListService::pionDecay(){
+template<class T> void gm2ringsim::Gm2PhysicsListService::pionDecay(const char *name){
   G4ProcessTable* table = G4ProcessTable::GetProcessTable();
   G4ProcessManager *manager;
-  G4VProcess *process1, *process2;
+  G4VProcess *process1, *process2, *process3;
 
   // pi+
-  process2 = new T();
+  if(strcmp(name, "")==0) process3 = new T();
+  else process3 = new T(G4String(name));
   process1 = table->FindProcess("Decay",G4PionPlus::PionPlus());
+  process2 = table->FindProcess("DecayWithSpin",G4PionPlus::PionPlus());
   manager = G4PionPlus::PionPlus()->GetProcessManager();
 
   if( manager ){
     if( process1 )
       manager->RemoveProcess(process1);
-    manager->AddProcess(process2);
-    manager->SetProcessOrdering(process2, idxPostStep);
-    manager->SetProcessOrdering(process2, idxAtRest);
+    if( process2 )
+      manager->RemoveProcess(process3);
+    manager->AddProcess(process3);
+    manager->SetProcessOrdering(process3, idxPostStep);
+    manager->SetProcessOrdering(process3, idxAtRest);
   }else {
     G4cerr << "Couldn't get PionPlus process manager ... to add/remove decays!\n";
   }
 
   // pi-
-  process2 = new T();
+  if(strcmp(name, "")==0) process3 = new T();
+  else process3 = new T(G4String(name));
   process1 = table->FindProcess("Decay",G4PionMinus::PionMinus());
+  process2 = table->FindProcess("DecayWithSpin",G4PionMinus::PionMinus());
   manager = G4PionMinus::PionMinus()->GetProcessManager();
 
   if( manager ){
     if( process1 )
       manager->RemoveProcess(process1);
-    manager->AddProcess(process2);
-    manager->SetProcessOrdering(process2, idxPostStep);
-    manager->SetProcessOrdering(process2, idxAtRest);
+    if( process2 )
+      manager->RemoveProcess(process3);
+    manager->AddProcess(process3);
+    manager->SetProcessOrdering(process3, idxPostStep);
+    manager->SetProcessOrdering(process3, idxAtRest);
   } else {
     G4cerr << "Couldn't get PionMinux process manager ... to add/remove decays!\n";
   }
