@@ -71,6 +71,8 @@ namespace gm2ringsim {
     
     // G2GeneralParticleSourceMessengerSettings
     void implementSettings();
+
+    void checkForConsistency();
   
     void setParticleDefinition(std::string newValues);
     void setPosType(std::string newValues);
@@ -175,7 +177,7 @@ namespace gm2ringsim {
     std::vector <G2SingleParticleSource*> sourceVector;
     std::vector <G4double> sourceIntensity;
     std::vector <G4double>sourceProbability;
-    
+    bool consistencyChecked;
     
   };
   

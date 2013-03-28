@@ -12,6 +12,16 @@
 #include "Geant4/Randomize.hh"
 #include "gm2ringsim/actions/PGA/G2GeneralParticleSource.hh"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+#include "gm2ringsim/actions/SpinTrackingSettings.hh"
+
+#include "Geant4/G4ProcessTable.hh"
+
+#include "Geant4/G4MuonPlus.hh"
+#include "Geant4/G4MuonMinus.hh"
+#include "Geant4/G4PionPlus.hh"
+#include "Geant4/G4PionMinus.hh"
+
+#include "Geant4/G4ThreeVector.hh"
 
 gm2ringsim::G2GeneralParticleSource::G2GeneralParticleSource(std::string set)
   : settings_(set), //This should be in the fcl:
@@ -31,6 +41,7 @@ gm2ringsim::G2GeneralParticleSource::G2GeneralParticleSource(std::string set)
   sourceVector.push_back(currentSource);
   sourceIntensity.push_back(1.);
   currentSourceIdx = G4int(sourceVector.size() - 1);
+  consistencyChecked = false;
   //theMessenger = new G2GeneralParticleSourceMessenger(this);
   //theMessenger->SetParticleGun(currentSource);
   IntensityNormalization();
@@ -97,9 +108,111 @@ void gm2ringsim::G2GeneralParticleSource::implementSettings(){
   if (settings_.contains("polarization"))
     setPolarization(settings_.polarization);
 
-    settings_.print();
+  settings_.print();
 }
 
+void gm2ringsim::G2GeneralParticleSource::checkForConsistency(){
+  // This function checks that we actually have a polarized gun or pion V-A decay and subsequent V-A muon decay if we 
+  // do spin tracking. Otherwise spin tracking would not really make sense and cost additional CPU
+  
+  // Let's check which of the following are switched on:
+  // 
+  // 1) Spin tracking
+  SpinTrackingSettings sts_("SpinTracking");
+  bool const spin_tracking = sts_.spinTrackingEnabled;
+
+  // 2) muon V-A decay
+  bool muonVAdecay = false;
+  G4ProcessTable* table = G4ProcessTable::GetProcessTable();
+  // for mu+
+  if(table->FindProcess("DecayWithSpin",G4MuonPlus::MuonPlus()) && 
+     table->FindProcess("DecayWithSpin",G4MuonMinus::MuonMinus())){
+    muonVAdecay = true;
+  }
+
+  // 3) muon gun with polarization
+  bool polarizedMuonGun = false;
+  //    a) do we have a muon gun? and b) is it polarized?
+  if(GetParticleDefinition() == G4MuonPlus::MuonPlus() || GetParticleDefinition() == G4MuonMinus::MuonMinus()){
+    if(GetParticlePolarization() != G4ThreeVector(0., 0., 0.)) polarizedMuonGun = true;
+  }
+
+  // 4) pion gun with V-A decay 
+  bool polarizedPionGun = false;
+  if(GetParticleDefinition() == G4PionPlus::PionPlus() || GetParticleDefinition() == G4PionMinus::PionMinus()){
+    // FIXME: Not sure if the following will identify that the pion V-A decay is on. Will need to revisit once the V-A decay has bin implemented.
+    if(table->FindProcess("DecayWithSpin",G4PionPlus::PionPlus()) && 
+       table->FindProcess("DecayWithSpin",G4PionMinus::PionMinus())){
+      polarizedPionGun = true;
+    }
+  }
+  
+  G4String message;
+  message = "";
+  bool throwException = false;
+  // Now let's check all cases
+  if(muonVAdecay){
+    message += "Muon V-A decay is on but\n";
+    if(!spin_tracking){
+      throwException = true;
+      message += "    - no spin tracking set\n";
+    }
+    
+    if(!polarizedMuonGun && !polarizedPionGun){
+      throwException = true;
+      message += "    - neither polarized muon gun nor pion gun with V-A pion decay\n";
+    }
+  } // muonDecay is on
+  if(throwException) throw cet::exception("G2GeneralParticleSource") << message.data();
+  
+  message = "";
+  if(spin_tracking){ 
+    message += "Spin tracking set but\n" ;
+    if(!muonVAdecay){
+      throwException = true;
+      message += "    - no muon V-A decay\n";
+    }
+    
+    if(!polarizedMuonGun && !polarizedPionGun){
+      throwException = true;
+      message += "    - neither polarized muon gun nor pion gun with V-A pion decay\n";
+    }
+  } // spin tracking is on
+  if(throwException) throw cet::exception("G2GeneralParticleSource") << message.data();
+
+  message = "";
+  if(polarizedMuonGun){
+    message += "Polarized muon gun but\n" ;
+   if(!spin_tracking){
+      throwException = true;
+      message += "    - no spin tracking set\n";
+    }
+
+    if(!muonVAdecay){
+      throwException = true;
+      message += "    - no muon V-A decay\n";
+    } 
+  }
+  if(throwException) throw cet::exception("G2GeneralParticleSource") << message.data();
+
+  message = "";
+  if(polarizedPionGun){
+    message += "Pion gun with V-A pion decay chosen but\n" ;
+    if(!spin_tracking){
+      throwException = true;
+      message += "    - no spin tracking set\n";
+    }
+
+    if(!muonVAdecay){
+      throwException = true;
+      message += "    - no muon V-A decay\n";
+    } 
+  }
+  if(throwException) throw cet::exception("G2GeneralParticleSource") << message.data();
+
+  
+  return;
+}
 
 void gm2ringsim::G2GeneralParticleSource::setParticleDefinition(std::string newValues){
   //FIXME: implement fShootIon
@@ -335,6 +448,12 @@ void gm2ringsim::G2GeneralParticleSource::DeleteaSource(G4int aV)
 
 void gm2ringsim::G2GeneralParticleSource::GeneratePrimaryVertex(G4Event* evt)
 {
+  // Let's first check that we have a consistent setup wrt spin tracking, polarization and V-A decays
+  if(!consistencyChecked){
+    checkForConsistency();
+    consistencyChecked = true;
+  }
+
   if (!multiple_vertex){
     if (sourceIntensity.size() > 1) {
       if (!normalised) IntensityNormalization();
