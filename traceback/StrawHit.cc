@@ -49,6 +49,7 @@ gm2ringsim::StrawHit::StrawHit(G4Step* step) :
   iss_sc >> straw;
 
   particle_name = step->GetTrack()->GetParticleDefinition()->GetParticleName();
+  parent_ID = step->GetTrack()->GetParentID();
   
   G4StepPoint* preStepPoint  = step->GetPreStepPoint();
   //G4StepPoint* postStepPoint = step->GetPostStepPoint();
@@ -99,5 +100,6 @@ void gm2ringsim::StrawHit::Print(){
   << " \n\t time: " << time
   << " \n\t position: " << position
   << " \n\t particle: " << particle_name
+  << " \n\t parentID: " << parent_ID
   << "\n";
 }

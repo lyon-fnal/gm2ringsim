@@ -53,14 +53,15 @@ namespace gm2ringsim {
         
         int tracebackNumber, strawNumber;
       
-        int e_true; 
-
+        std::string particle_name;
+        int parent_ID;
+      
         StrawArtRecord() :
         x_global(0.0), y_global(0.0), z_global(0.0), r_global(0.0),
         px_global(0.0),py_global(0.0),pz_global(0.0),
         x_local(0.0),y_local(0.0),z_local(0.0),
         px_local(0.0),py_local(0.0),pz_local(0.0),
-        time(0.0), trackID(0),volumeUID(0),tracebackNumber(0), strawNumber(0), e_true(0) {}
+        time(0.0), trackID(0),volumeUID(0),tracebackNumber(0), strawNumber(0), particle_name(), parent_ID(0) {}
         virtual ~StrawArtRecord() {}
         
         
@@ -69,7 +70,7 @@ namespace gm2ringsim {
         StrawArtRecord(float xglobal, float yglobal, float zglobal, float rglobal, float pxglobal, float pyglobal,
                            float pzglobal, float xLoc, float yLoc, float zLoc, float pxLoc,
                            float pyLoc, float pzLoc, float time_input, int trackID_input,
-                           int volumeUID_input, int traceback_number, int straw_number, int etrue ) :
+                       int volumeUID_input, int traceback_number, int straw_number, std::string particleName, int parentID ) :
         x_global(xglobal), y_global(yglobal), z_global(zglobal), r_global(rglobal), 
         px_global(pxglobal),py_global(pyglobal),pz_global(pzglobal),
         x_local(xLoc),y_local(yLoc),z_local(zLoc),
@@ -79,7 +80,8 @@ namespace gm2ringsim {
         volumeUID(volumeUID_input),
         tracebackNumber(traceback_number),
         strawNumber(straw_number),
-        e_true(etrue)
+        particle_name(particleName),
+        parent_ID(parentID)
         { }
 #endif //__GCCXML__
         

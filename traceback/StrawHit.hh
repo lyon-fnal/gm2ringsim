@@ -30,6 +30,7 @@ namespace gm2ringsim {
     G4int volumeUID;
     G4int traceback, straw;
     G4String particle_name;
+    G4int parent_ID;
     StrawHit(G4Step*);
     
     inline void* operator new(size_t);

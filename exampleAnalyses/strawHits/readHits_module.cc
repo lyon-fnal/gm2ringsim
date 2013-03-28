@@ -31,8 +31,10 @@ struct gm2ringsim::myTrack{
   std::vector<int> tracebackLocations;
   std::vector<int> trackID;
   std::vector<TVector3> position;
-  std::vector<int> is_e;
+  std::vector<std::string> particle_name;
+  std::vector<int> parentID;
 };
+
 
 // The class
 class gm2ringsim::readHits : public art::EDAnalyzer {
@@ -170,7 +172,6 @@ tree_dir_       ( p.get<std::string>("tree_dir"         ) )
   t_trackTree_->Branch("strawNumber",strawNumber,"strawNumber[9]/I");
   t_trackTree_->Branch("globalR",globalR,"globalR[9]/F");
   t_trackTree_->Branch("nplane",&nplane,"nplane/I");
-  t_trackTree_->Branch("is_e",is_e,"is_e[9]/I");
 
 }
 
@@ -233,8 +234,9 @@ void gm2ringsim::readHits::analyze(art::Event const &e) {
     track_info.strawPlanes.push_back(hdata.strawNumber);
     track_info.tracebackLocations.push_back(hdata.tracebackNumber);
     track_info.position.push_back(the_position);
-    track_info.trackID.push_back(hdata.trackID); 
-    track_info.is_e.push_back(hdata.e_true); 
+    track_info.trackID.push_back(hdata.trackID);
+    track_info.particle_name.push_back(hdata.particle_name);
+    track_info.parentID.push_back(hdata.parent_ID);
     t_hitTree_->Fill();
     
   }
@@ -243,11 +245,23 @@ void gm2ringsim::readHits::analyze(art::Event const &e) {
   it_tb = std::unique (track_info.tracebackLocations.begin(), track_info.tracebackLocations.end());
   track_info.tracebackLocations.resize( std::distance(track_info.tracebackLocations.begin(),it_tb) );
   
-  std::vector<int>::iterator it_ise;
-  it_ise = std::unique (track_info.is_e.begin(), track_info.is_e.end());
-  track_info.is_e.resize(std::distance(track_info.is_e.begin(),it_ise));
+  std::vector<std::string>::iterator it_partname;
+  it_partname = std::unique (track_info.particle_name.begin(), track_info.particle_name.end());
+  track_info.particle_name.resize(std::distance(track_info.particle_name.begin(),it_partname));
   
-  if(track_info.tracebackLocations.size() == 1 && track_info.is_e.size() == 1 && track_info.is_e[0] == 1){
+  std::vector<int>::iterator it_parentID;
+  it_parentID = std::unique (track_info.parentID.begin(), track_info.parentID.end());
+  track_info.parentID.resize(std::distance(track_info.parentID.begin(),it_parentID));
+  
+  bool is_one_traceback=false;
+  bool is_all_electrons=false;
+  bool is_muon_parent=false;
+  
+  if (track_info.tracebackLocations.size() == 1) is_one_traceback = true;
+  if (track_info.particle_name.size() == 1 && track_info.particle_name[0] == "e-") is_all_electrons = true;
+  if (track_info.parentID.size() == 1 && track_info.parentID[0] == 1) is_muon_parent = true;
+  
+  if(is_one_traceback && is_all_electrons && is_muon_parent){
  	 for(int plane= 0; plane!=9; ++plane){
     	strawNumber[plane] = 0;
         is_e[plane]=0;

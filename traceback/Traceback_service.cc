@@ -203,9 +203,10 @@ void gm2ringsim::Traceback::doFillEventWithArtHits(G4HCofThisEvent * hc) {
       // Copy this hit into the Art hit
     //float my_r;
     //std::cout<<"The number of events in the geantHits is: "<<geantHits.size()<<std::endl;
-    int is_e = 0;
+    //int is_e = 0;
     for ( auto e : geantHits ) {
-      if(e->particle_name == "e-") is_e = 1;
+      //if(e->particle_name == "e-") is_e = 1;
+  
       e->Print();
       //std::cout<<"The event number is: "<<i<<std::endl;
       //e->Print();
@@ -222,7 +223,7 @@ void gm2ringsim::Traceback::doFillEventWithArtHits(G4HCofThisEvent * hc) {
                                 e->volumeUID,
                                 e->traceback,
                                 e->straw,
-                                is_e);
+                                e->particle_name, e->parent_ID);
       i++;
       
     } //loop over geantHits
