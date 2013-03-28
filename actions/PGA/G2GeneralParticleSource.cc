@@ -4,6 +4,7 @@
     Source.
 
     - Zach Hartwig 2005
+    - Moved to ART 2012, Brendan Kiburg
 */
 
 
@@ -12,9 +13,8 @@
 #include "gm2ringsim/actions/PGA/G2GeneralParticleSource.hh"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-
-gm2ringsim::G2GeneralParticleSource::G2GeneralParticleSource()
-  : settings_("G2GPSSettings"), //This should be in the fcl:
+gm2ringsim::G2GeneralParticleSource::G2GeneralParticleSource(std::string set)
+  : settings_(set), //This should be in the fcl:
     multiple_vertex(false), 
     bypass_gps(false),
     muonGasGunLongitudinalDistrDefault("e989"),

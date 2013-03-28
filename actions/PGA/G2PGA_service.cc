@@ -42,7 +42,8 @@ using std::endl;
 // Constructor
 gm2ringsim::G2PGA::G2PGA(fhicl::ParameterSet const& p, art::ActivityRegistry&) :
   artg4::PrimaryGeneratorActionBase(p.get<std::string>("name")),
-  settings_("G2GPSSettings"),
+  G2GPSString_("G2GPSSettings"),
+  settings_(G2GPSString_),
   //par_g2GPS_(p.get<fhicl::ParameterSet>("G2GPSSettings", fhicl::ParameterSet())),
   gps_( 0 )     // Must not intialize here because Geant isn't ready yet
 {}

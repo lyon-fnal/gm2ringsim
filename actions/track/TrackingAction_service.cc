@@ -89,6 +89,14 @@ void gm2ringsim::TrackingAction::fillEventWithArtStuff(art::Event & e)
 
   // Make a unique pointer for the tracking object
   e.put(std::move(myArtHits_));
+  
+  // myArtHits should now be invalid and set to nullptr. But in fact
+  // due to https://cdcvs.fnal.gov/redmine/issues/3601 this does not happen.
+  // So need to do a release to avoid a segfault
+  myArtHits_.release();
+  
+  // Point to a new valid collection
+  myArtHits_.reset( new TrackingActionArtRecordCollection() );
 }
 
 using gm2ringsim::TrackingAction;

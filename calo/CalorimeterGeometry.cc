@@ -1,10 +1,12 @@
-//
-//  CalorimeterGeometry.cc
-//  gm2ringsim
-//
-//  Created by Lawrence Gibbons on 12/15/12.
-//  Copyright (c) 2012 Cornell University. All rights reserved.
-//
+/** @file CalorimeterGeometry.cc
+ 
+    @author Lawrence Gibbons
+    @date 2012
+ 
+    @author Robin Bjorkquist
+    @date 2013
+ 
+*/
 
 // Geant includes
 #include "Geant4/globals.hh"
@@ -38,6 +40,7 @@ gm2ringsim::CalorimeterGeometry::CalorimeterGeometry(std::string const & detName
   photodetectorColor(    p.get<std::vector<double>>("photodetectorColor")  ),
   opticalCouplingColor(  p.get<std::vector<double>>("opticalCouplingColor")),
   wrappingColor(         p.get<std::vector<double>>("wrappingColor")       ),
+  killShowers(           p.get<bool>("killShowers")                 ),
   radial(0),
   vertical(0),
   thickness(0)
@@ -45,13 +48,19 @@ gm2ringsim::CalorimeterGeometry::CalorimeterGeometry(std::string const & detName
     //Derived quantities
     
     // a volume with these parameters will  bound the enclosed crystals, 
-    // including gaps, tightly.  To allow you to see particles before they
-    // entry the PbF2, the calo mother volume must be defined including the
-    // extra crystalCalBuffer space.  Note that we must include a gap outside
-    // the crystals as well as between the crystals
-    radial   = (nXtalCols * xtalWidth ) + (nXtalCols * wrappingGap);
-    vertical = (nXtalRows * xtalWidth ) + (nXtalRows * wrappingGap);
-    thickness = xtalDepth + opticalCouplingDepth + photodetectorDepth;
+    // including gaps, tightly. In order to define wrapping materials via
+    // optical surfaces, we must include a wrappingGap on all sides of the
+    // crystal (except the back, where the optical coupling volume must be
+    // flush with the crystal volume).
+    
+    // To allow you to see particles before they enter the PbF2, the calo
+    // mother volume must have these dimensions PLUS an extra crystalCaloBuffer
+    // space, so that all particles entering the calorimeter will pass through
+    // the calo volume (and activate the CaloSD) before entering any sub-volume.
+    
+    radial   = ( nXtalCols * xtalWidth ) + ( (nXtalCols+1) * wrappingGap );
+    vertical = ( nXtalRows * xtalWidth ) + ( (nXtalRows+1) * wrappingGap );
+    thickness = wrappingGap + xtalDepth + opticalCouplingDepth + photodetectorDepth;
 }
 
 void gm2ringsim::CalorimeterGeometry::print() {
@@ -73,11 +82,16 @@ void gm2ringsim::CalorimeterGeometry::print() {
     oss << "  photodetectorDepth =   " << photodetectorDepth   << "\n";
     oss << "  opticalCouplingDepth = " << opticalCouplingDepth << "\n";
     
-    oss << "  displayCalorimeterBox = " << displayCalorimeterBox << "\n";
-    oss << "  calorimeterColor: "; for (auto entry : calorimeterColor) { oss << " " << entry; }; oss << "\n";
-    oss << "  xtalColor:        "; for (auto entry : xtalColor) { oss << " " << entry; }; oss << "\n";
-    oss << "  xtalColor:        "; for (auto entry : xtalColor) { oss << " " << entry; }; oss << "\n";
+    oss << "  displayCalorimeterBox =  " << displayCalorimeterBox << "\n";
+    oss << "  displayWrappingVolumes = " << displayWrappingVolumes << "\n";
+    oss << "  displayCrystalArray =    " << displayCrystalArray << "\n";
+    oss << "  calorimeterColor:     "; for (auto entry : calorimeterColor) { oss << " " << entry; }; oss << "\n";
+    oss << "  xtalColor:            "; for (auto entry : xtalColor) { oss << " " << entry; }; oss << "\n";
+    oss << "  photodetectorColor:   "; for (auto entry : photodetectorColor) { oss << " " << entry; }; oss << "\n";
+    oss << "  opticalCouplingColor: "; for (auto entry : opticalCouplingColor) { oss << " " << entry; }; oss << "\n";
+    oss << "  wrappingColor:        "; for (auto entry : wrappingColor) { oss << " " << entry; }; oss << "\n";
     
+    oss << "  killShowers = " << killShowers << "\n";
 	
     mf::LogInfo("CALORIMETERGEOMETRY") << oss.str();
     

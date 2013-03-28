@@ -23,6 +23,7 @@
 #include "artg4/Core/DetectorBase.hh"
 
 #include "gm2ringsim/common/ring/RingArtRecord.hh"
+#include "gm2ringsim/common/ring/ring_util.hh"
 
 // Within a namespace
 namespace gm2ringsim {
@@ -55,9 +56,8 @@ namespace gm2ringsim {
     // Actually add the data to the event
      virtual void doFillEventWithArtHits(G4HCofThisEvent * hc) override;
 
-    RingArtRecord convert(RingHit* );
-
   };
-}
+
+}//namespace gm2ringsim
 
 #endif //RING_SERVICE_HH

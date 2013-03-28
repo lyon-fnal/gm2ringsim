@@ -325,10 +325,7 @@ void gm2ringsim::Quad::buildInnerOuterSupports(G4int quadRegion, G4int sectionTy
 			  ptr -> GetLogicalVolume(),
 			  false,
 			  0);
-
-
    }
-
 }
 
 void gm2ringsim::Quad::buildInnerOuterSupportsSandL(G4int quadRegion, G4int sectionType) { 
@@ -444,9 +441,6 @@ void gm2ringsim::Quad::buildInnerOuterSupportsSandL(G4int quadRegion, G4int sect
       genericOuterSupport_L_[quadRegion][sectionType][sPair]->SetSensitiveDetector( ringSD );
       
   } // Loop overs supportPairs
-  
-
-
 }
 
 // Placeholder to possible implement the top/bottom quadrupole plate
@@ -470,9 +464,6 @@ void gm2ringsim::Quad::assignFieldManagers(){
         genericQuadRegion_L_[i][j]->
           SetFieldManager(withSpin_[i][j], true);
       }
-
-
-
 }
 
 void gm2ringsim::Quad::buildFieldManagers(G4int quadRegion, G4int sectionType) {
@@ -506,20 +497,9 @@ void gm2ringsim::Quad::buildFieldManagers(G4int quadRegion, G4int sectionType) {
   
 }
 
-
-
-
 // CHANGE_ME: You can delete the below if this detector creates no data
 
 // Declare to Art what we are producing
-//void gm2ringsim::Quad::doCallArtProduces(art::EDProducer * producer) {
-
-//}
-
-// Actually add the data to the event
-//void gm2ringsim::Quad::doFillEventWithArtHits(G4HCofThisEvent * hc) {
-    
-//}
 
 gm2ringsim::Quad::plate_params::
 plate_params() :

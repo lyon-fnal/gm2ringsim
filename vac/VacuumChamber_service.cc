@@ -23,7 +23,7 @@ gm2ringsim::VacuumChamber::VacuumChamber(fhicl::ParameterSet const & p, art::Act
 	       p.get<std::string>("category", "vac"),
 	       p.get<std::string>("mother_category", "arc")),
   turnCounterSDName_("TurnCounter"),
-  trackerSDName_("Tracker"),
+  trackerSDName_("TrackerSD"),
   turnSD_(0),   // will set below
   trackerSD_(0), // will set below
   wallLVs_()
@@ -348,6 +348,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::VacuumChamber::doPlaceToPVs( std::v
   
   return chamberPVs;
 }
+
 
 using gm2ringsim::VacuumChamber;
 DEFINE_ART_SERVICE(VacuumChamber)

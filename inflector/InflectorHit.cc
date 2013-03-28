@@ -20,6 +20,7 @@
 #include "Geant4/G4Navigator.hh" 
 
 #include "gm2ringsim/inflector/InflectorHit.hh"
+
 //FIXME: do i need this?#include "g2UniqueObjectManager.rhh"
 namespace gm2ringsim {
   G4Allocator<InflectorHit> InflectorHitAllocator;

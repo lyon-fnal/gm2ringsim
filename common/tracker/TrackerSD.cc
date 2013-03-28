@@ -55,9 +55,9 @@ void gm2ringsim::TrackerSD::Initialize(G4HCofThisEvent* HCoTE){
     G4int const spinHCID =
       G4SDManager::GetSDMpointer()->GetCollectionID(spinHC_);
   
-    G4cout << "In TrackerSD::Initialize():\n";
-    G4cout << trackerHCID << '\n';
-    G4cout << spinHCID << '\n';
+    //G4cout << "In TrackerSD::Initialize():\n";
+    //G4cout << trackerHCID << '\n';
+    //G4cout << spinHCID << '\n';
     
   // Add to HCoTE
   HCoTE->AddHitsCollection( trackerHCID, trackerHC_ );
