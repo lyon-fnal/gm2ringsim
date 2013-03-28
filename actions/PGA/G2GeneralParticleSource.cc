@@ -118,8 +118,16 @@ void gm2ringsim::G2GeneralParticleSource::setParticleDefinition(std::string newV
     { printf("identified that we have muplus particles\n");
       newValues = "mu+";
     }
-  
-  const G4String name = "mu-";
+  if (!strcmp(newValues.c_str(),"piminus"))
+    { printf("identified that we have piminus particles\n");
+      newValues = "pi-";
+    }
+  if (!strcmp(newValues.c_str(),"piplus"))
+    { printf("identified that we have piplus particles\n");
+      newValues = "pi+";
+    }
+    
+  const G4String name = G4String(newValues);
   G4ParticleDefinition* pd = particleTable_->FindParticle(name);
   if(pd != NULL)
     {
