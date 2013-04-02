@@ -8,6 +8,9 @@
 
 gm2ringsim::OctGeometry::OctGeometry(std::string const & detName) :
   GeometryBase(detName),
+  period( p.get<double>("period")* microsecond),
+  gradient( p.get<double>("gradient")*gauss/cm3),
+  offset(p.get<double>("offset")*ns),
   whichSector( p.get<double>("whichSector") * mm),
   fieldRad( p.get<double>("fieldRad") * cm),
   fieldStartPhi( p.get<double>("fieldStartPhi") * degree),
@@ -52,6 +55,9 @@ gm2ringsim::OctGeometry::OctGeometry(std::string const & detName) :
 
 void gm2ringsim::OctGeometry::print() const { 
   std::ostringstream oss;
+  oss<<"  period=" << period<< "\n";
+  oss<<"  gradient=" << gradient<<"\n";
+  oss<<"  offset="  << offset <<"\n";
 oss << "  whichSector=" << whichSector << "\n";
 oss << "  fieldRad=" << fieldRad << "\n";
 oss << "  fieldStartPhi=" << fieldStartPhi << "\n";
