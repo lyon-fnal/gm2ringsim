@@ -1,0 +1,72 @@
+{
+    "default_station" : {
+	"format_version" : 1,
+	"front_plate" : {
+	    "create" : false,
+	    "thickness" : 1,
+	    "material" : "Vacuum"
+	}, 
+	"hodo_front_plane" : {
+	    "create" : false,
+	    "thickness" : 1,
+	    "vertical_orientation" : true,
+	    "num_staves" : 21,
+	    "material" : "BC404Scintillator"
+	},
+	"mid_plate" : {
+	    "create" : false,
+	    "thickness" : 1,
+	    "material" : "Vacuum"
+	}, 
+	"hodo_rear_plane" : {
+	    "create" : false,
+	    "thickness" : 1,
+	    "vertical_orientation" : false,
+	    "num_staves" : 15,
+	    "material" : "BC404Scintillator"
+	},
+	"back_plate" : {
+	    "create" : false,
+	    "thickness" : 1,
+	    "material" : "Vacuum"
+	}, 
+	"gap" : {
+	    "create" : false,
+	    "thickness" : 1,
+	    "material" : "Vacuum"
+	}, 
+	"calorimeter" : {
+	    "model" : "default",
+	    "thickness" : 150.,
+	    "radial" : 210.,
+	    "vertical" : 150.,
+	    "n_xtal_rows" : 5,
+	    "n_xtal_cols" : 7,
+	    "xtal_width" : 30.,
+	    "xtal_height" : 30.,
+	    "xtal_depth" : 140.,
+	    "epsilon" : 0.1,
+	    "epoxy_depth" : 0.1,
+	    "pmt_depth" : 5.,
+	    "front_face_wrapping" : "Black",
+	    "side_face_wrapping" : "Black",
+	    "back_face_wrapping" : "Open",
+	    "photodetector_shape" : "Square",
+	    "photodetector_size" : 12,
+	    "tapered" : false
+	},
+	"final_plate" : {
+	    "create" : false,
+	    "thickness" : 1,
+	    "material" : "Vacuum"
+	},
+	"station" : {
+	    "t_offset" : 0.,
+	    "r_offset" : 0.,
+	    "v_offset" : 0.,
+	    "t_rotation" : 0.,
+	    "r_rotation" : 0.,
+	    "v_rotation" : 0.
+	}
+    }
+}
