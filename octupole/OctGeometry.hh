@@ -14,6 +14,14 @@ namespace gm2ringsim {
   struct OctGeometry : public artg4::GeometryBase {
     OctGeometry(std::string const &);
     void print() const;
+    //octupole field
+
+    const double period;
+    const double gradient;
+    const double offset;
+
+    //octupole construction
+
     const int whichSector;
     const double fieldRad;
     const double fieldStartPhi;
