@@ -888,6 +888,7 @@ void gm2ringsim::Inflector::rebuildEOM(){
 void gm2ringsim::Inflector::assignFieldManager(){
   inflectorFieldManager_ -> SetDetectorField(inflectorMagField_);
   inflectorFieldManager_ -> SetChordFinder(iChordFinder_);
+  launchFieldManager_ ->SetChordFinder(iChordFinder_);
   inflector_L_ ->SetFieldManager(inflectorFieldManager_, true);
   launchRegion_L_ ->SetFieldManager(launchFieldManager_, true);
 }
