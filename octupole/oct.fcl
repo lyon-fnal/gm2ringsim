@@ -5,6 +5,11 @@ BEGIN_PROLOG
 
 oct_geom : {	
 
+  // octupole field parameters
+  period : 20 //microsecond
+  gradient : 0.4 // gauss/cm3
+  offset : 0 //ns
+
   // Numbers generally from Koop et. al.  See documentation NIM
   // directory (even though it's not a NIM)
 
