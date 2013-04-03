@@ -19,7 +19,11 @@
 #include <cmath>
 
 gm2ringsim::OctupoleField::OctupoleField() : 
-  period_(20*microsecond), gradient_(0.4*gauss/cm3) {}
+  octGeom_("octupole"),
+  period_(octGeom_.period),
+  offset_(octGeom_.offset),
+  gradient_(octGeom_.gradient)
+{}
 
 void gm2ringsim::OctupoleField::GetFieldValue( double const Point[4], 
 				   double Bfield[3] ) const {

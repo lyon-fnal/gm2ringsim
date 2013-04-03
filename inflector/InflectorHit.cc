@@ -100,8 +100,8 @@ void gm2ringsim::InflectorHit::Draw(){
 //#include "rootStorageManager.hh"
 
 void gm2ringsim::InflectorHit::Print(){
-  G4cout << " volumeUID: " << volumeUID
-	 << " time: " << time
+  G4cout //FIXME: need volumeUID before I can print it<< " volumeUID: " << volumeUID
+    << " time: " << time
 	 << " position: " << position
 	 << "\n";
 }
