@@ -167,14 +167,6 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
 
 }
 
-
-//i want to take a vector of traceback locations [1,3,5] for example.
-//for each of those locations I want to put two straw chambers (planes for now)
-//those straw chambers should be at 20mm on either side of the edges of the box
-//they should be 5mm thick
-
-// CHANGE_ME: You can delete the below if this detector creates no data
-
 // Declare to Art what we are producing
 void gm2ringsim::Traceback::doCallArtProduces(art::EDProducer * producer) {
   producer->produces<StrawArtRecordCollection>(category());
@@ -200,20 +192,13 @@ void gm2ringsim::Traceback::doFillEventWithArtHits(G4HCofThisEvent * hc) {
   if (NULL != myCollection) {
     std::vector<StrawHit*> geantHits = *(myCollection->GetVector());
     int i = 0;
-      // Copy this hit into the Art hit
-    //float my_r;
-    //std::cout<<"The number of events in the geantHits is: "<<geantHits.size()<<std::endl;
-    //int is_e = 0;
+    // Copy this hit into the Art hit
     for ( auto e : geantHits ) {
-      //if(e->particle_name == "e-") is_e = 1;
   
       e->Print();
-      //std::cout<<"The event number is: "<<i<<std::endl;
-      //e->Print();
+      
       // Copy this hit into the Art hit
-      //std::cout<<"The Hit in position.x(): "<<e->position.x()<<std::endl;
-      //std::cout<<"The position in r: "<<e->position.r()<<std::endl;
-      //my_r = sqrt(e->position.x()*e->position.x() + e->position.z()*e->position.z());
+     
       myArtHits->emplace_back( e->position.x(),e->position.y(),e->position.z(),e->position.r(),
                                 e->local_position.x(),e->local_position.y(), e->local_position.z(),
                                 e->momentum.x(),e->momentum.y(),e->momentum.z(),
