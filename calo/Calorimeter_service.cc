@@ -551,13 +551,13 @@ void gm2ringsim::Calorimeter::doFillEventWithCaloHits(G4HCofThisEvent * hc) {
             myArtHits->emplace_back( e->turnNum,
                                     e->caloNum,
                                     e->trackID,
-                                    e->local_pos.x(), // radial coordinate
-                                    e->local_pos.z(), // thickness coordinate
-                                    e->local_pos.y(), // vertical coordinate
+                                    e->global_pos.x(), // radial coordinate
+                                    e->global_pos.y(), // thickness coordinate
+                                    e->global_pos.z(), // vertical coordinate
                                     e->time,
-                                    e->local_mom.x(),
-                                    e->local_mom.z(),
-                                    e->local_mom.y() );
+                                    e->global_mom.x(),
+                                    e->global_mom.y(),
+                                    e->global_mom.z() );
         }
     }
     else {
