@@ -434,7 +434,7 @@ std::vector<G4LogicalVolume *> gm2ringsim::Calorimeter::doBuildLVs() {
     caloSD_->KillShowers(caloGeom.killShowers);
     
     // make sure sensitive detectors have the right number of xtals/photodetectors
-    int nCalo = 24;
+    int nCalo = caloGeom.nCalorimeters;
     int nXtals = nCalo * caloGeom.nXtalRows * caloGeom.nXtalCols;
     xtalSD_->setXtalNum(nXtals);
     photodetectorSD_->setPhotodetectorNum(nXtals);
@@ -443,7 +443,7 @@ std::vector<G4LogicalVolume *> gm2ringsim::Calorimeter::doBuildLVs() {
     std::vector<G4LogicalVolume*> calorimeterLVs;
     
     // Build the logical volumes
-    for ( unsigned int calorimeterNumber = 0; calorimeterNumber != 24; ++calorimeterNumber ) {
+    for (  int calorimeterNumber = 0; calorimeterNumber != nCalo; ++calorimeterNumber ) {
         // Push this into the vector
         calorimeterLVs.push_back( makeCalorimeterLV(caloGeom, calorimeterNumber ));
     }
