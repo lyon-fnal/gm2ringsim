@@ -1,0 +1,45 @@
+
+services : {
+  TFileService: {
+    fileName: "test-filter.root"
+  }
+}
+
+process_name: findGoodTracks
+
+source: {
+   module_type: RootInput
+   maxEvents:  -1
+   fileNames: [ "gm2ringsimout-5000-infgun.root" ]
+}
+
+physics: {
+
+  filters: {
+    goodStrawHit: {
+      module_type: GoodStrawHits
+      hist_dir: ""
+      tree_dir: ""
+      strawHitModuleLabel: artg4
+      strawInstanceName: "traceback"
+    }
+  }
+  
+  pathA: [ goodStrawHit ]
+  outA: [ goodTrackWriter ]
+  trigger_paths: [ pathA ]
+  end_paths: [ outA ]
+
+}
+
+outputs:
+{
+  goodTrackWriter:
+  {
+    module_type: RootOutput
+    fileName: "goodTrack_passes.root"
+    # Write all the events for which pathA ended with 'true' from filtering.
+    # Events which caused an exception throw will not be written.
+    SelectEvents: { SelectEvents: [ "pathA" ] }
+  }
+}
