@@ -10,7 +10,7 @@ process_name: findGoodTracks
 source: {
    module_type: RootInput
    maxEvents:  -1
-   fileNames: [ "gm2ringsimout-5000-infgun.root" ]
+   fileNames: [ "gm2ringsimout-10000-infgun.root" ]
 }
 
 physics: {

@@ -3,7 +3,7 @@ process_name: analyzeTracks
 source: {
    module_type: RootInput
    maxEvents:  -1
-   fileNames: [ "pathA_passes.root" ]
+   fileNames: [ "goodTrack_passes.root" ]
 }
 
 physics: {
@@ -12,8 +12,8 @@ physics: {
       module_type: TrackReconstruct
       hist_dir: ""
       tree_dir: ""
-      hitModuleLabel: artg4
-      instanceName: "traceback"
+      trackModuleLabel: artg4
+      trackInstanceName: "traceback"
     }
   }
   path1: [ trackReconstruct ]

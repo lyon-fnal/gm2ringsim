@@ -107,18 +107,20 @@ bool gm2ringsim::GoodStrawHits::filter(art::Event & e)
   bool is_all_electrons=false;
   bool is_muon_parent=false;
   bool is_in_order = false;
+  bool is_nHits_gt4_lt10 = false;
   
   std::vector<int> strawNumberCompare = track_info.strawPlanes;
   
   std::sort(strawNumberCompare.begin(),strawNumberCompare.end());
   
   if(strawNumberCompare == track_info.strawPlanes) is_in_order = true;
+  if(track_info.strawPlanes.size() > 4 && track_info.strawPlanes.size() < 10) is_nHits_gt4_lt10 = true;
   
   if (track_info.tracebackLocations.size() == 1) is_one_traceback = true;
   if (track_info.particle_name.size() == 1 && track_info.particle_name[0] == "e-") is_all_electrons = true;
   if (track_info.parentID.size() == 1 && track_info.parentID[0] == 1) is_muon_parent = true;
   
-  if(is_one_traceback && is_all_electrons && is_muon_parent && is_in_order) return true;
+  if(is_one_traceback && is_all_electrons && is_muon_parent && is_in_order && is_nHits_gt4_lt10) return true;
   else return false;
 
   
