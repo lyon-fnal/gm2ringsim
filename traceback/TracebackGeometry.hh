@@ -17,21 +17,21 @@ namespace gm2ringsim {
     
     void print() const;
 
-    const double r;
-    const double v;
-    const double t;
-    const double rIn;
-    const double rOut;
-    const double windowAngle;
-    std::vector<double> thetaOut;
-    const double tOffset;
-    const double rOffset;
-    const double vOffset;
-    const double tRotation;
-    const double rRotation;
-    const double vRotation;
+    //const double r;
+    //const double v;
+    //const double t;
+    //const double rIn;
+    //const double rOut;
+    //const double windowAngle;
+    //std::vector<double> thetaOut;
+    //const double tOffset;
+    //const double rOffset;
+    //const double vOffset;
+    //const double tRotation;
+    //const double rRotation;
+    //const double vRotation;
     const double tracebackZ;
-    const double tracebackTheta;
+    //const double tracebackTheta;
     std::vector<double> strawLocation;
     std::vector<double> strawRadialExtent;
     std::vector<double> strawRadialExtentHalf;
@@ -43,12 +43,12 @@ namespace gm2ringsim {
     
 
     //Derived constants
-    double rC;
-    double thetaIn[2];
-    double thetaC[2];
+    //double rC;
+    //double thetaIn[2];
+    //double thetaC[2];
     double tracebackZHalf;
-    double tracebackThetaHalf;
-    double tanTracebackRadialShiftAngle;
+    //double tracebackThetaHalf;
+    //double tanTracebackRadialShiftAngle;
 
   };
 

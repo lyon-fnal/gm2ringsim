@@ -52,6 +52,9 @@ gm2ringsim::SimpleInflectorField::SimpleInflectorField(G4double fieldNormConstan
   inflectorTotalLength = ig.length();
 
   // Read in the default inflector axial field map
+  // FIXME: Should use ART file i/o to get the .dat files 
+  // FIXME: Should copy *.dat from every directory to the build directory ala *.fcl
+  
   fieldMapFName = "g2RunTimeFiles/g2InflectorFieldMap.dat";
   readInflectorFieldMap.open(fieldMapFName);
   

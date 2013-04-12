@@ -31,34 +31,29 @@ gm2ringsim::StrawHit::StrawHit(G4Step* step) :
     trackID(step->GetTrack()->GetTrackID()) //,
     //FIXME  volumeUID(get_uid(step->GetPreStepPoint()->GetPhysicalVolume()))
 {
-    /*G4StepPoint* preStepPoint = step->GetPreStepPoint();
-    G4TouchableHandle theTouchable = preStepPoint->GetTouchableHandle();
-    G4ThreeVector worldPosition = preStepPoint->GetPosition();
-    
-    const G4NavigationHistory *history =  theTouchable->GetHistory();
-        
-    G4ThreeVector myPoint = position;
-    G4Navigator* theNavigator = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
-    G4VPhysicalVolume* myVolume = theNavigator->LocateGlobalPointAndSetup(myPoint);
-    //FIXME: printing this since it is needed to compile
-    G4cout << "Volume Name = " << myVolume->GetName() << G4endl;
-    
-    local_momentum = momentum;
-    
-    G4int start = history->GetDepth();
-    G4int depth = start;
-    G4VPhysicalVolume *vol = history->GetVolume(depth);
-    if ( 1 ) {
-        if ( vol ) {
-            G4RotationMatrix rotInv = history->GetTransform(depth).NetRotation().inverse();
-            local_momentum = local_momentum.transform(rotInv); //.transform(rotM);
-            local_position = history->GetTransform(depth).TransformPoint(worldPosition);
-            
-        }
-    }*/
+  // The name is HARP[m].fiber[n] or HARP[m].support[n]
+  std::string name = step->GetPreStepPoint()->GetPhysicalVolume()->GetName();
   
+  // get traceback number
+  std::string::size_type left_tb = name.find_first_of('[');
+  std::string::size_type right_tb = name.find_first_of(']');
+  std::string num_tb(name, left_tb+1, right_tb-1);
+  std::istringstream iss_tb(num_tb);
+  iss_tb >> traceback;
   
-  G4StepPoint* preStepPoint = step->GetPreStepPoint();
+  // get straw chamber number
+  std::string::size_type left_sc = name.find_last_of('[');
+  std::string::size_type right_sc = name.find_last_of(']');
+  std::string num_sc(name, left_sc+1, right_sc-1);
+  std::istringstream iss_sc(num_sc);
+  iss_sc >> straw;
+
+  particle_name = step->GetTrack()->GetParticleDefinition()->GetParticleName();
+  parent_ID = step->GetTrack()->GetParentID();
+  
+  G4StepPoint* preStepPoint  = step->GetPreStepPoint();
+  //G4StepPoint* postStepPoint = step->GetPostStepPoint();
+  
   G4TouchableHandle theTouchable = preStepPoint->GetTouchableHandle();
   //position in world coordinates
 
@@ -78,7 +73,7 @@ gm2ringsim::StrawHit::StrawHit(G4Step* step) :
     local_position = history->GetTransform(depth).TransformPoint(worldPosition);
   }
   
-    }
+}
 
 
 void gm2ringsim::StrawHit::Draw(){
@@ -104,5 +99,7 @@ void gm2ringsim::StrawHit::Print(){
   " \n\tvolumeUID: " << volumeUID
   << " \n\t time: " << time
   << " \n\t position: " << position
+  << " \n\t particle: " << particle_name
+  << " \n\t parentID: " << parent_ID
   << "\n";
 }
