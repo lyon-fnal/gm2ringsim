@@ -1,0 +1,20 @@
+{
+    "default_traceback" : {
+	"format_version" : 1,
+	"straw_plane" : {
+	    "create" : true,
+	    "thickness" : 30,
+	    "vertical_orientation" : true,
+	    "num_staves" : 1,
+	    "material" : "Vacuum"
+	},
+	"traceback" : {
+	    "t_offset" : 0.,
+	    "r_offset" : -10.0.,
+	    "v_offset" : 0.,
+	    "t_rotation" : 0.,
+	    "r_rotation" : 0.0,
+	    "v_rotation" : -3.0.
+	}
+    }
+}

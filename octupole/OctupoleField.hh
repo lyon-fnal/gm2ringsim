@@ -14,6 +14,7 @@
  */
 
 #include "Geant4/G4MagneticField.hh"
+#include "gm2ringsim/octupole/OctGeometry.hh"
 
 #include <utility>
 
@@ -53,6 +54,7 @@ namespace gm2ringsim {
     double gradient() const { return gradient_; }
     
   private:
+    OctGeometry octGeom_;
     double period_, offset_, gradient_;
   }; // class OctupoleField
   
