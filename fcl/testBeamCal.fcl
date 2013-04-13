@@ -72,7 +72,12 @@ services: {
 
     ClockAction: {}
 
-    SimpleParticleSource: {}
+    SimpleParticleSource: {
+      particleType: "e+"
+      energy: 3.0
+      direction: [1.0, 0.0, 0.0]
+      position: [-200.0, 0.0, 0.0]
+    }
 
     // Detectors
     World: {}	
@@ -107,10 +112,11 @@ physics: {
   end_paths: [ stream1 ]
 }
 
-services.user.Geometry.world.world_x: 100
-services.user.Geometry.world.world_y: 100
-services.user.Geometry.world.world_z: 100
+services.user.Geometry.world.world_x: 300
+services.user.Geometry.world.world_y: 300
+services.user.Geometry.world.world_z: 300
 
- services.user.Calorimeter.mother_category : world
- services.user.Geometry.calorimeter.nCalorimeters : 1
+services.user.Calorimeter.mother_category : world
+services.user.Calorimeter.stationGeomName : station
+services.user.Geometry.calorimeter.nCalorimeters : 1
 

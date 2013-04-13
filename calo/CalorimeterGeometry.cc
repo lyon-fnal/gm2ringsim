@@ -62,6 +62,7 @@ gm2ringsim::CalorimeterGeometry::CalorimeterGeometry(std::string const & detName
     radial   = ( nXtalCols * xtalWidth ) + ( (nXtalCols+1) * wrappingGap );
     vertical = ( nXtalRows * xtalWidth ) + ( (nXtalRows+1) * wrappingGap );
     thickness = wrappingGap + xtalDepth + opticalCouplingDepth + photodetectorDepth;
+  
 }
 
 void gm2ringsim::CalorimeterGeometry::print() {

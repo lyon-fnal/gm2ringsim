@@ -50,10 +50,15 @@ gm2ringsim::Calorimeter::Calorimeter(fhicl::ParameterSet const & p, art::Activit
              p.get<std::string>("name", "calorimeter"),
              p.get<std::string>("category", "calorimeter"),
              p.get<std::string>("mother_category", "station")),
+    stationGeomName_(p.get<std::string>("stationGeomName", "")), // Use if the mother category isn't a station (e.g. test beam)
     caloSD_(0),
     xtalSD_(0),
     photodetectorSD_(0)
-{}
+{
+  if ( stationGeomName_.empty() ) {
+    stationGeomName_ = motherCategory();
+  }
+}
 
 G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeometry& caloGeom, int calorimeterNumber ) {
     
@@ -465,7 +470,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Calorimeter::doPlaceToPVs( std::vec
     //      +y downstream into calorimeter
     //      +z vertical down
     
-    StationGeometry stationGeom(motherCategory());
+    StationGeometry stationGeom(stationGeomName_);
     CalorimeterGeometry caloGeom(myName());
     
 /*    if ( stations.size() != lvs().size() ) {
