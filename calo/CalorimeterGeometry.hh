@@ -22,7 +22,10 @@ namespace gm2ringsim{
         
         CalorimeterGeometry(std::string const &);
         void print();
-        
+      
+        // Number of calorimeters (defaults to 24)
+        const int nCalorimeters;
+      
         // crystal array and inter-crystal gap (for "wrapping")
         const int nXtalRows;
         const int nXtalCols;

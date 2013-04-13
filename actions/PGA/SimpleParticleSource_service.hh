@@ -27,6 +27,11 @@ namespace gm2ringsim
     
   private:
     G4ParticleGun* particleGun_;
+    
+    std::string particleType_;
+    double energy_;
+    std::vector<double> direction_;
+    std::vector<double> position_;
   };
 }
 #endif
