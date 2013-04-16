@@ -427,8 +427,9 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
 std::vector<G4LogicalVolume *> gm2ringsim::Calorimeter::doBuildLVs() {
     
     // create the calorimeter geometry, which initializes itself from the parameter set
-    CalorimeterGeometry caloGeom(myName());
-    caloGeom.print();
+  //  CalorimeterGeometry caloGeom(myName()); // "calorimeter" is the default parameter
+  CalorimeterGeometry caloGeom; // "calorimeter" is the default parameter
+  caloGeom.print();
     
     // sensitive detectors
     caloSD_ = artg4::getSensitiveDetector<CaloSD>(getCaloName());

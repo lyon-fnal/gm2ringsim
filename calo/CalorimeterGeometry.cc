@@ -15,7 +15,9 @@
 #include "gm2ringsim/common/conversions.hh"
 
 #include "CalorimeterGeometry.hh"
-
+// Calling the delegated constructor in the initialization list is a nice feature in C++11
+//gm2ringsim::CalorimeterGeometry::CalorimeterGeometry() : CalorimeterGeometry("calorimeter"){ }
+  
 gm2ringsim::CalorimeterGeometry::CalorimeterGeometry(std::string const & detName) :
   GeometryBase(detName),
   nCalorimeters(          p.get<int>("nCalorimeters", 24)),
