@@ -19,10 +19,9 @@
 #include "art/Framework/Principal/Event.h"
 
 #include "artg4/services/ActionHolder_service.hh"
-#include "artg4/services/DetectorHolder_service.hh"
-#include "artg4/Core/DetectorBase.hh"
 
 #include "gm2ringsim/calo/CaloArtRecord.hh"
+#include "gm2ringsim/actions/track/TrackingActionArtRecord.hh"
 
 // Geant includes
 #include "Geant4/G4ParticleTable.hh"
@@ -51,9 +50,9 @@ void gm2ringsim::CaloHitPGA::initialize() {
     
     // Just use electrons for now -- need to change to particle type of each calo hit
     
-    G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
-    G4ParticleDefinition* minusElec = particleTable->FindParticle("e-");
-    particleGun_->SetParticleDefinition(minusElec);
+//    G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
+//    G4ParticleDefinition* minusElec = particleTable->FindParticle("e-");
+//    particleGun_->SetParticleDefinition(minusElec);
     
 }
 
@@ -65,6 +64,17 @@ void gm2ringsim::CaloHitPGA::generatePrimaries(G4Event* evt) {
     art::ServiceHandle<artg4::ActionHolderService> actionHolder;
     art::Event &e = actionHolder->getCurrArtEvent();
     
+    // get tracking action hits from the event (to access particle type)
+    art::Handle<TrackingActionArtRecordCollection> trackHitHandle;
+    e.getByLabel("artg4", "", trackHitHandle);
+    const TrackingActionArtRecordCollection & trackHits = *trackHitHandle;
+    std::map<int, std::string> particleMap;
+    for (auto entry : trackHits)
+    {
+        particleMap[entry.trackID] = entry.trackType;
+    }
+    G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
+    
     // get calo hits from the event
     art::Handle<CaloArtRecordCollection> caloHitHandle;
     e.getByLabel("artg4", "calorimeter", caloHitHandle);
@@ -74,7 +84,11 @@ void gm2ringsim::CaloHitPGA::generatePrimaries(G4Event* evt) {
     
     // initiate primary vertex for each calo hit
     for (auto entry : caloHits)
-    {        
+    {
+        G4String particleName = particleMap[entry.trackID];
+        G4ParticleDefinition* particle = particleTable->FindParticle(particleName);
+        particleGun_ -> SetParticleDefinition(particle);
+        
         G4ThreeVector position( entry.x, entry.y, entry.z );
         particleGun_ -> SetParticlePosition( position );
         
