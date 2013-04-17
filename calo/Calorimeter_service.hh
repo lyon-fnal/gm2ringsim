@@ -62,7 +62,9 @@ namespace gm2ringsim {
         static G4String addPhotonToName(G4String name) {return "photon" + name;}
         
     private:
-        
+      
+        std::string stationGeomName_;
+      
         CaloSD *caloSD_;
         XtalSD *xtalSD_;
         PhotodetectorSD *photodetectorSD_;

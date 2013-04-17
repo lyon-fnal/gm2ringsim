@@ -19,10 +19,13 @@
 namespace gm2ringsim{
     
     struct CalorimeterGeometry : public artg4::GeometryBase {
-        
-        CalorimeterGeometry(std::string const &);
-        void print();
-        
+
+      CalorimeterGeometry(std::string const & detName="calorimeter");
+      void print();
+      
+        // Number of calorimeters (defaults to 24)
+        const int nCalorimeters;
+      
         // crystal array and inter-crystal gap (for "wrapping")
         const int nXtalRows;
         const int nXtalCols;
