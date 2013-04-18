@@ -41,8 +41,6 @@
 
 #include "boost/format.hpp"
 
-#include "gm2ringsim/vac/VacGeometry.hh"
-
 //#include CHANGE_ME: Add include for header for Art hit class
 
 // Constructor for the service 
@@ -55,22 +53,12 @@ gm2ringsim::Traceback::Traceback(fhicl::ParameterSet const & p, art::ActivityReg
   strawSDname_("strawSD"),
   strawSD_(0)
 {
-  //strawSD_ = artg4::getSensitiveDetector<StrawSD>(strawSDname_);
+  strawSD_ = artg4::getSensitiveDetector<StrawSD>(strawSDname_);
 }
 
 
-//void gm2ringsim::Traceback::makeStrawLVDetectors(std::vector<G4LogicalVolume*>& straws){
-  
-//  }
+void gm2ringsim::Traceback::makePlaneLVs(std::vector<G4LogicalVolume*>& planes){
 
-
-//Build the logical volumes
-std::vector<G4LogicalVolume *> gm2ringsim::Traceback::doBuildLVs() {
-  geom_.print();
-  const VacGeometry vacg("vac");
-
-  std::vector<G4LogicalVolume*> straws;
-  
   for (unsigned int tb = 0; tb<geom_.whichTracebackLocations.size() ;tb++){
     for (unsigned int sc =0 ; sc<geom_.strawLocation.size(); sc++){
       
@@ -94,14 +82,27 @@ std::vector<G4LogicalVolume *> gm2ringsim::Traceback::doBuildLVs() {
       
       
       // We can make the physical volumes here
-      StrawSD* strawSD_ = artg4::getSensitiveDetector<StrawSD>(strawSDname_);
-      strawLV->SetSensitiveDetector( strawSD_ );
+      //strawLV->SetSensitiveDetector( strawSD_ );
       
-      straws.push_back(strawLV);
+      planes.push_back(strawLV);
       
     }
   }
-  return straws;
+
+
+}
+
+
+//Build the logical volumes
+std::vector<G4LogicalVolume *> gm2ringsim::Traceback::doBuildLVs() {
+
+  std::vector<G4LogicalVolume*> planes;
+  
+  makePlaneLVs(planes);
+  
+
+  return planes;
+  
 }
 
 // Build the physical volumes

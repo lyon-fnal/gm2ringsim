@@ -1,0 +1,182 @@
+#include "geom/world.fcl"
+#include "geom/arc.fcl"
+#include "geom/vac.fcl"
+#include "geom/inflector.fcl"
+#include "geom/quad.fcl"
+#include "geom/oct.fcl"
+#include "geom/kicker_nokick.fcl"
+#include "geom/fiberHarp.fcl"
+#include "geom/station.fcl"
+#include "geom/calorimeter.fcl"
+#include "geom/collimator.fcl"
+#include "geom/PGA.fcl"
+#include "geom/g2GPS.fcl"
+#include "geom/traceback.fcl"
+
+process_name:myProcessName
+
+source: {
+  module_type: EmptyEvent
+  maxEvents: 1 
+}
+
+services: {
+
+  message : {
+     debugModules : ["*"]
+     suppressInfo : []
+     
+     destinations : {
+       LogToConsole : {
+         type : "cout"
+         threshold : "ERROR"
+       }
+       LogToFile : {
+         type : "file"
+         filename : "gm2ringsim.log"
+         append : false
+         threshold : "ERROR"
+       }
+     }
+  }
+
+  user : {
+  
+    // Mandatory ArtG4 services
+    DetectorHolder: {}
+    ActionHolder: {}
+    PhysicsListHolder: {}
+    RandomNumberGenerator: {}
+
+    // Geometry
+    Geometry: {
+      world: @local::world_geom
+      arc:   @local::arc_geom
+      vac:   @local::vac_geom
+      inflector: @local::inflector_geom
+      quad: @local::quad_geom
+      octupole: @local::oct_geom
+      kicker: @local::kicker_geom
+      fiberHarp: @local::fiberHarp_geom
+      station: @local::station_geom
+      calorimeter: @local::calorimeter_geom
+      collimator: @local::collimator_geom
+      pga: @local::PGA_geom
+      traceback: @local::traceback_geom
+      //straws: @local::traceback_geom
+     }
+
+     // Global simulation settings
+     RunSettings : {
+       SpinTracking : {
+        spinTrackingEnabled : false
+       }
+      G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel
+    }
+
+    // Action(s) for the simulation
+    StackingAction: {  
+          name: "stackingAction"
+          minWavelength:250 //nm
+          maxWavelength:950  //nm
+    }
+
+    physicalVolumeStore: {}
+    Gm2PhysicsList: {
+        muonDecayMode: "iso"
+
+    }
+
+
+
+    TrackingAction : {
+          name : "trackingAction"
+    }
+
+    ClockAction: {}
+
+//    G2PGA: {
+//	      name: "primary"
+//    }
+
+//    MuonGasPGA: {
+//        name: "muongas"
+//        muonGasVerbosity: false
+//    }
+
+    InflectorPGA: {
+        name: "inflectorgun"
+        inflectorVerbosity: true
+	SigmaT: 25
+	Emittance: 1.0
+	BetaX:  7.66477
+	BetaY:  19.0763
+	AlphaX:  0.0
+	AlphaY:  0.0
+	Pmean: -1
+	dPOverP: 0.005
+	StartUpstream:  false
+	StartUpstreamCryo:  false
+	StartDownstream:  false
+	StartPerfect:  true
+	GenGaussian: false
+	LaunchAngle: 0.0
+	StorageOffset: 0.0
+    }
+
+    // Detectors
+    World: {}	
+    Ring: {}    // This is for the RingHits
+    Tracker: {} // This is for the virtual tracker planes in the vac
+    Arc: {}
+    VacuumChamber: {}
+    Inflector:{}
+    Quad: {}
+    Octupole: {}
+    Kicker: {}
+    FiberHarp: {}
+    Station: {}
+    Calorimeter: {}
+    Collimator : {}
+    Traceback: {}
+    Straws: {}
+
+
+    MuonStorageStatusAction: {
+      name: "MuonStorageStatusAction"
+      turnsForStorage: 101
+      heartbeatFreq: 10
+    }
+
+  } //user:
+} //services:
+
+outputs: {
+out1: {
+  module_type: RootOutput   
+  fileName: "gm2ringsimout-10000-infgun.root"
+  }
+}
+
+physics: {
+  producers: {
+    artg4 : { 
+     module_type: artg4Main
+     enableVisualization: true
+     macroPath: ".:./macros:../macros:../../macros"
+     visMacro: "vis.mac"
+     afterEvent: pause  // (ui, pause, pass)
+     }
+  }
+
+
+
+  path1: [ artg4 ]
+  readPath: [ ]
+  stream1:  [ out1 ]
+
+  trigger_paths: [ path1 ]
+  end_paths: [ readPath, stream1 ]
+
+}
+

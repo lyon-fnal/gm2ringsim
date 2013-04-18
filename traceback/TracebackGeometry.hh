@@ -13,7 +13,7 @@
 namespace gm2ringsim {
   
   struct TracebackGeometry : public artg4::GeometryBase {
-    TracebackGeometry(std::string const &);
+    TracebackGeometry(std::string const & detName="traceback")
     
     void print() const;
 
@@ -40,6 +40,7 @@ namespace gm2ringsim {
     std::vector<double> tracebackColor;
     const bool displayStraw;
     std::vector<double> strawColor;
+    std::vector<double> individualStrawColor;
     
 
     //Derived constants

@@ -1,8 +1,8 @@
 // Tracker detector service for 
 
 // Include guards
-#ifndef TRACEBACK_HH
-#define TRACEBACK_HH
+#ifndef STRAWS_HH
+#define STRAWS_HH
 
 // Includes
 #include "fhiclcpp/ParameterSet.h"
@@ -15,35 +15,29 @@
 #include "Geant4/G4HCofThisEvent.hh"
 #include "Geant4/G4LogicalVolume.hh"
 #include "Geant4/G4VPhysicalVolume.hh"
-#include "Geant4/G4UnionSolid.hh"
-#include "gm2ringsim/traceback/StrawSD.hh"
-
-#include "gm2ringsim/traceback/TracebackGeometry.hh"
-#include "gm2ringsim/vac/VacGeometry.hh"
 
 #include <vector>
 
 // Get the base class for the service
 #include "artg4/Core/DetectorBase.hh"
+#include "gm2ringsim/traceback/TracebackGeometry.hh"
 
 // Within a namespace
 namespace gm2ringsim {
 
     // The class
-    class Traceback : public artg4::DetectorBase {
+    class Straws : public artg4::DetectorBase {
 
     public:
 
         // Constructor
-        Traceback(fhicl::ParameterSet const &, art::ActivityRegistry & );
+        Straws(fhicl::ParameterSet const &, art::ActivityRegistry & );
 
         // We always need a virtual destructor
-        virtual ~Traceback() {};
+        virtual ~Straws() {};
 
     private:
         TracebackGeometry geom_;
-        G4String strawSDname_;
-        StrawSD *strawSD_;
 
         // Private overriden methods
 
@@ -56,15 +50,10 @@ namespace gm2ringsim {
         // CHANGE_ME: Delete the next two functions if no hits
 
         // Tell Art what we'll produce
-        virtual void doCallArtProduces(art::EDProducer * producer) override;
+        //virtual void doCallArtProduces(art::EDProducer * producer) override;
 
         // Actually add the data to the event
-        virtual void doFillEventWithArtHits(G4HCofThisEvent * hc) override;
-      
-      // Convenience functions
-        //G4UnionSolid* buildScallopSolid();
-
-        void makePlaneLVs(std::vector<G4LogicalVolume*>&);
+        //virtual void doFillEventWithArtHits(G4HCofThisEvent * hc) override;
 
     };
 }

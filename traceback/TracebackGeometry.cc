@@ -13,7 +13,8 @@ gm2ringsim::TracebackGeometry::TracebackGeometry(std::string const & detName) :
   displayTraceback( p.get<bool>("displayTraceback") ),
   tracebackColor( p.get<std::vector<double>>("tracebackColor")),
   displayStraw( p.get<bool>("displayStraw")),
-  strawColor( p.get<std::vector<double>>("strawColor"))
+  strawColor( p.get<std::vector<double>>("strawColor")),
+  individualStrawColor( p.get<std::vector<double>>("individualStrawColor"))
 {
     
   for (unsigned int i = 0 ; i < strawRadialExtent.size() ; i ++){
