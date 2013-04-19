@@ -60,9 +60,9 @@ gm2ringsim::Traceback::Traceback(fhicl::ParameterSet const & p, art::ActivityReg
 void gm2ringsim::Traceback::makePlaneLVs(std::vector<G4LogicalVolume*>& planes){
 
   for (unsigned int tb = 0; tb<geom_.whichTracebackLocations.size() ;tb++){
-    for (unsigned int sc =0 ; sc<geom_.strawLocation.size(); sc++){
+    for (unsigned int sc =0 ; sc<geom_.strawStationLocation.size(); sc++){
       
-      G4VSolid *strawSystem = new G4Box("strawSystem", geom_.strawRadialExtentHalf[sc], 20, geom_.tracebackZHalf-10);
+      G4VSolid *strawSystem = new G4Box("strawSystem", geom_.strawStationSizeHalf[sc], 20, geom_.strawStationHeightHalf-10);
       
       std::string strawLVName = artg4::addNumberToName("StrawChamberLV", sc+tb);
       
@@ -75,7 +75,7 @@ void gm2ringsim::Traceback::makePlaneLVs(std::vector<G4LogicalVolume*>& planes){
       
       artg4::setVisAtts( strawLV, geom_.displayStraw, geom_.strawColor,
                         [] (G4VisAttributes* att) {
-                          att->SetForceSolid(1);
+                          att->SetForceSolid(0);
                           att->SetVisibility(1);
                         }
                         );
@@ -134,7 +134,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
     x = 7020,
     z = 0,
     phi = 12.8,
-    ds = geom_.strawLocation[strawInTBNumber],
+    ds = geom_.strawStationLocation[strawInTBNumber],
     deltaX =0;
     
     int arcPosition = tracebackNumber % 2;
@@ -142,7 +142,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
 
     deltaX = ds * sin(phi * deg);
     x = x - deltaX;
-    x = x + geom_.strawRadialExtentHalf[strawInTBNumber];
+    x = x + geom_.strawStationSizeHalf[strawInTBNumber];
     z = sqrt(ds*ds - deltaX*deltaX);
     
     G4TwoVector fixup(x,z);

@@ -31,9 +31,7 @@ gm2ringsim::Straws::Straws(fhicl::ParameterSet const & p, art::ActivityRegistry 
     DetectorBase(p,
                    p.get<std::string>("name", "straws"),
                    p.get<std::string>("category", "straws"),
-                   p.get<std::string>("mother_category", "traceback")),
-    geom_("traceback")
-
+                   p.get<std::string>("mother_category", "traceback"))
 {}
 
 // Build the logical volumes
@@ -41,20 +39,16 @@ std::vector<G4LogicalVolume *> gm2ringsim::Straws::doBuildLVs() {
 
   std::vector<G4LogicalVolume*> straws;
   
-  G4double innerRadiusOfTheTube = 0.*cm;
-  G4double outerRadiusOfTheTube = 6.*mm;
-  G4double hightOfTheTube = 10*cm;
-  G4double startAngleOfTheTube = 0.*deg;
-  G4double spanningAngleOfTheTube = 360.*deg;
+  
   for (unsigned int tb = 0; tb<geom_.whichTracebackLocations.size() ;tb++){
-    for (unsigned int sc =0 ; sc<geom_.strawLocation.size(); sc++){
+    for (unsigned int sc =0 ; sc<geom_.strawStationLocation.size(); sc++){
 
       G4Tubs* tracker_tube = new G4Tubs("tracker_tube",
-                                    innerRadiusOfTheTube,
-                                    outerRadiusOfTheTube,
-                                    hightOfTheTube,
-                                    startAngleOfTheTube,
-                                    spanningAngleOfTheTube
+                                    geom_.innerRadiusOfTheStraw,
+                                    geom_.outerRadiusOfTheStraw,
+                                    geom_.heightOfTheStraw,
+                                    geom_.startAngleOfTheStraw,
+                                    geom_.spanningAngleOfTheStraw
                                     );
       
       std::string strawLVName = artg4::addNumberToName("SingleStrawLV", sc+tb);

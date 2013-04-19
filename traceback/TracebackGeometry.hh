@@ -13,44 +13,30 @@
 namespace gm2ringsim {
   
   struct TracebackGeometry : public artg4::GeometryBase {
-    TracebackGeometry(std::string const & detName="traceback")
+    TracebackGeometry(std::string const & detName="traceback");
     
     void print() const;
-
-    //const double r;
-    //const double v;
-    //const double t;
-    //const double rIn;
-    //const double rOut;
-    //const double windowAngle;
-    //std::vector<double> thetaOut;
-    //const double tOffset;
-    //const double rOffset;
-    //const double vOffset;
-    //const double tRotation;
-    //const double rRotation;
-    //const double vRotation;
-    const double tracebackZ;
-    //const double tracebackTheta;
-    std::vector<double> strawLocation;
-    std::vector<double> strawRadialExtent;
-    std::vector<double> strawRadialExtentHalf;
+    
     std::vector<int> whichTracebackLocations;
+    std::vector<double> strawStationLocation;
+    std::vector<double> strawStationSize;
+    std::vector<double> strawStationSizeHalf;
+    const double strawStationHeight;
+    double strawStationHeightHalf;
+    
+    double innerRadiusOfTheStraw;
+    double outerRadiusOfTheStraw;
+    double heightOfTheStraw;
+    double startAngleOfTheStraw;
+    double spanningAngleOfTheStraw;
+
     const bool displayTraceback;
     std::vector<double> tracebackColor;
     const bool displayStraw;
     std::vector<double> strawColor;
     std::vector<double> individualStrawColor;
     
-
-    //Derived constants
-    //double rC;
-    //double thetaIn[2];
-    //double thetaC[2];
-    double tracebackZHalf;
-    //double tracebackThetaHalf;
-    //double tanTracebackRadialShiftAngle;
-
+    
   };
 
 }
