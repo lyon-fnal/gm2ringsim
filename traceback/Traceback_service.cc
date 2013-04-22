@@ -73,7 +73,7 @@ void gm2ringsim::Traceback::makePlaneLVs(std::vector<G4LogicalVolume*>& planes){
                                                      0,
                                                      0);
       
-      artg4::setVisAtts( strawLV, geom_.displayStraw, geom_.strawColor,
+      artg4::setVisAtts( strawLV, geom_.displayStation, geom_.stationColor,
                         [] (G4VisAttributes* att) {
                           att->SetForceSolid(0);
                           att->SetVisibility(1);
@@ -131,16 +131,16 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
     std::string tracebackLabel( boost::str( boost::format("TracebackNumber[%d][%d]") %tracebackNumber %strawInTBNumber));
 
     G4double
-    x = 7020,
+    x = 7012,
     z = 0,
-    phi = 12.8,
+    //phi = 12.8,
     ds = geom_.strawStationLocation[strawInTBNumber],
     deltaX =0;
     
     int arcPosition = tracebackNumber % 2;
     int arcNumber = floor(tracebackNumber/2);
 
-    deltaX = ds * sin(phi * deg);
+    deltaX = ds * sin(vacg.phi_a);
     x = x - deltaX;
     x = x + geom_.strawStationSizeHalf[strawInTBNumber];
     z = sqrt(ds*ds - deltaX*deltaX);

@@ -20,6 +20,7 @@ namespace gm2ringsim {
     std::vector<int> whichTracebackLocations;
     std::vector<double> strawStationLocation;
     std::vector<double> strawStationSize;
+    std::vector<int> strawStationType;
     std::vector<double> strawStationSizeHalf;
     const double strawStationHeight;
     double strawStationHeightHalf;
@@ -30,11 +31,11 @@ namespace gm2ringsim {
     double startAngleOfTheStraw;
     double spanningAngleOfTheStraw;
 
-    const bool displayTraceback;
-    std::vector<double> tracebackColor;
+    
+    const bool displayStation;
+    std::vector<double> stationColor;
     const bool displayStraw;
     std::vector<double> strawColor;
-    std::vector<double> individualStrawColor;
     
     
   };
