@@ -31,6 +31,9 @@ namespace gm2ringsim {
     double startAngleOfTheStraw;
     double spanningAngleOfTheStraw;
 
+    double dist_btwn_straws;
+    double straw_spacing;
+    double straw_diameter;
     
     const bool displayStation;
     std::vector<double> stationColor;

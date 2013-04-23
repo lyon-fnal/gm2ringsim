@@ -18,6 +18,11 @@ traceback_geom : {
   startAngleOfTheStraw: 0 //deg
   spanningAngleOfTheStraw:  360. //deg
 
+  dist_btwn_straws: 5.5 //mm
+  straw_spacing: 2
+  straw_diameter: 5.1 //mm
+
+
   displayStation: true
   stationColor: [0.2, 0.6, 1.0, 1.0] //blue
   
