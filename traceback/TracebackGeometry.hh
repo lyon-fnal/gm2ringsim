@@ -24,6 +24,8 @@ namespace gm2ringsim {
     std::vector<double> strawStationSizeHalf;
     const double strawStationHeight;
     double strawStationHeightHalf;
+    double strawStationWidth;
+    double strawStationWidthHalf;
     
     double innerRadiusOfTheStraw;
     double outerRadiusOfTheStraw;
@@ -31,9 +33,12 @@ namespace gm2ringsim {
     double startAngleOfTheStraw;
     double spanningAngleOfTheStraw;
 
-    double dist_btwn_straws;
+    double dist_btwn_wires;
     double straw_spacing;
     double straw_diameter;
+    
+    std::vector<double> x_position_straw0;
+    std::vector<double> y_position;
     
     const bool displayStation;
     std::vector<double> stationColor;

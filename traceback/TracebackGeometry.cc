@@ -11,14 +11,17 @@ gm2ringsim::TracebackGeometry::TracebackGeometry(std::string const & detName) :
   strawStationSize( p.get<std::vector<double>>("strawStationSize")),
   strawStationType( p.get<std::vector<int>>("strawStationType")),
   strawStationHeight( p.get<double>("strawStationHeight")),
+  strawStationWidth( p.get<double>("strawStationWidth")),
   innerRadiusOfTheStraw( p.get<double>("innerRadiusOfTheStraw") ),
   outerRadiusOfTheStraw( p.get<double>("outerRadiusOfTheStraw") ),
   heightOfTheStraw( p.get<double>("heightOfTheStraw") * cm),
   startAngleOfTheStraw( p.get<double>("startAngleOfTheStraw") * deg),
   spanningAngleOfTheStraw( p.get<double>("spanningAngleOfTheStraw") *deg ),
-  dist_btwn_straws( p.get<double>("dist_btwn_straws") *mm ),
+  dist_btwn_wires( p.get<double>("dist_btwn_wires") *mm ),
   straw_spacing( p.get<double>("straw_spacing") * mm),
   straw_diameter( p.get<double>("straw_diameter") *mm),
+  x_position_straw0( p.get<std::vector<double>>("x_position_straw0")),
+  y_position( p.get<std::vector<double>>("y_position")),
   displayStation( p.get<bool>("displayStation")),
   stationColor( p.get<std::vector<double>>("stationColor")),
   displayStraw( p.get<bool>("displayStraw")),
@@ -31,6 +34,7 @@ gm2ringsim::TracebackGeometry::TracebackGeometry(std::string const & detName) :
   }
   
   strawStationHeightHalf = strawStationHeight/2;
+  strawStationWidthHalf = strawStationWidth/2;
 
 }
 

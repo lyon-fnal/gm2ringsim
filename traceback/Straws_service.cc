@@ -114,11 +114,10 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Straws::doPlaceToPVs( std::vector<G
     int row = strawNumber/geom_.strawStationType[planeNumber];
     int strawInRow = strawNumber % geom_.strawStationType[planeNumber];
     
-    double total_width = (geom_.strawStationType[planeNumber]-1)*geom_.dist_btwn_straws + geom_.straw_diameter + 1/geom_.straw_spacing * geom_.straw_diameter;
-    int x_shift = (geom_.straw_diameter/geom_.straw_spacing)*(row%2);
-    x = -(total_width/2 - geom_.straw_diameter/2) + x_shift + (geom_.dist_btwn_straws * strawInRow);
-    y= -(2.55+5.5) + 5.5*row;
-    
+    x = geom_.x_position_straw0[row] + geom_.dist_btwn_wires *strawInRow;
+    y= geom_.y_position[row];
+    std::cout<<"row: "<<row<<", N: "<<strawInRow<<", x: "<<x<<std::endl;
+
     G4Transform3D out_transform(G4RotationMatrix(0, 0, 0),
                                 G4ThreeVector(x, y, 0. ) );
     

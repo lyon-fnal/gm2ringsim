@@ -62,7 +62,7 @@ void gm2ringsim::Traceback::makePlaneLVs(std::vector<G4LogicalVolume*>& planes){
   for (unsigned int tb = 0; tb<geom_.whichTracebackLocations.size() ;tb++){
     for (unsigned int sc =0 ; sc<geom_.strawStationLocation.size(); sc++){
       
-      G4VSolid *strawSystem = new G4Box("strawSystem", geom_.strawStationSizeHalf[sc], 20, geom_.strawStationHeightHalf-10);
+      G4VSolid *strawSystem = new G4Box("strawSystem", geom_.strawStationSizeHalf[sc], geom_.strawStationWidthHalf, geom_.strawStationHeightHalf-10);
       
       std::string strawLVName = artg4::addNumberToName("StrawChamberLV", sc+tb);
       
@@ -115,26 +115,26 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
   int i = 0;
   int tracebackIndex, tracebackNumber;
   int numberOfStraws = lvs().size();
-  int numberOfStrawsPerTB = numberOfStraws/geom_.whichTracebackLocations.size();
-  int strawInTBNumber;
+  int numberOfStrawStationsPerTB = numberOfStraws/geom_.whichTracebackLocations.size();
+  int stationInTBNumber;
   
   //loop over the logical volumes
   for ( auto aStrawLV : lvs() ) {
     // We to name the station including its station number
     // g2migtrace used sprintf. Let's use boost::format instead
     // (see http://www.boost.org/doc/libs/1_52_0/libs/format/doc/format.html )
-    tracebackIndex = i/numberOfStrawsPerTB;
+    tracebackIndex = i/numberOfStrawStationsPerTB;
     tracebackNumber = geom_.whichTracebackLocations[tracebackIndex];
-    strawInTBNumber = i%numberOfStrawsPerTB;
+    stationInTBNumber = i%numberOfStrawStationsPerTB;
 
     
-    std::string tracebackLabel( boost::str( boost::format("TracebackNumber[%d][%d]") %tracebackNumber %strawInTBNumber));
+    std::string tracebackLabel( boost::str( boost::format("TracebackNumber[%d][%d]") %tracebackNumber %stationInTBNumber));
 
     G4double
-    x = 7012,
+    x = 7010,
     z = 0,
     //phi = 12.8,
-    ds = geom_.strawStationLocation[strawInTBNumber],
+    ds = geom_.strawStationLocation[stationInTBNumber],
     deltaX =0;
     
     int arcPosition = tracebackNumber % 2;
@@ -142,14 +142,14 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
 
     deltaX = ds * sin(vacg.phi_a);
     x = x - deltaX;
-    x = x + geom_.strawStationSizeHalf[strawInTBNumber];
+    x = x + geom_.strawStationSizeHalf[stationInTBNumber];
     z = sqrt(ds*ds - deltaX*deltaX);
     
     G4TwoVector fixup(x,z);
         
     fixup.rotate(15.*degree*arcPosition);
         
-    G4Transform3D out_transform(G4RotationMatrix( -13*deg -vacg.phi_a*arcPosition, 0, 0),
+    G4Transform3D out_transform(G4RotationMatrix( -15*deg -vacg.phi_a*arcPosition, 0, 0),
                                     G4ThreeVector(fixup.x(), fixup.y(), 0. ) );
 
     strawPVs.push_back(new G4PVPlacement(out_transform,
