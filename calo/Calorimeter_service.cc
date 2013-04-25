@@ -427,9 +427,8 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
 std::vector<G4LogicalVolume *> gm2ringsim::Calorimeter::doBuildLVs() {
     
     // create the calorimeter geometry, which initializes itself from the parameter set
-  //  CalorimeterGeometry caloGeom(myName()); // "calorimeter" is the default parameter
-  CalorimeterGeometry caloGeom; // "calorimeter" is the default parameter
-  caloGeom.print();
+    CalorimeterGeometry caloGeom; // "calorimeter" is the default parameter
+    caloGeom.print();
     
     // sensitive detectors
     caloSD_ = artg4::getSensitiveDetector<CaloSD>(getCaloName());
@@ -472,7 +471,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Calorimeter::doPlaceToPVs( std::vec
     //      +z vertical down
     
     StationGeometry stationGeom(stationGeomName_);
-    CalorimeterGeometry caloGeom(myName());
+    CalorimeterGeometry caloGeom; // "calorimeter" is the default parameter
     
 /*    if ( stations.size() != lvs().size() ) {
         throw cet::exception("# of Calorimeter logical volumes (")
@@ -557,13 +556,13 @@ void gm2ringsim::Calorimeter::doFillEventWithCaloHits(G4HCofThisEvent * hc) {
             myArtHits->emplace_back( e->turnNum,
                                     e->caloNum,
                                     e->trackID,
-                                    e->local_pos.x(), // radial coordinate
-                                    e->local_pos.z(), // thickness coordinate
-                                    e->local_pos.y(), // vertical coordinate
+                                    e->global_pos.x(), // radial coordinate
+                                    e->global_pos.y(), // thickness coordinate
+                                    e->global_pos.z(), // vertical coordinate
                                     e->time,
-                                    e->local_mom.x(),
-                                    e->local_mom.z(),
-                                    e->local_mom.y() );
+                                    e->global_mom.x(),
+                                    e->global_mom.y(),
+                                    e->global_mom.z() );
         }
     }
     else {
