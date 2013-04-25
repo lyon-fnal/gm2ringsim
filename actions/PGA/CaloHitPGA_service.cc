@@ -45,15 +45,7 @@ gm2ringsim::CaloHitPGA::~CaloHitPGA(){
 
 // initialize
 void gm2ringsim::CaloHitPGA::initialize() {
-    
-    particleGun_ = new G4ParticleGun();
-    
-    // Just use electrons for now -- need to change to particle type of each calo hit
-    
-//    G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
-//    G4ParticleDefinition* minusElec = particleTable->FindParticle("e-");
-//    particleGun_->SetParticleDefinition(minusElec);
-    
+    particleGun_ = new G4ParticleGun(1);
 }
 
 
@@ -79,9 +71,7 @@ void gm2ringsim::CaloHitPGA::generatePrimaries(G4Event* evt) {
     art::Handle<CaloArtRecordCollection> caloHitHandle;
     e.getByLabel("artg4", "calorimeter", caloHitHandle);
     const CaloArtRecordCollection & caloHits = *caloHitHandle;
-    
-    particleGun_ -> SetNumberOfParticles( caloHits.size() );
-    
+        
     // initiate primary vertex for each calo hit
     for (auto entry : caloHits)
     {
