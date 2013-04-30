@@ -48,6 +48,9 @@ namespace gm2ringsim{
         const double photodetectorDepth;   // "pmtDepth" in g2migtrace
         const double opticalCouplingDepth; // "epoxyDepth" in g2migtrace
         
+        // diffuser
+        const double diffuserDepth;
+        
         // viewing
         const bool displayCalorimeterBox;
         const bool displayWrappingVolumes;
@@ -56,6 +59,7 @@ namespace gm2ringsim{
         const std::vector<double> xtalColor;
         const std::vector<double> photodetectorColor;
         const std::vector<double> opticalCouplingColor;
+        const std::vector<double> diffuserColor;
         const std::vector<double> wrappingColor;
         
         // whether or not to track particles through the calorimeter

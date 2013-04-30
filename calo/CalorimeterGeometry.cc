@@ -35,6 +35,7 @@ gm2ringsim::CalorimeterGeometry::CalorimeterGeometry(std::string const & detName
   photodetectorSize(     p.get<double>("photodetectorSize")    * cm ),
   photodetectorDepth(    p.get<double>("photodetectorDepth")   * cm ),
   opticalCouplingDepth(  p.get<double>("opticalCouplingDepth") * cm ),
+  diffuserDepth(         p.get<double>("diffuserDepth")        * cm ),
   displayCalorimeterBox( p.get<bool>("displayCalorimeterBox")       ),
   displayWrappingVolumes(p.get<bool>("displayWrappingVolumes")      ),
   displayCrystalArray(   p.get<bool>("displayCrystalArray")      ),
@@ -42,6 +43,7 @@ gm2ringsim::CalorimeterGeometry::CalorimeterGeometry(std::string const & detName
   xtalColor(             p.get<std::vector<double>>("xtalColor")           ),
   photodetectorColor(    p.get<std::vector<double>>("photodetectorColor")  ),
   opticalCouplingColor(  p.get<std::vector<double>>("opticalCouplingColor")),
+  diffuserColor(         p.get<std::vector<double>>("diffuserColor")       ),
   wrappingColor(         p.get<std::vector<double>>("wrappingColor")       ),
   killShowers(           p.get<bool>("killShowers")                 ),
   radial(0),
@@ -63,7 +65,7 @@ gm2ringsim::CalorimeterGeometry::CalorimeterGeometry(std::string const & detName
     
     radial   = ( nXtalCols * xtalWidth ) + ( (nXtalCols+1) * wrappingGap );
     vertical = ( nXtalRows * xtalWidth ) + ( (nXtalRows+1) * wrappingGap );
-    thickness = wrappingGap + xtalDepth + opticalCouplingDepth + photodetectorDepth;
+    thickness = wrappingGap + diffuserDepth + wrappingGap + xtalDepth + opticalCouplingDepth + photodetectorDepth;
   
 }
 
@@ -87,6 +89,8 @@ void gm2ringsim::CalorimeterGeometry::print() {
     oss << "  photodetectorDepth =   " << photodetectorDepth   << "\n";
     oss << "  opticalCouplingDepth = " << opticalCouplingDepth << "\n";
     
+    oss << "  diffuserDepth = " << diffuserDepth << "\n";
+    
     oss << "  displayCalorimeterBox =  " << displayCalorimeterBox << "\n";
     oss << "  displayWrappingVolumes = " << displayWrappingVolumes << "\n";
     oss << "  displayCrystalArray =    " << displayCrystalArray << "\n";
@@ -94,6 +98,7 @@ void gm2ringsim::CalorimeterGeometry::print() {
     oss << "  xtalColor:            "; for (auto entry : xtalColor) { oss << " " << entry; }; oss << "\n";
     oss << "  photodetectorColor:   "; for (auto entry : photodetectorColor) { oss << " " << entry; }; oss << "\n";
     oss << "  opticalCouplingColor: "; for (auto entry : opticalCouplingColor) { oss << " " << entry; }; oss << "\n";
+    oss << "  diffuserColor:        "; for (auto entry : diffuserColor) { oss << " " << entry; }; oss << "\n";
     oss << "  wrappingColor:        "; for (auto entry : wrappingColor) { oss << " " << entry; }; oss << "\n";
     
     oss << "  killShowers = " << killShowers << "\n";
