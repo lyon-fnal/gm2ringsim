@@ -24,7 +24,7 @@ traceback_geom : {
   straw_diameter: 5.1 //mm
 
   x_position_straw0: [-24.59,	-27.37,	-14.05,	-11.28]
-  y_position: [-3.51,	1.25,	16.19,	20.95]
+  y_position: [16.3, 21.06, 36.0, 40.76]
   displayStation: true
   stationColor: [0.2, 0.6, 1.0, 1.0] //blue
   
