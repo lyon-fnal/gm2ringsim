@@ -181,6 +181,7 @@ G4bool gm2ringsim::XtalSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){
             
         } else if ( pdg == 0 ) {
             std::cout << "Track id " << thisID << " for optical photon entering new volume" << std::endl;
+            PhotonHitCorrelator::getInstance().increaseListSize(thisID);
         }
         if ( initiatedShower ) {
             int hitIndex = xtalID_[ copyID ];

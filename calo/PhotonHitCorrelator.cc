@@ -56,3 +56,11 @@ gm2ringsim::PhotonHitCorrelator::registerPhotodetectorTrack( int photonTrackId, 
     photonTrackToHit_[photonTrackId]->transmitted = true;
     photonTrackToHit_[photonTrackId]->detected = photoElectron;
 }
+
+void
+gm2ringsim::PhotonHitCorrelator::increaseListSize(int photonTrackId) {
+    int veclength = photonTrackToHit_.size();
+    if ( photonTrackId >= veclength ) {
+        photonTrackToHit_.resize( photonTrackId + kSizeIncrement );
+    }
+}
