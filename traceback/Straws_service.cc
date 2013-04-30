@@ -47,6 +47,7 @@ std::vector<G4LogicalVolume *> gm2ringsim::Straws::doBuildLVs() {
       for (int row = 0 ; row<4 ; row++){
 
         for (int st = 0; st<geom_.strawStationType[sc]; st++){
+          
           G4Tubs* tracker_tube = new G4Tubs("tracker_tube",
                                     geom_.innerRadiusOfTheStraw,
                                     geom_.outerRadiusOfTheStraw,
@@ -55,11 +56,11 @@ std::vector<G4LogicalVolume *> gm2ringsim::Straws::doBuildLVs() {
                                     geom_.spanningAngleOfTheStraw
                                     );
       
-          int sn = st + row*geom_.strawStationType[sc];
+          int stationNumber = sc + tb*geom_.strawStationLocation.size();
           
-          //std::string strawLVName = artg4::addNumberToName("SingleStrawLV", sc+tb+st);
-          std::string strawLVName( boost::str( boost::format("SingleStrawLV[%d][%d]") %sc
-                                                                                      %sn));
+          std::string strawLVName( boost::str( boost::format("SingleStrawLV(%d)[%d]{%d}") %st
+                                                                                          %row
+                                                                                          %stationNumber));
 
           G4LogicalVolume* strawLV = new G4LogicalVolume(
                                                        tracker_tube,
@@ -83,57 +84,59 @@ std::vector<G4LogicalVolume *> gm2ringsim::Straws::doBuildLVs() {
   return straws;
 }
 
+int gm2ringsim::Straws::FindValue(char indicator, std::string name){
+
+  int value;
+  std::string::size_type left_pn = name.find_first_of(indicator);
+  std::string::size_type right_pn = name.find_first_of(indicator);
+  std::string num_pn(name, left_pn+1, right_pn-1);
+  std::istringstream iss_pn(num_pn);
+  iss_pn >> value;
+  
+  return value;
+  
+}
+
 // Build the physical volumes
 std::vector<G4VPhysicalVolume *> gm2ringsim::Straws::doPlaceToPVs( std::vector<G4LogicalVolume*> planes) {
   std::vector<G4VPhysicalVolume*> strawPVs;
   
-  int i =0;
+  int strawNumber =0;
   double x,y;
+  
+  int strawInRow;
+  int rowNumber;
+  int stationNumber;
+  
+
   for ( auto aStrawLV : lvs() ) {
-    
-    
-    int strawNumber;
-    int planeNumber;
-    
-    std::string name = aStrawLV->GetName();
-    std::string::size_type left_pn = name.find_first_of('[');
-    std::string::size_type right_pn = name.find_first_of(']');
-    std::string num_pn(name, left_pn+1, right_pn-1);
-    std::istringstream iss_pn(num_pn);
-    iss_pn >> planeNumber;
+  
+    strawInRow = FindValue('(', aStrawLV->GetName());
+    rowNumber = FindValue ('[', aStrawLV->GetName());
+    stationNumber = FindValue('{', aStrawLV->GetName());
 
-    std::string::size_type left_sn = name.find_last_of('[');
-    std::string::size_type right_sn = name.find_last_of(']');
-    std::string num_sn(name, left_sn+1, right_sn-1);
-    std::istringstream iss_sn(num_sn);
-    iss_sn >> strawNumber;
+    std::string strawPVName = artg4::addNumberToName("StrawPV", strawNumber);
     
-    
-    std::string strawPVName = artg4::addNumberToName("StrawPV", i);
-
-    int row = strawNumber/geom_.strawStationType[planeNumber];
-    int strawInRow = strawNumber % geom_.strawStationType[planeNumber];
-    
-    x = geom_.x_position_straw0[row] + geom_.dist_btwn_wires *strawInRow;
-    y= geom_.y_position[row];
-    std::cout<<"row: "<<row<<", N: "<<strawInRow<<", x: "<<x<<std::endl;
+    x = geom_.x_position_straw0[rowNumber] + geom_.dist_btwn_wires *strawInRow;
+    y= geom_.y_position[rowNumber];
 
     G4RotationMatrix* yRot = new G4RotationMatrix; // Rotates X and Z axes only
     double rot = 7.5*deg;
-    if(row > 1) rot = -rot;
+    if(rowNumber > 1) rot = -rot;
+
     yRot -> rotateY(rot); // Rotates 45 degrees
     G4ThreeVector placement(x, y, 0);
     
-    strawPVs.push_back(new G4PVPlacement(yRot, placement,
+    strawPVs.push_back(new G4PVPlacement(G4Transform3D(*yRot, placement),//
                                          aStrawLV,
                                          strawPVName,
-                                         planes[planeNumber],
+                                         planes[stationNumber],
                                          false,
                                          0
                                          )
                        );
 
-    i++;
+    strawNumber++;
   }
   return strawPVs;
 }
