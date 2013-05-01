@@ -116,8 +116,11 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Straws::doPlaceToPVs( std::vector<G
     stationNumber = FindValue('{', aStrawLV->GetName());
 
     std::string strawPVName = artg4::addNumberToName("StrawPV", strawNumber);
+    int stationIndex = stationNumber % geom_.strawStationSize.size();
     
-    x = geom_.x_position_straw0[rowNumber] + geom_.dist_btwn_wires *strawInRow;
+    x = geom_.x_position_straw0[rowNumber] - geom_.strawStationSizeHalf[stationIndex] + geom_.dist_btwn_wires *strawInRow;
+    if(rowNumber<2) x = x + 6.58;
+    else x = x - 6.58;
     y= geom_.y_position[rowNumber];
 
     G4RotationMatrix* yRot = new G4RotationMatrix; // Rotates X and Z axes only

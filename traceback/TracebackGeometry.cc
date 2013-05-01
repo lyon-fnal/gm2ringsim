@@ -41,14 +41,7 @@ gm2ringsim::TracebackGeometry::TracebackGeometry(std::string const & detName) :
     y_position[i] = y_position[i] - strawStationWidthHalf;
   }
   
-  for (unsigned int i = 0; i<x_position_straw0.size()-2; i++){
-    x_position_straw0[i] = x_position_straw0[i]+6.58;
-  }
-
-  for (unsigned int i = 2; i<x_position_straw0.size(); i++){
-    x_position_straw0[i] = x_position_straw0[i]-6.58;
-  }
-
+  
 }
 
 void gm2ringsim::TracebackGeometry::print() const{
