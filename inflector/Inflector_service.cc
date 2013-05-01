@@ -76,7 +76,7 @@ gm2ringsim::Inflector::Inflector(fhicl::ParameterSet const & p, art::ActivityReg
 	       p.get<std::string>("mother_category", "vac")),
   //p.get<std::string>("mother_category", "world")),
   sts_("SpinTracking"), // This is what goes in the fcl file under the RunSettings service
-  infGeom_(myName()),
+  infGeom_(), // this now has the default parameter "inflector"
   num_trackers_(infGeom_.num_trackers),
   inflectorMagField_(0),
   iEquation_(0),

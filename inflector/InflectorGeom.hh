@@ -13,7 +13,7 @@
 namespace gm2ringsim {
   
   struct InflectorGeom : public artg4::GeometryBase {
-    InflectorGeom(std::string const &);
+    InflectorGeom(std::string const & detName="inflector");
     void print() const;
     
     

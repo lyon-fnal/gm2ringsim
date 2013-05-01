@@ -1,0 +1,122 @@
+// Make a one calorimter test beam
+
+#include "geom/world.fcl"
+#include "geom/station.fcl"
+#include "geom/calorimeter.fcl"
+#include "geom/PGA.fcl"
+#include "geom/g2GPS.fcl"
+
+process_name:myProcessName
+
+source: {
+  module_type: EmptyEvent
+  maxEvents:  10
+}
+
+services: {
+
+  message : {
+     debugModules : ["*"]
+     suppressInfo : []
+     
+     destinations : {
+       LogToConsole : {
+         type : "cout"
+         threshold : "DEBUG"
+       }
+       LogToFile : {
+         type : "file"
+         filename : "gm2ringsim.log"
+         append : false
+         threshold : "DEBUG"
+       }
+     }
+  }
+
+  user : {
+  
+    // Mandatory ArtG4 services
+    DetectorHolder: {}
+    ActionHolder: {}
+    PhysicsListHolder: {}
+    RandomNumberGenerator: {}
+
+    // Geometry
+    Geometry: {
+      world: @local::world_geom
+      station: @local::station_geom
+      calorimeter: @local::calorimeter_geom
+      pga: @local::PGA_geom
+     }
+
+     // Global simulation settings
+     RunSettings : {
+       SpinTracking : {
+        spinTrackingEnabled : false
+       }
+    }
+
+    // Action(s) for the simulation
+    StackingAction: {  
+          name: "stackingAction"
+          minWavelength:250 //nm
+          maxWavelength:950  //nm
+    }
+
+    physicalVolumeStore: {}
+    Gm2PhysicsList: {}
+
+    TrackingAction : {
+          name : "trackingAction"
+    }
+
+    ClockAction: {}
+
+    SimpleParticleSource: {
+      particleType: "e+"
+      energy: 3.0
+      direction: [1.0, 0.0, 0.0]
+      position: [-200.0, 0.0, 0.0]
+    }
+
+    // Detectors
+    World: {}	
+    Calorimeter: {}
+
+
+  } //user:
+} //services:
+
+outputs: {
+out1: {
+  module_type: RootOutput   
+  fileName: "calTestBeamOut.root"
+  }
+}
+
+physics: {
+  producers: {
+    artg4 : { 
+     module_type: artg4Main
+     enableVisualization: true
+     macroPath: ".:./macros:../macros:../../macros"
+     visMacro: "vis.mac"
+     afterEvent: pass  // (ui, pause, pass)
+     }
+  }
+
+  path1: [ artg4 ]
+  stream1:  [ out1 ]
+
+  trigger_paths: [ path1 ]
+  end_paths: [ stream1 ]
+}
+
+services.user.Geometry.world.world_x: 300
+services.user.Geometry.world.world_y: 300
+services.user.Geometry.world.world_z: 300
+
+services.user.Calorimeter.mother_category : world
+services.user.Calorimeter.stationGeomName : station
+services.user.Geometry.calorimeter.nCalorimeters : 1
+

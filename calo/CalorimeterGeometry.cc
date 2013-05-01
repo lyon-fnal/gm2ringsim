@@ -15,9 +15,12 @@
 #include "gm2ringsim/common/conversions.hh"
 
 #include "CalorimeterGeometry.hh"
-
+// Calling the delegated constructor in the initialization list is a nice feature in C++11
+//gm2ringsim::CalorimeterGeometry::CalorimeterGeometry() : CalorimeterGeometry("calorimeter"){ }
+  
 gm2ringsim::CalorimeterGeometry::CalorimeterGeometry(std::string const & detName) :
   GeometryBase(detName),
+  nCalorimeters(          p.get<int>("nCalorimeters", 24)),
   nXtalRows(             p.get<int>("nXtalRows")                    ),
   nXtalCols(             p.get<int>("nXtalCols")                    ),
   wrappingGap(           p.get<double>("wrappingGap")          * cm ),
@@ -61,10 +64,12 @@ gm2ringsim::CalorimeterGeometry::CalorimeterGeometry(std::string const & detName
     radial   = ( nXtalCols * xtalWidth ) + ( (nXtalCols+1) * wrappingGap );
     vertical = ( nXtalRows * xtalWidth ) + ( (nXtalRows+1) * wrappingGap );
     thickness = wrappingGap + xtalDepth + opticalCouplingDepth + photodetectorDepth;
+  
 }
 
 void gm2ringsim::CalorimeterGeometry::print() {
     std::ostringstream oss;
+    oss << "  nCalorimeters = " << nCalorimeters << "\n";
     oss << "  radial    = " << radial    << "\n";
     oss << "  vertical  = " << vertical  << "\n";
     oss << "  thickness = " << thickness << "\n";
