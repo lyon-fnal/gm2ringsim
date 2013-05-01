@@ -17,7 +17,7 @@ process_name:myProcessName
 
 source: {
   module_type: EmptyEvent
-  maxEvents: 1 
+  maxEvents: 1
 }
 
 services: {
@@ -63,7 +63,6 @@ services: {
       collimator: @local::collimator_geom
       pga: @local::PGA_geom
       traceback: @local::traceback_geom
-      //straws: @local::traceback_geom
      }
 
      // Global simulation settings
