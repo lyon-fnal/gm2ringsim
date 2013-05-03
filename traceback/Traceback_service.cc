@@ -139,11 +139,11 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
     
     int arcPosition = tracebackNumber % 2;
     int arcNumber = floor(tracebackNumber/2);
-
-    deltaX = ds * sin(vacg.phi_a);
-    x = x - deltaX;
-    x = x + geom_.strawStationSizeHalf[stationInTBNumber];
-    z = sqrt(ds*ds - deltaX*deltaX);
+    double distance_from_edge = (geom_.strawStationSizeHalf[stationInTBNumber] + geom_.strawStationOffset[stationInTBNumber]);
+    deltaX = ds*sin(vacg.phi_a);
+    double deltaX_c = deltaX - distance_from_edge*cos(vacg.phi_a);
+    x = x - deltaX_c;
+    z = sqrt(ds*ds - deltaX*deltaX) + distance_from_edge*sin(vacg.phi_a) ;
     
     G4TwoVector fixup(x,z);
         

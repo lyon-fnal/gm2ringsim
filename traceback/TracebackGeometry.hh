@@ -20,6 +20,7 @@ namespace gm2ringsim {
     std::vector<int> whichTracebackLocations;
     std::vector<double> strawStationLocation;
     std::vector<double> strawStationSize;
+    std::vector<double> strawStationOffset;
     std::vector<int> strawStationType;
     std::vector<double> strawStationSizeHalf;
     const double strawStationHeight;

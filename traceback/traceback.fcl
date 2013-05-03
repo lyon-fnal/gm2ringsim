@@ -7,9 +7,10 @@ traceback_geom : {
     
 
   whichTracebackLocations: [12] //[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]
-  strawStationLocation: [300.0, 550.0, 925, 1010, 1095, 1180, 1265, 1350, 1435 ] //[138.0, 408.0, 678.0, 948.0, 1098.0, 1188.0, 1248.0, 1308.0, 1400.0]
-  strawStationSize: [76.6, 122.0, 170.0, 170.0, 170, 170, 170, 170, 170] //[63.6, 107.6, 151.6, 151.6, 195.6, 195.6, 195.6, 195.6, 195.6]
-  strawStationType: [8,16, 24, 24, 24, 24, 24, 24, 24] //[8, 16, 24, 24, 32, 32, 32, 32, 32]
+  strawStationLocation: [540.0, 625, 710 , 795, 880, 965, 1050, 1135, 1220, 1305, 1390 ] 
+  strawStationSize: [122.0, 122.0, 122.0, 122.0, 122.0, 170.0, 170, 170, 170, 170, 170] 
+  strawStationOffset: [0,10,20,30,40, 0, 5, 10, 15, 20, 18]
+  strawStationType: [16,16, 16, 16, 16, 24, 24, 24, 24, 24, 24] 
   strawStationHeight: 153.2
   strawStationWidth: 74.5
   
@@ -20,11 +21,8 @@ traceback_geom : {
   spanningAngleOfTheStraw:  360. //deg
 
   dist_btwn_wires: 5.5 //mm
-  straw_spacing: 2
   straw_diameter: 5.1 //mm
 
-  //x_position_straw0: [-24.59,	-27.37,	-14.05,	-11.28]
-  //y_position: [16.3, 21.06, 36.0, 40.76]
   x_position_straw0: [10.79, 13.51, 26.84, 24.06]
   y_position: [13.0, 17.76, 32.7, 37.46]
   
@@ -32,6 +30,7 @@ traceback_geom : {
   stationColor: [0.2, 0.6, 1.0, 1.0] //blue
   
   displayStraw: true
-  strawColor: [1.0,0,0,1.0]
+  strawColor: [0.9, 0.8, 0.2, 1.0]
+
 }
 END_PROLOG 
