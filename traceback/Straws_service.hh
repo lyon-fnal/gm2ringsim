@@ -21,6 +21,7 @@
 // Get the base class for the service
 #include "artg4/Core/DetectorBase.hh"
 #include "gm2ringsim/traceback/TracebackGeometry.hh"
+#include "gm2ringsim/traceback/StrawSD.hh"
 
 // Within a namespace
 namespace gm2ringsim {
@@ -38,6 +39,8 @@ namespace gm2ringsim {
 
     private:
         TracebackGeometry geom_;
+        G4String strawSDname_;
+        StrawSD *strawSD_;
 
         // Private overriden methods
 
@@ -48,14 +51,14 @@ namespace gm2ringsim {
         virtual std::vector<G4VPhysicalVolume*> doPlaceToPVs( std::vector<G4LogicalVolume*>) override;
 
         int FindValue(char indicator, std::string name);
-
+        int extractValueFromName(std::string indicator, std::string name);
         // CHANGE_ME: Delete the next two functions if no hits
 
         // Tell Art what we'll produce
-        //virtual void doCallArtProduces(art::EDProducer * producer) override;
+        virtual void doCallArtProduces(art::EDProducer * producer) override;
 
         // Actually add the data to the event
-        //virtual void doFillEventWithArtHits(G4HCofThisEvent * hc) override;
+        virtual void doFillEventWithArtHits(G4HCofThisEvent * hc) override;
 
     };
 }

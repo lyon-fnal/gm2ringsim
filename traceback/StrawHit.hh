@@ -28,7 +28,7 @@ namespace gm2ringsim {
     G4double time;
     G4int trackID;
     G4int volumeUID;
-    G4int traceback, straw;
+    G4int straw;
     G4String particle_name;
     G4int parent_ID;
     StrawHit(G4Step*);

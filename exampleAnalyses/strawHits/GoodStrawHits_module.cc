@@ -84,7 +84,6 @@ bool gm2ringsim::GoodStrawHits::filter(art::Event & e)
   for ( auto hdata : hits) {
     TVector3 the_position(hdata.x_global, hdata.z_global, hdata.y_global);
     track_info.strawPlanes.push_back(hdata.strawNumber);
-    track_info.tracebackLocations.push_back(hdata.tracebackNumber);
     track_info.position.push_back(the_position);
     track_info.trackID.push_back(hdata.trackID);
     track_info.particle_name.push_back(hdata.particle_name);

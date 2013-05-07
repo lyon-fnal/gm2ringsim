@@ -23,7 +23,7 @@ traceback_geom : {
   dist_btwn_wires: 5.5 //mm
   straw_diameter: 5.1 //mm
 
-  x_position_straw0: [10.79, 13.51, 26.84, 24.06]
+  x_position_straw0: [10.79, 13.51, 30.59, 26.87]
   y_position: [13.0, 17.76, 32.7, 37.46]
   
   displayStation: true

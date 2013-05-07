@@ -24,6 +24,8 @@
 namespace gm2ringsim {
     G4Allocator<StrawHit> StrawHitAllocator;
 }
+
+
 gm2ringsim::StrawHit::StrawHit(G4Step* step) :
     position(step->GetPreStepPoint()->GetPosition()),
     momentum(step->GetPreStepPoint()->GetMomentum()),
@@ -34,20 +36,14 @@ gm2ringsim::StrawHit::StrawHit(G4Step* step) :
   // The name is HARP[m].fiber[n] or HARP[m].support[n]
   std::string name = step->GetPreStepPoint()->GetPhysicalVolume()->GetName();
   
-  // get traceback number
+  // get straw number
+  
   std::string::size_type left_tb = name.find_first_of('[');
   std::string::size_type right_tb = name.find_first_of(']');
   std::string num_tb(name, left_tb+1, right_tb-1);
   std::istringstream iss_tb(num_tb);
-  iss_tb >> traceback;
+  iss_tb >> straw;
   
-  // get straw chamber number
-  std::string::size_type left_sc = name.find_last_of('[');
-  std::string::size_type right_sc = name.find_last_of(']');
-  std::string num_sc(name, left_sc+1, right_sc-1);
-  std::istringstream iss_sc(num_sc);
-  iss_sc >> straw;
-
   particle_name = step->GetTrack()->GetParticleDefinition()->GetParticleName();
   parent_ID = step->GetTrack()->GetParentID();
   

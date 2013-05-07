@@ -49,12 +49,8 @@ gm2ringsim::Traceback::Traceback(fhicl::ParameterSet const & p, art::ActivityReg
                    p.get<std::string>("name", "traceback"),
                    p.get<std::string>("category", "traceback"),
                    p.get<std::string>("mother_category", "vac")),
-  geom_(myName()),
-  strawSDname_("strawSD"),
-  strawSD_(0)
-{
-  strawSD_ = artg4::getSensitiveDetector<StrawSD>(strawSDname_);
-}
+  geom_(myName())
+{}
 
 
 void gm2ringsim::Traceback::makePlaneLVs(std::vector<G4LogicalVolume*>& planes){
@@ -169,65 +165,12 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
 }
 
 // Declare to Art what we are producing
-void gm2ringsim::Traceback::doCallArtProduces(art::EDProducer * producer) {
-  producer->produces<StrawArtRecordCollection>(category());
+//void gm2ringsim::Traceback::doCallArtProduces(art::EDProducer * producer) {
+//}
 
-}
 
 // Actually add the data to the event
-void gm2ringsim::Traceback::doFillEventWithArtHits(G4HCofThisEvent * hc) {
-
-  
-  std::unique_ptr<StrawArtRecordCollection> myArtHits(new StrawArtRecordCollection);
-  
-  // Find the collection ID for the hits
-  G4SDManager* fSDM = G4SDManager::GetSDMpointer();
-  
-  // The string here is unfortunately a magic constant. It's the string used
-  // by the sensitive detector to identify the collection of hits.
-  G4int collectionID = fSDM->GetCollectionID("strawSD");
-  
-  StrawHitsCollection* myCollection =
-  static_cast<StrawHitsCollection*>(hc->GetHC(collectionID));
-  // Check whether the collection exists
-  if (NULL != myCollection) {
-    std::vector<StrawHit*> geantHits = *(myCollection->GetVector());
-    int i = 0;
-    // Copy this hit into the Art hit
-    for ( auto e : geantHits ) {
-  
-      e->Print();
-      
-      // Copy this hit into the Art hit
-     
-      myArtHits->emplace_back( e->position.x(),e->position.y(),e->position.z(),e->position.r(),
-                                e->local_position.x(),e->local_position.y(), e->local_position.z(),
-                                e->momentum.x(),e->momentum.y(),e->momentum.z(),
-                                e->local_momentum.x(),e->local_momentum.y(), e->local_momentum.z(),
-                                e->time,
-                                e->trackID,
-                                e->volumeUID,
-                                e->traceback,
-                                e->straw,
-                                e->particle_name, e->parent_ID);
-      i++;
-      
-    } //loop over geantHits
-  } //if we have a myCollection
-  
-  else {
-    throw cet::exception("Straw") << "Null collection of Geant tracker hits"
-    << ", aborting!" << std::endl;
-  }
-  // Now that we have our collection of artized hits, add them to the event.
-  // Get the event from the detector holder service
-  art::ServiceHandle<artg4::DetectorHolderService> detectorHolder;
-  art::Event & e = detectorHolder -> getCurrArtEvent();
-  
-  // Put the hits into the event                                                   
-  e.put(std::move(myArtHits), category());
-
-}
-
+//void gm2ringsim::Traceback::doFillEventWithArtHits(G4HCofThisEvent * hc) {
+//}
 using gm2ringsim::Traceback;
 DEFINE_ART_SERVICE(Traceback)
