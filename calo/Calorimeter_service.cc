@@ -229,22 +229,27 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
     // Define optical surfaces for the diffuser
     //     polished side facing away from crystals (front surface)
     //     ground side facing toward crystals (back surface)
+    //     (don't know whether this orientation is correct)
     
     // --- Diffuser front (smooth)
     G4OpticalSurface* frontDiffuserSurface =
-    artg4Materials::findOpticalByName("Open");
-    new G4LogicalBorderSurface( "DiffuserFrontSurface",
+    artg4Materials::findOpticalByName("EtchedGlass");
+    new G4LogicalBorderSurface( "SurfaceExitingDiffuserFront",
                                diffuser_P,
                                caloBound_P,
                                frontDiffuserSurface);
+    new G4LogicalBorderSurface( "SurfaceEnteringDiffuserFront",
+                               caloBound_P,
+                               diffuser_P,
+                               frontDiffuserSurface);
     // -- Diffuse back (rough)
     G4OpticalSurface* backDiffuserSurface =
-    artg4Materials::findOpticalByName("Open");
-    new G4LogicalBorderSurface( "SurfaceExitingDiffuser",
+    artg4Materials::findOpticalByName("GroundGlass");
+    new G4LogicalBorderSurface( "SurfaceExitingDiffuserBack",
                                diffuser_P,
                                frontWrapping_P,
                                backDiffuserSurface);
-    new G4LogicalBorderSurface( "SurfaceEnteringDiffuser",
+    new G4LogicalBorderSurface( "SurfaceEnteringDiffuserBack",
                                frontWrapping_P,
                                diffuser_P,
                                backDiffuserSurface);
