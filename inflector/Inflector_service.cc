@@ -1136,17 +1136,30 @@ namespace gm2ringsim {
     ir.z_inf = xformed.z();
     
     
-    ir.x_loc  = e->local_position.x();
-    ir.y_loc  = e->local_position.y();
-    ir.z_loc  = e->local_position.z();
+    ir.x_ring  = e->position.x();
+    ir.y_ring  = e->position.y();
+    ir.z_ring  = e->position.z();
     
     ir.px_inf = e->momentum.x();
     ir.py_inf = e->momentum.y();
     ir.pz_inf = e->momentum.z();
     
-    ir.px_loc = e->local_momentum.x();
-    ir.py_loc = e->local_momentum.y();
-    ir.pz_loc = e->local_momentum.z();
+    ir.px_ring = e->momentum.x();
+    ir.py_ring = e->momentum.y();
+    ir.pz_ring = e->momentum.z();
+
+
+    G4ThreeVector mom = e->momentum;
+    double p = mom.mag();
+
+    // a dot product to get the sign right...
+    double r = std::sqrt(ir.x_ring*ir.x_ring + ir.z_ring*ir.z_ring);
+
+    ir.rhat_ring = r - R_magic();
+    ir.vhat_ring = ir.y_ring;
+    ir.prhat_ring = 
+      ((ir.px_ring*ir.x_ring + ir.pz_ring*ir.z_ring)/r)/p;
+    ir.pvhat_ring = mom.y()/p;
     
     return ir;
     
