@@ -26,8 +26,6 @@ namespace gm2ringsim
     StackingAction(fhicl::ParameterSet const&, art::ActivityRegistry&);
     virtual ~StackingAction();
     
-    G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track* aTrack);
-
   /** Interface to set accepted wavelength range **/
     void setMinimumOpticalWavelength(G4double minWavelength );
     void setMaximumOpticalWavelength(G4double maxWavelength );
@@ -36,7 +34,7 @@ namespace gm2ringsim
     G4double minWavelength_;
     G4double maxWavelength_;
     
-    bool killNewTrack( const G4Track* );
+    bool killNewTrack( const G4Track* aTrack);
 
   }; // End StackingAction class 
 }

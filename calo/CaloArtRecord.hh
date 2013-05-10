@@ -33,36 +33,22 @@ namespace gm2ringsim {
          from the trackRecord. */
         int trackID;
         
-        /** Local calorimeter coordinate, mm; this is the position along the
-         "most radial like" direction. Zero in the calorimeter center,
-         increasing outward. */
-        float r;
-        
-        /** Local calorimeter coordinate, mm; this is the position along the
-         "thickness" coordinate direction.  Zero in the center,
-         increasing downstream. */
-        float t;
-        
-        /** Local calorimeter coordinate, mm; this is the position along the
-         "most vertical" coordinate direction, normal to @a r and @t.
-         Zero in the center, increasing vertically. */
-        float v;
+        /** Global position coordinates, mm. */
+        float x;
+        float y;
+        float z;
         
         /** Global time of the calorimeter hit. */
         float time;
         
-        /** Momentum along the @r direction, MeV. */
-        float pr;
-        
-        /** Momentum along the @t direction, MeV. */
-        float pt;
-        
-        /** Momentum along the @v direction, MeV. */
-        float pv;
+        /** Global momentum coordinates, MeV. */
+        float px;
+        float py;
+        float pz;
         
         CaloArtRecord() :
         turn(0), caloNum(0), trackID(0),
-        r(0.), t(0.), v(0.), time(0.), pr(0.), pt(0.), pv(0.)
+        x(0.), y(0.), z(0.), time(0.), px(0.), py(0.), pz(0.)
         {}
         
         virtual ~CaloArtRecord(){};
@@ -70,11 +56,11 @@ namespace gm2ringsim {
         // ROOT doesn't need to know the rest
 #ifndef __GCCXML__
         CaloArtRecord(int n, int cn, int id,
-                      float r, float t, float v, float time,
-                      float pr, float pt, float pv) :
+                      float x, float y, float z, float time,
+                      float px, float py, float pz) :
         turn(n), caloNum(cn), trackID(id),
-        r(r), t(t), v(v), time(time),
-        pr(pr), pt(pt), pv(pv)
+        x(x), y(y), z(z), time(time),
+        px(px), py(py), pz(pz)
         {}
         
 #endif // __GCCXML__

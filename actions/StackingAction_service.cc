@@ -20,30 +20,25 @@ gm2ringsim::StackingAction::StackingAction(fhicl::ParameterSet const& p, art::Ac
 gm2ringsim::StackingAction::~StackingAction(){
 }
 
-bool gm2ringsim::StackingAction::killNewTrack( const G4Track* ) { 
-  return false; 
-}
-
-G4ClassificationOfNewTrack gm2ringsim::StackingAction::ClassifyNewTrack(const G4Track* aTrack){
-  // pass all non-optical tracks as normal: urgent stacking
-  int pdg = aTrack->GetDefinition()->GetPDGEncoding();
-  
-  // Use only for muon tracker (TG)
-  //if ( pdg == 13 || pdg == -13 ) { return( fUrgent ); }
-  //else { return( fKill ); }
-  
-  if ( pdg != 0 ) { return fUrgent; }
-
-  // Kill optical photons that are outside the range of interest
-  double wavelength = 0.001240 / ( aTrack->GetTotalEnergy() / MeV ) ;
-  if ( wavelength < minWavelength_ || wavelength > maxWavelength_ ) {
-    return fKill;
-  } else {
-    return fUrgent;
-  }
-
-  return fUrgent;
-
+bool gm2ringsim::StackingAction::killNewTrack( const G4Track* aTrack) {
+    // pass all non-optical tracks as normal: urgent stacking
+    int pdg = aTrack->GetDefinition()->GetPDGEncoding();
+    
+    // Use only for muon tracker (TG)
+    //if ( pdg == 13 || pdg == -13 ) { return( false ); }
+    //else { return( true ); }
+    
+    if ( pdg != 0 ) { return false; }
+    
+    // Kill optical photons that are outside the range of interest
+    double wavelength = 0.001240 / ( aTrack->GetTotalEnergy() / MeV ) ;
+    if ( wavelength < minWavelength_ || wavelength > maxWavelength_ ) {
+        return true;
+    } else {
+        return false;
+    }
+    
+    return false;
 }
 
 /** Interface to set accepted wavelength range **/

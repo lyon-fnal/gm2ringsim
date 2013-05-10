@@ -25,17 +25,7 @@ namespace gm2ringsim{
 /** A G4VHit class to store data from calorimeter hits. */
 class CaloHit : public G4VHit {
 public:
-    // local coordinates are, respectively:
-    // x() : radial component, positive outward
-    // y() : thickness component, positive downstream
-    // z() : vertical component, positive up
-        
-    G4ThreeVector global_pos, global_mom; // get from prestep pt, which
-    // is in the calo volume
-    // (isn't it?), and get in the
-    // coordinate system of the
-    // calorimeter
-    G4ThreeVector local_pos, local_mom;
+    G4ThreeVector global_pos, global_mom; // get from prestep pt
     G4double time;
     G4int turnNum; // obtained from turn counter
     G4int trackID;
