@@ -26,8 +26,7 @@ gm2ringsim::TrackerHit::TrackerHit(G4Step* step) :
   turnNum(TurnCounter::getInstance().turns()),
   //turnNum(0), // FIXME: If i initialize with zero, update below
   trackID(step->GetTrack()->GetTrackID()),
-  //FIXME:   volumeUID(get_uid(step->GetPreStepPoint()->GetPhysicalVolume()))
-  volumeUID(0) //FIXME
+  volumeUID(0)
 {
 
   //art::ServiceHandle <artg4::MuonStorageStatusAction> mss;
@@ -69,8 +68,7 @@ void gm2ringsim::TrackerHit::Draw(){
 }
 
 void gm2ringsim::TrackerHit::Print(){
-  G4cout << " turnNum: " << turnNum
-	 << " volumeUID: " << volumeUID
+  G4cout << " TrackerHit::Print() --- turnNum: " << turnNum
 	 << " time: " << time
 	 << " position: " << position
 	 << "\n";

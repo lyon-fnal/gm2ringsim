@@ -172,5 +172,6 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
 // Actually add the data to the event
 //void gm2ringsim::Traceback::doFillEventWithArtHits(G4HCofThisEvent * hc) {
 //}
+
 using gm2ringsim::Traceback;
 DEFINE_ART_SERVICE(Traceback)
