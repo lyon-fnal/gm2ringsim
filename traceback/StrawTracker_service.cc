@@ -1,7 +1,7 @@
 // Implementation of Traceback
 
 
-#include "gm2ringsim/traceback/Traceback_service.hh"
+#include "gm2ringsim/traceback/StrawTracker_service.hh"
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 
@@ -44,7 +44,7 @@
 //#include CHANGE_ME: Add include for header for Art hit class
 
 // Constructor for the service 
-gm2ringsim::Traceback::Traceback(fhicl::ParameterSet const & p, art::ActivityRegistry & ) :
+gm2ringsim::StrawTracker::StrawTracker(fhicl::ParameterSet const & p, art::ActivityRegistry & ) :
   DetectorBase(p,
                    p.get<std::string>("name", "traceback"),
                    p.get<std::string>("category", "traceback"),
@@ -53,7 +53,7 @@ gm2ringsim::Traceback::Traceback(fhicl::ParameterSet const & p, art::ActivityReg
 {}
 
 
-void gm2ringsim::Traceback::makePlaneLVs(std::vector<G4LogicalVolume*>& planes){
+void gm2ringsim::StrawTracker::makePlaneLVs(std::vector<G4LogicalVolume*>& planes){
 
   for (unsigned int tb = 0; tb<geom_.whichTracebackLocations.size() ;tb++){
     for (unsigned int sc =0 ; sc<geom_.strawStationLocation.size(); sc++){
@@ -90,7 +90,7 @@ void gm2ringsim::Traceback::makePlaneLVs(std::vector<G4LogicalVolume*>& planes){
 
 
 //Build the logical volumes
-std::vector<G4LogicalVolume *> gm2ringsim::Traceback::doBuildLVs() {
+std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
 
   std::vector<G4LogicalVolume*> planes;
   
@@ -102,7 +102,7 @@ std::vector<G4LogicalVolume *> gm2ringsim::Traceback::doBuildLVs() {
 }
 
 // Build the physical volumes
-std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vector<G4LogicalVolume*> vacs) {
+std::vector<G4VPhysicalVolume *> gm2ringsim::StrawTracker::doPlaceToPVs( std::vector<G4LogicalVolume*> vacs) {
   
   std::vector<G4VPhysicalVolume*> strawPVs;
   //strawPVs.resize(lvs().size());
@@ -173,5 +173,5 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Traceback::doPlaceToPVs( std::vecto
 //void gm2ringsim::Traceback::doFillEventWithArtHits(G4HCofThisEvent * hc) {
 //}
 
-using gm2ringsim::Traceback;
-DEFINE_ART_SERVICE(Traceback)
+using gm2ringsim::StrawTracker;
+DEFINE_ART_SERVICE(StrawTracker)

@@ -30,15 +30,15 @@
 namespace gm2ringsim {
 
     // The class
-    class Traceback : public artg4::DetectorBase {
+    class StrawTracker : public artg4::DetectorBase {
 
     public:
 
         // Constructor
-        Traceback(fhicl::ParameterSet const &, art::ActivityRegistry & );
+        StrawTracker(fhicl::ParameterSet const &, art::ActivityRegistry & );
 
         // We always need a virtual destructor
-        virtual ~Traceback() {};
+        virtual ~StrawTracker() {};
 
     private:
         TracebackGeometry geom_;
