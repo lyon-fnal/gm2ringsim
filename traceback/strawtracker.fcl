@@ -1,9 +1,9 @@
-// VacuumChamber geometry
+// Straw Tracker geometry
 //
 // Values are in mm unless otherwise specified
 
 BEGIN_PROLOG
-traceback_geom : {
+strawtracker_geom : {
     
 
   whichTracebackLocations: [12] //[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]
@@ -26,10 +26,10 @@ traceback_geom : {
   x_position_straw0: [10.79, 13.51, 30.59, 26.87]
   y_position: [13.0, 17.76, 32.7, 37.46]
   
-  displayStation: false
+  displayStation: true
   stationColor: [0.2, 0.6, 1.0, 1.0] //blue
   
-  displayStraw: false
+  displayStraw: true
   strawColor: [0.9, 0.8, 0.2, 1.0]
 
 }
