@@ -32,7 +32,7 @@
 #include "Geant4/G4Trap.hh"
 #include "Geant4/G4TwoVector.hh"
 
-#include "gm2ringsim/traceback/TracebackGeometry.hh"
+#include "gm2ringsim/traceback/StrawTrackerGeometry.hh"
 #include "gm2ringsim/traceback/StrawSD.hh"
 #include "gm2ringsim/traceback/StrawArtRecord.hh"
 #include "gm2ringsim/traceback/StrawHit.hh"
@@ -46,8 +46,8 @@
 // Constructor for the service 
 gm2ringsim::StrawTracker::StrawTracker(fhicl::ParameterSet const & p, art::ActivityRegistry & ) :
   DetectorBase(p,
-                   p.get<std::string>("name", "traceback"),
-                   p.get<std::string>("category", "traceback"),
+                   p.get<std::string>("name", "strawtracker"),
+                   p.get<std::string>("category", "strawtracker"),
                    p.get<std::string>("mother_category", "vac")),
   geom_(myName())
 {}

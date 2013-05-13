@@ -1,10 +1,10 @@
-#include "gm2ringsim/traceback/TracebackGeometry.hh"
+#include "gm2ringsim/traceback/StrawTrackerGeometry.hh"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "Geant4/globals.hh"
 #include <iostream>
 #include <sstream>
 
-gm2ringsim::TracebackGeometry::TracebackGeometry(std::string const & detName) :
+gm2ringsim::StrawTrackerGeometry::StrawTrackerGeometry(std::string const & detName) :
   GeometryBase(detName),
   whichTracebackLocations( p.get<std::vector<int>>("whichTracebackLocations")),
   strawStationLocation( p.get<std::vector<double>>("strawStationLocation")),
@@ -44,7 +44,7 @@ gm2ringsim::TracebackGeometry::TracebackGeometry(std::string const & detName) :
   
 }
 
-void gm2ringsim::TracebackGeometry::print() const{
+void gm2ringsim::StrawTrackerGeometry::print() const{
   std::ostringstream oss;
   
   oss << "  strawStationHeight="<< strawStationHeight << "\n";

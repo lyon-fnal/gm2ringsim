@@ -12,8 +12,8 @@
 
 namespace gm2ringsim {
   
-  struct TracebackGeometry : public artg4::GeometryBase {
-    TracebackGeometry(std::string const & detName="traceback");
+  struct StrawTrackerGeometry : public artg4::GeometryBase {
+    StrawTrackerGeometry(std::string const & detName="strawtracker");
     
     void print() const;
     

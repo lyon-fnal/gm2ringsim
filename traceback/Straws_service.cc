@@ -22,7 +22,7 @@
 #include "Geant4/G4UniformMagField.hh"
 #include "Geant4/G4SDManager.hh"
 
-#include "gm2ringsim/traceback/TracebackGeometry.hh"
+#include "gm2ringsim/traceback/StrawTrackerGeometry.hh"
 #include "gm2ringsim/traceback/StrawSD.hh"
 #include "gm2ringsim/traceback/StrawArtRecord.hh"
 #include "gm2ringsim/traceback/StrawHit.hh"
@@ -36,7 +36,7 @@ gm2ringsim::Straws::Straws(fhicl::ParameterSet const & p, art::ActivityRegistry 
     DetectorBase(p,
                    p.get<std::string>("name", "straws"),
                    p.get<std::string>("category", "straws"),
-                   p.get<std::string>("mother_category", "traceback")),
+                   p.get<std::string>("mother_category", "strawtracker")),
     strawSDname_("strawSD"),
     strawSD_(0)
 {
