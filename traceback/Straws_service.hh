@@ -50,7 +50,6 @@ namespace gm2ringsim {
         // Create the physical volumes
         virtual std::vector<G4VPhysicalVolume*> doPlaceToPVs( std::vector<G4LogicalVolume*>) override;
 
-        int FindValue(char indicator, std::string name);
         int extractValueFromName(std::string indicator, std::string name);
         // CHANGE_ME: Delete the next two functions if no hits
 

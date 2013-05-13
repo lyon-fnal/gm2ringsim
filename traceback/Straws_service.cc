@@ -91,20 +91,6 @@ std::vector<G4LogicalVolume *> gm2ringsim::Straws::doBuildLVs() {
   return straws;
 }
 
-int gm2ringsim::Straws::FindValue(char indicator, std::string name){
-
-  int value;
-  
-  std::string::size_type left_pn = name.find_first_of(indicator);
-  std::string::size_type right_pn = name.find_first_of(indicator);
-  std::string num_pn(name, left_pn+1, right_pn-1);
-  std::istringstream iss_pn(num_pn);
-  iss_pn >> value;
-  
-  return value;
-  
-}
-
 int gm2ringsim::Straws::extractValueFromName(std::string indicator, std::string name){
   
   int value;
@@ -156,7 +142,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Straws::doPlaceToPVs( std::vector<G
     yRot -> rotateY(rot); // Rotates 45 degrees
     G4ThreeVector placement(x, y, 0);
     
-    strawPVs.push_back(new G4PVPlacement(G4Transform3D(*yRot, placement),//
+    strawPVs.push_back(new G4PVPlacement(G4Transform3D(*yRot, placement),
                                          aStrawLV,
                                          strawPVName,
                                          planes[stationNumber],

@@ -20,7 +20,7 @@ traceback_geom : {
   startAngleOfTheStraw: 0 //deg
   spanningAngleOfTheStraw:  360. //deg
 
-  dist_btwn_wires: 5.5 //mm
+  dist_btwn_wires: 5.55 //mm
   straw_diameter: 5.1 //mm
 
   x_position_straw0: [10.79, 13.51, 30.59, 26.87]
