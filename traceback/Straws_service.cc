@@ -185,7 +185,7 @@ void gm2ringsim::Straws::doFillEventWithArtHits(G4HCofThisEvent * hc) {
     // Copy this hit into the Art hit
     for ( auto e : geantHits ) {
       
-      e->Print();
+      //e->Print();
       
       // Copy this hit into the Art hit
       

@@ -93,8 +93,8 @@
 
 #For Viewing Full Scallop & Calo at 12
 /vis/viewer/set/viewpointThetaPhi 90. 90.
-/vis/viewer/panTo -4.5 5.3
-/vis/viewer/zoomTo 20
+/vis/viewer/panTo -4.3 5.5
+/vis/viewer/zoomTo 25
 /vis/viewer/refresh
 
 #for viewing 3D straw stations at 18
