@@ -189,7 +189,7 @@ void gm2ringsim::Straws::doFillEventWithArtHits(G4HCofThisEvent * hc) {
       
       // Copy this hit into the Art hit
       
-      std::cout<<"Straw Number is: "<<e->straw<<std::endl;
+      //std::cout<<"Straw Number is: "<<e->straw<<std::endl;
       myArtHits->emplace_back( e->position.x(),e->position.y(),e->position.z(),e->position.r(),
                               e->local_position.x(),e->local_position.y(), e->local_position.z(),
                               e->momentum.x(),e->momentum.y(),e->momentum.z(),
