@@ -62,8 +62,6 @@ namespace gm2ringsim {
       // Convenience functions
         //G4UnionSolid* buildScallopSolid();
 
-        void makePlaneLVs(std::vector<G4LogicalVolume*>&);
-
     };
 }
 

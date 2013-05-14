@@ -52,24 +52,26 @@ gm2ringsim::StrawTracker::StrawTracker(fhicl::ParameterSet const & p, art::Activ
   geom_(myName())
 {}
 
+//Build the logical volumes
+std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
 
-void gm2ringsim::StrawTracker::makePlaneLVs(std::vector<G4LogicalVolume*>& planes){
-
+  std::vector<G4LogicalVolume*> stations;
+  
   for (unsigned int tb = 0; tb<geom_.whichTracebackLocations.size() ;tb++){
     for (unsigned int sc =0 ; sc<geom_.strawStationLocation.size(); sc++){
       
-      G4VSolid *strawSystem = new G4Box("strawSystem", geom_.strawStationSizeHalf[sc], geom_.strawStationWidthHalf, geom_.strawStationHeightHalf-10);
+      G4VSolid *strawStation = new G4Box("strawSystem", geom_.strawStationSizeHalf[sc], geom_.strawStationWidthHalf, geom_.strawStationHeightHalf-10);
       
-      std::string strawLVName = artg4::addNumberToName("StrawChamberLV", sc+tb);
+      std::string strawStationLVName = artg4::addNumberToName("StationChamberLV", sc+tb);
       
-      G4LogicalVolume* strawLV = new G4LogicalVolume(
-                                                     strawSystem,
-                                                     artg4Materials::Vacuum(),
-                                                     strawLVName,
-                                                     0,
-                                                     0);
+      G4LogicalVolume* strawStationLV = new G4LogicalVolume(
+                                                            strawStation,
+                                                            artg4Materials::Vacuum(),
+                                                            strawStationLVName,
+                                                            0,
+                                                            0);
       
-      artg4::setVisAtts( strawLV, geom_.displayStation, geom_.stationColor,
+      artg4::setVisAtts( strawStationLV, geom_.displayStation, geom_.stationColor,
                         [] (G4VisAttributes* att) {
                           att->SetForceSolid(0);
                           att->SetVisibility(1);
@@ -80,24 +82,12 @@ void gm2ringsim::StrawTracker::makePlaneLVs(std::vector<G4LogicalVolume*>& plane
       // We can make the physical volumes here
       //strawLV->SetSensitiveDetector( strawSD_ );
       
-      planes.push_back(strawLV);
+      stations.push_back(strawStationLV);
       
     }
   }
 
-
-}
-
-
-//Build the logical volumes
-std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
-
-  std::vector<G4LogicalVolume*> planes;
-  
-  makePlaneLVs(planes);
-  
-
-  return planes;
+  return stations;
   
 }
 
