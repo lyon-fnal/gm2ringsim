@@ -21,7 +21,7 @@
 #include "artg4/util/DataFromRunOrService.hh"
 
 // Hit includes
-#include "gm2ringsim/traceback/StrawArtRecord.hh"
+#include "gm2ringsim/strawtracker/StrawArtRecord.hh"
 #include "gm2ringsim/common/tracker/TrackerArtRecord.hh"
 #include "gm2ringsim/common/ring/RingArtRecord.hh"
 #include "gm2ringsim/actions/track/TrackingActionArtRecord.hh"
