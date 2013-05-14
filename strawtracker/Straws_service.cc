@@ -49,7 +49,7 @@ std::vector<G4LogicalVolume *> gm2ringsim::Straws::doBuildLVs() {
   std::vector<G4LogicalVolume*> straws;
   
   
-  for (unsigned int tb = 0; tb<geom_.whichTracebackLocations.size() ;tb++){
+  for (unsigned int tb = 0; tb<geom_.whichScallopLocations.size() ;tb++){
     for (unsigned int sc =0 ; sc<geom_.strawStationLocation.size(); sc++){
       for (int row = 0 ; row<4 ; row++){
 
@@ -135,7 +135,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Straws::doPlaceToPVs( std::vector<G
     else x = x - 6.58;
     y= geom_.y_position[rowNumber];
 
-    G4RotationMatrix* yRot = new G4RotationMatrix; // Rotates X and Z axes only
+    G4RotationMatrix* yRot = new G4RotationMatrix;
     double rot = 7.5*deg;
     if(rowNumber > 1) rot = -rot;
 

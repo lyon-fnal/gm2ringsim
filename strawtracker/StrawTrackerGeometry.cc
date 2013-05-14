@@ -6,7 +6,7 @@
 
 gm2ringsim::StrawTrackerGeometry::StrawTrackerGeometry(std::string const & detName) :
   GeometryBase(detName),
-  whichTracebackLocations( p.get<std::vector<int>>("whichTracebackLocations")),
+  whichScallopLocations( p.get<std::vector<int>>("whichScallopLocations")),
   strawStationLocation( p.get<std::vector<double>>("strawStationLocation")),
   strawStationSize( p.get<std::vector<double>>("strawStationSize")),
   strawStationOffset( p.get<std::vector<double>>("strawStationOffset")),  
@@ -50,6 +50,6 @@ void gm2ringsim::StrawTrackerGeometry::print() const{
   oss << "  strawStationHeight="<< strawStationHeight << "\n";
   oss << "  strawStationSize="; for (auto entry: strawStationSize) { oss << " " << entry; }; oss<< "\n";
   oss << "  strawStationLocations="; for (auto entry : strawStationLocation) { oss << " " << entry; }; oss << "\n";
-  oss << "  whichTracebackLocations="; for (auto entry : whichTracebackLocations) { oss << " " << entry; }; oss << "\n";
+  oss << "  whichScallopLocations="; for (auto entry : whichScallopLocations) { oss << " " << entry; }; oss << "\n";
   mf::LogInfo("TRACEBACK") << oss.str();
 }

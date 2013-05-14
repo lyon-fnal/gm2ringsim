@@ -57,7 +57,7 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
 
   std::vector<G4LogicalVolume*> stations;
   
-  for (unsigned int tb = 0; tb<geom_.whichTracebackLocations.size() ;tb++){
+  for (unsigned int tb = 0; tb<geom_.whichScallopLocations.size() ;tb++){
     for (unsigned int sc =0 ; sc<geom_.strawStationLocation.size(); sc++){
       
       G4VSolid *strawStation = new G4Box("strawSystem", geom_.strawStationSizeHalf[sc], geom_.strawStationWidthHalf, geom_.strawStationHeightHalf-10);
@@ -94,38 +94,38 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
 // Build the physical volumes
 std::vector<G4VPhysicalVolume *> gm2ringsim::StrawTracker::doPlaceToPVs( std::vector<G4LogicalVolume*> vacs) {
   
-  std::vector<G4VPhysicalVolume*> strawPVs;
-  //strawPVs.resize(lvs().size());
+  std::vector<G4VPhysicalVolume*> strawStationPVs;
   
   const VacGeometry vacg("vac");
   int i = 0;
-  int tracebackIndex, tracebackNumber;
-  int numberOfStraws = lvs().size();
-  int numberOfStrawStationsPerTB = numberOfStraws/geom_.whichTracebackLocations.size();
-  int stationInTBNumber;
+  int strawTrackerIndex, strawTrackerNumber;
+  int numberOfStations = lvs().size();
+  int numberOfStationsPerTracker = numberOfStations/geom_.whichScallopLocations.size();
+  int stationIndex;
   
   //loop over the logical volumes
-  for ( auto aStrawLV : lvs() ) {
+  for ( auto aStrawStationLV : lvs() ) {
     // We to name the station including its station number
     // g2migtrace used sprintf. Let's use boost::format instead
     // (see http://www.boost.org/doc/libs/1_52_0/libs/format/doc/format.html )
-    tracebackIndex = i/numberOfStrawStationsPerTB;
-    tracebackNumber = geom_.whichTracebackLocations[tracebackIndex];
-    stationInTBNumber = i%numberOfStrawStationsPerTB;
+    strawTrackerIndex = i/numberOfStationsPerTracker;
+    strawTrackerNumber = geom_.whichScallopLocations[strawTrackerIndex];
+    stationIndex = i%numberOfStationsPerTracker;
 
     
-    std::string tracebackLabel( boost::str( boost::format("TracebackNumber[%d][%d]") %tracebackNumber %stationInTBNumber));
+    std::string strawStationLabel( boost::str( boost::format("strawStationNumber[%d][%d]") %strawTrackerNumber %stationIndex));
 
     G4double
     x = 7010,
     z = 0,
     //phi = 12.8,
-    ds = geom_.strawStationLocation[stationInTBNumber],
+    ds = geom_.strawStationLocation[stationIndex],
     deltaX =0;
     
-    int arcPosition = tracebackNumber % 2;
-    int arcNumber = floor(tracebackNumber/2);
-    double distance_from_edge = (geom_.strawStationSizeHalf[stationInTBNumber] + geom_.strawStationOffset[stationInTBNumber]);
+    int arcPosition = strawTrackerNumber % 2;
+    int arcNumber = floor(strawTrackerNumber/2);
+    
+    double distance_from_edge = (geom_.strawStationSizeHalf[stationIndex] + geom_.strawStationOffset[stationIndex]);
     deltaX = ds*sin(vacg.phi_a);
     double deltaX_c = deltaX - distance_from_edge*cos(vacg.phi_a);
     x = x - deltaX_c;
@@ -138,9 +138,9 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::StrawTracker::doPlaceToPVs( std::ve
     G4Transform3D out_transform(G4RotationMatrix( -15*deg -vacg.phi_a*arcPosition, 0, 0),
                                     G4ThreeVector(fixup.x(), fixup.y(), 0. ) );
 
-    strawPVs.push_back(new G4PVPlacement(out_transform,
-                                         aStrawLV,
-                                         tracebackLabel,
+    strawStationPVs.push_back(new G4PVPlacement(out_transform,
+                                         aStrawStationLV,
+                                         strawStationLabel,
                                          vacs[ arcNumber ],
                                          false,
                                          0, true
@@ -149,19 +149,10 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::StrawTracker::doPlaceToPVs( std::ve
     
     i++;
   }
-  return strawPVs;
+  return strawStationPVs;
 
 
 }
-
-// Declare to Art what we are producing
-//void gm2ringsim::Traceback::doCallArtProduces(art::EDProducer * producer) {
-//}
-
-
-// Actually add the data to the event
-//void gm2ringsim::Traceback::doFillEventWithArtHits(G4HCofThisEvent * hc) {
-//}
 
 using gm2ringsim::StrawTracker;
 DEFINE_ART_SERVICE(StrawTracker)

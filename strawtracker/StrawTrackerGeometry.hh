@@ -17,7 +17,7 @@ namespace gm2ringsim {
     
     void print() const;
     
-    std::vector<int> whichTracebackLocations;
+    std::vector<int> whichScallopLocations;
     std::vector<double> strawStationLocation;
     std::vector<double> strawStationSize;
     std::vector<double> strawStationOffset;
