@@ -1,7 +1,7 @@
 // Traceback Geometry
 
-#ifndef TRACEBACKGEOMETRY_HH
-#define TRACEBACKGEOMETRY_HH
+#ifndef STRAWTRACKERGEOMETRY_HH
+#define STRAWTRACKERGEOMETRY_HH
 
 #include "artg4/Core/GeometryBase.hh"
 

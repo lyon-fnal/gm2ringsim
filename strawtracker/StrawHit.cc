@@ -19,7 +19,7 @@
 #include "Geant4/G4TransportationManager.hh"
 #include "Geant4/G4Navigator.hh"
 
-#include "gm2ringsim/traceback/StrawHit.hh"
+#include "gm2ringsim/strawtracker/StrawHit.hh"
 //FIXME: do i need this?#include "g2UniqueObjectManager.rhh"
 namespace gm2ringsim {
     G4Allocator<StrawHit> StrawHitAllocator;

@@ -14,7 +14,7 @@
 #include "Geant4/G4Step.hh"
 #include "Geant4/G4HCofThisEvent.hh"
 
-#include "gm2ringsim/traceback/StrawHit.hh"
+#include "gm2ringsim/strawtracker/StrawHit.hh"
 
 //class StrawSDMessenger;
 

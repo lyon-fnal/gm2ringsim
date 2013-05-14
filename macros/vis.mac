@@ -89,7 +89,7 @@
 #/vis/viewer/set/targetPoint -4669.59 0 5078.07 mm
 #/vis/viewer/zoomTo 64
 
-#******For TRACEBACK VIEWS ********
+#******For StrawTracker VIEWS ********
 
 #For Viewing Full Scallop & Calo at 12
 /vis/viewer/set/viewpointThetaPhi 90. 90.

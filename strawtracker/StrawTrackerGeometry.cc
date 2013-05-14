@@ -1,4 +1,4 @@
-#include "gm2ringsim/traceback/StrawTrackerGeometry.hh"
+#include "gm2ringsim/strawtracker/StrawTrackerGeometry.hh"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "Geant4/globals.hh"
 #include <iostream>

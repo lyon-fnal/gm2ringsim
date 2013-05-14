@@ -1,6 +1,6 @@
 // Implementation of Straws
 
-#include "gm2ringsim/traceback/Straws_service.hh"
+#include "gm2ringsim/strawtracker/Straws_service.hh"
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "artg4/material/Materials.hh"
@@ -22,10 +22,10 @@
 #include "Geant4/G4UniformMagField.hh"
 #include "Geant4/G4SDManager.hh"
 
-#include "gm2ringsim/traceback/StrawTrackerGeometry.hh"
-#include "gm2ringsim/traceback/StrawSD.hh"
-#include "gm2ringsim/traceback/StrawArtRecord.hh"
-#include "gm2ringsim/traceback/StrawHit.hh"
+#include "gm2ringsim/strawtracker/StrawTrackerGeometry.hh"
+#include "gm2ringsim/strawtracker/StrawSD.hh"
+#include "gm2ringsim/strawtracker/StrawArtRecord.hh"
+#include "gm2ringsim/strawtracker/StrawHit.hh"
 
 #include "boost/format.hpp"
 

@@ -20,8 +20,8 @@
 
 // Get the base class for the service
 #include "artg4/Core/DetectorBase.hh"
-#include "gm2ringsim/traceback/StrawTrackerGeometry.hh"
-#include "gm2ringsim/traceback/StrawSD.hh"
+#include "gm2ringsim/strawtracker/StrawTrackerGeometry.hh"
+#include "gm2ringsim/strawtracker/StrawSD.hh"
 
 // Within a namespace
 namespace gm2ringsim {

@@ -1,7 +1,7 @@
-// Implementation of Traceback
+// Implementation of Straw Tracker
 
 
-#include "gm2ringsim/traceback/StrawTracker_service.hh"
+#include "gm2ringsim/strawtracker/StrawTracker_service.hh"
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 
@@ -32,10 +32,10 @@
 #include "Geant4/G4Trap.hh"
 #include "Geant4/G4TwoVector.hh"
 
-#include "gm2ringsim/traceback/StrawTrackerGeometry.hh"
-#include "gm2ringsim/traceback/StrawSD.hh"
-#include "gm2ringsim/traceback/StrawArtRecord.hh"
-#include "gm2ringsim/traceback/StrawHit.hh"
+#include "gm2ringsim/strawtracker/StrawTrackerGeometry.hh"
+#include "gm2ringsim/strawtracker/StrawSD.hh"
+#include "gm2ringsim/strawtracker/StrawArtRecord.hh"
+#include "gm2ringsim/strawtracker/StrawHit.hh"
 
 #include "gm2ringsim/vac/VacGeometry.hh"
 

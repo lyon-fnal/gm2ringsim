@@ -1,8 +1,8 @@
 // Tracker detector service for 
 
 // Include guards
-#ifndef TRACEBACK_HH
-#define TRACEBACK_HH
+#ifndef STRAWTRACKER_HH
+#define STRAWTRACKER_HH
 
 // Includes
 #include "fhiclcpp/ParameterSet.h"
@@ -16,9 +16,9 @@
 #include "Geant4/G4LogicalVolume.hh"
 #include "Geant4/G4VPhysicalVolume.hh"
 #include "Geant4/G4UnionSolid.hh"
-#include "gm2ringsim/traceback/StrawSD.hh"
+#include "gm2ringsim/strawtracker/StrawSD.hh"
 
-#include "gm2ringsim/traceback/StrawTrackerGeometry.hh"
+#include "gm2ringsim/strawtracker/StrawTrackerGeometry.hh"
 #include "gm2ringsim/vac/VacGeometry.hh"
 
 #include <vector>
