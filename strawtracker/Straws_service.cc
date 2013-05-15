@@ -66,8 +66,8 @@ std::vector<G4LogicalVolume *> gm2ringsim::Straws::doBuildLVs() {
           int stationNumber = sc + tb*geom_.strawStationLocation.size();
           
           std::string strawLVName( boost::str( boost::format("SingleStrawLV-strawInRow%d-rowNumber%d-stationNumber%d") %st
-                                                                                                                 %row
-                                                                                                                 %stationNumber));
+                                                                                                                       %row
+                                                                                                                       %stationNumber));
 
           G4LogicalVolume* strawLV = new G4LogicalVolume(
                                                        tracker_tube,
@@ -126,7 +126,12 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Straws::doPlaceToPVs( std::vector<G
     rowNumber = extractValueFromName("rowNumber",aStrawLV->GetName());
     stationNumber = extractValueFromName("stationNumber",aStrawLV->GetName());
     
-    std::string strawPVName( boost::str( boost::format("SingleStrawPV[%d]") %strawNumber));
+    std::string strawPVName(
+                  boost::str(
+                    boost::format("SingleStrawPV-strawInRow%d-rowNumber%d-stationNumber%d-strawNumber%d") %strawInRow
+                                                                                                          %rowNumber
+                                                                                                          %stationNumber
+                                                                                                          %strawNumber));
 
     int stationIndex = stationNumber % geom_.strawStationSize.size();
     
@@ -185,7 +190,7 @@ void gm2ringsim::Straws::doFillEventWithArtHits(G4HCofThisEvent * hc) {
     // Copy this hit into the Art hit
     for ( auto e : geantHits ) {
       
-      //e->Print();
+      e->Print();
       
       // Copy this hit into the Art hit
       
@@ -197,7 +202,7 @@ void gm2ringsim::Straws::doFillEventWithArtHits(G4HCofThisEvent * hc) {
                               e->time,
                               e->trackID,
                               e->volumeUID,
-                              e->straw,
+                              e->strawInRow, e->rowNumber, e->stationNumber, e->strawNumber,
                               e->particle_name, e->parent_ID);
       
     } //loop over geantHits

@@ -61,8 +61,11 @@ void gm2ringsim::TrackReconstruct::analyze(art::Event const & e)
   // Resolve the handle
   // Let's use the nice C++11 vector iteration
   for (auto hdata : hits){
-    mf::LogInfo("TrackReconstruct") << hdata.x_global;
-    
+    std::cout <<"StrawNumber: "<< hdata.strawNumber
+              <<"; StrawInRow: "<< hdata.strawInRow
+              <<"; rowNumber: "<<hdata.rowNumber
+              <<"; stationNumber: "<<hdata.stationNumber
+    <<std::endl;
     
   }
 }

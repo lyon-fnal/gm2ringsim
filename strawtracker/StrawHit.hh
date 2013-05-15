@@ -28,13 +28,19 @@ namespace gm2ringsim {
     G4double time;
     G4int trackID;
     G4int volumeUID;
-    G4int straw;
+    //G4int straw;
     G4String particle_name;
     G4int parent_ID;
     StrawHit(G4Step*);
     
+    G4int strawInRow;
+    G4int rowNumber;
+    G4int stationNumber;
+    G4int strawNumber;
+    
     inline void* operator new(size_t);
     inline void operator delete(void*);
+    G4int extractValueFromName(std::string indicator, std::string name);
     
     void Draw();
     void Print();

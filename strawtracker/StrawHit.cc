@@ -25,6 +25,23 @@ namespace gm2ringsim {
     G4Allocator<StrawHit> StrawHitAllocator;
 }
 
+G4int gm2ringsim::StrawHit::extractValueFromName(std::string indicator, std::string name){
+  
+  G4int value;
+  
+  unsigned first = name.find(indicator);
+  first = first+indicator.length();
+  std::string str = name.substr(first);
+  unsigned second = str.find("-");
+  std::string num(name, first, second);
+  
+  std::istringstream iss(num);
+  iss >> value;
+  
+  return value;
+  
+  
+}
 
 gm2ringsim::StrawHit::StrawHit(G4Step* step) :
     position(step->GetPreStepPoint()->GetPosition()),
@@ -38,11 +55,10 @@ gm2ringsim::StrawHit::StrawHit(G4Step* step) :
   
   // get straw number
   
-  std::string::size_type left_tb = name.find_first_of('[');
-  std::string::size_type right_tb = name.find_first_of(']');
-  std::string num_tb(name, left_tb+1, right_tb-1);
-  std::istringstream iss_tb(num_tb);
-  iss_tb >> straw;
+  strawInRow = extractValueFromName("strawInRow", step->GetPreStepPoint()->GetPhysicalVolume()->GetName());
+  rowNumber = extractValueFromName("rowNumber", step->GetPreStepPoint()->GetPhysicalVolume()->GetName());
+  stationNumber = extractValueFromName("stationNumber", step->GetPreStepPoint()->GetPhysicalVolume()->GetName());
+  strawNumber = extractValueFromName("strawNumber", step->GetPreStepPoint()->GetPhysicalVolume()->GetName());
   
   particle_name = step->GetTrack()->GetParticleDefinition()->GetParticleName();
   parent_ID = step->GetTrack()->GetParentID();
