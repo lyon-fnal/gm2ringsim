@@ -11,7 +11,7 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
 
-#include "gm2ringsim/traceback/StrawArtRecord.hh"
+#include "gm2ringsim/strawtracker/StrawArtRecord.hh"
 
 #include "art/Framework/Services/Optional/TFileService.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
@@ -25,13 +25,13 @@ namespace gm2ringsim {
 
 
 struct gm2ringsim::Track{
-  std::vector<int> strawPlanes;
-  std::vector<int> tracebackLocations;
+  std::vector<int> strawsHit;
   std::vector<int> trackID;
   std::vector<TVector3> position;
   std::vector<std::string> particle_name;
   std::vector<int> parentID;
 };
+
 
 
 //class GoodStrawHits;
@@ -83,16 +83,12 @@ bool gm2ringsim::GoodStrawHits::filter(art::Event & e)
 
   for ( auto hdata : hits) {
     TVector3 the_position(hdata.x_global, hdata.z_global, hdata.y_global);
-    track_info.strawPlanes.push_back(hdata.strawNumber);
+    track_info.strawsHit.push_back(hdata.strawNumber);
     track_info.position.push_back(the_position);
     track_info.trackID.push_back(hdata.trackID);
     track_info.particle_name.push_back(hdata.particle_name);
     track_info.parentID.push_back(hdata.parent_ID);
   }
-  
-  std::vector<int>::iterator it_tb;
-  it_tb = std::unique (track_info.tracebackLocations.begin(), track_info.tracebackLocations.end());
-  track_info.tracebackLocations.resize( std::distance(track_info.tracebackLocations.begin(),it_tb) );
   
   std::vector<std::string>::iterator it_partname;
   it_partname = std::unique (track_info.particle_name.begin(), track_info.particle_name.end());
@@ -102,24 +98,22 @@ bool gm2ringsim::GoodStrawHits::filter(art::Event & e)
   it_parentID = std::unique (track_info.parentID.begin(), track_info.parentID.end());
   track_info.parentID.resize(std::distance(track_info.parentID.begin(),it_parentID));
   
-  bool is_one_traceback=false;
   bool is_all_electrons=false;
   bool is_muon_parent=false;
   bool is_in_order = false;
-  bool is_nHits_gt4_lt10 = false;
+  bool is_nHits_gt4_lt11 = false;
   
-  std::vector<int> strawNumberCompare = track_info.strawPlanes;
+  std::vector<int> strawsHitCompare = track_info.strawsHit;
   
-  std::sort(strawNumberCompare.begin(),strawNumberCompare.end());
+  std::sort(strawsHitCompare.begin(),strawsHitCompare.end());
   
-  if(strawNumberCompare == track_info.strawPlanes) is_in_order = true;
-  if(track_info.strawPlanes.size() > 4 && track_info.strawPlanes.size() < 10) is_nHits_gt4_lt10 = true;
+  if(strawsHitCompare == track_info.strawsHit) is_in_order = true;
+  if(track_info.strawsHit.size() > 4 && track_info.strawsHit.size() < 11) is_nHits_gt4_lt11 = true;
   
-  if (track_info.tracebackLocations.size() == 1) is_one_traceback = true;
   if (track_info.particle_name.size() == 1 && track_info.particle_name[0] == "e-") is_all_electrons = true;
   if (track_info.parentID.size() == 1 && track_info.parentID[0] == 1) is_muon_parent = true;
   
-  if(is_one_traceback && is_all_electrons && is_muon_parent && is_in_order && is_nHits_gt4_lt10) return true;
+  if(is_all_electrons && is_muon_parent && is_in_order && is_nHits_gt4_lt11) return true;
   else return false;
 
   
