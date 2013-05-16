@@ -27,7 +27,10 @@ namespace gm2ringsim {
       time(0),
       p(0),
       prhat(0),
-      pvhat(0)
+      pvhat(0),
+      polx(0),
+      poly(0),
+      polz(0)
     {}
     
     // Members of this struct are all public, and are modified in the 
@@ -69,6 +72,8 @@ namespace gm2ringsim {
 
     // Fraction of the particle's momentum oriented vertically at birth
     double pvhat;
+
+    double polx, poly, polz;
   };
 
   // Define a collection of these hits

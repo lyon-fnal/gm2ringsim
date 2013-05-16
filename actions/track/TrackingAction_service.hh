@@ -56,6 +56,9 @@ namespace gm2ringsim {
     virtual void fillEventWithArtStuff(art::Event & e);
 
   private:
+    
+    bool OnlyTrackMuons_;
+
     // Our collection of track hits
     std::unique_ptr<TrackingActionArtRecordCollection> myArtHits_;
 

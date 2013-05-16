@@ -31,6 +31,8 @@ namespace gm2ringsim
     void setMaximumOpticalWavelength(G4double maxWavelength );
     
   private:
+    bool OnlyTrackMuons_;
+
     G4double minWavelength_;
     G4double maxWavelength_;
     
