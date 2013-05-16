@@ -22,6 +22,7 @@ G4Allocator<TrackerHit> TrackerHitAllocator;
 gm2ringsim::TrackerHit::TrackerHit(G4Step* step) : 
   position(step->GetPreStepPoint()->GetPosition()),
   momentum(step->GetPreStepPoint()->GetMomentum()),
+  polarization(step->GetPreStepPoint()->GetPolarization()),
   time(step->GetPreStepPoint()->GetGlobalTime()),
   turnNum(TurnCounter::getInstance().turns()),
   //turnNum(0), // FIXME: If i initialize with zero, update below
@@ -70,6 +71,7 @@ void gm2ringsim::TrackerHit::Draw(){
 void gm2ringsim::TrackerHit::Print(){
   G4cout << " TrackerHit::Print() --- turnNum: " << turnNum
 	 << " time: " << time
+	 << " polarization: " << polarization
 	 << " position: " << position
 	 << "\n";
 }
