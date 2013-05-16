@@ -1,0 +1,6 @@
+#!/bin/sh
+
+filestomove="allrun.sh   makefcl.sh   move.sh  plotinflector.C  plotinf.sh  run.sh  submit.sh"
+for file in ${filestomove}; do
+    cp ${file} ../../fcl/
+done
