@@ -4,6 +4,7 @@
 BEGIN_PROLOG
 
 quad_geom : {	
+	DoScraping : true
 	  topBottomWidth : 4.7 //cm
 	  topBottomThickness : 0.3 //cm
           innerOuterWidth : 4.382 //cm

@@ -15,6 +15,7 @@ namespace gm2ringsim {
     QuadGeometry(std::string const &);
     void print() const;
 
+    bool DoScraping;
     const double topBottomWidth;
     const double topBottomThickness;
     const double innerOuterWidth;

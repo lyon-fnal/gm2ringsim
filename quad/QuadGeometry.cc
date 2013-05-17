@@ -8,6 +8,7 @@
 
 gm2ringsim::QuadGeometry::QuadGeometry(std::string const & detName) :
   GeometryBase(detName),
+  DoScraping( p.get<bool>("DoScraping")),
   topBottomWidth( p.get<double>("topBottomWidth") * cm),
   topBottomThickness( p.get<double>("topBottomThickness") * cm),
   innerOuterWidth( p.get<double>("innerOuterWidth") * cm),
@@ -100,6 +101,7 @@ gm2ringsim::QuadGeometry::QuadGeometry(std::string const & detName) :
 
 void gm2ringsim::QuadGeometry::print() const { 
   std::ostringstream oss;
+  oss << "  DoScraping=" << DoScraping << "\n";
   oss << "  topBottomWidth=" << topBottomWidth << "\n";
   oss << "  topBottomThickness=" << topBottomThickness << "\n";
   oss << "  innerOuterWidth=" << innerOuterWidth << "\n";

@@ -55,6 +55,7 @@
 #include "Geant4/G4ChordFinder.hh"
 #include "Geant4/G4EqMagElectricField.hh"
 #include "Geant4/G4EqEMFieldWithSpin.hh"
+#include "Geant4/G4EqEMFieldWithEDM.hh"
 #include "Geant4/G4ClassicalRK4.hh"
 #include "Geant4/G4UserLimits.hh"
 
@@ -68,12 +69,16 @@ gm2ringsim::Quad::Quad(fhicl::ParameterSet const & p, art::ActivityRegistry & ) 
 	       p.get<std::string>("mother_category", "vac")),
   sts_("SpinTracking"),
   qg_(myName()), //QuadGeometry
-  qff_(),
+  qff_(qg_.DoScraping),
   spin_tracking_(sts_.spinTrackingEnabled)
   // The rest of the internal variables are things like pointers
   // and structures that get created/assigned below
 {
-  printf("In the Quad constructor \n");
+
+  G4cout << "=========== Quad ===========" << G4endl;
+  G4cout << "| DoScraping = " << qg_.DoScraping << G4endl;
+  G4cout << "============================" << G4endl;
+  //printf("In the Quad constructor \n");
   
   //Create 2D array from vectors passed in
   for (int i=0;i<6;++i){
@@ -221,9 +226,9 @@ void gm2ringsim::Quad::buildPlatesSandL(G4int quadRegion, G4int sectionType){
   RingSD* ringSD = artg4::getSensitiveDetector<RingSD>("RingSD"); 
 
   
-  printf("about to buildPlatesSandL\n");
+  //printf("about to buildPlatesSandL\n");
   for(G4int plateType=0; plateType!=qg_.numPlateTypes; plateType++){
-    printf("Getting plate parameters for q=%d,s=%d,p=%d\n",quadRegion,sectionType,plateType);
+    //printf("Getting plate parameters for q=%d,s=%d,p=%d\n",quadRegion,sectionType,plateType);
     plate_params p = get_plate_params(quadRegion, sectionType, plateType);
     p.print();
     mf::LogDebug("Quad_service") << p.rmin << ' ' << p.rmax << ' '
@@ -468,7 +473,7 @@ void gm2ringsim::Quad::assignFieldManagers(){
 
 void gm2ringsim::Quad::buildFieldManagers(G4int quadRegion, G4int sectionType) {
   
-  G4cout << "buildFieldManagers: " << quadRegion << ' ' << sectionType << '\n';
+  //G4cout << "buildFieldManagers: " << quadRegion << ' ' << sectionType << '\n';
   
   G4ElectroMagneticField *field;
   G4EquationOfMotion *equation;
@@ -489,12 +494,13 @@ void gm2ringsim::Quad::buildFieldManagers(G4int quadRegion, G4int sectionType) {
   
   // not shared ... spin 
   equation = new G4EqEMFieldWithSpin(field);
+  //G4EqEMFieldWithEDM *equation2 = new G4EqEMFieldWithEDM(field);
+  //equation2->SetEta(1e-19);
   stepper = new G4ClassicalRK4(equation, 12); // modifies spin, so 12
   driver = new G4MagInt_Driver(0.01*mm, stepper, stepper->GetNumberOfVariables());
   chord = new G4ChordFinder(driver);
   withSpin_[quadRegion][sectionType] = 
     new G4FieldManager(field,chord,true);
-  
 }
 
 // CHANGE_ME: You can delete the below if this detector creates no data

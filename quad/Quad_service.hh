@@ -178,6 +178,7 @@ namespace gm2ringsim {
     // quad region, section  
     G4FieldManager *withoutSpin_[4][2];
     G4FieldManager *withSpin_[4][2];
+    G4FieldManager *withEDM_[4][2];
 
     //      enum plate_type {INNERPLATE, OUTERPLATE, TOPPLATE, BOTTOMPLATE, plate_type_end};
     
