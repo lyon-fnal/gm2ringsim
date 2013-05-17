@@ -2,6 +2,9 @@
 BEGIN_PROLOG 
 
 kicker_geom : {
+
+   TypeOfKick: LCR
+
 	    	  
    kickTime1 : 120 //ns 
    kickTime2 : 197.5 //ns 

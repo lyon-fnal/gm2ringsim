@@ -142,7 +142,9 @@ gm2ringsim::LCRKickField::LCRKickField(G4double kickerHV,
   C(circuitC), L(circuitL), R(circuitR),
   omega(sqrt( 1/(L*C) - (R*R/( 4.0*L*L )) )),
   X( R/( 2.0*L ) ), i0( HV / ( omega*L ) )
-{}
+{
+  G4cout << "Kicker HV is " << kickerHV << G4endl;
+}
 
 void gm2ringsim::LCRKickField::KickFieldValue(double const Point[4],
 				  double Kfield[3]) const {
@@ -202,7 +204,7 @@ gm2ringsim::SquareKickField::SquareKickField(G4double kickSquareField,
 				 KickModifier* mod) : 
   KickField(mod), squareField(kickSquareField) 
 {
-  //  std::cout << "Square field: " << squareField << '\n';
+  std::cout << "Square field: " << squareField << '\n';
 }
 
 namespace{
