@@ -74,9 +74,26 @@ gm2ringsim::Quad::Quad(fhicl::ParameterSet const & p, art::ActivityRegistry & ) 
   // The rest of the internal variables are things like pointers
   // and structures that get created/assigned below
 {
+  if ( qg_.SupportMaterial == "Macor" || qg_.SupportMaterial == "MACOR" || qg_.SupportMaterial == "MacorCeramic" ) {
+    support_material = artg4Materials::MacorCeramic();
+  }
+  if ( qg_.SupportMaterial == "Beryl" || qg_.SupportMaterial == "Be" || qg_.SupportMaterial == "Beryllium" ) {
+    support_material = artg4Materials::Be();
+  }
+  if ( qg_.SupportMaterial == "Massless" || qg_.SupportMaterial == "Vacuum" || qg_.SupportMaterial == "None" ) {
+    support_material = artg4Materials::Vacuum();
+  }
+  if ( qg_.PlateMaterial == "Al" || qg_.PlateMaterial == "Aluminum" ) {
+    plate_material = artg4Materials::Al();
+  }
+  if ( qg_.PlateMaterial == "Massless" || qg_.PlateMaterial == "Vacuum" || qg_.PlateMaterial == "None" ) {
+    plate_material = artg4Materials::Vacuum();
+  }
 
   G4cout << "=========== Quad ===========" << G4endl;
-  G4cout << "| DoScraping = " << qg_.DoScraping << G4endl;
+  G4cout << "| DoScraping       = " << qg_.DoScraping << G4endl;
+  G4cout << "| Support Material = " << qg_.SupportMaterial << G4endl;
+  G4cout << "| Plate Material   = " << qg_.PlateMaterial << G4endl;
   G4cout << "============================" << G4endl;
   //printf("In the Quad constructor \n");
   
@@ -278,7 +295,7 @@ void gm2ringsim::Quad::buildPlatesSandL(G4int quadRegion, G4int sectionType){
     //G4LogicalVolume *
     genericQuadPlate_L_[quadRegion][sectionType][plateType] =
       new G4LogicalVolume(plate_S,
-			  artg4Materials::Al(),
+			  plate_material,
 			  "genericQuadPlate_L");
     
     artg4::setVisAtts( genericQuadPlate_L_[quadRegion][sectionType][plateType],
@@ -413,10 +430,11 @@ void gm2ringsim::Quad::buildInnerOuterSupportsSandL(G4int quadRegion, G4int sect
 			      OSMTransform);
     
       
+
       //      G4LogicalVolume *genericInnerSupport_L = 
       genericInnerSupport_L_[quadRegion][sectionType][sPair] =
 	new G4LogicalVolume(genericInnerSupport_IS,
-			    artg4Materials::MacorCeramic(),
+			    support_material,
 			    "genericInnerSupport_L");
       
     
@@ -424,7 +442,7 @@ void gm2ringsim::Quad::buildInnerOuterSupportsSandL(G4int quadRegion, G4int sect
       //      G4LogicalVolume *genericOuterSupport_L = 
       genericOuterSupport_L_[quadRegion][sectionType][sPair] =
 	new G4LogicalVolume(genericOuterSupport_IS,
-			    artg4Materials::MacorCeramic(),
+			    support_material,
 			    "genericOuterSupport_L");
       
 

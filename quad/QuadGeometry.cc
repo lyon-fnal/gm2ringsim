@@ -9,6 +9,7 @@
 gm2ringsim::QuadGeometry::QuadGeometry(std::string const & detName) :
   GeometryBase(detName),
   DoScraping( p.get<bool>("DoScraping")),
+  PlateMaterial(p.get<std::string>("PlateMaterial", "Al")),
   topBottomWidth( p.get<double>("topBottomWidth") * cm),
   topBottomThickness( p.get<double>("topBottomThickness") * cm),
   innerOuterWidth( p.get<double>("innerOuterWidth") * cm),
@@ -20,6 +21,7 @@ gm2ringsim::QuadGeometry::QuadGeometry(std::string const & detName) :
   innerCurlMajorRadius( p.get<double>("innerCurlMajorRadius") * cm),
   outerCurlMajorRadius( p.get<double>("outerCurlMajorRadius") * cm),
   curlHeightAboveMidplane( p.get<double>("curlHeightAboveMidplane") * cm),
+  SupportMaterial( p.get<std::string>("SupportMaterial", "Macor")),
   support_nPlanes( p.get<int>("support_nPlanes") ),
   support_rInner( p.get<std::vector<double>>("support_rInner") ),
   support_rOuter( p.get<std::vector<double>>("support_rOuter") ),
@@ -113,6 +115,7 @@ void gm2ringsim::QuadGeometry::print() const {
   oss << "  innerCurlMajorRadius=" << innerCurlMajorRadius << "\n";
   oss << "  outerCurlMajorRadius=" << outerCurlMajorRadius << "\n";
   oss << "  curlHeightAboveMidplane=" << curlHeightAboveMidplane << "\n";
+  oss << "  SupportMaterial=" << SupportMaterial << "\n";
   oss << "  support_nPlanes=" << support_nPlanes << "\n";
   oss << "  support_rInner= "; for (auto entry : support_rInner) { oss << " " << entry; }; oss << "\n";
   oss << "  support_rOuter= "; for (auto entry : support_rOuter) { oss << " " << entry; }; oss << "\n";
