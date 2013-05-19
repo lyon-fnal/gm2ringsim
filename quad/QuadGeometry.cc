@@ -9,6 +9,8 @@
 gm2ringsim::QuadGeometry::QuadGeometry(std::string const & detName) :
   GeometryBase(detName),
   DoScraping( p.get<bool>("DoScraping")),
+  ScrapeHV( p.get<double>("ScrapeHV")*kilovolt),
+  StoreHV( p.get<double>("StoreHV")*kilovolt),
   PlateMaterial(p.get<std::string>("PlateMaterial", "Al")),
   topBottomWidth( p.get<double>("topBottomWidth") * cm),
   topBottomThickness( p.get<double>("topBottomThickness") * cm),
@@ -104,6 +106,8 @@ gm2ringsim::QuadGeometry::QuadGeometry(std::string const & detName) :
 void gm2ringsim::QuadGeometry::print() const { 
   std::ostringstream oss;
   oss << "  DoScraping=" << DoScraping << "\n";
+  oss << "  ScrapeHV=" << ScrapeHV << "\n";
+  oss << "  StoreHV=" << StoreHV << "\n";
   oss << "  topBottomWidth=" << topBottomWidth << "\n";
   oss << "  topBottomThickness=" << topBottomThickness << "\n";
   oss << "  innerOuterWidth=" << innerOuterWidth << "\n";

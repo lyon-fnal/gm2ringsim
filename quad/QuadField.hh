@@ -93,11 +93,13 @@ namespace gm2ringsim {
     bool do_scraping(bool enable);
     
   private:
-    QuadField(InnerFieldImpl *ifi, OuterFieldImpl *ofi, bool DoScraping);
+    QuadField(InnerFieldImpl *ifi, OuterFieldImpl *ofi, bool DoScraping, double ScrapeHV, double StoreHV);
     InnerFieldImpl const *ifi_;
     OuterFieldImpl const *ofi_;
     double scrapingTurnOffTime, quadTimeConstant, timeOffset;
     bool do_scraping_;
+    double ScrapeHV_;
+    double StoreHV_;
   };
 
 
@@ -131,6 +133,8 @@ public:
 private:
   double storage_tb_volts_;
   bool DoScraping_;
+  double ScrapeHV_;
+  double StoreHV_;
   double scraping_dvolts_[4];
 };
 
@@ -176,6 +180,8 @@ public:
 private:
   double storage_tb_volts_;
   bool DoScraping_;
+  double ScrapeHV_;
+  double StoreHV_;
   double scraping_dvolts_[4];
   static double const rmax;
 };
@@ -196,7 +202,7 @@ enum outer_field_impl_type { VANISHING_OUTER, SIMPLE_OUTER };
 /** A concrete factory that creates the concrete quadField. */
 class QuadFieldFactory {
 public:
-  QuadFieldFactory(bool DoScraping);
+  QuadFieldFactory(bool DoScraping, double ScrapeHV, double StoreHV);
   virtual ~QuadFieldFactory();
   QuadField* buildQuadField(int quadNumber, int quadSection);
 
@@ -211,6 +217,8 @@ private:
   OuterFieldImpl *ofi_[4][2];
 
   bool DoScraping_;
+  double ScrapeHV_;
+  double StoreHV_;
 };
 
 
@@ -243,7 +251,7 @@ class QuadField : public G4ElectroMagneticField
   
 public:
   /** @pre @p quadNumber and @p sectionType must be in range */
-  QuadField(G4int quadNumber, G4int sectionType, bool DoScraping);
+  QuadField(G4int quadNumber, G4int sectionType, bool DoScraping, double ScrapeHV, double StoreHV);
   ~QuadField();
   
   void GetFieldValue( const double *Point,

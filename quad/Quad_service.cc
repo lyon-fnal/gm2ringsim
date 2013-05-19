@@ -69,11 +69,13 @@ gm2ringsim::Quad::Quad(fhicl::ParameterSet const & p, art::ActivityRegistry & ) 
 	       p.get<std::string>("mother_category", "vac")),
   sts_("SpinTracking"),
   qg_(myName()), //QuadGeometry
-  qff_(qg_.DoScraping),
+  qff_(qg_.DoScraping, qg_.ScrapeHV, qg_.StoreHV),
   spin_tracking_(sts_.spinTrackingEnabled)
   // The rest of the internal variables are things like pointers
   // and structures that get created/assigned below
 {
+
+
   if ( qg_.SupportMaterial == "Macor" || qg_.SupportMaterial == "MACOR" || qg_.SupportMaterial == "MacorCeramic" ) {
     support_material = artg4Materials::MacorCeramic();
   }
@@ -94,6 +96,14 @@ gm2ringsim::Quad::Quad(fhicl::ParameterSet const & p, art::ActivityRegistry & ) 
   G4cout << "| DoScraping       = " << qg_.DoScraping << G4endl;
   G4cout << "| Support Material = " << qg_.SupportMaterial << G4endl;
   G4cout << "| Plate Material   = " << qg_.PlateMaterial << G4endl;
+  if ( qg_.StoreHV == 40*kilovolt ) {
+    G4cout << "| Running w/ HV    =  << 40 kV" << G4endl;
+    G4cout << "| Running w/ HV    =  << 34 (scraping) kV" << G4endl;
+  }
+  else {
+    G4cout << "| Running w/ HV    =  << 24 kV" << G4endl;
+    G4cout << "| Running w/ HV    =  << 17 (scraping) kV" << G4endl;
+  }
   G4cout << "============================" << G4endl;
   //printf("In the Quad constructor \n");
   
@@ -498,10 +508,14 @@ void gm2ringsim::Quad::buildFieldManagers(G4int quadRegion, G4int sectionType) {
   G4MagIntegratorStepper *stepper;
   G4MagInt_Driver *driver;
   G4ChordFinder *chord;
+
   
   // first, the quad field regions
   // shared
   field = qff_.buildQuadField(quadRegion, sectionType);
+
+
+
   // not shared ... spin free
   equation = new G4EqMagElectricField(field);
   stepper = new G4ClassicalRK4(equation, 8); // modifies energy, so 8

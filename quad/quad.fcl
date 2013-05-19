@@ -5,6 +5,8 @@ BEGIN_PROLOG
 
 quad_geom : {	
 	  PlateMaterial : Al
+	  ScrapeHV : 17 //kilovolt
+	  StoreHV : 24 //kilovolt
 	  topBottomWidth : 4.7 //cm
 	  topBottomThickness : 0.3 //cm
           innerOuterWidth : 4.382 //cm
