@@ -10,7 +10,7 @@
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
-#include "gm2ringsim/traceback/StrawArtRecord.hh"
+#include "gm2ringsim/strawtracker/StrawArtRecord.hh"
 
 
 namespace gm2ringsim {
@@ -30,7 +30,7 @@ private:
   std::string trackInstanceName_;
 
   // Declare member data here.
-
+  
 };
 
 
@@ -61,7 +61,12 @@ void gm2ringsim::TrackReconstruct::analyze(art::Event const & e)
   // Resolve the handle
   // Let's use the nice C++11 vector iteration
   for (auto hdata : hits){
-    mf::LogInfo("TrackReconstruct") << hdata.x_global;
+    std::cout <<"StrawNumber: "<< hdata.strawNumber
+              <<"; StrawInRow: "<< hdata.strawInRow
+              <<"; rowNumber: "<<hdata.rowNumber
+              <<"; stationNumber: "<<hdata.stationNumber
+    <<std::endl;
+    
   }
 }
 

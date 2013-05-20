@@ -71,14 +71,16 @@ services: {
         spinTrackingEnabled : false
        }
       G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel
+    
     }
 
-    // Action(s) for the simulation
-    StackingAction: {  
-          name: "stackingAction"
-          minWavelength:250 //nm
-          maxWavelength:950  //nm
-    }
+
+      // Action(s) for the simulation
+      StackingAction: {  
+            name: "stackingAction"
+            minWavelength:250 //nm
+            maxWavelength:950  //nm
+      }
 
     physicalVolumeStore: {}
     Gm2PhysicsList: {}
@@ -102,13 +104,13 @@ services: {
         name: "inflectorgun"
         inflectorVerbosity: true
 	SigmaT: 25
-	Emittance: 1.0
+	Emittance: 500.0
 	BetaX:  7.66477
 	BetaY:  19.0763
 	AlphaX:  0.0
 	AlphaY:  0.0
 	Pmean: -1
-	dPOverP: 0.005
+	dPOverP: 0.0005
 	StartUpstream:  false
 	StartUpstreamCryo:  false
 	StartDownstream:  false
@@ -133,11 +135,12 @@ services: {
     Calorimeter: {}
     Collimator : {}
     Traceback: {}
+    Straws:{}
 
 
     MuonStorageStatusAction: {
       name: "MuonStorageStatusAction"
-      turnsForStorage: 101
+      turnsForStorage: 1
       heartbeatFreq: 10
     }
 

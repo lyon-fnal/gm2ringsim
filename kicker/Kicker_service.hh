@@ -56,7 +56,7 @@ namespace gm2ringsim {
       G4int const numKickers_;
       G4int const numKickerObjects_;
       enum {KICK_LCR, KICK_SQUARE, KICK_OTHER};
-      G4int kickType_;
+      G4int KickType_;
 
       G4LogicalVolume *kicker_L_[3][3];
       G4VPhysicalVolume *kicker_P_[3][3];

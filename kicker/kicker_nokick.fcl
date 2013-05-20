@@ -75,7 +75,7 @@ kicker_geom : {
   // option  
   kickerHV : [0. , 0. , 0. ] //kilovolt
   kickPercent : [100. , 100. , 100. ] // 
-  squareMag : [225. , 225. , 225. ] //gauss
+  squareMag : [0. , 0. ,0 ] //gauss
   circuitC : [11.239996 , 11.299994 , 11.049994 ] //nanofarad
   circuitL : [1.164e-6 ,1.114e-6 ,1.187e-6 ] //henry
   circuitR : [11.35 ,11.43 , 11.33] //ohm

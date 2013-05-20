@@ -20,6 +20,7 @@
 #include "Geant4/G4Navigator.hh" 
 
 #include "gm2ringsim/inflector/InflectorHit.hh"
+#include "artg4/pluginActions/physicalVolumeStore/physicalVolumeStore_service.hh"
 
 //FIXME: do i need this?#include "g2UniqueObjectManager.rhh"
 namespace gm2ringsim {
@@ -30,54 +31,13 @@ gm2ringsim::InflectorHit::InflectorHit(G4Step* step) :
   momentum(step->GetPreStepPoint()->GetMomentum()),
   time(step->GetPreStepPoint()->GetGlobalTime()),
   trackID(step->GetTrack()->GetTrackID()) //,
-  //FIXME  volumeUID(get_uid(step->GetPreStepPoint()->GetPhysicalVolume()))
 {
-  G4StepPoint* preStepPoint = step->GetPreStepPoint();
-  G4TouchableHandle theTouchable = preStepPoint->GetTouchableHandle();
-  G4ThreeVector worldPosition = preStepPoint->GetPosition();
 
-  const G4NavigationHistory *history =  theTouchable->GetHistory();
+  art::ServiceHandle<artg4::PhysicalVolumeStoreService> pvs;
+  volumeUID = pvs->idGivenPhysicalVolume( step->GetPreStepPoint()->GetPhysicalVolume() );
 
-  //const G4AffineTransform top = history->GetTopTransform();
-  //G4ThreeVector localPosition = top.TransformPoint(worldPosition);
-
-  //local_position = history->GetTopTransform().TransformPoint(worldPosition);
-  //local_momentum = history->GetTopTransform().TransformPoint(momentum);
-  //G4ThreeVector localPosition = theTouchable->GetHistory()->GetTopTransform().TransformPoint(worldPosition);
-  
-  //G4ThreeVector localPosition = theTouchable->GetHistory()->
-  //GetTopTransform().TransformPoint(worldPosition);
-
-  G4ThreeVector myPoint = position;
-  G4Navigator* theNavigator = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
-  G4VPhysicalVolume* myVolume = theNavigator->LocateGlobalPointAndSetup(myPoint);
-  //FIXME: printing this since it is needed to compile
-  G4cout << "Volume Name = " << myVolume->GetName() << G4endl;
-
-  //local_position = worldPosition;
+  local_position = position;
   local_momentum = momentum;
-
-  G4int start = history->GetDepth();
-  G4int depth = start;
-  G4VPhysicalVolume *vol = history->GetVolume(depth);
-  if ( 1 ) {
-    if ( vol ) {
-      G4RotationMatrix rotInv = history->GetTransform(depth).NetRotation().inverse();
-      local_momentum = local_momentum.transform(rotInv); //.transform(rotM);
-      local_position = history->GetTransform(depth).TransformPoint(worldPosition);
-      //G4cout << "Volume Name = " << vol->GetName() << "\t";
-      //PrintV(local_momentum);
-    }
-  }
-
-  /*
-  G4cout << "Pre: "
-	 << step->GetPreStepPoint()->GetPhysicalVolume()->GetName() 
-	 << '\n';
-  G4cout << "Post: "
-	 << step->GetPostStepPoint()->GetPhysicalVolume()->GetName() 
-	 << '\n';
-  */
 }
 
 
@@ -99,9 +59,10 @@ void gm2ringsim::InflectorHit::Draw(){
 
 //#include "rootStorageManager.hh"
 
-void gm2ringsim::InflectorHit::Print(){
-  G4cout //FIXME: need volumeUID before I can print it<< " volumeUID: " << volumeUID
-    << " time: " << time
+void gm2ringsim::InflectorHit::Print()
+{
+  G4cout << " InflectorHit::Print() --- volumeUID: " << volumeUID
+	 << " time: " << time
 	 << " position: " << position
 	 << "\n";
 }

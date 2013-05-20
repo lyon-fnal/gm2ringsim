@@ -19,7 +19,7 @@ namespace gm2ringsim{
   class TrackerHit : public G4VHit {
     
   public:
-    G4ThreeVector position, momentum; // get from prestep pt, which
+    G4ThreeVector position, momentum, polarization; // get from prestep pt, which
     // must be in volume (right?) 
     G4double time;
     G4int turnNum; // obtained from turn counter

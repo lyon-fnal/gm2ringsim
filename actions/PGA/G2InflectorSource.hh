@@ -69,8 +69,11 @@ namespace gm2ringsim
     void SetStorageOffset( double aDouble ){ StorageOffset=aDouble; }
     double GetStorageOffset( ){ return StorageOffset; }
     
-    void SetEmittance( double aDouble ){ Emittance=aDouble; }
-    double GetEmittance( ){ return Emittance; }
+    void SetEmittanceX( double aDouble ){ EmittanceX=aDouble; }
+    double GetEmittanceX( ){ return EmittanceX; }
+    
+    void SetEmittanceY( double aDouble ){ EmittanceY=aDouble; }
+    double GetEmittanceY( ){ return EmittanceY; }
     
     void SetBetaX( double aDouble ){ BetaX=aDouble; }
     double GetBetaX( ){ return BetaX; }
@@ -112,7 +115,8 @@ namespace gm2ringsim
     bool GenGaussian;
     double LaunchAngle;
     double StorageOffset;
-    double Emittance;
+    double EmittanceX;
+    double EmittanceY;
     double BetaX;
     double BetaY;
     double AlphaX;

@@ -82,17 +82,12 @@ void gm2ringsim::RingHit::Draw(){
 // #endif
 }
 
-void gm2ringsim::RingHit::Print(){
-  //FIXME:
-  //g2UniqueObjectManager const& uom = 
-  // rootStorageManager::getInstance().getUOM();
-  //  std::string volume(uom.lookup(volumeUID);
-  //G4cout << " turnNum: " << turnNum
-  //	 << " volume: " << volume
-  //	 << " time: " << time
-  //	 << " deltaE: " << deltaE
-  //	 << "\n";
-  // END FIXME
+void gm2ringsim::RingHit::Print()
+{
+    G4cout << " RingHit::Print() --- volumeUID: " << volumeUID
+	   << " time: " << time
+	   << " position: " << position
+	 << "\n";
 }
 
 

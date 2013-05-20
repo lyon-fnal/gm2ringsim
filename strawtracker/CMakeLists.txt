@@ -1,5 +1,5 @@
 # Build the libraries
-art_make( LIBRARIES "artg4_util" "gm2ringsim_vac" "gm2ringsim_traceback"  "artg4_material")
+art_make( LIBRARIES "artg4_util" "gm2ringsim_vac" "gm2ringsim_strawtracker"  "artg4_material")
 
 # Copy the headers
 install_headers()

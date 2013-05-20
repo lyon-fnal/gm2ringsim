@@ -7,8 +7,8 @@
     @date 2011
 */
 
-#include "gm2ringsim/traceback/StrawSD.hh"
-#include "gm2ringsim/traceback/StrawHit.hh"
+#include "gm2ringsim/strawtracker/StrawSD.hh"
+#include "gm2ringsim/strawtracker/StrawHit.hh"
 
 #include "Geant4/G4ios.hh"
 #include "Geant4/G4SDManager.hh"

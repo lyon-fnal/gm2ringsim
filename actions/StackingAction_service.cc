@@ -13,6 +13,7 @@
 
 gm2ringsim::StackingAction::StackingAction(fhicl::ParameterSet const& p, art::ActivityRegistry&) :
   artg4::StackingActionBase(p.get<std::string>("name")),
+  OnlyTrackMuons_(p.get<bool>("OnlyTrackMuons", false)),  
   minWavelength_(p.get<double>("minWavelength",250)), //nm
   maxWavelength_(p.get<double>("maxWavelength",950)) //nm
 {}
@@ -24,9 +25,10 @@ bool gm2ringsim::StackingAction::killNewTrack( const G4Track* aTrack) {
     // pass all non-optical tracks as normal: urgent stacking
     int pdg = aTrack->GetDefinition()->GetPDGEncoding();
     
-    // Use only for muon tracker (TG)
-    //if ( pdg == 13 || pdg == -13 ) { return( false ); }
-    //else { return( true ); }
+    if ( OnlyTrackMuons_ ) {
+      if ( pdg == 13 || pdg == -13 ) { return( false ); }
+      else { return( true ); }
+    }
     
     if ( pdg != 0 ) { return false; }
     

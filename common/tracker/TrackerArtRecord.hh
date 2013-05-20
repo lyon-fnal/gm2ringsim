@@ -46,20 +46,30 @@ namespace gm2ringsim{
     /** Current track ID; used with the stored trackRecord for particle
 	identification. */
     int trackID; 
+
+    /** Spin component tangent to the ring. */
+    float polx;
+    /** Spin component radial to the ring. */
+    float poly;
+    /** Spin component vertical to the ring. */
+    float polz;
+    
     
     TrackerArtRecord() :
       rhat(0), vhat(0), theta(0), time(0), p(0), prhat(0), pvhat(0),
-      turn(-1), volumeUID(0), trackID(-1) {}
+      turn(-1), volumeUID(0), trackID(-1), polx(0), poly(0), polz(0) {}
 
     ~TrackerArtRecord(){};
     
 #ifndef __GCCXML__
     TrackerArtRecord(float rin, float vin, float thetain,
 		     float tin, float pin, float prin, float pvin,
-		     float turnin,float volin,int trackin) :
+		     float turnin,float volin,int trackin,
+		     float polxin, float polyin, float polzin) :
       rhat(rin), vhat(vin), theta(thetain),
       time(tin), p(pin), prhat(prin), pvhat(pvin),
-      turn(turnin), volumeUID(volin),trackID(trackin)
+      turn(turnin), volumeUID(volin),trackID(trackin),
+      polx(polxin), poly(polyin), polz(polzin)
     {}
     
 #endif //__GCCXML__
