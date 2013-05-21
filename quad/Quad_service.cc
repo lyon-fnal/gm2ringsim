@@ -97,12 +97,12 @@ gm2ringsim::Quad::Quad(fhicl::ParameterSet const & p, art::ActivityRegistry & ) 
   G4cout << "| Support Material = " << qg_.SupportMaterial << G4endl;
   G4cout << "| Plate Material   = " << qg_.PlateMaterial << G4endl;
   if ( qg_.StoreHV == 40*kilovolt ) {
-    G4cout << "| Running w/ HV    =  << 40 kV" << G4endl;
-    G4cout << "| Running w/ HV    =  << 34 (scraping) kV" << G4endl;
+    G4cout << "| Running w/ HV    =  40 kV" << G4endl;
+    G4cout << "| Running w/ HV    =  34 (scraping) kV" << G4endl;
   }
   else {
-    G4cout << "| Running w/ HV    =  << 24 kV" << G4endl;
-    G4cout << "| Running w/ HV    =  << 17 (scraping) kV" << G4endl;
+    G4cout << "| Running w/ HV    =  24 kV" << G4endl;
+    G4cout << "| Running w/ HV    =  17 (scraping) kV" << G4endl;
   }
   G4cout << "============================" << G4endl;
   //printf("In the Quad constructor \n");
