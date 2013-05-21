@@ -13,7 +13,7 @@ physics: {
       hist_dir: ""
       tree_dir: ""
       trackModuleLabel: artg4
-      trackInstanceName: "straws"
+      trackInstanceName: "traceback"
     }
   }
   path1: [ trackReconstruct ]

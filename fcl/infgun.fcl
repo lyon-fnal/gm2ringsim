@@ -11,7 +11,7 @@
 #include "geom/collimator.fcl"
 #include "geom/PGA.fcl"
 #include "geom/g2GPS.fcl"
-#include "geom/traceback.fcl"
+#include "geom/strawtracker.fcl"
 
 process_name:myProcessName
 
@@ -33,7 +33,7 @@ services: {
        }
        LogToFile : {
          type : "file"
-         filename : "gm2ringsim.log"
+         filename : "/gm2/data/users/tgadfort/gm2ringsim/output/ScrapingOFF_NewSupports_101Turns_CentralOrbit_Offset20_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize40pimmmrad_UniformInflectorGun_PerfectMatch_dP0001_CollimatorON/ScrapingOFF_NewSupports_101Turns_CentralOrbit_Offset20_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize40pimmmrad_UniformInflectorGun_PerfectMatch_dP0001_CollimatorON.log"
          append : false
          threshold : "ERROR"
        }
@@ -62,22 +62,25 @@ services: {
       calorimeter: @local::calorimeter_geom
       collimator: @local::collimator_geom
       pga: @local::PGA_geom
-      traceback: @local::traceback_geom
+      strawtracker: @local::strawtracker_geom
      }
 
      // Global simulation settings
      RunSettings : {
        SpinTracking : {
-        spinTrackingEnabled : false
+        spinTrackingEnabled : true
        }
       G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel
     
     }
 
 
+
+
       // Action(s) for the simulation
       StackingAction: {  
             name: "stackingAction"
+	    OnlyTrackMuons: true
             minWavelength:250 //nm
             maxWavelength:950  //nm
       }
@@ -87,6 +90,7 @@ services: {
 
     TrackingAction : {
           name : "trackingAction"
+	  OnlyTrackMuons: true
     }
 
     ClockAction: {}
@@ -104,26 +108,28 @@ services: {
         name: "inflectorgun"
         inflectorVerbosity: true
 	SigmaT: 25
-	Emittance: 500.0
+	EmittanceX: 40
+	EmittanceY: 40
 	BetaX:  7.66477
 	BetaY:  19.0763
 	AlphaX:  0.0
 	AlphaY:  0.0
 	Pmean: -1
-	dPOverP: 0.0005
+	dPOverP: 0.0001
 	StartUpstream:  false
 	StartUpstreamCryo:  false
 	StartDownstream:  false
 	StartPerfect:  true
 	GenGaussian: false
-	LaunchAngle: 0.0
-	StorageOffset: 0.0
+	LaunchAngle: 0
+	StorageOffset: 20
     }
+
 
     // Detectors
     World: {}	
     Ring: {}    // This is for the RingHits
-    Tracker: {} // This is for the virtual tracker planes in the vac
+    VirtualRingStation: {} // This is for the virtual tracker planes in the vac
     Arc: {}
     VacuumChamber: {}
     Inflector:{}
@@ -134,14 +140,13 @@ services: {
     Station: {}
     Calorimeter: {}
     Collimator : {}
-    Traceback: {}
-    Straws:{}
+    StrawTracker: {}
 
 
     MuonStorageStatusAction: {
       name: "MuonStorageStatusAction"
-      turnsForStorage: 1
-      heartbeatFreq: 10
+      turnsForStorage: 101
+      heartbeatFreq: 2
     }
 
   } //user:
@@ -150,7 +155,7 @@ services: {
 outputs: {
 out1: {
   module_type: RootOutput   
-  fileName: "gm2ringsimout.root"
+  fileName: "/gm2/data/users/tgadfort/gm2ringsim/output/ScrapingOFF_NewSupports_101Turns_CentralOrbit_Offset20_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize40pimmmrad_UniformInflectorGun_PerfectMatch_dP0001_CollimatorON/ScrapingOFF_NewSupports_101Turns_CentralOrbit_Offset20_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize40pimmmrad_UniformInflectorGun_PerfectMatch_dP0001_CollimatorON.root"
   }
 }
 
@@ -175,4 +180,18 @@ physics: {
   end_paths: [ readPath, stream1 ]
 
 }
-
+#
+# Add-ons
+#
+services.user.Quad.DoScraping: false
+services.user.Quad.StoreHV: 24
+services.user.Quad.ScrapeHV: 17
+services.user.Quad.SupportMaterial: Macor
+services.user.Quad.PlateMaterial: Al
+services.user.Kicker.TypeOfKick: LCR
+services.user.Kicker.kPlate1HV : 0 //kilovolt 
+services.user.Kicker.kPlate2HV : 0 //kilovolt 
+services.user.Kicker.kPlate3HV : 0 //kilovolt 
+services.user.Kicker.kickerHV : [0 , 0 , 0 ] //kilovolt
+services.user.Kicker.TypeOfKick: SQUARE
+services.user.Kicker.squareMag : [0 , 0 , 0 ] //gauss

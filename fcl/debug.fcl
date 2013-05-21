@@ -11,7 +11,7 @@
 #include "geom/collimator.fcl"
 #include "geom/PGA.fcl"
 #include "geom/g2GPS.fcl"
-#include "geom/strawtracker.fcl"
+#include "geom/traceback.fcl"
 
 process_name: myProcessName
 
@@ -62,7 +62,7 @@ services: {
       calorimeter: @local::calorimeter_geom
       collimator: @local::collimator_geom
       pga: @local::PGA_geom
-      strawtracker: @local::strawtracker_geom
+      traceback: @local::traceback_geom
      }
 
      // Global simulation settings
@@ -107,7 +107,7 @@ services: {
     // Detectors
     World: {}	
     Ring: {}    // This is for the RingHits
-    Tracker: {} // This is for the virtual tracker planes in the vac
+    VirtualRingStation: {} // This is for the virtual tracker planes in the vac
     Arc: {}
     VacuumChamber: {}
     Inflector:{}
@@ -118,8 +118,7 @@ services: {
     Station: {}
     Calorimeter: {}
     Collimator : {}
-    StrawTracker: {}
-    Straws:{}
+    Traceback: {}
 
 
     MuonStorageStatusAction: {

@@ -1,7 +1,7 @@
 
 services : {
   TFileService: {
-    fileName: "data_out-leahtest.root"
+    fileName: "data_out-allpositions-forTesting.root"
   }
 }
 
@@ -10,7 +10,7 @@ process_name: readHits
 source: {
    module_type: RootInput
    maxEvents:  -1
-   fileNames: [ "gm2ringsimout-leahtest-500evt.root" ]
+   fileNames: [ "gm2ringsimout-allpositions-10000.root" ]
 }
 
 physics: {
@@ -20,7 +20,7 @@ physics: {
       hist_dir: ""
       tree_dir: ""
       hitModuleLabel: artg4
-      instanceName: "straws"
+      instanceName: "traceback"
     }
   }
   path1: [ strawChambers ]
