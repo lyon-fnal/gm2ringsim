@@ -35,16 +35,16 @@ void gm2ringsim::storageRingField::GetFieldValue( const double Point[3],
   storageFieldController::getInstance().GetFieldValue(Point, Bfield);
 }
 
-void gm2ringsim::storageRingEMField::GetFieldValue( const double Point[3],
-				      double *Bfield ) const {
-  storageFieldController::getInstance().GetFieldValue(Point, Bfield);
-  Bfield[3] = 0.0;
-  Bfield[4] = 0.0;
-  Bfield[5] = 0.0;
-  for ( int i = 0; i < 6; i++ ) {
-    G4cout << "Bfield[" << i << "] = " << Bfield[i] << G4endl;
-  }
-}
+// void gm2ringsim::storageRingEMField::GetFieldValue( const double Point[3],
+// 				      double *Bfield ) const {
+//   storageFieldController::getInstance().GetFieldValue(Point, Bfield);
+//   Bfield[3] = 0.0;
+//   Bfield[4] = 0.0;
+//   Bfield[5] = 0.0;
+//   for ( int i = 0; i < 6; i++ ) {
+//     G4cout << "EMField:Bfield[" << i << "] = " << Bfield[i] << G4endl;
+//   }
+// }
 
 
 ////////////////////////////////////////////////
@@ -72,20 +72,20 @@ void gm2ringsim::storageFieldController::GetFieldValue( const double Point[3],
 
   double const xc = sqrt(Point[0]*Point[0]+Point[2]*Point[2])-gm2ringsim::R_magic();
   double const rc = std::sqrt(Point[1]*Point[1] + xc*xc);
-  std::cout << "xc rc " << xc << ' ' << rc << '\n';
+  //std::cout << "xc rc " << xc << ' ' << rc << '\n';
   if( rc <= 45.*mm ){
-    std::cout << "central\n";
+    //std::cout << "central\n";
     centralimpl_->GetFieldValue(Point,Bfield);
   }
   else {
-    std::cout << "fringe\n";
+    //std::cout << "fringe\n";
     fringeimpl_->GetFieldValue(Point,Bfield);
   }
 
-  G4cout << "storageFieldController::GetFieldValue()" << G4endl;
-  for ( int i = 0; i < 6; i++ ) {
-    G4cout << "  Bfield[" << i << "] = " << Bfield[i] << G4endl;
-  }
+//   G4cout << "storageFieldController::GetFieldValue()" << G4endl;
+//   for ( int i = 0; i < 6; i++ ) {
+//     G4cout << "  Bfield[" << i << "] = " << Bfield[i] << G4endl;
+//   }
 }
 
 /** @bug There's some missing implementation in this member. */

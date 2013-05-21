@@ -45,14 +45,14 @@ namespace gm2ringsim {
     
   };
 
-  /** The concrete interface to the storage EM field */
-  class storageRingEMField : public G4ElectroMagneticField
-  {
-  public:
-    void GetFieldValue( const double Point[3],
-			double *Bfield ) const;
-    
-  };
+//   /** The concrete interface to the storage EM field */
+//   class storageRingEMField : public G4ElectroMagneticField
+//   {
+//   public:
+//     void GetFieldValue( const double Point[3],
+// 			double *Bfield ) const;
+//     //bool DoesFieldChangeEnergy() { return( false ); }
+//   };
   
   /** Abstract base class for the internal field implementation classes */
   class storageFieldImpl {

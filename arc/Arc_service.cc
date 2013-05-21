@@ -43,10 +43,10 @@ gm2ringsim::Arc::Arc(fhicl::ParameterSet const & p, art::ActivityRegistry & ) :
   withoutSpin_(0),    //will set in the constructor function
   withSpin_(0)        //will set in the constructor function
 {
-  bool do_EDM = true;
+  bool do_EDM = false;
   
   storageRingField *storageField = new storageRingField();
-  storageRingEMField *storageEMField = new storageRingEMField();
+  //storageRingEMField *storageEMField = new storageRingEMField();
 
   //----------------------------------------
   // build the spin ignoring field equations
@@ -63,11 +63,11 @@ gm2ringsim::Arc::Arc(fhicl::ParameterSet const & p, art::ActivityRegistry & ) :
   //----------------------------------------
   
   // build the spin evolving field equations
-  if ( do_EDM == true ) {
+  if ( do_EDM == true ) {;
     //G4EqEMFieldWithEDM *equation2 = new G4EqEMFieldWithEDM(storageField);
-    G4EqEMFieldWithSpin *equation2 = new G4EqEMFieldWithSpin(storageEMField);
+    //G4EqEMFieldWithSpin *equation2 = new G4EqEMFieldWithSpin(storageEMField);
     //equation2->SetEta(1e-19);
-    stepper = new G4ClassicalRK4(equation2,12);
+    //stepper = new G4ClassicalRK4(equation2,12);
   }
   if ( do_EDM == false ) {
     equation = new G4Mag_SpinEqRhs(storageField);
@@ -75,6 +75,10 @@ gm2ringsim::Arc::Arc(fhicl::ParameterSet const & p, art::ActivityRegistry & ) :
   }
   iChordFinder = new G4ChordFinder(storageField, 0.01*mm, stepper);
   withSpin_ = new G4FieldManager(storageField, iChordFinder);
+//   if ( do_EDM == true ) {
+//     withSpin_->SetFieldChangesEnergy(false);
+//   }
+  
 
 }
 
