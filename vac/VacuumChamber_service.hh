@@ -1,4 +1,4 @@
-// Tracker detector service for 
+// Virtualringstation detector service for 
 
 // Include guards
 #ifndef VACUUMCHAMBER_HH
@@ -18,8 +18,8 @@
 #include "Geant4/G4UnionSolid.hh"
 
 #include "gm2ringsim/actions/muonStorageStatus/TurnCounterSD.hh"
-#include "gm2ringsim/common/tracker/TrackerSD.hh"
-#include "gm2ringsim/common/tracker/tracker_util.hh"
+#include "gm2ringsim/common/virtualringstation/VirtualRingStationSD.hh"
+#include "gm2ringsim/common/virtualringstation/virtualringstation_util.hh"
 
 #include "gm2ringsim/vac/VacGeometry.hh"
 
@@ -45,9 +45,9 @@ namespace gm2ringsim {
      
   private:
     G4String turnCounterSDName_;
-    G4String trackerSDName_;
+    G4String virtualringstationSDName_;
     TurnCounterSD *turnSD_;
-    TrackerSD *trackerSD_;
+    VirtualRingStationSD *virtualringstationSD_;
     
     // We need to hang onto the wallLVs for placement later
     std::vector<G4LogicalVolume*> wallLVs_;
@@ -59,20 +59,20 @@ namespace gm2ringsim {
     
     // Create the physical volumes
     virtual std::vector<G4VPhysicalVolume*> doPlaceToPVs( std::vector<G4LogicalVolume*>) override;
-
-        
-      
-        // Some internal methods
-        G4UnionSolid* buildUnionSolid(const VacGeometry&, VacGeometry::typeToBuild, unsigned int);
-      
-        void makeWallLVs(const VacGeometry&);
     
-        void makeVacuumLVs(std::vector<G4LogicalVolume*>&, const VacGeometry&);
-      
-        void makeVacuumPVs(std::vector<G4LogicalVolume*>&);
-      
-        void makeTrackerPVs(std::vector<G4LogicalVolume*>&, const VacGeometry&);
-
+    
+    
+    // Some internal methods
+    G4UnionSolid* buildUnionSolid(const VacGeometry&, VacGeometry::typeToBuild, unsigned int);
+    
+    void makeWallLVs(const VacGeometry&);
+    
+    void makeVacuumLVs(std::vector<G4LogicalVolume*>&, const VacGeometry&);
+    
+    void makeVacuumPVs(std::vector<G4LogicalVolume*>&);
+    
+    void makeVirtualRingStationPVs(std::vector<G4LogicalVolume*>&, const VacGeometry&);
+    
     };
 }
 
