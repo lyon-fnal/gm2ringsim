@@ -43,6 +43,11 @@ G4double gm2ringsim::B_magic() // NSF: B_magic = B_magic(R_magic(P_magic(aMuon()
 //  NSF: All "magic" parameters (below) are a function of (1) the anomalous magnetic moment 
 //  of the muon, and (2) the value of the magnetic field used in the experiment. That's it.
 
+G4double gm2ringsim::P_magic()
+{
+  return( pMagic() );
+}
+
 G4double gm2ringsim::pMagic()
 {
   //  NSF: The easiest way to calculate....
