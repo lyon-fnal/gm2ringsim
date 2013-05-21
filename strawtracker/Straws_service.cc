@@ -51,39 +51,41 @@ std::vector<G4LogicalVolume *> gm2ringsim::Straws::doBuildLVs() {
   
   for (unsigned int tb = 0; tb<geom_.whichScallopLocations.size() ;tb++){
     for (unsigned int sc =0 ; sc<geom_.strawStationLocation.size(); sc++){
-      for (int row = 0 ; row<4 ; row++){
-
-        for (int st = 0; st<geom_.strawStationType[sc]; st++){
+      for (int view = 0 ; view<geom_.strawView ; view++){
+        for (int layer = 0 ; layer<geom_.strawLayers; layer++){
+          for (int st = 0; st<geom_.strawStationType[sc]; st++){
           
-          G4Tubs* tracker_tube = new G4Tubs("tracker_tube",
-                                    geom_.innerRadiusOfTheStraw,
-                                    geom_.outerRadiusOfTheStraw,
-                                    geom_.heightOfTheStraw,
-                                    geom_.startAngleOfTheStraw,
-                                    geom_.spanningAngleOfTheStraw
-                                    );
+            G4Tubs* tracker_tube = new G4Tubs("tracker_tube",
+                                              geom_.innerRadiusOfTheStraw,
+                                              geom_.outerRadiusOfTheStraw,
+                                              geom_.halfLengthOfTheStraw,
+                                              geom_.startAngleOfTheStraw,
+                                              geom_.spanningAngleOfTheStraw
+                                              );
       
-          int stationNumber = sc + tb*geom_.strawStationLocation.size();
+            int stationNumber = sc + tb*geom_.strawStationLocation.size();
           
-          std::string strawLVName( boost::str( boost::format("SingleStrawLV-strawInRow%d-rowNumber%d-stationNumber%d") %st
-                                                                                                                       %row
-                                                                                                                       %stationNumber));
+            std::string strawLVName( boost::str( boost::format("SingleStrawLV-strawInRow%d-view%d-layer%d-stationNumber%d") %st
+                                                                                                                            %view
+                                                                                                                            %layer
+                                                                                                                            %stationNumber));
 
-          G4LogicalVolume* strawLV = new G4LogicalVolume(
+            G4LogicalVolume* strawLV = new G4LogicalVolume(
                                                        tracker_tube,
                                                        artg4Materials::Vacuum(),
                                                        strawLVName,
                                                        0,
                                                        0);
       
-          artg4::setVisAtts( strawLV, geom_.displayStraw, geom_.strawColor,
+            artg4::setVisAtts( strawLV, geom_.displayStraw, geom_.strawColor,
                     [] (G4VisAttributes* att) {
                       att->SetForceSolid(1);
                       att->SetVisibility(1);
                     }
                     );
-          strawLV->SetSensitiveDetector( strawSD_ );
-          straws.push_back(strawLV);
+            strawLV->SetSensitiveDetector( strawSD_ );
+            straws.push_back(strawLV);
+          }
         }
       }
     }
@@ -105,46 +107,59 @@ int gm2ringsim::Straws::extractValueFromName(std::string indicator, std::string 
   iss >> value;
   
   return value;
-
-  
 }
+
 // Build the physical volumes
 std::vector<G4VPhysicalVolume *> gm2ringsim::Straws::doPlaceToPVs( std::vector<G4LogicalVolume*> planes) {
   std::vector<G4VPhysicalVolume*> strawPVs;
+  
   
   int strawNumber =0;
   double x,y;
   
   int strawInRow;
-  int rowNumber;
+  int view, layer;
   int stationNumber;
   
 
   for ( auto aStrawLV : lvs() ) {
     
     strawInRow = extractValueFromName("strawInRow", aStrawLV->GetName());
-    rowNumber = extractValueFromName("rowNumber",aStrawLV->GetName());
+    view = extractValueFromName("view",aStrawLV->GetName());
+    layer = extractValueFromName("layer",aStrawLV->GetName());
     stationNumber = extractValueFromName("stationNumber",aStrawLV->GetName());
     
     std::string strawPVName(
                   boost::str(
-                    boost::format("SingleStrawPV-strawInRow%d-rowNumber%d-stationNumber%d-strawNumber%d") %strawInRow
-                                                                                                          %rowNumber
-                                                                                                          %stationNumber
-                                                                                                          %strawNumber));
-
+                    boost::format("SingleStrawPV-strawInRow%d-layer%d-view%d-stationNumber%d-strawNumber%d")
+                                    %strawInRow
+                                    %layer
+                                    %view
+                                    %stationNumber
+                                    %strawNumber));
+    
+    std::cout<<"strawPVName: "<<strawPVName<<std::endl;
+    
     int stationIndex = stationNumber % geom_.strawStationSize.size();
     
-    x = geom_.x_position_straw0[rowNumber] - geom_.strawStationSizeHalf[stationIndex] + geom_.dist_btwn_wires *strawInRow;
-    if(rowNumber<2) x = x + 6.58;
+    int row = view+layer;
+    if(view == 1){
+      row++;
+    }
+    
+    x = geom_.x_position_straw0[row] - geom_.strawStationSizeHalf[stationIndex] + geom_.dist_btwn_wires *strawInRow;
+    std::cout<<"x: "<<x<<std::endl;
+    
+    if(row < 2) x = x + 6.58;
     else x = x - 6.58;
-    y= geom_.y_position[rowNumber];
-
+    y= geom_.y_position[row];
+    std::cout<<"y: "<<y<<std::endl;
+    
     G4RotationMatrix* yRot = new G4RotationMatrix;
     double rot = 7.5*deg;
-    if(rowNumber > 1) rot = -rot;
-
-    yRot -> rotateY(rot); // Rotates 45 degrees
+    if(row > 1) rot = -rot;
+    std::cout<<"rot: "<<rot<<std::endl;
+    yRot -> rotateY(rot);
     G4ThreeVector placement(x, y, 0);
     
     strawPVs.push_back(new G4PVPlacement(G4Transform3D(*yRot, placement),
@@ -202,7 +217,7 @@ void gm2ringsim::Straws::doFillEventWithArtHits(G4HCofThisEvent * hc) {
                               e->time,
                               e->trackID,
                               e->volumeUID,
-                              e->strawInRow, e->rowNumber, e->stationNumber, e->strawNumber,
+                              e->strawInRow, e->layerNumber, e->viewNumber, e->stationNumber, e->strawNumber,
                               e->particle_name, e->parent_ID);
       
     } //loop over geantHits

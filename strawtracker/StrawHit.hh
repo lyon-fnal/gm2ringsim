@@ -34,7 +34,8 @@ namespace gm2ringsim {
     StrawHit(G4Step*);
     
     G4int strawInRow;
-    G4int rowNumber;
+    G4int layerNumber;
+    G4int viewNumber;
     G4int stationNumber;
     G4int strawNumber;
     

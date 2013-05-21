@@ -11,25 +11,28 @@ strawtracker_geom : {
   strawStationSize: [122.0, 122.0, 122.0, 122.0, 122.0, 170.0, 170, 170, 170, 170, 170] 
   strawStationOffset: [0,10,20,30,40, 0, 5, 10, 15, 20, 18]
   strawStationType: [16,16, 16, 16, 16, 24, 24, 24, 24, 24, 24] 
+  strawView: 2
+  strawLayers: 2
   strawStationHeight: 153.2
   strawStationWidth: 74.5
   
   innerRadiusOfTheStraw:  0 //mm
   outerRadiusOfTheStraw: 2.55 //mm
-  heightOfTheStraw: 5 //cm
+  heightOfTheStraw: 10 //cm
   startAngleOfTheStraw: 0 //deg
   spanningAngleOfTheStraw:  360. //deg
 
   dist_btwn_wires: 5.55 //mm
   straw_diameter: 5.1 //mm
-
+  layer_angle: 7.5 //deg
+  
   x_position_straw0: [10.79, 13.51, 30.59, 26.87]
   y_position: [13.0, 17.76, 32.7, 37.46]
   
-  displayStation: false
+  displayStation: true
   stationColor: [0.2, 0.6, 1.0, 1.0] //blue
   
-  displayStraw: false
+  displayStraw: true
   strawColor: [0.9, 0.8, 0.2, 1.0]
 
 }

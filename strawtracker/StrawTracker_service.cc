@@ -50,13 +50,14 @@ gm2ringsim::StrawTracker::StrawTracker(fhicl::ParameterSet const & p, art::Activ
                    p.get<std::string>("category", "strawtracker"),
                    p.get<std::string>("mother_category", "vac")),
   geom_(myName())
-{}
+{
+  geom_.print();
+}
 
 //Build the logical volumes
 std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
 
   std::vector<G4LogicalVolume*> stations;
-  
   for (unsigned int tb = 0; tb<geom_.whichScallopLocations.size() ;tb++){
     for (unsigned int sc =0 ; sc<geom_.strawStationLocation.size(); sc++){
       
@@ -102,7 +103,6 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::StrawTracker::doPlaceToPVs( std::ve
   int numberOfStations = lvs().size();
   int numberOfStationsPerTracker = numberOfStations/geom_.whichScallopLocations.size();
   int stationIndex;
-  
   //loop over the logical volumes
   for ( auto aStrawStationLV : lvs() ) {
     // We to name the station including its station number

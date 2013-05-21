@@ -63,7 +63,8 @@ void gm2ringsim::TrackReconstruct::analyze(art::Event const & e)
   for (auto hdata : hits){
     std::cout <<"StrawNumber: "<< hdata.strawNumber
               <<"; StrawInRow: "<< hdata.strawInRow
-              <<"; rowNumber: "<<hdata.rowNumber
+              <<"; layerNumber: "<<hdata.layerNumber
+              <<"; viewNumber: "<<hdata.viewNumber
               <<"; stationNumber: "<<hdata.stationNumber
     <<std::endl;
     

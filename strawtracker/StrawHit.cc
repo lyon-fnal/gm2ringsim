@@ -56,7 +56,8 @@ gm2ringsim::StrawHit::StrawHit(G4Step* step) :
   // get straw number
   
   strawInRow = extractValueFromName("strawInRow", step->GetPreStepPoint()->GetPhysicalVolume()->GetName());
-  rowNumber = extractValueFromName("rowNumber", step->GetPreStepPoint()->GetPhysicalVolume()->GetName());
+  layerNumber = extractValueFromName("layer", step->GetPreStepPoint()->GetPhysicalVolume()->GetName());
+  viewNumber = extractValueFromName("view", step->GetPreStepPoint()->GetPhysicalVolume()->GetName());
   stationNumber = extractValueFromName("stationNumber", step->GetPreStepPoint()->GetPhysicalVolume()->GetName());
   strawNumber = extractValueFromName("strawNumber", step->GetPreStepPoint()->GetPhysicalVolume()->GetName());
   

@@ -22,6 +22,8 @@ namespace gm2ringsim {
     std::vector<double> strawStationSize;
     std::vector<double> strawStationOffset;
     std::vector<int> strawStationType;
+    int strawView;
+    int strawLayers;
     std::vector<double> strawStationSizeHalf;
     const double strawStationHeight;
     double strawStationHeightHalf;
@@ -31,12 +33,15 @@ namespace gm2ringsim {
     double innerRadiusOfTheStraw;
     double outerRadiusOfTheStraw;
     double heightOfTheStraw;
+    double lengthOfTheStraw;
+    double halfLengthOfTheStraw;
     double startAngleOfTheStraw;
     double spanningAngleOfTheStraw;
 
     double dist_btwn_wires;
     double straw_spacing;
     double straw_diameter;
+    double layer_angle;
     
     std::vector<double> x_position_straw0;
     std::vector<double> y_position;
