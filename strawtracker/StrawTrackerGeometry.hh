@@ -34,6 +34,7 @@ namespace gm2ringsim {
     double outerRadiusOfTheStraw;
     double heightOfTheStraw;
     double lengthOfTheStraw;
+    double halfHeightOfTheStraw;
     double halfLengthOfTheStraw;
     double startAngleOfTheStraw;
     double spanningAngleOfTheStraw;
@@ -42,7 +43,7 @@ namespace gm2ringsim {
     double straw_spacing;
     double straw_diameter;
     double layer_angle;
-    
+    double delta_x;
     std::vector<double> x_position_straw0;
     std::vector<double> y_position;
     

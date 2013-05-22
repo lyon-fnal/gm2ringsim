@@ -62,10 +62,13 @@ void gm2ringsim::TrackReconstruct::analyze(art::Event const & e)
   // Let's use the nice C++11 vector iteration
   for (auto hdata : hits){
     std::cout <<"StrawNumber: "<< hdata.strawNumber
-              <<"; StrawInRow: "<< hdata.strawInRow
-              <<"; layerNumber: "<<hdata.layerNumber
-              <<"; viewNumber: "<<hdata.viewNumber
-              <<"; stationNumber: "<<hdata.stationNumber
+              <<" StrawInRow: "<< hdata.strawInRow
+              <<" layerNumber: "<<hdata.layerNumber
+              <<" viewNumber: "<<hdata.viewNumber
+              <<" stationNumber: "<<hdata.stationNumber
+              <<" \nglobalPosition: ("<<hdata.x_global<< ","<<hdata.y_global<<","<< hdata.z_global<<")"
+              <<" \nlocalPosition: ("<<hdata.x_local<< ","<<hdata.y_local<<","<< hdata.z_local<<")"
+              <<" \nstationPosition: ("<<hdata.x_station<< ","<<hdata.y_station<<","<< hdata.z_station<<")"
     <<std::endl;
     
   }

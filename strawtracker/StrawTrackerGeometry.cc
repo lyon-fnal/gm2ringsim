@@ -43,11 +43,12 @@ gm2ringsim::StrawTrackerGeometry::StrawTrackerGeometry(std::string const & detNa
 
   lengthOfTheStraw = heightOfTheStraw/cos(layer_angle);
   halfLengthOfTheStraw = lengthOfTheStraw/2;
-  
+  halfHeightOfTheStraw = heightOfTheStraw/2;
   for (unsigned int i = 0; i<y_position.size(); i++){
     y_position[i] = y_position[i] - strawStationWidthHalf;
   }
   
+  delta_x = halfHeightOfTheStraw*tan(layer_angle);
   
 }
 

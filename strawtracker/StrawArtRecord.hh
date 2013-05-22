@@ -43,7 +43,8 @@ namespace gm2ringsim {
     // Local transformation coordinates
     float x_local,  y_local,  z_local;
     float px_local, py_local, pz_local;
-    
+    float x_station, y_station, z_station;
+
     /** Global time for this tracking record. */
     float time;
     /** Track ID for this hit. */
@@ -71,15 +72,21 @@ namespace gm2ringsim {
     
     //Root Shouldn't know about this
 #ifndef __GCCXML__
-    StrawArtRecord(float xglobal, float yglobal, float zglobal, float rglobal, float pxglobal, float pyglobal,
-                   float pzglobal, float xLoc, float yLoc, float zLoc, float pxLoc,
-                   float pyLoc, float pzLoc, float time_input, int trackID_input,
-                   int volumeUID_input, int straw_in_row, int layer_number, int view_number, int station_number, int straw_number,
+    StrawArtRecord(float xglobal, float yglobal, float zglobal, float rglobal,
+                   float pxglobal, float pyglobal,float pzglobal,
+                   float xLoc, float yLoc, float zLoc,
+                   float pxLoc, float pyLoc, float pzLoc,
+                   float xStation, float yStation, float zStation,
+                   float time_input, int trackID_input,
+                   int volumeUID_input,
+                   int straw_in_row, int layer_number, int view_number, int station_number, int straw_number,
                    std::string particleName, int parentID ) :
+    
     x_global(xglobal), y_global(yglobal), z_global(zglobal), r_global(rglobal),
     px_global(pxglobal),py_global(pyglobal),pz_global(pzglobal),
     x_local(xLoc),y_local(yLoc),z_local(zLoc),
     px_local(pxLoc),py_local(pyLoc),pz_local(pzLoc),
+    x_station(xStation), y_station(yStation), z_station(zStation),
     time(time_input),
     trackID(trackID_input),
     volumeUID(volumeUID_input),

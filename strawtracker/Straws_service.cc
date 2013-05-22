@@ -121,6 +121,8 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Straws::doPlaceToPVs( std::vector<G
   int view, layer;
   int stationNumber;
   
+  std::ostringstream oss;
+  oss << "strawInRow, " << "layer, " << "view, " <<"station, "<< "x, "<<"y, "<<"xStation, "<<"yStation, " <<"yRot "<< "\n" ;
 
   for ( auto aStrawLV : lvs() ) {
     
@@ -138,8 +140,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Straws::doPlaceToPVs( std::vector<G
                                     %stationNumber
                                     %strawNumber));
     
-    std::cout<<"strawPVName: "<<strawPVName<<std::endl;
-    
+        
     int stationIndex = stationNumber % geom_.strawStationSize.size();
     
     int row = view+layer;
@@ -148,20 +149,25 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Straws::doPlaceToPVs( std::vector<G
     }
     
     x = geom_.x_position_straw0[row] - geom_.strawStationSizeHalf[stationIndex] + geom_.dist_btwn_wires *strawInRow;
-    std::cout<<"x: "<<x<<std::endl;
     
-    if(row < 2) x = x + 6.58;
-    else x = x - 6.58;
+    if(row < 2) x = x + geom_.delta_x;
+    else x = x - geom_.delta_x;
     y= geom_.y_position[row];
-    std::cout<<"y: "<<y<<std::endl;
     
     G4RotationMatrix* yRot = new G4RotationMatrix;
     double rot = 7.5*deg;
     if(row > 1) rot = -rot;
-    std::cout<<"rot: "<<rot<<std::endl;
     yRot -> rotateY(rot);
     G4ThreeVector placement(x, y, 0);
     
+    
+    double box_distance_from_edge = (geom_.strawStationSizeHalf[stationNumber] + geom_.strawStationOffset[stationNumber]);
+    double box_distance_from_scallop = geom_.strawStationLocation[stationNumber];
+    double wire_distance_from_edge = box_distance_from_edge + x;
+    double wire_distance_from_scallop = box_distance_from_scallop + y;
+    
+    oss << strawInRow <<", " <<layer<<", "<<view<<", "<<stationNumber<<", "<<wire_distance_from_edge<<", "<<wire_distance_from_scallop<<", "<<x<<", "<<y<<", "<<rot<< "\n";
+
     strawPVs.push_back(new G4PVPlacement(G4Transform3D(*yRot, placement),
                                          aStrawLV,
                                          strawPVName,
@@ -173,6 +179,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Straws::doPlaceToPVs( std::vector<G
 
     strawNumber++;
   }
+  mf::LogInfo("StrawGeometryPlacementDetails") << oss.str();
   return strawPVs;
 }
 
@@ -210,10 +217,12 @@ void gm2ringsim::Straws::doFillEventWithArtHits(G4HCofThisEvent * hc) {
       // Copy this hit into the Art hit
       
       //std::cout<<"Straw Number is: "<<e->straw<<std::endl;
-      myArtHits->emplace_back( e->position.x(),e->position.y(),e->position.z(),e->position.r(),
-                              e->local_position.x(),e->local_position.y(), e->local_position.z(),
+      myArtHits->emplace_back( e->global_position.x(),e->global_position.y(),e->global_position.z(),e->global_position.r(),
+                              
                               e->momentum.x(),e->momentum.y(),e->momentum.z(),
+                              e->local_position.x(),e->local_position.y(), e->local_position.z(),
                               e->local_momentum.x(),e->local_momentum.y(), e->local_momentum.z(),
+                              e->station_position.x(), e->station_position.y(), e->station_position.z(),
                               e->time,
                               e->trackID,
                               e->volumeUID,
