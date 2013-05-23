@@ -31,10 +31,13 @@ gm2ringsim::CalorimeterGeometry::CalorimeterGeometry(std::string const & detName
   sideWrapping(          p.get<std::string>("sideWrapping")              ),
   frontWrapping(         p.get<std::string>("frontWrapping")             ),
   backWrapping(          p.get<std::string>("backWrapping")              ),
+  frontWrappingHole(     p.get<bool>("frontWrappingHole")           ),
+  frontWrappingHoleSize( p.get<double>("frontWrappingHoleSize")* cm ),
   photodetectorShape(    p.get<std::string>("photodetectorShape")   ),
   photodetectorSize(     p.get<double>("photodetectorSize")    * cm ),
   photodetectorDepth(    p.get<double>("photodetectorDepth")   * cm ),
   opticalCouplingDepth(  p.get<double>("opticalCouplingDepth") * cm ),
+  diffuser(              p.get<bool>("diffuser")                    ),
   diffuserDepth(         p.get<double>("diffuserDepth")        * cm ),
   displayCalorimeterBox( p.get<bool>("displayCalorimeterBox")       ),
   displayWrappingVolumes(p.get<bool>("displayWrappingVolumes")      ),
@@ -85,10 +88,14 @@ void gm2ringsim::CalorimeterGeometry::print() {
     oss << "  frontWrapping = " << frontWrapping << "\n";
     oss << "  backWrapping  = " << backWrapping  << "\n";
     
+    oss << "  frontWrappingHole =     " << frontWrappingHole << "\n";
+    oss << "  frontWrappingHoleSize = " << frontWrappingHoleSize << "\n";
+    
     oss << "  photodetectorShape =   " << photodetectorShape   << "\n";
     oss << "  photodetectorDepth =   " << photodetectorDepth   << "\n";
     oss << "  opticalCouplingDepth = " << opticalCouplingDepth << "\n";
-    
+
+    oss << "  diffuser =      " << diffuser << "\n";
     oss << "  diffuserDepth = " << diffuserDepth << "\n";
     
     oss << "  displayCalorimeterBox =  " << displayCalorimeterBox << "\n";
