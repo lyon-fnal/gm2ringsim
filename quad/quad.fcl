@@ -4,6 +4,7 @@
 BEGIN_PROLOG
 
 quad_geom : {	
+	  DoScraping : true
 	  PlateMaterial : Al
 	  ScrapeHV : 17 //kilovolt
 	  StoreHV : 24 //kilovolt

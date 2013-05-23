@@ -1,10 +1,10 @@
-#ifndef G2MIGTRACE_TRACKERSD_HH
-#define G2MIGTRACE_TRACKERSD_HH
+#ifndef G2MIGTRACE_VIRTUALRINGSTATIONSD_HH
+#define G2MIGTRACE_VIRTUALRINGSTATIONSD_HH
 
-/** @file trackerSD.hh
+/** @file virtualringstationSD.hh
 
     Declares the sensitive detector and messenger for the in-ring beam
-    trackers. 
+    virtualringstations. 
 
     @author Kevin Lynch 
     @date 2009
@@ -13,27 +13,27 @@
 #include "Geant4/G4VSensitiveDetector.hh"
 #include "Geant4/G4Step.hh"
 #include "Geant4/G4HCofThisEvent.hh"
-#include "gm2ringsim/common/tracker/TrackerHit.hh"
+#include "gm2ringsim/common/virtualringstation/VirtualRingStationHit.hh"
 #include "gm2ringsim/common/spin/SpinHit.hh"
 
-//class gm2ringsim::TrackerSDMessenger;
+//class gm2ringsim::VirtualRingStationSDMessenger;
 
 namespace gm2ringsim{ 
-  /** Provides the in-ring beam tracker volumes with a sensitive
+  /** Provides the in-ring beam virtualringstation volumes with a sensitive
       detector. 
       
-      This detector emits both trackerHit and spinHit collections for
-      position/momentum, trackerHit, and spin tracking, spinHit.
+      This detector emits both virtualringstationHit and spinHit collections for
+      position/momentum, virtualringstationHit, and spin tracking, spinHit.
       
       Do NOT instantiate instances directly; utilize the SDHandleOwner
       interface to obtain a pointer to the active implementation.
       Otherwise, the enable/disable logic in Geant could go screwy. 
   */
-  class TrackerSD : public G4VSensitiveDetector{
+  class VirtualRingStationSD : public G4VSensitiveDetector{
     
   public:
-    TrackerSD(G4String name);
-    ~TrackerSD();
+    VirtualRingStationSD(G4String name);
+    ~VirtualRingStationSD();
     
     void Initialize(G4HCofThisEvent*);
     G4bool ProcessHits(G4Step*, G4TouchableHistory*);
@@ -45,13 +45,13 @@ namespace gm2ringsim{
     G4int DrawLevel() const { return drawLevel_; };
     G4int DrawLevel(G4int newLevel);
   private:
-    TrackerHitsCollection *trackerHC_;
+    VirtualRingStationHitsCollection *virtualringstationHC_;
     gm2ringsim::SpinHitsCollection *spinHC_;
     
     G4int printLevel_, drawLevel_;
     
-    //TrackerSDMessenger *tsdm_;
-  }; //class TrackerSD
+    //VirtualRingStationSDMessenger *tsdm_;
+  }; //class VirtualRingStationSD
 
 }//namespace gm2ringsim
 
@@ -61,23 +61,23 @@ namespace gm2ringsim{
 // #include "G4UIdirectory.hh"
 // #include "G4UIcmdWithAnInteger.hh"
 
-// /** The G4UImessenger interface to the in-ring beam tracker sensitive
+// /** The G4UImessenger interface to the in-ring beam virtualringstation sensitive
 //     detectors. 
 
 //     Provdes the following commands:
-//     - /g2MIGTRACE/hits/TrackerSD/printLevel
-//     - /g2MIGTRACE/hits/TrackerSD/drawLevel
+//     - /g2MIGTRACE/hits/VirtualRingStationSD/printLevel
+//     - /g2MIGTRACE/hits/VirtualRingStationSD/drawLevel
 // */
-// class TrackerSDMessenger : public G4UImessenger {
+// class VirtualRingStationSDMessenger : public G4UImessenger {
 
 // public:
-//   TrackerSDMessenger(TrackerSD *tsd);
-//   ~TrackerSDMessenger();
+//   VirtualRingStationSDMessenger(VirtualRingStationSD *tsd);
+//   ~VirtualRingStationSDMessenger();
 
 //   void SetNewValue(G4UIcommand*,G4String);
 
 // private:
-//   TrackerSD *tsd_;
+//   VirtualRingStationSD *tsd_;
 
 //   G4UIdirectory *topdir_;
 //   G4UIdirectory *dir_;
@@ -88,4 +88,4 @@ namespace gm2ringsim{
 // };
 
 
- #endif // G2MIGTRACE_TRACKERSD_HH
+ #endif // G2MIGTRACE_VIRTUALRINGSTATIONSD_HH

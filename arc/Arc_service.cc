@@ -21,6 +21,8 @@
 #include "Geant4/G4Mag_EqRhs.hh"
 #include "Geant4/G4Mag_UsualEqRhs.hh"
 #include "Geant4/G4Mag_SpinEqRhs.hh"
+#include "Geant4/G4EqEMFieldWithEDM.hh"
+#include "Geant4/G4EqEMFieldWithSpin.hh"
 #include "Geant4/G4ChordFinder.hh"
 #include "Geant4/G4MagIntegratorStepper.hh"
 #include "Geant4/G4ClassicalRK4.hh"
@@ -41,24 +43,42 @@ gm2ringsim::Arc::Arc(fhicl::ParameterSet const & p, art::ActivityRegistry & ) :
   withoutSpin_(0),    //will set in the constructor function
   withSpin_(0)        //will set in the constructor function
 {
-
+  bool do_EDM = false;
+  
   storageRingField *storageField = new storageRingField();
+  //storageRingEMField *storageEMField = new storageRingEMField();
 
-  // build the spin ignoring field equations                                                         
-  G4Mag_EqRhs *equation =
-  new G4Mag_UsualEqRhs(storageField);
-  G4ClassicalRK4 *stepper =
-    new G4ClassicalRK4(equation);
-  G4ChordFinder *iChordFinder =
-    new G4ChordFinder(storageField, 0.01*mm, stepper);
+  //----------------------------------------
+  // build the spin ignoring field equations
+  //----------------------------------------
+  G4Mag_EqRhs *equation = new G4Mag_UsualEqRhs(storageField);
+  G4ClassicalRK4 *stepper = new G4ClassicalRK4(equation);
+  G4ChordFinder *iChordFinder = new G4ChordFinder(storageField, 0.01*mm, stepper);
   withoutSpin_ = new G4FieldManager(storageField, iChordFinder);
 
-  // build the spin evolving field equations                                                         
-  //  equation = new G4Mag_SpinEqRhs(storageField);                                                  
-  equation = new G4Mag_SpinEqRhs(storageField);
-  stepper = new G4ClassicalRK4(equation,12);
+
+
+  //----------------------------------------
+  // build the spin evolving field equations
+  //----------------------------------------
+  
+  // build the spin evolving field equations
+  if ( do_EDM == true ) {;
+    //G4EqEMFieldWithEDM *equation2 = new G4EqEMFieldWithEDM(storageField);
+    //G4EqEMFieldWithSpin *equation2 = new G4EqEMFieldWithSpin(storageEMField);
+    //equation2->SetEta(1e-19);
+    //stepper = new G4ClassicalRK4(equation2,12);
+  }
+  if ( do_EDM == false ) {
+    equation = new G4Mag_SpinEqRhs(storageField);
+    stepper = new G4ClassicalRK4(equation,12);
+  }
   iChordFinder = new G4ChordFinder(storageField, 0.01*mm, stepper);
   withSpin_ = new G4FieldManager(storageField, iChordFinder);
+//   if ( do_EDM == true ) {
+//     withSpin_->SetFieldChangesEnergy(false);
+//   }
+  
 
 }
 

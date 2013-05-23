@@ -1,7 +1,7 @@
-#ifndef G2MIGTRACE_TRACKERHIT_HH
-#define G2MIGTRACE_TRACKERHIT_HH
+#ifndef G2MIGTRACE_VIRTUALRINGSTATIONHIT_HH
+#define G2MIGTRACE_VIRTUALRINGSTATIONHIT_HH
 
-/** @file trackerHit.hh
+/** @file virtualringstationHit.hh
 
     Provides support for storing in-ring beam tracking data.
     
@@ -16,7 +16,7 @@
 
 namespace gm2ringsim{
   /** A G4VHit class for storing in-ring beam tracking data. */
-  class TrackerHit : public G4VHit {
+  class VirtualRingStationHit : public G4VHit {
     
   public:
     G4ThreeVector position, momentum, polarization; // get from prestep pt, which
@@ -26,7 +26,7 @@ namespace gm2ringsim{
     G4int trackID;
     G4int volumeUID; // get from prestep
     
-    TrackerHit(G4Step*);
+    VirtualRingStationHit(G4Step*);
     
     inline void* operator new(size_t);
     inline void  operator delete(void*);
@@ -36,22 +36,22 @@ namespace gm2ringsim{
     
   };
   
-  typedef G4THitsCollection<TrackerHit> TrackerHitsCollection;
+  typedef G4THitsCollection<VirtualRingStationHit> VirtualRingStationHitsCollection;
   
-  extern G4Allocator<TrackerHit> TrackerHitAllocator;
+  extern G4Allocator<VirtualRingStationHit> VirtualRingStationHitAllocator;
 } //namespace gm2ringsim
 
-inline void* gm2ringsim::TrackerHit::operator new(size_t)
+inline void* gm2ringsim::VirtualRingStationHit::operator new(size_t)
 {
   void *aHit;
-  aHit = (void *) TrackerHitAllocator.MallocSingle();
+  aHit = (void *) VirtualRingStationHitAllocator.MallocSingle();
   return aHit;
 }
 
-inline void gm2ringsim::TrackerHit::operator delete(void *aHit)
+inline void gm2ringsim::VirtualRingStationHit::operator delete(void *aHit)
 {
-  TrackerHitAllocator.FreeSingle ((TrackerHit*) aHit);
+  VirtualRingStationHitAllocator.FreeSingle ((VirtualRingStationHit*) aHit);
 }
 
 
-#endif // G2MIGTRACE_TRACKERHIT_HH
+#endif // G2MIGTRACE_VIRTUALRINGSTATIONHIT_HH

@@ -1,4 +1,4 @@
-/** @file trackerHit.cc
+/** @file virtualringstationHit.cc
 
     Implements the storage support for in-ring beam tracking data.
 
@@ -10,16 +10,16 @@
 #include "Geant4/G4Colour.hh"
 #include "Geant4/G4VisAttributes.hh"
 
-#include "gm2ringsim/common/tracker/TrackerHit.hh"
+#include "gm2ringsim/common/virtualringstation/VirtualRingStationHit.hh"
 #include "gm2ringsim/actions/muonStorageStatus/TurnCounter.hh"
 
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "gm2ringsim/actions/muonStorageStatus/MuonStorageStatusAction_service.hh"
 
 namespace gm2ringsim {
-G4Allocator<TrackerHit> TrackerHitAllocator;
+G4Allocator<VirtualRingStationHit> VirtualRingStationHitAllocator;
 } //namespace gm2ringsim
-gm2ringsim::TrackerHit::TrackerHit(G4Step* step) : 
+gm2ringsim::VirtualRingStationHit::VirtualRingStationHit(G4Step* step) : 
   position(step->GetPreStepPoint()->GetPosition()),
   momentum(step->GetPreStepPoint()->GetMomentum()),
   polarization(step->GetPreStepPoint()->GetPolarization()),
@@ -50,7 +50,7 @@ gm2ringsim::TrackerHit::TrackerHit(G4Step* step) :
 }
 
 
-void gm2ringsim::TrackerHit::Draw(){
+void gm2ringsim::VirtualRingStationHit::Draw(){
   //FIXME: Implement in fhicl
   /*#ifdef G4VIS_USE
   G4VVisManager* pVVisManager = G4VVisManager::GetConcreteInstance();
@@ -68,8 +68,8 @@ void gm2ringsim::TrackerHit::Draw(){
   */
 }
 
-void gm2ringsim::TrackerHit::Print(){
-  G4cout << " TrackerHit::Print() --- turnNum: " << turnNum
+void gm2ringsim::VirtualRingStationHit::Print(){
+  G4cout << " VirtualRingStationHit::Print() --- turnNum: " << turnNum
 	 << " time: " << time
 	 << " polarization: " << polarization
 	 << " position: " << position

@@ -121,6 +121,21 @@ void gm2ringsim::Kicker::buildKickerPlatesSAndL() {
     // utilized, see 'kickerParameters.hh'                                        
     for(G4int objectType = 0; objectType < numKickerObjects_; objectType++)
       {
+	if ( objectType == FIELDREGION ) {
+	  G4cout << kickerNumber << "\tObjectType = FieldRegion" << G4endl;
+	}
+	if ( objectType == INNERPLATE ) {
+	  G4cout << kickerNumber << "\tObjectType = InnerPlate" << G4endl;
+	}
+	if ( objectType == OUTERPLATE ) {
+	  G4cout << kickerNumber << "\tObjectType = OuterPlate" << G4endl;
+	}
+	G4cout << "  rMin     = " << kg_.kPlates_rMin[objectType] << G4endl;
+	G4cout << "  rMax     = " << kg_.kPlates_rMax[objectType] << G4endl;
+	G4cout << "  z        = " << kg_.kPlates_z[objectType] << G4endl;
+	G4cout << "  sPhi     = " << 180.0/3.14159*kg_.kPlates_Sphi[kickerNumber] << G4endl;
+	G4cout << "  dPhi     = " << 180.0/3.15159*kg_.kPlates_Dphi << G4endl << G4endl;
+	
 	G4Tubs *kicker_S = new G4Tubs("kicker_S",
 				      kg_.kPlates_rMin[objectType],
 				      kg_.kPlates_rMax[objectType],
