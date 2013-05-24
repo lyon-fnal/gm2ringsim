@@ -155,7 +155,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Straws::doPlaceToPVs( std::vector<G
     y= geom_.y_position[row];
     
     G4RotationMatrix* yRot = new G4RotationMatrix;
-    double rot = geom_.layer_angle*deg;
+    double rot = geom_.layer_angle;
     if(row > 1) rot = -rot;
     yRot -> rotateY(rot);
     G4ThreeVector placement(x, y, 0);

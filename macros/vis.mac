@@ -103,6 +103,12 @@
 #/vis/viewer/zoomTo 75
 #/vis/viewer/refresh
 
+#for viewing an almost edge on view at location 18
+#/vis/viewer/set/viewpointThetaPhi 2 150.
+#/vis/viewer/panTo 0.8 0
+#/vis/viewer/zoomTo 40
+#/vis/viewer/refresh
+
 # Specify style (surface or wireframe):
 #/vis/viewer/set/style wireframe
 #
@@ -118,7 +124,6 @@
 
 # To superimpose all of the events from a given run:
 /vis/scene/endOfEventAction accumulate
-
 #
 # Re-establish auto refreshing and verbosity:
 /vis/viewer/set/autoRefresh true
