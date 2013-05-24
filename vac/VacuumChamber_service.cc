@@ -23,14 +23,14 @@ gm2ringsim::VacuumChamber::VacuumChamber(fhicl::ParameterSet const & p, art::Act
 	       p.get<std::string>("category", "vac"),
 	       p.get<std::string>("mother_category", "arc")),
   turnCounterSDName_("TurnCounter"),
-  trackerSDName_("TrackerSD"),
+  virtualringstationSDName_("VirtualRingStationSD"),
   turnSD_(0),   // will set below
-  trackerSD_(0), // will set below
+  virtualringstationSD_(0), // will set below
   wallLVs_()
 {
   //creates or gets the turnCounterSD depending on whether it exists or not.
   turnSD_ = artg4::getSensitiveDetector<TurnCounterSD>(turnCounterSDName_);
-  trackerSD_ = artg4::getSensitiveDetector<TrackerSD>(trackerSDName_);
+  virtualringstationSD_ = artg4::getSensitiveDetector<VirtualRingStationSD>(virtualringstationSDName_);
 }
 
 G4UnionSolid* gm2ringsim::VacuumChamber::buildUnionSolid(const VacGeometry& g, VacGeometry::typeToBuild which, unsigned int arc) {
@@ -197,49 +197,49 @@ void gm2ringsim::VacuumChamber::makeVacuumPVs(
   }
 }
 
-void gm2ringsim::VacuumChamber::makeTrackerPVs(
+void gm2ringsim::VacuumChamber::makeVirtualRingStationPVs(
           std::vector<G4LogicalVolume*>& vacLVs,
           const VacGeometry& g) {
   
   for(int arc=0; arc!=12; ++arc){
-    // In ring, non-physical beam trackers
-    G4Tubs *trackerTubs_S= new G4Tubs("trackerTubs",
+    // In ring, non-physical beam ring stations
+    G4Tubs *virtualringstationTubs_S= new G4Tubs("virtualringstationTubs",
                                       g.track_rMin,
                                       g.track_rMax,
                                       g.ZachIsAwesome_Z,
                                       g.tracker_sphi,
                                       g.tracker_dphi);
 
-    std::string ttLVName = artg4::addNumberToName("TrackerLV", arc);
+    std::string ttLVName = artg4::addNumberToName("VirtualRingStationLV", arc);
     
-    G4LogicalVolume *trackerTubs_L =
-    new G4LogicalVolume(trackerTubs_S,
+    G4LogicalVolume *virtualringstationTubs_L =
+    new G4LogicalVolume(virtualringstationTubs_S,
                         artg4Materials::Vacuum(),
                         ttLVName.c_str());
     
-    std::string ttPVName = artg4::addNumberToName("TrackerPV", arc);
+    std::string ttPVName = artg4::addNumberToName("VirtualRingStationPV", arc);
 
     new G4PVPlacement(new G4RotationMatrix(0,0,0),
                                            G4ThreeVector(0,0,0),
-                                           trackerTubs_L,
+                                           virtualringstationTubs_L,
                                            ttPVName.c_str(),
                                            vacLVs[arc],
                                            false,
                                            0);
 
     // Set the attributes
-    artg4::setVisAtts( trackerTubs_L, g.displayTracker, g.trackerColor,
+    artg4::setVisAtts( virtualringstationTubs_L, g.displayTracker, g.trackerColor,
                       [] (G4VisAttributes* att) {
                         att->SetForceSolid(1);
                       }
     );
     
     // TODO - handle sensitive detectors
-    //trackerSD *tracker = SDHandleOwner::getInstance().getTrackerSD();
-    // Brendan: Now the trackerSD_ is grabbed from the SDManager in the constructor
+    //virtualringstationSD *tracker = SDHandleOwner::getInstance().getVirtualRingStationSD();
+    // Brendan: Now the virtualringstationSD_ is grabbed from the SDManager in the constructor
     // using a function in util.hh. We could also rever to the SDHandleOwner if preferred
     // simply by copying the SDHandleOwner class over
-    trackerTubs_L->SetSensitiveDetector( trackerSD_ );
+    virtualringstationTubs_L->SetSensitiveDetector( virtualringstationSD_ );
     
     // In arcNumber 11, put a turnCounter at the inflector aperture
     // position
@@ -287,7 +287,7 @@ std::vector<G4LogicalVolume *> gm2ringsim::VacuumChamber::doBuildLVs() {
   // Note how this works -
   // The walls live within the arcs
   // The chamber regions live within the walls
-  // The various trackers live within the chamber regions
+  // The various virtualringstations live within the chamber regions
   //
   // We actually want Art to only know about the chamber regions, since
   // that's what everything else is going to live in. So that's what we're going
@@ -305,8 +305,8 @@ std::vector<G4LogicalVolume *> gm2ringsim::VacuumChamber::doBuildLVs() {
   // Make the 12 vacuum PVs (we in fact don't need to store the vacPVs at this point)
   makeVacuumPVs(vacLVs);
   
-  // Make the tracker volumes
-  makeTrackerPVs(vacLVs, g);
+  // Make the Virtual Ring Station volumes
+  makeVirtualRingStationPVs(vacLVs, g);
   
   return vacLVs;
 }

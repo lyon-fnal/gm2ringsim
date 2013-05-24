@@ -51,7 +51,8 @@ gm2ringsim::G2InflectorSource::G2InflectorSource() :
   GenGaussian(false),
   LaunchAngle(0.0),
   StorageOffset(0.0),
-  Emittance(40.0),
+  EmittanceX(40.0),
+  EmittanceY(40.0),
   BetaX(19.1),
   BetaY(7.6),
   AlphaX(0.0),
@@ -62,7 +63,7 @@ gm2ringsim::G2InflectorSource::G2InflectorSource() :
 {
   inflectorGun_ = new G4ParticleGun();
   g2GPS_ = new G2GeneralParticleSource();
-  G4cout << "HELLO WORLD" << G4endl;
+  //G4cout << "HELLO WORLD" << G4endl;
 }
 
 gm2ringsim::G2InflectorSource::~G2InflectorSource() 
@@ -124,26 +125,20 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
   G4double epsilonX, betaX, alphaX, gammaX, numSigmaX, numSigmaXPrime;
   G4double epsilonY, betaY, alphaY, gammaY, numSigmaY, numSigmaYPrime;
   G4double x0, y0, x0Prime, y0Prime, randX, randY, randXPrime, randYPrime;
-  G4double dP_over_P, emittance;
+  G4double dP_over_P, emittanceX, emittanceY;
 
   //static G4double const inflectorLength = 1.7*m;
 
-  emittance = GetEmittance();
+  emittanceX = GetEmittanceX();
+  emittanceY = GetEmittanceY();
 
-  if ( 0 ) {
-    G4cout << "e = " << emittance << G4endl;
-    G4cout << "betaX = " << betaX << G4endl;
-    G4cout << "betaY = " << betaY << G4endl;
-    G4cout << "alphaX = " << alphaX << G4endl;
-    G4cout << "alphaY = " << alphaY << G4endl;
-  }
 
   //  DEFAULTS: The emittances below are Fermilab's spec., and seem to be fairly well cinched down.  
   //  Here, I will assume pi * epsilon{X,Y} is the AREA OF THE BOUNDING ELLIPSE IN PHASE SPACE, 
   //  which I will take to be 99% Gaussians.  NB: gamma{X,Y} isn't actually ever needed, because of 
   //  the invariant relation beta*gamma - alpha*alpha = 1.  Default is to "sneak" the beam through
   //  the E821 inflector (see below).
-  epsilonX       = emittance*mm*mrad;
+  epsilonX       = emittanceX*mm*mrad;
   alphaX         = -0.543951;
   betaX          =  2.025*m;
   numSigmaX      =  2.57583; // sqrt( epsilonX*betaX  ) = numSigmaX, i.e. 1, 2, 3..., in this case 99%
@@ -151,7 +146,7 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
   //numSigmaX      =  2.0; 
   //numSigmaXPrime =  2.0; 
   //
-  epsilonY       = emittance*mm*mrad;
+  epsilonY       = emittanceY*mm*mrad;
   alphaY         = -0.0434492;
   betaY          = 19.600*m;
   numSigmaY      =  2.57583; // sqrt( epsilonY*betaY  ) = numSigmaY, i.e. 1, 2, 3..., in this case 99%
@@ -547,19 +542,13 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
       G4cout << "Launching muon beam with a " << 1000*launch_angle << " mrad kick." << G4endl;
     }
 
-    if ( 0 ) {
-      emittance = GetEmittance();
-      betaX = GetBetaX();
-      betaY = GetBetaY();
-      alphaX = GetAlphaX();
-      alphaY = GetAlphaY();
-    }
       
-    G4cout << "emittance = " << emittance << G4endl;
-    G4cout << "betaX     = " << betaX << G4endl;
-    G4cout << "betaY     = " << betaY << G4endl;
-    G4cout << "alphaX    = " << alphaX << G4endl;
-    G4cout << "alphaY    = " << alphaY << G4endl;
+    G4cout << "emittanceX = " << emittanceX << G4endl;
+    G4cout << "emittanceY = " << emittanceY << G4endl;
+    G4cout << "betaX      = " << betaX << G4endl;
+    G4cout << "betaY      = " << betaY << G4endl;
+    G4cout << "alphaX     = " << alphaX << G4endl;
+    G4cout << "alphaY     = " << alphaY << G4endl;
 
     if ( GetGenGaussian() ) {
       G4cout << "sigma(x)  = " << sigmaX0 << G4endl;

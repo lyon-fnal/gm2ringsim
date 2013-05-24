@@ -52,7 +52,8 @@ gm2ringsim::InflectorPGA::InflectorPGA(fhicl::ParameterSet const& p, art::Activi
   GenGaussian_(p.get<bool>("GenGaussian", true)),
   LaunchAngle_(p.get<double>("LaunchAngle", -9999.9)),
   StorageOffset_(p.get<double>("StorageOffset", -9999.9)),
-  Emittance_(p.get<double>("Emittance", -9999.9)),
+  EmittanceX_(p.get<double>("EmittanceX", -9999.9)),
+  EmittanceY_(p.get<double>("EmittanceY", -9999.9)),
   BetaX_(p.get<double>("BetaX", -9999.9)),
   BetaY_(p.get<double>("BetaY", -9999.9)),
   AlphaX_(p.get<double>("AlphaX", -9999.9)),
@@ -71,7 +72,8 @@ gm2ringsim::InflectorPGA::InflectorPGA(fhicl::ParameterSet const& p, art::Activi
     G4cout << "  GenGaussian         " << GenGaussian_ << G4endl;
     G4cout << "  LaunchAngle         " << LaunchAngle_ << G4endl;
     G4cout << "  StorageOffset       " << StorageOffset_ << G4endl;
-    G4cout << "  Emittance           " << Emittance_ << G4endl;
+    G4cout << "  EmittanceX          " << EmittanceX_ << G4endl;
+    G4cout << "  EmittanceY          " << EmittanceY_ << G4endl;
     G4cout << "  BetaX               " << BetaX_ << G4endl;
     G4cout << "  BetaY               " << BetaY_ << G4endl;
     G4cout << "  AlphaX              " << AlphaX_ << G4endl;
@@ -92,7 +94,7 @@ void gm2ringsim::InflectorPGA::initialize() {
   
   //  particleGun_ = new G4ParticleGun(1);
   // Read the parameter set and figure out what sort of gun to use
-  G4cout << "CALLING InflectorPGA::initialize()" << G4endl;
+  //G4cout << "CALLING InflectorPGA::initialize()" << G4endl;
   gps_ = new G2InflectorSource();
   gps_ -> SetVerbosity(inflectorVerbosity_);
   gps_ -> SetStartUpstream(StartUpstream_);
@@ -102,7 +104,8 @@ void gm2ringsim::InflectorPGA::initialize() {
   gps_ -> SetGenGaussian(GenGaussian_);
   gps_ -> SetLaunchAngle(LaunchAngle_);
   gps_ -> SetStorageOffset(StorageOffset_);
-  gps_ -> SetEmittance(Emittance_);
+  gps_ -> SetEmittanceX(EmittanceX_);
+  gps_ -> SetEmittanceY(EmittanceY_);
   gps_ -> SetBetaX(BetaX_);
   gps_ -> SetBetaY(BetaY_);
   gps_ -> SetAlphaX(AlphaX_);

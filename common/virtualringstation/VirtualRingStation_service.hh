@@ -1,15 +1,15 @@
-// Tracker detector service for 
+// VirtualRingStation detector service for 
 
 // Include guards
-#ifndef TRACKER_SERVICE_HH
-#define TRACKER_SERVICE_HH
+#ifndef VIRTUALRINGSTATION_SERVICE_HH
+#define VIRTUALRINGSTATION_SERVICE_HH
 
 // Includes
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Core/EDProducer.h"
 
-#include "gm2ringsim/common/tracker/TrackerSD.hh"
+#include "gm2ringsim/common/virtualringstation/VirtualRingStationSD.hh"
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -22,26 +22,26 @@
 // Get the base class for the service
 #include "artg4/Core/DetectorBase.hh"
 
-#include "gm2ringsim/common/tracker/TrackerArtRecord.hh"
-#include "gm2ringsim/common/tracker/tracker_util.hh"
+#include "gm2ringsim/common/virtualringstation/VirtualRingStationArtRecord.hh"
+#include "gm2ringsim/common/virtualringstation/virtualringstation_util.hh"
 
 
 // Within a namespace
 namespace gm2ringsim {
   
   // The class
-  class Tracker : public artg4::DetectorBase {
+  class VirtualRingStation : public artg4::DetectorBase {
     
   public:
     // Constructor
-    Tracker(fhicl::ParameterSet const &, art::ActivityRegistry & );
+    VirtualRingStation(fhicl::ParameterSet const &, art::ActivityRegistry & );
     
     // We always need a virtual destructor
-    virtual ~Tracker() {};
+    virtual ~VirtualRingStation() {};
     
   private:
-    G4String trackerSDname_;
-    TrackerSD *trackerSD_;
+    G4String virtualringstationSDname_;
+    VirtualRingStationSD *virtualringstationSD_;
 
     // Private overriden methods
       
@@ -61,4 +61,4 @@ namespace gm2ringsim {
   
 }//namespace gm2ringsim
 
-#endif //TRACKER_SERVICE_HH
+#endif //VIRTUALRINGSTATION_SERVICE_HH

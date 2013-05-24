@@ -1,13 +1,13 @@
-#ifndef TRACKERARTRECORD_RHH
-#define TRACKERARTRECORD_RHH
+#ifndef VIRTUALRINGSTATIONARTRECORD_RHH
+#define VIRTUALRINGSTATIONARTRECORD_RHH
 
-/** @file TrackerArtRecord.hh
+/** @file VirtualRingStationArtRecord.hh
 
     Provides a Root storable class to record in-ring beam tracking
     data. 
     @author  Kevin Lynch
     @date 2009
-    @ARTized from trackerRecord.rhh,rcc
+    @ARTized from virtualringstationRecord.rhh,rcc
     @author Brendan Kiburg
     @data Dec 2012 ARTified
     
@@ -18,9 +18,9 @@
 namespace gm2ringsim{
   
   /** Provides a Root storable class to record in-ring beam tracking
-      data.  Uses the data recorded by the trackerSD class. */
+      data.  Uses the data recorded by the virtualringstationSD class. */
   
-  struct TrackerArtRecord {
+  struct VirtualRingStationArtRecord {
     /** Horizontal offset from the central orbit, mm. */
     float rhat;
     /** Vertical offset from the central orbit, mm. */
@@ -46,27 +46,37 @@ namespace gm2ringsim{
     /** Current track ID; used with the stored trackRecord for particle
 	identification. */
     int trackID; 
-    
-    TrackerArtRecord() :
-      rhat(0), vhat(0), theta(0), time(0), p(0), prhat(0), pvhat(0),
-      turn(-1), volumeUID(0), trackID(-1) {}
 
-    ~TrackerArtRecord(){};
+    /** Spin component tangent to the ring. */
+    float polx;
+    /** Spin component radial to the ring. */
+    float poly;
+    /** Spin component vertical to the ring. */
+    float polz;
+    
+    
+    VirtualRingStationArtRecord() :
+      rhat(0), vhat(0), theta(0), time(0), p(0), prhat(0), pvhat(0),
+      turn(-1), volumeUID(0), trackID(-1), polx(0), poly(0), polz(0) {}
+
+    ~VirtualRingStationArtRecord(){};
     
 #ifndef __GCCXML__
-    TrackerArtRecord(float rin, float vin, float thetain,
+    VirtualRingStationArtRecord(float rin, float vin, float thetain,
 		     float tin, float pin, float prin, float pvin,
-		     float turnin,float volin,int trackin) :
+		     float turnin,float volin,int trackin,
+		     float polxin, float polyin, float polzin) :
       rhat(rin), vhat(vin), theta(thetain),
       time(tin), p(pin), prhat(prin), pvhat(pvin),
-      turn(turnin), volumeUID(volin),trackID(trackin)
+      turn(turnin), volumeUID(volin),trackID(trackin),
+      polx(polxin), poly(polyin), polz(polzin)
     {}
     
 #endif //__GCCXML__
     
-  }; //struct TrackerArtRecord
+  }; //struct VirtualRingStationArtRecord
   
-  typedef std::vector<TrackerArtRecord> TrackerArtRecordCollection;
+  typedef std::vector<VirtualRingStationArtRecord> VirtualRingStationArtRecordCollection;
   
 } //namespace gm2ringsim
-#endif // TRACKERARTRECORD_RHH
+#endif // VIRTUALRINGSTATIONARTRECORD_RHH

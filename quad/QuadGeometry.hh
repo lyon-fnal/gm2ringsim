@@ -15,6 +15,10 @@ namespace gm2ringsim {
     QuadGeometry(std::string const &);
     void print() const;
 
+    bool DoScraping;
+    const double ScrapeHV;
+    const double StoreHV;
+    std::string PlateMaterial;
     const double topBottomWidth;
     const double topBottomThickness;
     const double innerOuterWidth;
@@ -26,6 +30,7 @@ namespace gm2ringsim {
     const double innerCurlMajorRadius;
     const double outerCurlMajorRadius;
     const double curlHeightAboveMidplane;
+    std::string SupportMaterial; 
     const int support_nPlanes;
     std::vector<double> support_rInner;
     std::vector<double> support_rOuter;

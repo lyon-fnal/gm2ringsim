@@ -55,6 +55,7 @@
 #include "Geant4/G4ChordFinder.hh"
 #include "Geant4/G4EqMagElectricField.hh"
 #include "Geant4/G4EqEMFieldWithSpin.hh"
+#include "Geant4/G4EqEMFieldWithEDM.hh"
 #include "Geant4/G4ClassicalRK4.hh"
 #include "Geant4/G4UserLimits.hh"
 
@@ -68,12 +69,43 @@ gm2ringsim::Quad::Quad(fhicl::ParameterSet const & p, art::ActivityRegistry & ) 
 	       p.get<std::string>("mother_category", "vac")),
   sts_("SpinTracking"),
   qg_(myName()), //QuadGeometry
-  qff_(),
+  qff_(qg_.DoScraping, qg_.ScrapeHV, qg_.StoreHV),
   spin_tracking_(sts_.spinTrackingEnabled)
   // The rest of the internal variables are things like pointers
   // and structures that get created/assigned below
 {
-  printf("In the Quad constructor \n");
+
+
+  if ( qg_.SupportMaterial == "Macor" || qg_.SupportMaterial == "MACOR" || qg_.SupportMaterial == "MacorCeramic" ) {
+    support_material = artg4Materials::MacorCeramic();
+  }
+  if ( qg_.SupportMaterial == "Beryl" || qg_.SupportMaterial == "Be" || qg_.SupportMaterial == "Beryllium" ) {
+    support_material = artg4Materials::Be();
+  }
+  if ( qg_.SupportMaterial == "Massless" || qg_.SupportMaterial == "Vacuum" || qg_.SupportMaterial == "None" ) {
+    support_material = artg4Materials::Vacuum();
+  }
+  if ( qg_.PlateMaterial == "Al" || qg_.PlateMaterial == "Aluminum" ) {
+    plate_material = artg4Materials::Al();
+  }
+  if ( qg_.PlateMaterial == "Massless" || qg_.PlateMaterial == "Vacuum" || qg_.PlateMaterial == "None" ) {
+    plate_material = artg4Materials::Vacuum();
+  }
+
+  G4cout << "=========== Quad ===========" << G4endl;
+  G4cout << "| DoScraping       = " << qg_.DoScraping << G4endl;
+  G4cout << "| Support Material = " << qg_.SupportMaterial << G4endl;
+  G4cout << "| Plate Material   = " << qg_.PlateMaterial << G4endl;
+  if ( qg_.StoreHV == 40*kilovolt ) {
+    G4cout << "| Running w/ HV    =  40 kV" << G4endl;
+    G4cout << "| Running w/ HV    =  34 (scraping) kV" << G4endl;
+  }
+  else {
+    G4cout << "| Running w/ HV    =  24 kV" << G4endl;
+    G4cout << "| Running w/ HV    =  17 (scraping) kV" << G4endl;
+  }
+  G4cout << "============================" << G4endl;
+  //printf("In the Quad constructor \n");
   
   //Create 2D array from vectors passed in
   for (int i=0;i<6;++i){
@@ -221,9 +253,9 @@ void gm2ringsim::Quad::buildPlatesSandL(G4int quadRegion, G4int sectionType){
   RingSD* ringSD = artg4::getSensitiveDetector<RingSD>("RingSD"); 
 
   
-  printf("about to buildPlatesSandL\n");
+  //printf("about to buildPlatesSandL\n");
   for(G4int plateType=0; plateType!=qg_.numPlateTypes; plateType++){
-    printf("Getting plate parameters for q=%d,s=%d,p=%d\n",quadRegion,sectionType,plateType);
+    //printf("Getting plate parameters for q=%d,s=%d,p=%d\n",quadRegion,sectionType,plateType);
     plate_params p = get_plate_params(quadRegion, sectionType, plateType);
     p.print();
     mf::LogDebug("Quad_service") << p.rmin << ' ' << p.rmax << ' '
@@ -273,7 +305,7 @@ void gm2ringsim::Quad::buildPlatesSandL(G4int quadRegion, G4int sectionType){
     //G4LogicalVolume *
     genericQuadPlate_L_[quadRegion][sectionType][plateType] =
       new G4LogicalVolume(plate_S,
-			  artg4Materials::Al(),
+			  plate_material,
 			  "genericQuadPlate_L");
     
     artg4::setVisAtts( genericQuadPlate_L_[quadRegion][sectionType][plateType],
@@ -408,10 +440,11 @@ void gm2ringsim::Quad::buildInnerOuterSupportsSandL(G4int quadRegion, G4int sect
 			      OSMTransform);
     
       
+
       //      G4LogicalVolume *genericInnerSupport_L = 
       genericInnerSupport_L_[quadRegion][sectionType][sPair] =
 	new G4LogicalVolume(genericInnerSupport_IS,
-			    artg4Materials::MacorCeramic(),
+			    support_material,
 			    "genericInnerSupport_L");
       
     
@@ -419,7 +452,7 @@ void gm2ringsim::Quad::buildInnerOuterSupportsSandL(G4int quadRegion, G4int sect
       //      G4LogicalVolume *genericOuterSupport_L = 
       genericOuterSupport_L_[quadRegion][sectionType][sPair] =
 	new G4LogicalVolume(genericOuterSupport_IS,
-			    artg4Materials::MacorCeramic(),
+			    support_material,
 			    "genericOuterSupport_L");
       
 
@@ -468,17 +501,21 @@ void gm2ringsim::Quad::assignFieldManagers(){
 
 void gm2ringsim::Quad::buildFieldManagers(G4int quadRegion, G4int sectionType) {
   
-  G4cout << "buildFieldManagers: " << quadRegion << ' ' << sectionType << '\n';
+  //G4cout << "buildFieldManagers: " << quadRegion << ' ' << sectionType << '\n';
   
   G4ElectroMagneticField *field;
   G4EquationOfMotion *equation;
   G4MagIntegratorStepper *stepper;
   G4MagInt_Driver *driver;
   G4ChordFinder *chord;
+
   
   // first, the quad field regions
   // shared
   field = qff_.buildQuadField(quadRegion, sectionType);
+
+
+
   // not shared ... spin free
   equation = new G4EqMagElectricField(field);
   stepper = new G4ClassicalRK4(equation, 8); // modifies energy, so 8
@@ -489,12 +526,13 @@ void gm2ringsim::Quad::buildFieldManagers(G4int quadRegion, G4int sectionType) {
   
   // not shared ... spin 
   equation = new G4EqEMFieldWithSpin(field);
+  //G4EqEMFieldWithEDM *equation2 = new G4EqEMFieldWithEDM(field);
+  //equation2->SetEta(1e-19);
   stepper = new G4ClassicalRK4(equation, 12); // modifies spin, so 12
   driver = new G4MagInt_Driver(0.01*mm, stepper, stepper->GetNumberOfVariables());
   chord = new G4ChordFinder(driver);
   withSpin_[quadRegion][sectionType] = 
     new G4FieldManager(field,chord,true);
-  
 }
 
 // CHANGE_ME: You can delete the below if this detector creates no data

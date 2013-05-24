@@ -38,17 +38,31 @@
 // Constructor for the service 
 gm2ringsim::Kicker::Kicker(fhicl::ParameterSet const & p, art::ActivityRegistry & ) :
     DetectorBase(p,
-                   p.get<std::string>("name", "kicker"),
-                   p.get<std::string>("category", "kicker"),
+		 p.get<std::string>("name", "kicker"),
+		 p.get<std::string>("category", "kicker"),
 		 p.get<std::string>("mother_category", "vac")),
     sts_("SpinTracking"),
     spin_tracking_(sts_.spinTrackingEnabled),
     kg_(myName()),
     numKickers_(3),
     numKickerObjects_(3),
-    kickType_(KICK_LCR), 
     which_modifier_(NO_MODIFIER) 
 {
+  G4cout << "=========== Kicker ===========" << G4endl;
+  G4cout << "| Type of Kick = " << kg_.TypeOfKick << G4endl;
+  if ( kg_.TypeOfKick == "LCR" || kg_.TypeOfKick == "E821" ) { KickType_ = KICK_LCR; }
+  if ( kg_.TypeOfKick == "Square" || kg_.TypeOfKick == "Perfect" ||
+       kg_.TypeOfKick == "SQUARE" || kg_.TypeOfKick == "PERFECT" ) { KickType_ = KICK_SQUARE; }
+  if ( KickType_ == KICK_SQUARE ) {
+    G4cout << "| B(y) = " << kg_.kickerHV[0] << " , " << kg_.kickerHV[1] << " , " << kg_.kickerHV[2] << " Gauss" << G4endl;
+  }
+  else if ( KickType_ == KICK_LCR ) {
+    G4cout << "| HV = " << kg_.squareMag[0] << " , " << kg_.squareMag[1] << kg_.squareMag[2] << G4endl;
+  }
+  else {
+    G4cout << "| No Kick" << G4endl;
+  }
+  G4cout << "=============================" << G4endl;
   kg_.print();
   //FIXME??: move to kickerGeometry
   figureProperOffsetTime();
@@ -80,8 +94,8 @@ void gm2ringsim::Kicker::figureProperOffsetTime(){
 } //figureProperOffsetTime
 
 // Build the logical volumes
-  std::vector<G4LogicalVolume *> gm2ringsim::Kicker::doBuildLVs() {
-
+std::vector<G4LogicalVolume *> gm2ringsim::Kicker::doBuildLVs() {
+    
     buildKickerPlatesSAndL();
     buildKickerFields();
     
@@ -107,6 +121,21 @@ void gm2ringsim::Kicker::buildKickerPlatesSAndL() {
     // utilized, see 'kickerParameters.hh'                                        
     for(G4int objectType = 0; objectType < numKickerObjects_; objectType++)
       {
+	if ( objectType == FIELDREGION ) {
+	  G4cout << kickerNumber << "\tObjectType = FieldRegion" << G4endl;
+	}
+	if ( objectType == INNERPLATE ) {
+	  G4cout << kickerNumber << "\tObjectType = InnerPlate" << G4endl;
+	}
+	if ( objectType == OUTERPLATE ) {
+	  G4cout << kickerNumber << "\tObjectType = OuterPlate" << G4endl;
+	}
+	G4cout << "  rMin     = " << kg_.kPlates_rMin[objectType] << G4endl;
+	G4cout << "  rMax     = " << kg_.kPlates_rMax[objectType] << G4endl;
+	G4cout << "  z        = " << kg_.kPlates_z[objectType] << G4endl;
+	G4cout << "  sPhi     = " << 180.0/3.14159*kg_.kPlates_Sphi[kickerNumber] << G4endl;
+	G4cout << "  dPhi     = " << 180.0/3.15159*kg_.kPlates_Dphi << G4endl << G4endl;
+	
 	G4Tubs *kicker_S = new G4Tubs("kicker_S",
 				      kg_.kPlates_rMin[objectType],
 				      kg_.kPlates_rMax[objectType],
@@ -206,7 +235,7 @@ void gm2ringsim::Kicker::buildKickerFields(){
     else
       modifier_[i] = new MorseModifier("g2RunTimeFiles/Morse-profile.dat");
 
-    if( kickType_ == KICK_LCR ){
+    if( KickType_ == KICK_LCR ){
       kickerMagField_[i] = new LCRKickField(kg_.kickerHV[i]*
 					    kg_.kickPercent[i]/100.,
 					    kg_.kickerProperOffsetTime[i] +
@@ -224,7 +253,7 @@ void gm2ringsim::Kicker::buildKickerFields(){
         iStepper_[i] = new G4ClassicalRK4(iEquation_[i], 12);
         // 12 for spin dependence                                               
       }
-    }else if ( kickType_ == KICK_SQUARE ) {
+    }else if ( KickType_ == KICK_SQUARE ) {
       kickerMagField_[i] = new SquareKickField(kg_.squareMag[i]*
                                               kg_.kickPercent[i]/100.,
                                               modifier_[i]);

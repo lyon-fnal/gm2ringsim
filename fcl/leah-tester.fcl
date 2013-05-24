@@ -119,7 +119,8 @@ services: {
         name: "inflectorgun"
         inflectorVerbosity: true
 	SigmaT: 25
-	Emittance: 1.0
+	EmittanceX: 1.0
+  EmittanceY: 1.0
 	BetaX:  7.66477
 	BetaY:  19.0763
 	AlphaX:  0.0
@@ -138,7 +139,7 @@ services: {
     // Detectors
     World: {}	
     Ring: {}    // This is for the RingHits
-    Tracker: {} // This is for the virtual tracker planes in the vac
+    VirtualRingStation: {} // This is for the virtual tracker planes in the vac
     Arc: {}
     VacuumChamber: {}
     Inflector:{}
@@ -173,7 +174,7 @@ physics: {
   producers: {
     artg4 : { 
      module_type: artg4Main
-     enableVisualization: true
+     enableVisualization: false
      macroPath: ".:./macros:../macros:../../macros"
      visMacro: "vis.mac"
      afterEvent: pause  // (ui, pause, pass)

@@ -27,6 +27,7 @@ namespace gm2ringsim {
 
   /** Magic momentum */
   G4double  pMagic();
+  G4double  P_magic();
 
   /** Magic radius */
   G4double  R_magic();

@@ -25,7 +25,9 @@ namespace gm2ringsim {
   class SpinHit : public G4VHit {
     
   public:
-    G4ThreeVector momentum, spin;
+    G4ThreeVector position;
+    G4ThreeVector momentum;
+    G4ThreeVector spin;
     
     SpinHit(G4Step*);
     

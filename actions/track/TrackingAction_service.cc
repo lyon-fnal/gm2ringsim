@@ -17,6 +17,7 @@ using std::string;
 gm2ringsim::TrackingAction::TrackingAction(fhicl::ParameterSet const & p, 
 					      art::ActivityRegistry &)
   : TrackingActionBase(p.get<string>("name","TrackingAction")),
+    OnlyTrackMuons_(p.get<bool>("OnlyTrackMuons", false)),
     myArtHits_(new TrackingActionArtRecordCollection),
     logInfo_("TrackingAction")
 { }
@@ -28,8 +29,7 @@ gm2ringsim::TrackingAction::~TrackingAction()
 
 // Overload the PreUserTrackingAction method to initialize the track and
 // add it to our collection
-void gm2ringsim::TrackingAction::
-preUserTrackingAction(const G4Track * currentTrack)
+void gm2ringsim::TrackingAction::preUserTrackingAction(const G4Track * currentTrack)
 {
   // Ignore tracks for xtal volumes
   if( currentTrack->GetVolume()->GetName().find( "xtal" ) !=
@@ -37,6 +37,12 @@ preUserTrackingAction(const G4Track * currentTrack)
     return ;
   }
   
+  if ( OnlyTrackMuons_ ) {
+    int pdg = currentTrack->GetDefinition()->GetPDGEncoding();
+    if ( pdg == 13 || pdg == -13 ) { ; }
+    else { return; }
+  }
+
   // Create a hit
   TrackingActionArtRecord tr;
   
@@ -68,6 +74,12 @@ preUserTrackingAction(const G4Track * currentTrack)
     sqrt(pos.x()*pos.x()+pos.z()*pos.z()) / 
     tr.p;
   tr.pvhat = mom.y()/mom.mag();
+
+  G4ThreeVector pol = currentTrack->GetPolarization();
+
+  tr.polx = pol.x();
+  tr.poly = pol.y();
+  tr.polz = pol.z();
 
   // Add the hit to our collection
   myArtHits_->push_back(tr);

@@ -48,7 +48,8 @@ namespace gm2ringsim
     bool GenGaussian_;
     double LaunchAngle_;
     double StorageOffset_;
-    double Emittance_;
+    double EmittanceX_;
+    double EmittanceY_;
     double BetaX_;
     double BetaY_;
     double AlphaX_;

@@ -1,19 +1,21 @@
-#ifndef TRACKER_UTIL_HH
-#define TRACKER_UTIL_HH
+#ifndef VIRTUALRINGSTATION_UTIL_HH
+#define VIRTUALRINGSTATION_UTIL_HH
 
-#include "gm2ringsim/common/tracker/TrackerArtRecord.hh"
-#include "gm2ringsim/common/tracker/TrackerHit.hh"
+#include "gm2ringsim/common/virtualringstation/VirtualRingStationArtRecord.hh"
+#include "gm2ringsim/common/virtualringstation/VirtualRingStationHit.hh"
 
 #include "gm2ringsim/common/g2PreciseValues.hh"
 
 //helper function
 namespace gm2ringsim {
-  TrackerArtRecord convert(TrackerHit* pth){
-      //    G4cout << "convert: trackerHit -> trackerRecord\n";
-    TrackerArtRecord ts;
+  VirtualRingStationArtRecord convert(VirtualRingStationHit* pth){
+
+    //G4cout << "convert: virtualringstationHit -> virtualringstationRecord\n";
+    VirtualRingStationArtRecord ts;
 
     G4ThreeVector const& pos = pth->position;
     G4ThreeVector const& mom = pth->momentum;
+    G4ThreeVector const& pol = pth->polarization;
     
     ts.rhat = std::sqrt(pos.x()*pos.x() + pos.z()*pos.z()) - R_magic();
     ts.vhat = pos.y();
@@ -42,8 +44,12 @@ namespace gm2ringsim {
     ts.volumeUID = pth->volumeUID;
     ts.trackID = pth->trackID;
 
+    ts.polx = pol.x();
+    ts.poly = pol.y();
+    ts.polz = pol.z();
+
     return ts;    
-  } // convert TrackerHit*
+  } // convert VirtualRingStationHit*
 } //namespace gm2ringsim
 
 

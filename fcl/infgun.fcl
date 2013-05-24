@@ -68,16 +68,19 @@ services: {
      // Global simulation settings
      RunSettings : {
        SpinTracking : {
-        spinTrackingEnabled : false
+        spinTrackingEnabled : true
        }
       G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel
     
     }
 
 
+
+
       // Action(s) for the simulation
       StackingAction: {  
             name: "stackingAction"
+	    OnlyTrackMuons: true
             minWavelength:250 //nm
             maxWavelength:950  //nm
       }
@@ -87,6 +90,7 @@ services: {
 
     TrackingAction : {
           name : "trackingAction"
+	  OnlyTrackMuons: true
     }
 
     ClockAction: {}
@@ -104,26 +108,28 @@ services: {
         name: "inflectorgun"
         inflectorVerbosity: true
 	SigmaT: 25
-	Emittance: 500.0
+	EmittanceX: 40
+	EmittanceY: 40
 	BetaX:  7.66477
 	BetaY:  19.0763
 	AlphaX:  0.0
 	AlphaY:  0.0
 	Pmean: -1
-	dPOverP: 0.0005
+	dPOverP: 0.0001
 	StartUpstream:  false
 	StartUpstreamCryo:  false
 	StartDownstream:  false
 	StartPerfect:  true
 	GenGaussian: false
-	LaunchAngle: 0.0
-	StorageOffset: 0.0
+	LaunchAngle: 0
+	StorageOffset: 20
     }
+
 
     // Detectors
     World: {}	
     Ring: {}    // This is for the RingHits
-    Tracker: {} // This is for the virtual tracker planes in the vac
+    VirtualRingStation: {} // This is for the virtual tracker planes in the vac
     Arc: {}
     VacuumChamber: {}
     Inflector:{}
@@ -140,8 +146,8 @@ services: {
 
     MuonStorageStatusAction: {
       name: "MuonStorageStatusAction"
-      turnsForStorage: 1
-      heartbeatFreq: 10
+      turnsForStorage: 101
+      heartbeatFreq: 2
     }
 
   } //user:
@@ -175,4 +181,18 @@ physics: {
   end_paths: [ readPath, stream1 ]
 
 }
-
+#
+# Add-ons
+#
+services.user.Quad.DoScraping: false
+services.user.Quad.StoreHV: 24
+services.user.Quad.ScrapeHV: 17
+services.user.Quad.SupportMaterial: Macor
+services.user.Quad.PlateMaterial: Al
+services.user.Kicker.TypeOfKick: LCR
+services.user.Kicker.kPlate1HV : 0 //kilovolt 
+services.user.Kicker.kPlate2HV : 0 //kilovolt 
+services.user.Kicker.kPlate3HV : 0 //kilovolt 
+services.user.Kicker.kickerHV : [0 , 0 , 0 ] //kilovolt
+services.user.Kicker.TypeOfKick: SQUARE
+services.user.Kicker.squareMag : [0 , 0 , 0 ] //gauss

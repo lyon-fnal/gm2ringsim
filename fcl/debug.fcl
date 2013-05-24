@@ -107,7 +107,7 @@ services: {
     // Detectors
     World: {}	
     Ring: {}    // This is for the RingHits
-    Tracker: {} // This is for the virtual tracker planes in the vac
+    VirtualRingStation: {} // This is for the virtual tracker planes in the vac
     Arc: {}
     VacuumChamber: {}
     Inflector:{}

@@ -27,6 +27,7 @@
 #include <utility>
 
 #include "Geant4/G4MagneticField.hh"
+#include "Geant4/G4ElectroMagneticField.hh"
 #include "Geant4/G4ThreeVector.hh"
 
 #include "Geant4/globals.hh"
@@ -43,6 +44,15 @@ namespace gm2ringsim {
 			double *Bfield ) const;
     
   };
+
+//   /** The concrete interface to the storage EM field */
+//   class storageRingEMField : public G4ElectroMagneticField
+//   {
+//   public:
+//     void GetFieldValue( const double Point[3],
+// 			double *Bfield ) const;
+//     //bool DoesFieldChangeEnergy() { return( false ); }
+//   };
   
   /** Abstract base class for the internal field implementation classes */
   class storageFieldImpl {

@@ -232,6 +232,21 @@ namespace gm2ringsim {
 	 {-24*kilovolt, -24*kilovolt}, {-17*kilovolt, -24*kilovolt}   }}, 
   };
 
+ voltage volts_n18[] = {
+    // Q1
+    {{   {+40*kilovolt, +40*kilovolt}, {+40*kilovolt, +40*kilovolt}, 
+	 {-40*kilovolt, -40*kilovolt}, {-34*kilovolt, -40*kilovolt}   }}, 
+    // Q2
+    {{   {+34*kilovolt, +40*kilovolt}, {+40*kilovolt, +40*kilovolt}, 
+	 {-40*kilovolt, -40*kilovolt}, {-34*kilovolt, -40*kilovolt}   }}, 
+    // Q3
+    {{   {+40*kilovolt, +40*kilovolt}, {+40*kilovolt, +40*kilovolt}, 
+	 {-40*kilovolt, -40*kilovolt}, {-34*kilovolt, -40*kilovolt}   }}, 
+    // Q4
+    {{   {+40*kilovolt, +40*kilovolt}, {+34*kilovolt, +40*kilovolt}, 
+	 {-40*kilovolt, -40*kilovolt}, {-34*kilovolt, -40*kilovolt}   }}, 
+  };
+
   /** @bug Units should be defined correctly, and elsewhere */
   G4double in = 25.4*mm;
 
@@ -254,10 +269,10 @@ namespace gm2ringsim {
 
 
 // Quad field implementation
-gm2ringsim::QuadField::QuadField(InnerFieldImpl *ifi, OuterFieldImpl *ofi) :
+gm2ringsim::QuadField::QuadField(InnerFieldImpl *ifi, OuterFieldImpl *ofi, bool DoScraping, double ScrapeHV, double StoreHV) :
   ifi_(ifi), ofi_(ofi),
   scrapingTurnOffTime(7.*microsecond), quadTimeConstant(5.*microsecond),
-  timeOffset(0.), do_scraping_(true)
+  timeOffset(0.), do_scraping_(DoScraping), ScrapeHV_(ScrapeHV), StoreHV_(StoreHV)
 {}
 
 void gm2ringsim::QuadField::GetFieldValue( const double *Point,
@@ -341,8 +356,10 @@ void gm2ringsim::VanishingOuterImpl::GetStorageFieldValue(double const */*Point*
 
 
 // simple inner field
-gm2ringsim::SimpleInnerImpl::SimpleInnerImpl(double tb_voltage, double delta_volts[4]) :
-  storage_tb_volts_(tb_voltage) {
+gm2ringsim::SimpleInnerImpl::SimpleInnerImpl(double tb_voltage, double delta_volts[4], bool DoScraping) :
+  storage_tb_volts_(tb_voltage), 
+  DoScraping_(DoScraping)
+{
   std::memcpy(scraping_dvolts_, delta_volts, 4*sizeof(double));
 }
 
@@ -406,8 +423,11 @@ void gm2ringsim::SimpleInnerImpl::GetStorageFieldValue(const double *Point,
 
 
 // Simple outer field
-gm2ringsim::SimpleOuterImpl::SimpleOuterImpl(double tb_voltage, double delta_volts[4]) :
-  storage_tb_volts_(tb_voltage) {
+gm2ringsim::SimpleOuterImpl::SimpleOuterImpl(double tb_voltage, double delta_volts[4], bool DoScraping) :
+  storage_tb_volts_(tb_voltage),
+  DoScraping_(DoScraping)
+
+{
   std::memcpy(scraping_dvolts_, delta_volts, 4*sizeof(double));
 }
 
@@ -486,7 +506,10 @@ void gm2ringsim::SimpleOuterImpl::GetStorageFieldValue(const double *Point,
 // QuadFieldFactory
 
 // builds the default implementation fields
-gm2ringsim::QuadFieldFactory::QuadFieldFactory(){
+gm2ringsim::QuadFieldFactory::QuadFieldFactory(bool DoScraping, double ScrapeHV, double StoreHV){
+  DoScraping_ = DoScraping;
+  ScrapeHV_ = ScrapeHV;
+  StoreHV_ = StoreHV;
   for(int i=0; i!=4; ++i){
     for(int j=0; j!=2; ++j){
       ifi_[i][j] = innerFromType(i,j,SIMPLE_INNER);
@@ -509,26 +532,36 @@ gm2ringsim::QuadFieldFactory::~QuadFieldFactory(){
 
 
 gm2ringsim::QuadField* gm2ringsim::QuadFieldFactory::buildQuadField(int quadNumber, int quadSection){
-  return new QuadField(ifi_[quadNumber][quadSection], ofi_[quadNumber][quadSection]);
+  return new QuadField(ifi_[quadNumber][quadSection], ofi_[quadNumber][quadSection], DoScraping_, ScrapeHV_, StoreHV_);
 }
 
 
-gm2ringsim::InnerFieldImpl* 
-gm2ringsim::QuadFieldFactory::innerFromType(int quadNumber, int /*quadSection*/,
-				inner_field_impl_type type){
+gm2ringsim::InnerFieldImpl* gm2ringsim::QuadFieldFactory::innerFromType(int quadNumber, int /*quadSection*/,
+									inner_field_impl_type type){
   switch(type){
   case VANISHING_INNER:
     return new VanishingInnerImpl;
   case SIMPLE_INNER:
     {
-      double tb_volts = volts[quadNumber].v[TOPPLATE].steady_state;
-      double dvolts[] = {
-	-tb_volts-volts[quadNumber].v[INNERPLATE].scraping,
-	-tb_volts-volts[quadNumber].v[OUTERPLATE].scraping,
-	tb_volts-volts[quadNumber].v[TOPPLATE].scraping,
-	tb_volts-volts[quadNumber].v[BOTTOMPLATE].scraping
-      };
-      return new SimpleInnerImpl(tb_volts, dvolts);
+      double tb_volts;
+      double dvolts[4];
+      
+      if ( StoreHV_ == 40*kilovolt ) {
+	tb_volts = volts_n18[quadNumber].v[TOPPLATE].steady_state;
+       	dvolts[0] = -tb_volts-volts_n18[quadNumber].v[INNERPLATE].scraping;
+      	dvolts[1] = -tb_volts-volts_n18[quadNumber].v[OUTERPLATE].scraping;
+	dvolts[2] = tb_volts-volts_n18[quadNumber].v[TOPPLATE].scraping;
+	dvolts[3] = tb_volts-volts_n18[quadNumber].v[BOTTOMPLATE].scraping;
+      }
+      else {
+	tb_volts  = volts[quadNumber].v[TOPPLATE].steady_state;
+       	dvolts[0] = -tb_volts-volts[quadNumber].v[INNERPLATE].scraping;
+      	dvolts[1] = -tb_volts-volts[quadNumber].v[OUTERPLATE].scraping;
+       	dvolts[2] = tb_volts-volts[quadNumber].v[TOPPLATE].scraping;
+       	dvolts[3] = tb_volts-volts[quadNumber].v[BOTTOMPLATE].scraping;
+      }
+
+      return new SimpleInnerImpl(tb_volts, dvolts, DoScraping_);
     }
   case MAPPED_INNER:
   default:
@@ -539,20 +572,32 @@ gm2ringsim::QuadFieldFactory::innerFromType(int quadNumber, int /*quadSection*/,
 
 gm2ringsim::OuterFieldImpl* 
 gm2ringsim::QuadFieldFactory::outerFromType(int quadNumber, int /*quadSection*/,
-				outer_field_impl_type type){
+					    outer_field_impl_type type){
+  
   switch(type){
   case VANISHING_OUTER:
     return new VanishingOuterImpl;
   case SIMPLE_OUTER:
     {
-      double tb_volts = volts[quadNumber].v[TOPPLATE].steady_state;
-      double dvolts[] = {
-	-tb_volts-volts[quadNumber].v[INNERPLATE].scraping,
-	-tb_volts-volts[quadNumber].v[OUTERPLATE].scraping,
-	tb_volts-volts[quadNumber].v[TOPPLATE].scraping,
-	tb_volts-volts[quadNumber].v[BOTTOMPLATE].scraping
-      };
-      return new SimpleOuterImpl(tb_volts, dvolts);
+      double tb_volts;
+      double dvolts[4];
+      
+      if ( StoreHV_ == 40*kilovolt ) {
+	tb_volts = volts_n18[quadNumber].v[TOPPLATE].steady_state;
+       	dvolts[0] = -tb_volts-volts_n18[quadNumber].v[INNERPLATE].scraping;
+      	dvolts[1] = -tb_volts-volts_n18[quadNumber].v[OUTERPLATE].scraping;
+       	dvolts[2] = tb_volts-volts_n18[quadNumber].v[TOPPLATE].scraping;
+       	dvolts[3] = tb_volts-volts_n18[quadNumber].v[BOTTOMPLATE].scraping;
+      }
+      else {
+	tb_volts  = volts[quadNumber].v[TOPPLATE].steady_state;
+       	dvolts[0] = -tb_volts-volts[quadNumber].v[INNERPLATE].scraping;
+      	dvolts[1] = -tb_volts-volts[quadNumber].v[OUTERPLATE].scraping;
+       	dvolts[2] = tb_volts-volts[quadNumber].v[TOPPLATE].scraping;
+       	dvolts[3] = tb_volts-volts[quadNumber].v[BOTTOMPLATE].scraping;
+      }
+
+      return new SimpleOuterImpl(tb_volts, dvolts, DoScraping_);
     }
   default:
     throw unknown_outer_field_impl_type();
