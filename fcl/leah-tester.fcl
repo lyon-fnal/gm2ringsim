@@ -18,6 +18,7 @@ process_name:myProcessName
 source: {
   module_type: EmptyEvent
   maxEvents: 1
+
 }
 
 services: {
@@ -37,6 +38,17 @@ services: {
          append : false
          threshold : "ERROR"
        }
+       LogToTrackerFile:{
+        type: "file"
+        filename: "strawtrackergeometry.csv"
+        append : false
+        theshold : "DEBUG"
+        categories : {
+          StrawGeometryPlacementDetails : { limit : 1000000 }
+          default : { limit : 0 }
+        }
+       }
+
      }
   }
 
@@ -153,7 +165,7 @@ services: {
 outputs: {
 out1: {
   module_type: RootOutput   
-  fileName: "gm2ringsimout-leahtest.root"
+  fileName: "gm2ringsimout-leahtest-1evt.root"
   }
 }
 
