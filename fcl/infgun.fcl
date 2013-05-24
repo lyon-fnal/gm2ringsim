@@ -33,7 +33,7 @@ services: {
        }
        LogToFile : {
          type : "file"
-         filename : "gm2ringsim.log"
+         filename : "/gm2/data/users/tgadfort/gm2ringsim/output/ScrapingOFF_NewSupports_101Turns_CentralOrbit_Offset20_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize40pimmmrad_UniformInflectorGun_PerfectMatch_dP0001_CollimatorON/ScrapingOFF_NewSupports_101Turns_CentralOrbit_Offset20_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize40pimmmrad_UniformInflectorGun_PerfectMatch_dP0001_CollimatorON.log"
          append : false
          threshold : "ERROR"
        }
@@ -156,7 +156,7 @@ services: {
 outputs: {
 out1: {
   module_type: RootOutput   
-  fileName: "gm2ringsimout.root"
+  fileName: "/gm2/data/users/tgadfort/gm2ringsim/output/ScrapingOFF_NewSupports_101Turns_CentralOrbit_Offset20_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize40pimmmrad_UniformInflectorGun_PerfectMatch_dP0001_CollimatorON/ScrapingOFF_NewSupports_101Turns_CentralOrbit_Offset20_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize40pimmmrad_UniformInflectorGun_PerfectMatch_dP0001_CollimatorON.root"
   }
 }
 
