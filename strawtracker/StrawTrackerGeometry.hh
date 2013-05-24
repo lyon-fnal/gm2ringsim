@@ -44,6 +44,8 @@ namespace gm2ringsim {
     double straw_diameter;
     double layer_angle;
     double delta_x;
+    std::vector<double> straw_station_center_from_edge;
+
     std::vector<double> x_position_straw0;
     std::vector<double> y_position;
     

@@ -33,17 +33,23 @@ gm2ringsim::StrawTrackerGeometry::StrawTrackerGeometry(std::string const & detNa
   
 {
   
+  strawStationHeightHalf = strawStationHeight/2;
+  strawStationWidthHalf = strawStationWidth/2;
+
+  
   for (unsigned int i = 0 ; i < strawStationSize.size() ; i ++){
     strawStationSizeHalf.push_back(strawStationSize[i]/2);
   }
   
-    
-  strawStationHeightHalf = strawStationHeight/2;
-  strawStationWidthHalf = strawStationWidth/2;
+  for (unsigned int i = 0 ; i < strawStationSize.size() ; i ++){
 
+    straw_station_center_from_edge.push_back(strawStationSizeHalf[i] + strawStationOffset[i]);
+  }
+  
   lengthOfTheStraw = heightOfTheStraw/cos(layer_angle);
   halfLengthOfTheStraw = lengthOfTheStraw/2;
   halfHeightOfTheStraw = heightOfTheStraw/2;
+  
   for (unsigned int i = 0; i<y_position.size(); i++){
     y_position[i] = y_position[i] - strawStationWidthHalf;
   }

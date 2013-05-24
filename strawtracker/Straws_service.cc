@@ -160,11 +160,8 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Straws::doPlaceToPVs( std::vector<G
     yRot -> rotateY(rot);
     G4ThreeVector placement(x, y, 0);
     
-    
-    double box_distance_from_edge = (geom_.strawStationSizeHalf[stationNumber] + geom_.strawStationOffset[stationNumber]);
-    double box_distance_from_scallop = geom_.strawStationLocation[stationNumber];
-    double wire_distance_from_edge = box_distance_from_edge + x;
-    double wire_distance_from_scallop = box_distance_from_scallop + y;
+    double wire_distance_from_edge = geom_.straw_station_center_from_edge[stationNumber] + x;
+    double wire_distance_from_scallop = geom_.strawStationLocation[stationNumber] + y;
     
     oss << strawInRow <<", " <<layer<<", "<<view<<", "<<stationNumber<<", "<<wire_distance_from_edge<<", "<<wire_distance_from_scallop<<", "<<x<<", "<<y<<", "<<rot<< "\n";
 

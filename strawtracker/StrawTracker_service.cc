@@ -118,24 +118,23 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::StrawTracker::doPlaceToPVs( std::ve
     G4double
     x = 7010,
     z = 0,
-    //phi = 12.8,
+    //phi = 12.7,
     ds = geom_.strawStationLocation[stationIndex],
     deltaX =0;
     
     int arcPosition = strawTrackerNumber % 2;
     int arcNumber = floor(strawTrackerNumber/2);
     
-    double distance_from_edge = (geom_.strawStationSizeHalf[stationIndex] + geom_.strawStationOffset[stationIndex]);
     deltaX = ds*sin(vacg.phi_a);
-    double deltaX_c = deltaX - distance_from_edge*cos(vacg.phi_a);
+    double deltaX_c = deltaX - geom_.straw_station_center_from_edge[stationIndex]*cos(vacg.phi_a);
     x = x - deltaX_c;
-    z = sqrt(ds*ds - deltaX*deltaX) + distance_from_edge*sin(vacg.phi_a) ;
+    z = sqrt(ds*ds - deltaX*deltaX) + geom_.straw_station_center_from_edge[stationIndex]*sin(vacg.phi_a) ;
     
     G4TwoVector fixup(x,z);
         
-    fixup.rotate(15.*degree*arcPosition);
+    fixup.rotate(15*degree*arcPosition);
         
-    G4Transform3D out_transform(G4RotationMatrix( -15*deg -vacg.phi_a*arcPosition, 0, 0),
+    G4Transform3D out_transform(G4RotationMatrix( -13*deg -vacg.phi_a*arcPosition, 0, 0),
                                     G4ThreeVector(fixup.x(), fixup.y(), 0. ) );
 
     strawStationPVs.push_back(new G4PVPlacement(out_transform,
