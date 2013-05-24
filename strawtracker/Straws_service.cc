@@ -220,6 +220,7 @@ void gm2ringsim::Straws::doFillEventWithArtHits(G4HCofThisEvent * hc) {
                               e->local_position.x(),e->local_position.y(), e->local_position.z(),
                               e->local_momentum.x(),e->local_momentum.y(), e->local_momentum.z(),
                               e->station_position.x(), e->station_position.y(), e->station_position.z(),
+                              e->scallop_position.x(), e->scallop_position.y(), e->scallop_position.z(),
                               e->time,
                               e->trackID,
                               e->volumeUID,

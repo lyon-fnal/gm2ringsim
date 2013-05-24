@@ -23,7 +23,7 @@ namespace gm2ringsim {
   class StrawHit : public G4VHit {
   public:
     
-    G4ThreeVector global_position, local_position, station_position;
+    G4ThreeVector global_position, local_position, station_position, scallop_position;
     G4ThreeVector momentum, local_momentum;
     G4double time;
     G4int trackID;
