@@ -150,13 +150,13 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Straws::doPlaceToPVs( std::vector<G
     
     x = geom_.x_position_straw0[row] - geom_.strawStationSizeHalf[stationIndex] + geom_.dist_btwn_wires *strawInRow;
     
-    if(row < 2) x = x + geom_.delta_x;
+    if( view == 0 ) x = x + geom_.delta_x;
     else x = x - geom_.delta_x;
     y= geom_.y_position[row];
     
     G4RotationMatrix* yRot = new G4RotationMatrix;
     double rot = geom_.layer_angle;
-    if(row > 1) rot = -rot;
+    if( view == 1 ) rot = -rot;
     yRot -> rotateY(rot);
     G4ThreeVector placement(x, y, 0);
     
