@@ -39,8 +39,8 @@ void gm2ringsim::VanishingInflectorField::GetFieldValue(const double */*Point*/,
 
 //////////// simpleInflectorField
 
-gm2ringsim::SimpleInflectorField::SimpleInflectorField(G4double fieldNormConstant) :
-  epsilon(30*degree),fieldNormConst(fieldNormConstant)
+gm2ringsim::SimpleInflectorField::SimpleInflectorField(G4double fieldNormConstant, int Charge) :
+  epsilon(30*degree),fieldNormConst(fieldNormConstant), Charge_(Charge)
 {
   // Set data members to latest position of inflector
   inflectorGeometry const& ig = inflectorGeometry::getInstance();
@@ -98,8 +98,20 @@ void gm2ringsim::SimpleInflectorField::GetFieldValue(const double *Point,
   // yoke storage field; therefore, since g2MIGTRACE uses negative
   // muons and the storage field is subsequently in the negative y
   // direction, the inflector field must be in positive y
-  storageFieldController::getInstance().GetFieldValue(Point, Bfield);
-  Bfield[1] += CalculateFieldValue(x_muon,y_muon,z_muon);
+  storageFieldController::getInstance().GetFieldValue(Point, Bfield, Charge_);
+
+  //----------------------
+  // Assumes negative beam
+  //----------------------
+  G4double SimpleFieldMagnitude = CalculateFieldValue(x_muon,y_muon,z_muon);
+
+  //----------------------
+  // Negative field if positive beam
+  //----------------------
+  if ( Charge_ == 1 ) { SimpleFieldMagnitude *= -1; }
+
+
+  Bfield[1] += SimpleFieldMagnitude;
 }
 
 
@@ -194,9 +206,11 @@ G4double gm2ringsim::SimpleInflectorField::CalculateFieldValue(const G4double x_
 
 /** @bug Need to fix things so that these field maps don't get
     reloaded when the field gets reinstantiated. */
-gm2ringsim::MappedInflectorField::MappedInflectorField() :
+gm2ringsim::MappedInflectorField::MappedInflectorField(int Charge) :
   magnet_file_("g2RunTimeFiles/injec_fld.dat"), 
-  inflector_file_("g2RunTimeFiles/inf_field_alone.dat")
+  inflector_file_("g2RunTimeFiles/inf_field_alone.dat"),
+  Charge_(Charge)
+	      
 {
   inflectorGeometry const& ig = inflectorGeometry::getInstance();
   delta_ = ig.delta();
@@ -474,10 +488,20 @@ GetFieldValue( double const * Point, double *Bfield) const {
 
   //  G4cout << "Result: " << B << '\n';
 
+
+  //-------------------------
+  // Assumes negative beam
+  //-------------------------
   Bfield[0] = B[0];
   Bfield[1] = B[1];
   Bfield[2] = B[2];
 
+  //------------------------
+  // Negate if positive beam
+  //-----------------------
+  if ( Charge_ == 1 ) {
+    for ( int i = 0; i < 3; i++ ) { Bfield[i] *= -1; }
+  }
 }
 
 

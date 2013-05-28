@@ -69,12 +69,14 @@ gm2ringsim::Quad::Quad(fhicl::ParameterSet const & p, art::ActivityRegistry & ) 
 	       p.get<std::string>("mother_category", "vac")),
   sts_("SpinTracking"),
   qg_(myName()), //QuadGeometry
-  qff_(qg_.DoScraping, qg_.ScrapeHV, qg_.StoreHV),
-  spin_tracking_(sts_.spinTrackingEnabled)
+  qff_(qg_.DoScraping, qg_.ScrapeHV, qg_.StoreHV, sts_.GetCharge()),
+  nospin_tracking_(true),
+  spin_tracking_(sts_.spinTrackingEnabled),
+  edm_tracking_(sts_.edmTrackingEnabled)
   // The rest of the internal variables are things like pointers
   // and structures that get created/assigned below
 {
-
+  if ( spin_tracking_ || edm_tracking_ ) { nospin_tracking_ = false; }
 
   if ( qg_.SupportMaterial == "Macor" || qg_.SupportMaterial == "MACOR" || qg_.SupportMaterial == "MacorCeramic" ) {
     support_material = artg4Materials::MacorCeramic();
@@ -93,7 +95,10 @@ gm2ringsim::Quad::Quad(fhicl::ParameterSet const & p, art::ActivityRegistry & ) 
   }
 
   G4cout << "=========== Quad ===========" << G4endl;
+  G4cout << "| Beam Charge      = " << sts_.GetCharge() << G4endl;
   G4cout << "| DoScraping       = " << qg_.DoScraping << G4endl;
+  G4cout << "| Spin Tracking    = " << spin_tracking_ << G4endl;
+  G4cout << "| EDM Tracking     = " << edm_tracking_ << G4endl;
   G4cout << "| Support Material = " << qg_.SupportMaterial << G4endl;
   G4cout << "| Plate Material   = " << qg_.PlateMaterial << G4endl;
   if ( qg_.StoreHV == 40*kilovolt ) {
@@ -488,15 +493,19 @@ void gm2ringsim::Quad::buildTopBottomSupports(G4int /*quadRegion*/, G4int /*sect
 
 void gm2ringsim::Quad::assignFieldManagers(){
 
-  for( int i=0; i!=qg_.numQuadRegions; ++i)
-    for( int j=0; j!=qg_.numQuadSections; ++j)
-      if( !spin_tracking_ ){
-        genericQuadRegion_L_[i][j]->
-          SetFieldManager(withoutSpin_[i][j], true);
-      } else {
-        genericQuadRegion_L_[i][j]->
-          SetFieldManager(withSpin_[i][j], true);
+  for( int i=0; i!=qg_.numQuadRegions; ++i) {
+    for( int j=0; j!=qg_.numQuadSections; ++j) {
+      if( nospin_tracking_ ){
+        genericQuadRegion_L_[i][j]->SetFieldManager(withoutSpin_[i][j], true);
       }
+      else if ( spin_tracking_ ) {
+	genericQuadRegion_L_[i][j]->SetFieldManager(withSpin_[i][j], true);
+      }
+      else if ( edm_tracking_ ) {
+	genericQuadRegion_L_[i][j]->SetFieldManager(withEDM_[i][j], true);
+      }
+    }
+  }
 }
 
 void gm2ringsim::Quad::buildFieldManagers(G4int quadRegion, G4int sectionType) {
@@ -516,23 +525,37 @@ void gm2ringsim::Quad::buildFieldManagers(G4int quadRegion, G4int sectionType) {
 
 
 
-  // not shared ... spin free
-  equation = new G4EqMagElectricField(field);
-  stepper = new G4ClassicalRK4(equation, 8); // modifies energy, so 8
-  driver = new G4MagInt_Driver(0.01*mm, stepper, stepper->GetNumberOfVariables());
-  chord = new G4ChordFinder(driver);
-  withoutSpin_[quadRegion][sectionType] = 
-    new G4FieldManager(field,chord,true);
+  //----------------------------------------
+  // build the spin ignoring field equations
+  //----------------------------------------
+  if ( nospin_tracking_ ) {
+    equation = new G4EqMagElectricField(field);
+    stepper = new G4ClassicalRK4(equation, 8); // modifies energy, so 8
+    driver = new G4MagInt_Driver(0.01*mm, stepper, stepper->GetNumberOfVariables());
+    chord = new G4ChordFinder(driver);
+    withoutSpin_[quadRegion][sectionType] = new G4FieldManager(field,chord,true);
+  }
+
+  //----------------------------------------
+  // build the spin evolving field equations
+  //----------------------------------------
+  if ( spin_tracking_ ) {
+    equation = new G4EqEMFieldWithSpin(field);
+    stepper = new G4ClassicalRK4(equation, 12); // modifies spin, so 12
+    driver = new G4MagInt_Driver(0.01*mm, stepper, stepper->GetNumberOfVariables());
+    chord = new G4ChordFinder(driver);
+    withSpin_[quadRegion][sectionType] = new G4FieldManager(field,chord,true);
+  }
+ 
+  if ( edm_tracking_ ) {
+    G4EqEMFieldWithEDM *equation2 = new G4EqEMFieldWithEDM(field);
+    equation2->SetEta(1e-2);
+    stepper = new G4ClassicalRK4(equation2,12);
+    G4MagInt_Driver *driver = new G4MagInt_Driver(0.01*mm, stepper, stepper->GetNumberOfVariables());
+    chord = new G4ChordFinder(driver);
+    withEDM_[quadRegion][sectionType] = new G4FieldManager(field, chord, true);
+  }
   
-  // not shared ... spin 
-  equation = new G4EqEMFieldWithSpin(field);
-  //G4EqEMFieldWithEDM *equation2 = new G4EqEMFieldWithEDM(field);
-  //equation2->SetEta(1e-19);
-  stepper = new G4ClassicalRK4(equation, 12); // modifies spin, so 12
-  driver = new G4MagInt_Driver(0.01*mm, stepper, stepper->GetNumberOfVariables());
-  chord = new G4ChordFinder(driver);
-  withSpin_[quadRegion][sectionType] = 
-    new G4FieldManager(field,chord,true);
 }
 
 // CHANGE_ME: You can delete the below if this detector creates no data

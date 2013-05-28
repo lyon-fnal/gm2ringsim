@@ -61,6 +61,10 @@ namespace gm2ringsim {
     void enable_spintracking();
     void disable_spintracking();
     bool query_spintracking() const { return spin_tracking_; }
+
+    void enable_edmtracking();
+    void disable_edmtracking();
+    bool query_edmtracking() const { return edm_tracking_; }
     
     connection_t connect( e_connect_ordering, function<void(bool)> );
     void disconnect( connection_t );
@@ -74,6 +78,9 @@ namespace gm2ringsim {
     SpinController& operator=(SpinController const&);
     
     bool spin_tracking_;
+    bool edm_tracking_;
+    double eta_;
+    double gm2_;
     
     boost::signals2::signal<void(bool)> sig_;
     //  spinMessenger *sm_;

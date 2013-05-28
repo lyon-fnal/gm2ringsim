@@ -62,7 +62,7 @@ namespace gm2ringsim {
   */
   class KickField : public G4MagneticField {
   public:
-    KickField(KickModifier* mod) : mod_(mod) {}
+    KickField(KickModifier* mod, int Charge) : mod_(mod), Charge_(Charge) {}
     virtual void KickFieldValue(G4double const Point[4],
 				G4double Bfield[3]) const =0;
     void GetFieldValue(G4double const Point[4],
@@ -70,6 +70,7 @@ namespace gm2ringsim {
     
   protected:
     KickModifier* mod_;
+    int Charge_;
   };
   
   /** Provides an LCR pulse model for the kicker vertical field. */
@@ -79,19 +80,22 @@ namespace gm2ringsim {
     LCRKickField(G4double kickerHV,
 		 G4double kickerOffsetTime, G4double circuitC,
 		 G4double circuitL, G4double circuitR,
-		 KickModifier* mod);
+		 KickModifier* mod,
+		 int Charge);
     
     void KickFieldValue(G4double const Point[4],
 			G4double Bfield[3]) const;
     
   private:
-    G4double const HV;
+    G4double HV;
     G4double const offsetTime;
     G4double const C;
     G4double const L;
     G4double const R;
     
     G4double const omega, X, i0;
+
+    int Charge_;
   };
   
   
@@ -100,13 +104,14 @@ namespace gm2ringsim {
   class SquareKickField : public KickField {
     
   public: 
-    SquareKickField(G4double kickSquareField, KickModifier* mod);
+    SquareKickField(G4double kickSquareField, KickModifier* mod, int Charge);
     
     void KickFieldValue(G4double const Point[4],
 			G4double Kfield[3]) const;
     
   private:
-    G4double const squareField;
+    G4double squareField;
+    int Charge_;
   };
   
   /** Provides no kick whatever.  Useful when studying late time, static
@@ -114,10 +119,13 @@ namespace gm2ringsim {
   class NoKickField : public KickField {
     
   public:
-    NoKickField(KickModifier* mod);
+    NoKickField(KickModifier* mod, int Charge);
     
     void KickFieldValue(G4double const Point[4],
 			G4double Kfield[3]) const;
+
+  private:
+    int Charge_;
   };
   
 } //namespace gm2ringsim

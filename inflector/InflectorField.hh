@@ -46,7 +46,7 @@ namespace gm2ringsim {
   {
     
   public:
-    SimpleInflectorField(G4double);
+    SimpleInflectorField(G4double, int);
     ~SimpleInflectorField();
     
     void GetFieldValue( const double *Point,
@@ -65,6 +65,7 @@ namespace gm2ringsim {
     G4double epsilon,delta,gamma,zeta;
     G4double apertureRadius,inflectorTotalLength;
     G4double fieldNormConst;
+    int Charge_;
   };
 } //namespace gm2ringsim
   
@@ -86,7 +87,7 @@ namespace gm2ringsim {
   class MappedInflectorField : public G4MagneticField {
     
   public:
-    MappedInflectorField();
+    MappedInflectorField(int Charge);
     ~MappedInflectorField(){}
     
     void GetFieldValue( double const * Point, double *Bfield) const;
@@ -127,6 +128,8 @@ namespace gm2ringsim {
     
     G4double delta_, gamma_, zeta_;
     
+    int Charge_;
+
   };
 
   /** An exception class.

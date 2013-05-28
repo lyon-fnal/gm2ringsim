@@ -630,6 +630,18 @@ void MakePlot(TH2F *hist, int r, int i, double *int_prev, double *int_curr, doub
   }
 
 
+  if ( hname.Contains("XeTurn") || hname.Contains("XeOncePerTurn") ) {
+    ymax = 30.0; ymin = -30.0;
+    if ( histymax < 20 && histymin > -20 ) {
+      ymax = 20; ymin = -20;
+    }
+
+    if ( histymax < 10 && histymin > -10 ) {
+      ymax = 10; ymin = -10;
+    }
+  }
+
+
 
   TString xtitle = hist->GetXaxis()->GetTitle();
   TString ytitle = hist->GetYaxis()->GetTitle();
@@ -1306,6 +1318,9 @@ void MakePlot1D(TH1F *hist, int r, int i, double *int_prev, double *int_curr, do
   
   double xmin, xmax;
   double ymin, ymax;
+  double histxmin, histxmax;
+  histxmin = 99999.9;
+  histxmax = -99999.9;
 
 
 
@@ -1365,6 +1380,7 @@ void MakePlot1D(TH1F *hist, int r, int i, double *int_prev, double *int_curr, do
   stopxbinmax = hist->GetNbinsX()-1;
   for ( int bin = 1; bin < hist->GetNbinsX()-1; bin++ ) {
     if ( hist->GetBinContent(bin) > 0 ) {
+      if ( hist->GetBinLowEdge(bin) < histxmin ) { histxmin = hist->GetBinLowEdge(bin); }
       stopxbinmin = TMath::Max(bin-xoffset, 1);
       xmin = hist->GetBinLowEdge(stopxbinmin);
       //cout << stopxbinmin << "\t" << xmin << endl;
@@ -1373,11 +1389,13 @@ void MakePlot1D(TH1F *hist, int r, int i, double *int_prev, double *int_curr, do
   }
   for ( int bin = hist->GetNbinsX()-1; bin >= stopxbinmin; bin-- ) {
     if ( hist->GetBinContent(bin) > 0 ) {
+      if ( hist->GetBinLowEdge(bin) > histxmax ) { histxmax = hist->GetBinLowEdge(bin); }
       stopxbinmin = TMath::Min(bin+xoffset, hist->GetNbinsX()-1);
       xmax = hist->GetBinLowEdge(stopxbinmin);
       break;
     }
   }  
+  
   
   if ( hname.Contains("DeltaPy") ) { 
     hist->Rebin(5);
@@ -1457,6 +1475,26 @@ void MakePlot1D(TH1F *hist, int r, int i, double *int_prev, double *int_curr, do
     xmax = 60.0;
   }
 
+  if ( hname.Contains("Time_Xe") ) {    
+    xmin = -30.0;
+    xmax = 30.0;
+    if ( histxmin > -10 && histxmax < 10 ) { xmin = -10.0; xmax = 10.0; }
+    if ( histxmin > -20 && histxmax < 20 ) { xmin = -20.0; xmax = 20.0; }
+  }
+
+  if ( hname.Contains("Time_Rhat") || hname.Contains("Time_Vhat") ) {
+    xmin = -45.0;
+    xmax = 45.0;
+    if ( histxmin > -30 && histxmax < 30 ) { xmin = -30.0; xmax = 30.0; }
+    if ( histxmin > -20 && histxmax < 20 ) { xmin = -20.0; xmax = 20.0; }
+  }
+
+  if ( hname.Contains("Time_Xprime") || hname.Contains("Time_Yprime") ) {
+    xmin = -10.0;
+    xmax = 10.0;
+    if ( histxmin > -5 && histxmax < 5 ) { xmin = -5.0; xmax = 5.0; }
+  }
+
 
   bool dolog = true;
   bool dologx = false;
@@ -1469,6 +1507,13 @@ void MakePlot1D(TH1F *hist, int r, int i, double *int_prev, double *int_curr, do
        hname.Contains("Rhat") ||
        hname.Contains("Vhat") ||
        hname.Contains("TrackerRho") ||
+       hname.Contains("Xe") ||
+       hname.Contains("Rhat") ||
+       hname.Contains("Vhat") ||
+       hname.Contains("Xprime") ||
+       hname.Contains("Yprime") ||
+       hname.Contains("Pol") ||
+       hname.Contains("PolX") ||
        hname.Contains("TrackerY") ) {
     dolog = false;
     ymin = 0.0;
@@ -1593,6 +1638,8 @@ void MakePlot1D(TH1F *hist, int r, int i, double *int_prev, double *int_curr, do
   else if ( hname.Contains("Xprime") ) { yt << " mrad"; }
   else if ( hname.Contains("Yprime") ) { yt << " mrad"; }
   else if ( hname.Contains("Degree") ) { yt << " ^{#circ}"; }
+  else if ( hname.Contains("Xe") || hname.Contains("Vhat") ) { yt << " mm"; }
+  else if ( hname.Contains("Pol") || hname.Contains("PolX") ) { yt << ""; }
   else if ( hname.Contains("Rhat") || hname.Contains("Vhat") ) { yt << " mm"; }
   else if ( hname.Contains("Time") ) { yt << " #mus"; }
   else { yt << " [Unit]"; }
@@ -2567,11 +2614,11 @@ void plotinflector()
   
 
   
-  string trknames[6] = {"TrackerRhoTurn", "TrackerYTurn", "TrackerPrhatTurn", "TrackerPvhatTurn", "TrackerMomTurn", "TrackerPolTurn"};
+  string trknames[16] = {"TrackerRhoTurn", "TrackerYTurn", "TrackerPrhatTurn", "TrackerPvhatTurn", "TrackerMomTurn", "TrackerPolTurn", "TrackerPolXTurn", "TrackerXeTurn", "TrackerRhoOncePerTurn", "TrackerYOncePerTurn", "TrackerPrhatOncePerTurn", "TrackerPvhatOncePerTurn", "TrackerMomOncePerTurn", "TrackerPolOncePerTurn", "TrackerPolXOncePerTurn", "TrackerXeOncePerTurn"};
   int maxturnplots = 1;
   if ( plotdiagnostic ) { 
     maxturnplots = 5;
-    for ( int i = 0; i < 6; i++ ) {
+    for ( int i = 0; i < 16; i++ ) {
       zoom = false; zoom2 = false; zoom3 = false;
       //if ( plotinf ) { continue; }
       int_prev = -1.0;
@@ -2714,8 +2761,20 @@ void plotinflector()
       
     if ( time.find("0us") != string::npos ) { continue; }
     if ( time.find("5us") != string::npos ) { continue; }
+    if ( time.find("10us") != string::npos ) { continue; }
+    if ( time.find("50us") != string::npos ) { continue; }
+    if ( time.find("100us") != string::npos ) { continue; }
+    if ( time.find("5turns") != string::npos ) { continue; }
+    if ( time.find("10turns") != string::npos ) { continue; }
+    if ( time.find("50turns") != string::npos ) { continue; }
+    if ( time.find("100turns") != string::npos ) { continue; }
       
     hname << "RingTracker_Time_Rhat" + time;
+    TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
+    MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
+    hname.str("");
+      
+    hname << "RingTracker_Time_Xe" + time;
     TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
     MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
     hname.str("");
@@ -2761,8 +2820,21 @@ void plotinflector()
       
     if ( time.find("0us") != string::npos ) { continue; }
     if ( time.find("5us") != string::npos ) { continue; }
+    if ( time.find("10us") != string::npos ) { continue; }
+    if ( time.find("50us") != string::npos ) { continue; }
+    if ( time.find("100us") != string::npos ) { continue; }
+    if ( time.find("5turns") != string::npos ) { continue; }
+    if ( time.find("10turns") != string::npos ) { continue; }
+    if ( time.find("50turns") != string::npos ) { continue; }
+    if ( time.find("100turns") != string::npos ) { continue; }
+
 
     hname << "G4Track_Time_Rhat" + time;
+    TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
+    MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
+    hname.str("");
+
+    hname << "G4Track_Time_Xe" + time;
     TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
     MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
     hname.str("");

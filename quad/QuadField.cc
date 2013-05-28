@@ -87,6 +87,8 @@
 using namespace CLHEP;
 #include <utility>
 
+#include "TMath.h"
+
 #include "gm2ringsim/quad/QuadField.hh"
 #include "gm2ringsim/arc/StorageRingField.hh"
 
@@ -269,11 +271,83 @@ namespace gm2ringsim {
 
 
 // Quad field implementation
-gm2ringsim::QuadField::QuadField(InnerFieldImpl *ifi, OuterFieldImpl *ofi, bool DoScraping, double ScrapeHV, double StoreHV) :
+gm2ringsim::QuadField::QuadField(int quadNumber, int quadSection, InnerFieldImpl *ifi, OuterFieldImpl *ofi, bool DoScraping, double ScrapeHV, double StoreHV, int Charge) :
   ifi_(ifi), ofi_(ofi),
   scrapingTurnOffTime(7.*microsecond), quadTimeConstant(5.*microsecond),
-  timeOffset(0.), do_scraping_(DoScraping), ScrapeHV_(ScrapeHV), StoreHV_(StoreHV)
-{}
+  timeOffset(0.), do_scraping_(DoScraping), ScrapeHV_(ScrapeHV), StoreHV_(StoreHV), Charge_(Charge)
+{
+  int i = quadNumber;
+  int j = quadSection;
+  G4cout << "============ QuadField ===============" << G4endl;
+  G4cout << "| Beam Charge:  " << Charge_ << G4endl;
+  G4ThreeVector pnt_uo(gm2ringsim::R_magic()+10*mm, 10*mm, 0);
+  G4ThreeVector pnt_do(gm2ringsim::R_magic()+10*mm, -10*mm, 0);
+  G4ThreeVector pnt_ui(gm2ringsim::R_magic()-10*mm, 10*mm, 0);
+  G4ThreeVector pnt_di(gm2ringsim::R_magic()-10*mm, -10*mm, 0);
+  G4ThreeVector v(0, 0, gm2ringsim::R_magic());
+  pnt_uo.rotateY(i*TMath::Pi()/2.0);
+  pnt_do.rotateY(i*TMath::Pi()/2.0);
+  pnt_ui.rotateY(i*TMath::Pi()/2.0);
+  pnt_di.rotateY(i*TMath::Pi()/2.0);
+  v.rotateY(i*TMath::Pi()/2.0);
+  double offset;
+  if ( j == 0 ) { offset = 20.0*TMath::Pi()/180.0; }
+  if ( j == 1 ) { offset = 45.0*TMath::Pi()/180.0; }
+  pnt_uo.rotateY(offset);
+  pnt_do.rotateY(offset);
+  pnt_ui.rotateY(offset);
+  pnt_di.rotateY(offset);
+  v.rotateY(offset);
+  G4cout.precision(4);
+  G4cout << "| Quad[" << i << "][" << j << "]" << G4endl;
+  for ( int p = 0; p < 4; p++ ) {
+    double Point[4];
+    Point[3] = 0.0;
+    if ( p == 0 ) { Point[0] = pnt_uo.x(); Point[1] = pnt_uo.y(); Point[2] = pnt_uo.z(); }
+    if ( p == 1 ) { Point[0] = pnt_do.x(); Point[1] = pnt_do.y(); Point[2] = pnt_do.z(); }
+    if ( p == 2 ) { Point[0] = pnt_ui.x(); Point[1] = pnt_ui.y(); Point[2] = pnt_ui.z(); }
+    if ( p == 3 ) { Point[0] = pnt_di.x(); Point[1] = pnt_di.y(); Point[2] = pnt_di.z(); }
+    double field[6];
+    ifi->GetStorageFieldValue(Point, field);
+    G4ThreeVector B(field[0], field[1], field[2]);
+    G4ThreeVector E(field[3], field[4], field[5]);
+    G4ThreeVector F = E;
+    bool downward;
+    bool inward;
+    if ( Charge * E.y() < 0 ) { downward = true; }
+    else { downward = false; }
+    if ( Charge * (E.x()*Point[0] + E.z()*Point[2]) < 0 ) { inward = true; }
+    else { inward = false; }
+
+    G4cout << "| Force is ";
+    if ( downward ) { G4cout << "down and "; }
+    if ( !downward ) { G4cout << "up and "; }
+    if ( inward ) { G4cout << "toward the ring center "; }
+    if ( !inward ) { G4cout << "out from the ring center "; }
+    
+    if ( p == 0 ) { G4cout << "for +y and +r."; }
+    if ( p == 1 ) { G4cout << "for -y and +r."; }
+    if ( p == 2 ) { G4cout << "for +y and -r."; }
+    if ( p == 3 ) { G4cout << "for -y and -r."; }
+
+    if ( p == 0 ) { 
+      if ( downward && !inward ) { G4cout << " Vertical Focus. Horizontal Defocus."; }
+    }
+    if ( p == 1 ) { 
+      if ( !downward && !inward ) { G4cout << " Vertical Focus. Horizontal Defocus."; }
+    }
+    if ( p == 2 ) { 
+      if ( downward && inward ) { G4cout << " Vertical Focus. Horizontal Defocus."; }
+    }
+    if ( p == 3 ) { 
+      if ( !downward && inward ) { G4cout << " Vertical Focus. Horizontal Defocus."; }
+    }
+    G4cout << G4endl;
+
+  }
+  G4cout << "=====================================" << G4endl;
+
+}
 
 void gm2ringsim::QuadField::GetFieldValue( const double *Point,
 			       double *EMfield ) const {
@@ -283,7 +357,7 @@ void gm2ringsim::QuadField::GetFieldValue( const double *Point,
   double const yq = Point[1];
 
   // 1) Get the B-field component
-  storageFieldController::getInstance().GetFieldValue(Point,EMfield);
+  storageFieldController::getInstance().GetFieldValue(Point,EMfield,Charge_);
 
   // 2) Figure out whether we're inside or outside the inner region
   /** @bug Should get platesep from somewhere else rather than hard
@@ -410,6 +484,7 @@ void gm2ringsim::SimpleInnerImpl::GetStorageFieldValue(const double *Point,
   double const xq = r - R_magic();
   double const yq = Point[1];
 
+
   // horizontal field
   // in quad coordinates
   double const Ex = -2.*b2*xq;
@@ -419,6 +494,7 @@ void gm2ringsim::SimpleInnerImpl::GetStorageFieldValue(const double *Point,
 
   // the vertical field is already in global coordinates
   EMfield[4] = 2.*b2*yq;
+  //G4cout << "SimpleInnerImpl::GetStorageFieldValue(): " << xq << "\t" << r << "\t" << Ex << "\t" << b2 << G4endl;
 }
 
 
@@ -506,10 +582,11 @@ void gm2ringsim::SimpleOuterImpl::GetStorageFieldValue(const double *Point,
 // QuadFieldFactory
 
 // builds the default implementation fields
-gm2ringsim::QuadFieldFactory::QuadFieldFactory(bool DoScraping, double ScrapeHV, double StoreHV){
+gm2ringsim::QuadFieldFactory::QuadFieldFactory(bool DoScraping, double ScrapeHV, double StoreHV, int Charge){
   DoScraping_ = DoScraping;
   ScrapeHV_ = ScrapeHV;
   StoreHV_ = StoreHV;
+  Charge_ = Charge;
   for(int i=0; i!=4; ++i){
     for(int j=0; j!=2; ++j){
       ifi_[i][j] = innerFromType(i,j,SIMPLE_INNER);
@@ -532,7 +609,7 @@ gm2ringsim::QuadFieldFactory::~QuadFieldFactory(){
 
 
 gm2ringsim::QuadField* gm2ringsim::QuadFieldFactory::buildQuadField(int quadNumber, int quadSection){
-  return new QuadField(ifi_[quadNumber][quadSection], ofi_[quadNumber][quadSection], DoScraping_, ScrapeHV_, StoreHV_);
+  return new QuadField(quadNumber, quadSection, ifi_[quadNumber][quadSection], ofi_[quadNumber][quadSection], DoScraping_, ScrapeHV_, StoreHV_, Charge_);
 }
 
 
@@ -545,7 +622,10 @@ gm2ringsim::InnerFieldImpl* gm2ringsim::QuadFieldFactory::innerFromType(int quad
     {
       double tb_volts;
       double dvolts[4];
-      
+
+      //----------------------
+      // Assumes negative beam
+      //----------------------      
       if ( StoreHV_ == 40*kilovolt ) {
 	tb_volts = volts_n18[quadNumber].v[TOPPLATE].steady_state;
        	dvolts[0] = -tb_volts-volts_n18[quadNumber].v[INNERPLATE].scraping;
@@ -559,6 +639,14 @@ gm2ringsim::InnerFieldImpl* gm2ringsim::QuadFieldFactory::innerFromType(int quad
       	dvolts[1] = -tb_volts-volts[quadNumber].v[OUTERPLATE].scraping;
        	dvolts[2] = tb_volts-volts[quadNumber].v[TOPPLATE].scraping;
        	dvolts[3] = tb_volts-volts[quadNumber].v[BOTTOMPLATE].scraping;
+      }
+
+      //------------------------
+      // Negate if positive beam
+      //------------------------
+      if ( Charge_ == 1 ) {
+	tb_volts *= -1;
+	for ( int i = 0; i < 4; i++ ) { dvolts[i] *= -1; }
       }
 
       return new SimpleInnerImpl(tb_volts, dvolts, DoScraping_);
@@ -582,6 +670,9 @@ gm2ringsim::QuadFieldFactory::outerFromType(int quadNumber, int /*quadSection*/,
       double tb_volts;
       double dvolts[4];
       
+      //----------------------
+      // Assumes negative beam
+      //----------------------      
       if ( StoreHV_ == 40*kilovolt ) {
 	tb_volts = volts_n18[quadNumber].v[TOPPLATE].steady_state;
        	dvolts[0] = -tb_volts-volts_n18[quadNumber].v[INNERPLATE].scraping;
@@ -595,6 +686,14 @@ gm2ringsim::QuadFieldFactory::outerFromType(int quadNumber, int /*quadSection*/,
       	dvolts[1] = -tb_volts-volts[quadNumber].v[OUTERPLATE].scraping;
        	dvolts[2] = tb_volts-volts[quadNumber].v[TOPPLATE].scraping;
        	dvolts[3] = tb_volts-volts[quadNumber].v[BOTTOMPLATE].scraping;
+      }
+
+      //------------------------
+      // Negate if positive beam
+      //------------------------
+      if ( Charge_ == 1 ) {
+	tb_volts *= -1;
+	for ( int i = 0; i < 4; i++ ) { dvolts[i] *= -1; }
       }
 
       return new SimpleOuterImpl(tb_volts, dvolts, DoScraping_);

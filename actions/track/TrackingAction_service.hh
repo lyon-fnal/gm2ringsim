@@ -57,13 +57,20 @@ namespace gm2ringsim {
 
   private:
     
-    bool OnlyTrackMuons_;
+    bool OnlyTrackPrimary_;
+    bool TrackPrimaryDecay_;
+    bool TrackOrphans_;
 
     // Our collection of track hits
     std::unique_ptr<TrackingActionArtRecordCollection> myArtHits_;
 
+    // A collection of the muon charge
+    std::unique_ptr<int> myMuonCharge_;
+
     // A message logger for this action
     mf::LogInfo logInfo_;
+
+    int PrimaryTrackCharge_;
   };
 }
 

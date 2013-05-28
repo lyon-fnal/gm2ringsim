@@ -17,6 +17,8 @@
 #include "Geant4/G4Mag_UsualEqRhs.hh"
 #include "Geant4/G4Mag_SpinEqRhs.hh"
 #include "Geant4/G4ClassicalRK4.hh"
+#include "Geant4/G4EqEMFieldWithSpin.hh"
+#include "Geant4/G4EqEMFieldWithEDM.hh"
 
 //#include "kickerMessenger.hh"
 #include "kicker/KickerHelpers.hh"
@@ -42,13 +44,19 @@ gm2ringsim::Kicker::Kicker(fhicl::ParameterSet const & p, art::ActivityRegistry 
 		 p.get<std::string>("category", "kicker"),
 		 p.get<std::string>("mother_category", "vac")),
     sts_("SpinTracking"),
+    nospin_tracking_(true),
     spin_tracking_(sts_.spinTrackingEnabled),
+    edm_tracking_(sts_.edmTrackingEnabled),
     kg_(myName()),
     numKickers_(3),
     numKickerObjects_(3),
     which_modifier_(NO_MODIFIER) 
 {
+  if ( spin_tracking_ || edm_tracking_ ) { nospin_tracking_ = false; }
+
+
   G4cout << "=========== Kicker ===========" << G4endl;
+  G4cout << "| Beam Charge  = " << sts_.GetCharge() << G4endl;
   G4cout << "| Type of Kick = " << kg_.TypeOfKick << G4endl;
   if ( kg_.TypeOfKick == "LCR" || kg_.TypeOfKick == "E821" ) { KickType_ = KICK_LCR; }
   if ( kg_.TypeOfKick == "Square" || kg_.TypeOfKick == "Perfect" ||
@@ -121,20 +129,20 @@ void gm2ringsim::Kicker::buildKickerPlatesSAndL() {
     // utilized, see 'kickerParameters.hh'                                        
     for(G4int objectType = 0; objectType < numKickerObjects_; objectType++)
       {
-	if ( objectType == FIELDREGION ) {
-	  G4cout << kickerNumber << "\tObjectType = FieldRegion" << G4endl;
-	}
-	if ( objectType == INNERPLATE ) {
-	  G4cout << kickerNumber << "\tObjectType = InnerPlate" << G4endl;
-	}
-	if ( objectType == OUTERPLATE ) {
-	  G4cout << kickerNumber << "\tObjectType = OuterPlate" << G4endl;
-	}
-	G4cout << "  rMin     = " << kg_.kPlates_rMin[objectType] << G4endl;
-	G4cout << "  rMax     = " << kg_.kPlates_rMax[objectType] << G4endl;
-	G4cout << "  z        = " << kg_.kPlates_z[objectType] << G4endl;
-	G4cout << "  sPhi     = " << 180.0/3.14159*kg_.kPlates_Sphi[kickerNumber] << G4endl;
-	G4cout << "  dPhi     = " << 180.0/3.15159*kg_.kPlates_Dphi << G4endl << G4endl;
+// 	if ( objectType == FIELDREGION ) {
+// 	  G4cout << kickerNumber << "\tObjectType = FieldRegion" << G4endl;
+// 	}
+// 	if ( objectType == INNERPLATE ) {
+// 	  G4cout << kickerNumber << "\tObjectType = InnerPlate" << G4endl;
+// 	}
+// 	if ( objectType == OUTERPLATE ) {
+// 	  G4cout << kickerNumber << "\tObjectType = OuterPlate" << G4endl;
+// 	}
+// 	G4cout << "  rMin     = " << kg_.kPlates_rMin[objectType] << G4endl;
+// 	G4cout << "  rMax     = " << kg_.kPlates_rMax[objectType] << G4endl;
+// 	G4cout << "  z        = " << kg_.kPlates_z[objectType] << G4endl;
+// 	G4cout << "  sPhi     = " << 180.0/3.14159*kg_.kPlates_Sphi[kickerNumber] << G4endl;
+// 	G4cout << "  dPhi     = " << 180.0/3.15159*kg_.kPlates_Dphi << G4endl << G4endl;
 	
 	G4Tubs *kicker_S = new G4Tubs("kicker_S",
 				      kg_.kPlates_rMin[objectType],
@@ -243,41 +251,60 @@ void gm2ringsim::Kicker::buildKickerFields(){
 					    kg_.circuitC[i],
 					    kg_.circuitL[i],
 					    kg_.circuitR[i],
-					    modifier_[i]);
-      if( !spin_tracking_ ){
+					    modifier_[i],
+					    sts_.GetCharge());
+      if( nospin_tracking_ ){
         iEquation_[i] = new g2TimeDepMagField_EqRhs(kickerMagField_[i]);
         iStepper_[i] = new G4ClassicalRK4(iEquation_[i], 8);
 	// 8 for time dependence.                                               
-      } else {
-        iEquation_[i] = new g2TimeDepMagField_SpinEqRhs(kickerMagField_[i]);
-        iStepper_[i] = new G4ClassicalRK4(iEquation_[i], 12);
-        // 12 for spin dependence                                               
+      }
+      else if ( spin_tracking_ ) {
+	iEquation_[i] = new g2TimeDepMagField_SpinEqRhs(kickerMagField_[i]);
+	iStepper_[i] = new G4ClassicalRK4(iEquation_[i], 12);
+	// 12 for spin dependence       
+      }
+      else if ( edm_tracking_ ) {
+	iEquation_[i] = new g2TimeDepMagField_SpinEqRhs(kickerMagField_[i]);
+	iStepper_[i] = new G4ClassicalRK4(iEquation_[i], 12);
+	// 12 for spin dependence       
       }
     }else if ( KickType_ == KICK_SQUARE ) {
       kickerMagField_[i] = new SquareKickField(kg_.squareMag[i]*
-                                              kg_.kickPercent[i]/100.,
-                                              modifier_[i]);
-      if( !spin_tracking_ ){
+					       kg_.kickPercent[i]/100.,
+					       modifier_[i],
+					       sts_.GetCharge());
+
+      if( nospin_tracking_ ){
 	iEquation_[i] = new g2TimeDepMagField_EqRhs(kickerMagField_[i]);
         iStepper_[i] = new G4ClassicalRK4(iEquation_[i], 8);
-      } else {
+      }
+      else if ( spin_tracking_ ) {
+        iEquation_[i] = new g2TimeDepMagField_SpinEqRhs(kickerMagField_[i]);
+        iStepper_[i] = new G4ClassicalRK4(iEquation_[i], 12);
+      }
+      else if ( edm_tracking_ ) {
         iEquation_[i] = new g2TimeDepMagField_SpinEqRhs(kickerMagField_[i]);
         iStepper_[i] = new G4ClassicalRK4(iEquation_[i], 12);
       }
     } else {
       G4cout << "Invalid kick type specified!  Not going to kick!\n";
-      kickerMagField_[i] = new NoKickField(modifier_[i]);
-      if( !spin_tracking_ ){
+      kickerMagField_[i] = new NoKickField(modifier_[i], 
+					   sts_.GetCharge());
+      if( nospin_tracking_ ){
         iEquation_[i] = new G4Mag_UsualEqRhs(kickerMagField_[i]);
 	iStepper_[i] = new G4ClassicalRK4(iEquation_[i]);
-      } else {
+      }
+      else if ( spin_tracking_ ) {
+	iEquation_[i] = new G4Mag_SpinEqRhs(kickerMagField_[i]);
+	iStepper_[i] = new G4ClassicalRK4(iEquation_[i], 12);
+      }
+      else if ( edm_tracking_ ) {
 	iEquation_[i] = new G4Mag_SpinEqRhs(kickerMagField_[i]);
         iStepper_[i] = new G4ClassicalRK4(iEquation_[i], 12);
       }
     }
     // 4) Create a chord finder ... this one can be shared                      
-    iChordFinder_[i] = new G4ChordFinder(kickerMagField_[i], .01*mm, iStepper_[i])\
-;
+    iChordFinder_[i] = new G4ChordFinder(kickerMagField_[i], .01*mm, iStepper_[i]);
 
     // Create the field manager and return it to the logical volume.  We        
     // only want to create it once, while the members above need to be          
