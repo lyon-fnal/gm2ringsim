@@ -269,11 +269,11 @@ bestkicks()
 	    if [ ${offset} -gt 0 ]; then
 		if [ ${lcrkick} == 1 ]; then
 		    thebestkicks="80 85 90 95 100 105"
-		    thebestkicks="90"
+		    thebestkicks="0"
 		fi
 		if [ ${squarekick} == 1 ]; then
 		    thebestkicks="130 160 190 200 210 220 230 240 250 280 310"
-		    thebestkicks="220"
+		    thebestkicks="0"
 		fi
 	    fi
 		
@@ -307,7 +307,7 @@ bestoffsets()
     if [ ${beamstart} == "CentralOrbit" ]; then
 	if [ ${infstart} == 1 ]; then
 	    thebestoffsets="0"
-	    thebestoffsets="20"
+#	    thebestoffsets="20"
 	    return;
 	else
 	    thebestoffsets="0"
@@ -634,7 +634,7 @@ beamstarts="CentralOrbit DownstreamMandrel UpstreamCryo"
 beamstarts="CentralOrbit"
 #beamstarts="DownstreamMandrel"
 
-cleanval=""
+cleanval="clean"
 fields="0 1"
 fields="0"
 
@@ -659,7 +659,7 @@ if [ ${beamstarts} == "CentralOrbit" ]; then
     moms="PerfectMatch_dP0001 PerfectMatch_dP001 PerfectMatch_dP0025 PerfectMatch_dP005 PerfectMatch_dP0075 PerfectMatch PerfectMatch_dP025 PerfectMatch_dP05 PerfectMatch_dP075 PerfectMatch_dP1 PerfectMatch_dP2 PerfectMatch_dP5 PerfectMatch_dP10"
     moms="${moms} E821Match_dP0001 E821Match_dP001 E821Match_dP0025 E821Match_dP005 E821Match_dP0075 E821Match E821Match_dP025 E821Match_dP05 E821Match_dP075 E821Match_dP1 E821Match_dP2 E821Match_dP5 E821Match_dP10"
 #    moms="E821Match_dP05 PerfectMatch_dP05 E821Match_dP005 PerfectMatch_dP005 E821Match_dP0001 PerfectMatch_dP0001"
-    moms="PerfectMatch_dP0001"
+    moms="PerfectMatch_dP001"
     core=0
 #    fields="0 1"
     fields="0"
@@ -741,7 +741,7 @@ scrapings="OFF"
 beamtypes="Gaussian Uniform"
 beamtypes="Uniform"
 #beamtypes="Gaussian"
-numturns=101
+numturns=35
 #numturns=50
 
 beamsizes="10 20 30 40 50 60"
@@ -751,7 +751,7 @@ beamsizes="10 20 30 40 50 60"
 beamsizes="40 0 20"
 #beamsizes="40"
 beamsizes="40 0"
-beamsizes="40"
+beamsizes="2"
 #beamsizes="40 20 1"
 
 
@@ -907,7 +907,7 @@ if [ ${runit} == 1 ]; then
 			    fi
 
 			    if [ ${beamstart} == "CentralOrbit" ]; then
-				numevts=250
+				numevts=200
 			    fi
 			    
 			    echo "      Beamstart [${beamstart} / (${beamstarts})]"		    

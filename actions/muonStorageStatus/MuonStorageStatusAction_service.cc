@@ -58,6 +58,8 @@ gm2ringsim::MuonStorageStatusAction::MuonStorageStatusAction(fhicl::ParameterSet
   
 //beginOfMuonStorageStatusAction
 void gm2ringsim::MuonStorageStatusAction::beginOfEventAction (const G4Event* pevent){
+  //G4cout << "gm2ringsim::MuonStorageStatusAction::beginOfEventAction()" << G4endl;
+
   // Initialization per event
   muonStorageStatus_ = muonTrackingStatus::trackingMuon;
 
@@ -78,6 +80,7 @@ void gm2ringsim::MuonStorageStatusAction::beginOfEventAction (const G4Event* pev
     hbLength_ = s.size();
   }
 
+  //G4cout << "gm2ringsim::MuonStorageStatusAction::beginOfEventAction() - Done" << G4endl;
 }  //beginOfEventAction
 
 void gm2ringsim::MuonStorageStatusAction::endOfEventAction(const G4Event* ){//evt) {
@@ -164,6 +167,9 @@ void gm2ringsim::MuonStorageStatusAction::endOfRunAction(const G4Run *currentRun
 */  
 
 void gm2ringsim::MuonStorageStatusAction::userSteppingAction(const G4Step *currentStep) {
+
+  //G4cout << "gm2ringsim::MuonStorageStatusAction::userSteppingAction()" << G4endl;
+
  // currentStep, currentTrack, and currentEvent are the three
   // sources of relevant information, and therefore, access is
   // needed to their respective pointers.  While the G4Step pointer
@@ -177,7 +183,7 @@ void gm2ringsim::MuonStorageStatusAction::userSteppingAction(const G4Step *curre
     currentTrack -> GetVolume() -> GetName();
 
   //  if( currentTrack->GetTrackID() == 1 )                                                                          
-  //    G4cout << currentVolumeName << '\n';                                                                         
+  //G4cout << currentVolumeName << '\n';                                                                         
   
   if( currentVolumeName == "InflectorMandrel" ){
     if( currentTrack -> GetTrackID() == 1 ) {
@@ -253,6 +259,7 @@ void gm2ringsim::MuonStorageStatusAction::unsuccessfulStorage(){
 }
 
 void gm2ringsim::MuonStorageStatusAction::unsuccessfulStorage(G4String reason){
+  //G4cout << "gm2ringsim::MuonStorageStatusAction::unsuccessfulStorage(" << reason << ")" << G4endl;
   muonStorageStatus_ = muonTrackingStatus::lostMuon;
   if ( reason == "Lab" ) { setEventStatus(kHitLab); }
   if ( reason == "Inflector" ) { setEventStatus(kHitInflector); }

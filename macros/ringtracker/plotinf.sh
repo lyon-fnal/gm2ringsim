@@ -57,6 +57,7 @@ cat >> ${outputdir}/index.html <<EOF
     <tr>
       <td><a href="#kick">Intercept and Kick Required</a></td>
       <td><a href="#vac">Tracking Per 30 degrees</a></td>
+      <td><a href="#ps">Final 1D Phase Space</a></td>
     </tr>
     <tr>
       <td><a href="#Start">Generated Phase Space</a></td>
@@ -253,17 +254,17 @@ cat >> ${outputdir}/index.html <<EOF
     <a name="time"></a>
     <h2><center>Ring Tracker Stats Vs. Turn</center></h2>
 
-    <table cellspacing=1 cellpadding=3>
+    <table cellspacing=1 cellpadding=3 border=1>
 EOF
 
 
 
-histograms="Turn Turn_Zoom2"
+histograms="Turn OncePerTurn"
 for histogram in ${histograms}; do
 cat >> ${outputdir}/index.html <<EOF
 	<tr>
 EOF
-trackers="Rho Y Prhat Pvhat Mom Pol"
+trackers="Rho Y Prhat Pvhat Mom Pol PolX Xe"
 for tracker in ${trackers}; do
     write ${outputdir}/index.html Tracker${tracker}${histogram}.png
 done
@@ -447,6 +448,8 @@ EOF
 	write ${outputdir}/index.html RingTracker_Time_Yprime.png
 	write ${outputdir}/index.html RingTracker_Time_Mom.png
 	write ${outputdir}/index.html RingTracker_Time_Pol.png
+	write ${outputdir}/index.html RingTracker_Time_PolX.png
+	write ${outputdir}/index.html RingTracker_Time_Xe.png
 cat >> ${outputdir}/index.html <<EOF
         </tr>
         <tr>
@@ -457,6 +460,8 @@ EOF
 	write ${outputdir}/index.html G4Track_Time_Yprime.png
 	write ${outputdir}/index.html G4Track_Time_Mom.png
 	write ${outputdir}/index.html G4Track_Time_Pol.png
+	write ${outputdir}/index.html G4Track_Time_PolX.png
+	write ${outputdir}/index.html G4Track_Time_Xe.png
 cat >> ${outputdir}/index.html <<EOF
         </tr>
         <tr>
@@ -487,6 +492,8 @@ EOF
 	write ${outputdir}/index.html RingTracker_Time_Yprime_10turns.png
 	write ${outputdir}/index.html RingTracker_Time_Mom_10turns.png
 	write ${outputdir}/index.html RingTracker_Time_Pol_10turns.png
+	write ${outputdir}/index.html RingTracker_Time_PolX_10turns.png
+	write ${outputdir}/index.html RingTracker_Time_Xe_10turns.png
 cat >> ${outputdir}/index.html <<EOF
       </tr>
       <tr>
@@ -497,6 +504,8 @@ EOF
 	write ${outputdir}/index.html G4Track_Time_Yprime_10turns.png
 	write ${outputdir}/index.html G4Track_Time_Mom_10turns.png
 	write ${outputdir}/index.html G4Track_Time_Pol_10turns.png
+	write ${outputdir}/index.html G4Track_Time_PolX_10turns.png
+	write ${outputdir}/index.html G4Track_Time_Xe_10turns.png
 cat >> ${outputdir}/index.html <<EOF
       </tr>
     </table>
@@ -517,6 +526,8 @@ EOF
 	write ${outputdir}/index.html RingTracker_Time_Yprime_50turns.png
 	write ${outputdir}/index.html RingTracker_Time_Mom_50turns.png
 	write ${outputdir}/index.html RingTracker_Time_Pol_50turns.png
+	write ${outputdir}/index.html RingTracker_Time_PolX_50turns.png
+	write ${outputdir}/index.html RingTracker_Time_Xe_50turns.png
 cat >> ${outputdir}/index.html <<EOF
       </tr>
       <tr>
@@ -527,6 +538,8 @@ EOF
 	write ${outputdir}/index.html G4Track_Time_Yprime_50turns.png
 	write ${outputdir}/index.html G4Track_Time_Mom_50turns.png
 	write ${outputdir}/index.html G4Track_Time_Pol_50turns.png
+	write ${outputdir}/index.html G4Track_Time_PolX_50turns.png
+	write ${outputdir}/index.html G4Track_Time_Xe_50turns.png
 cat >> ${outputdir}/index.html <<EOF
       </tr>
     </table>
@@ -549,6 +562,8 @@ EOF
 	write ${outputdir}/index.html RingTracker_Time_Yprime_FinalAvg.png
 	write ${outputdir}/index.html RingTracker_Time_Mom_FinalAvg.png
 	write ${outputdir}/index.html RingTracker_Time_Pol_FinalAvg.png
+	write ${outputdir}/index.html RingTracker_Time_PolX_FinalAvg.png
+	write ${outputdir}/index.html RingTracker_Time_Xe_FinalAvg.png
 cat >> ${outputdir}/index.html <<EOF
       </tr>
       <tr>
@@ -559,6 +574,8 @@ EOF
 	write ${outputdir}/index.html G4Track_Time_Yprime_FinalAvg.png
 	write ${outputdir}/index.html G4Track_Time_Mom_FinalAvg.png
 	write ${outputdir}/index.html G4Track_Time_Pol_FinalAvg.png
+	write ${outputdir}/index.html G4Track_Time_PolX_FinalAvg.png
+	write ${outputdir}/index.html G4Track_Time_Xe_FinalAvg.png
 cat >> ${outputdir}/index.html <<EOF
       </tr>
     </table>

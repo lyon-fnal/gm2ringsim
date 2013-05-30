@@ -18,7 +18,7 @@
 #include "gm2ringsim/common/spin/SpinController.hh"
 //#include "spinMessenger.hh"
 
-gm2ringsim::SpinController::SpinController() : spin_tracking_(false) {
+gm2ringsim::SpinController::SpinController() : spin_tracking_(false), edm_tracking_(false), eta_(0.0), gm2_(0.0) {
   //,  sm_(new spinMessenger(this)) {
   
 }
@@ -39,6 +39,16 @@ void gm2ringsim::SpinController::enable_spintracking(){
 
 void gm2ringsim::SpinController::disable_spintracking(){
   sig_( spin_tracking_ = false );
+
+}
+
+void gm2ringsim::SpinController::enable_edmtracking(){
+  sig_( edm_tracking_ = true );
+  
+}
+
+void gm2ringsim::SpinController::disable_edmtracking(){
+  sig_( edm_tracking_ = false );
 
 }
 

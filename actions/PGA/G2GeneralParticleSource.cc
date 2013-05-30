@@ -108,6 +108,8 @@ void gm2ringsim::G2GeneralParticleSource::setParticleDefinition(std::string newV
   
   printf("size of particle table is %d\n",particleTable_->size());
 
+  G4cout << "Do I get here [G2GeneralParticleSource::setParticleDefinition(" << newValues << ")" << G4endl;
+
   if (!strcmp(newValues.c_str(),"muminus"))
     { printf("identified that we have muminus particles\n");
       newValues = "mu-";
@@ -116,14 +118,31 @@ void gm2ringsim::G2GeneralParticleSource::setParticleDefinition(std::string newV
     { printf("identified that we have muplus particles\n");
       newValues = "mu+";
     }
-  
-  const G4String name = "mu-";
-  G4ParticleDefinition* pd = particleTable_->FindParticle(name);
-  if(pd != NULL)
-    {
-      mf::LogDebug("G2GeneralParticleSource") << "setting particle to "<<newValues;
-      SetParticleDefinition( pd ); 
+  if (!strcmp(newValues.c_str(),"proton"))
+    { printf("identified that we have proton particles\n");
+      newValues = "mu-";
     }
+
+  
+//   const G4String name = "mu-";
+//   G4ParticleDefinition* pd = particleTable_->FindParticle(name);
+//   if(pd != NULL)
+//     {
+//       mf::LogDebug("G2GeneralParticleSource") << "setting particle to "<<newValues;
+//       SetParticleDefinition( pd ); 
+//     }
+//   //}
+  
+  const G4String name = newValues;
+  G4ParticleDefinition* pd = particleTable_->FindParticle(newValues);
+  if(pd != NULL) {
+    mf::LogDebug("G2GeneralParticleSource") << "setting particle to "<<newValues;
+    G4cout << "G2GeneralParticleSource: Setting particle to [" << newValues << "]" << G4endl;
+    SetParticleDefinition( pd ); 
+  }
+  else {
+    G4cout << "Could not set particle to [" << newValues << "]" << G4endl;
+  }
   //}
 
 }
@@ -330,10 +349,12 @@ void gm2ringsim::G2GeneralParticleSource::GeneratePrimaryVertex(G4Event* evt)
       while ( rndm > sourceProbability[i] ) i++;
       (currentSource = sourceVector[i]);
     }
+    G4cout << "Do I never get here!!!" << G4endl;
     currentSource-> GeneratePrimaryVertex(evt);
   } 
   else {
     for (size_t i = 0; i <  sourceIntensity.size(); i++) {
+      G4cout << "Do I never get here!!!" << G4endl;
       sourceVector[i]->GeneratePrimaryVertex(evt); 
     }
   }

@@ -25,28 +25,11 @@ gm2ringsim::VirtualRingStationHit::VirtualRingStationHit(G4Step* step) :
   polarization(step->GetPreStepPoint()->GetPolarization()),
   time(step->GetPreStepPoint()->GetGlobalTime()),
   turnNum(TurnCounter::getInstance().turns()),
-  //turnNum(0), // FIXME: If i initialize with zero, update below
   trackID(step->GetTrack()->GetTrackID()),
   volumeUID(0)
 {
-
-  //art::ServiceHandle <artg4::MuonStorageStatusAction> mss;
-  
-
-
-  // FIXME: ART
-  // Need to grab the TurnCounter from the muonStorageStatus service to
-  // determine what turn we are on
-  
-  
-  /*
-  G4cout << "Pre: "
-	 << step->GetPreStepPoint()->GetPhysicalVolume()->GetName() 
-	 << '\n';
-  G4cout << "Post: "
-	 << step->GetPostStepPoint()->GetPhysicalVolume()->GetName() 
-	 << '\n';
-  */
+  ;
+  //Print();
 }
 
 
@@ -69,9 +52,12 @@ void gm2ringsim::VirtualRingStationHit::Draw(){
 }
 
 void gm2ringsim::VirtualRingStationHit::Print(){
-  G4cout << " VirtualRingStationHit::Print() --- turnNum: " << turnNum
-	 << " time: " << time
-	 << " polarization: " << polarization
-	 << " position: " << position
-	 << "\n";
+  G4cout.precision(3);
+  if ( trackID == 1 ) {
+    G4cout << " VirtualRingStationHit::Print() --- turnNum: " << turnNum
+	   << " time: " << time
+	   << " polarization: " << polarization
+	   << " position: " << position
+	   << "\n";
+  }
 }

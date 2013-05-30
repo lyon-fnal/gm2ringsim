@@ -95,6 +95,9 @@ namespace gm2ringsim
     
     void SetSigmaT( double aDouble ){ SigmaT=aDouble; }
     double GetSigmaT( ){ return SigmaT; }
+    
+    void SetParticle( std::string aString ){ Particle_=aString; }
+    std::string GetParticle(){ return Particle_; }
 
 
   private:
@@ -124,7 +127,7 @@ namespace gm2ringsim
     double Pmean;
     double dPOverP;
     double SigmaT;
-
+    std::string Particle_;
     
   }; // End G2InflectorSource class
 } //namespace gm2ringsim

@@ -78,9 +78,14 @@ services: {
      // Global simulation settings
      RunSettings : {
        SpinTracking : {
-        spinTrackingEnabled : true
+	   spinTrackingEnabled : false
+	   edmTrackingEnabled : false
+	   Q : 1
+	   Eta : 0.00
+	   Gm2 : -1.0
        }
       G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel
+#      G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel_muminus
     
     }
 
@@ -90,7 +95,9 @@ services: {
       // Action(s) for the simulation
       StackingAction: {  
             name: "stackingAction"
-	    OnlyTrackMuons: true
+	    OnlyTrackPrimary: false
+  	    TrackPrimaryDecay: true
+            TrackOrphans: false
             minWavelength:250 //nm
             maxWavelength:950  //nm
       }
@@ -100,7 +107,9 @@ services: {
 
     TrackingAction : {
           name : "trackingAction"
-	  OnlyTrackMuons: true
+	  OnlyTrackPrimary: false
+	  TrackPrimaryDecay: true
+          TrackOrphans: false
     }
 
     ClockAction: {}
@@ -118,13 +127,15 @@ services: {
         name: "inflectorgun"
         inflectorVerbosity: true
 	SigmaT: 25
-	Emittance: ${beamsize}
+	EmittanceX: ${beamsize}
+	EmittanceY: ${beamsize}
 	BetaX:  ${betaX}
 	BetaY:  ${betaY}
 	AlphaX:  ${alphaX}
 	AlphaY:  ${alphaY}
 	Pmean: ${pmean}
 	dPOverP: ${dPoverP}
+	Particle: "pi+"
 EOF
 
 if [ ${beamstart} == um ]; then
@@ -190,7 +201,7 @@ cat >> ${outfile} <<EOF
     // Detectors
     World: {}	
     Ring: {}    // This is for the RingHits
-    Tracker: {} // This is for the virtual tracker planes in the vac
+    VirtualRingStation: {} // This is for the virtual tracker planes in the vac
     Arc: {}
     VacuumChamber: {}
     Inflector:{}
@@ -251,6 +262,42 @@ physics: {
 
 }
 EOF
+
+cat >> ${outfile} <<EOF
+#
+# Add-ons
+#
+services.user.RunSettings.G2GPS_downstreamInflectorMandrel.particle: muminus
+services.user.Geometry.quad.DoScraping: false
+services.user.Geometry.quad.StoreHV: 24
+services.user.Geometry.quad.ScrapeHV: 17
+services.user.Geometry.quad.SupportMaterial: Macor
+services.user.Geometry.quad.PlateMaterial: None
+EOF
+echo "kickhv=${kickhv}"
+echo "kicksk=${kicksk}"
+
+if [ ${kickhv} -ge 0 ]; then
+cat >> ${outfile} <<EOF
+services.user.Geometry.kicker.TypeOfKick: LCR
+services.user.Geometry.kicker.kPlate1HV : ${kickhv} //kilovolt 
+services.user.Geometry.kicker.kPlate2HV : ${kickhv} //kilovolt 
+services.user.Geometry.kicker.kPlate3HV : ${kickhv} //kilovolt 
+services.user.Geometry.kicker.kickerHV : [${kickhv} , ${kickhv} , ${kickhv} ] //kilovolt
+EOF
+fi
+if [ ${kicksk} -ge 0 ]; then
+cat >> ${outfile} <<EOF
+services.user.Geometry.kicker.TypeOfKick: SQUARE
+services.user.Geometry.kicker.squareMag : [${kicksk} , ${kicksk} , ${kicksk} ] //gauss
+EOF
+fi
+
+#cat >> ${outfile} <<EOF
+#services.user.Geometry.kicker.TypeOfKick: SQUARE
+#services.user.Geometry.kicker.squareMag : [0.0 , 0.0 , 0.0 ] //gauss
+#EOF
+#fi
 
 echo "cp ${outfile} ${fullDir}/runner.fcl"
 cp ${outfile} ${fullDir}/runner.fcl

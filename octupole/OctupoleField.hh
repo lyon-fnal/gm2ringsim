@@ -29,7 +29,7 @@ namespace gm2ringsim {
   public:
     
     /** Should only be called by octupoleConstruction members */
-    OctupoleField();
+    OctupoleField(int Charge);
     
     //Always include a virtual destructor
     virtual ~OctupoleField(){}
@@ -56,6 +56,7 @@ namespace gm2ringsim {
   private:
     OctGeometry octGeom_;
     double period_, offset_, gradient_;
+    int Charge_;
   }; // class OctupoleField
   
 } // namespace gm2ringsim

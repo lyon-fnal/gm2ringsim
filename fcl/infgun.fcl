@@ -17,7 +17,7 @@ process_name:myProcessName
 
 source: {
   module_type: EmptyEvent
-  maxEvents:  25
+  maxEvents:  200
 }
 
 services: {
@@ -33,7 +33,7 @@ services: {
        }
        LogToFile : {
          type : "file"
-         filename : "/gm2/data/users/tgadfort/gm2ringsim/output/ScrapingOFF_NewSupports_101Turns_CentralOrbit_Offset20_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize40pimmmrad_UniformInflectorGun_PerfectMatch_dP0001_CollimatorON/ScrapingOFF_NewSupports_101Turns_CentralOrbit_Offset20_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize40pimmmrad_UniformInflectorGun_PerfectMatch_dP0001_CollimatorON.log"
+         filename : "/gm2/data/users/tgadfort/gm2ringsim/output/ScrapingOFF_NewSupports_35Turns_CentralOrbit_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize2pimmmrad_UniformInflectorGun_PerfectMatch_dP001_CollimatorON/ScrapingOFF_NewSupports_35Turns_CentralOrbit_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize2pimmmrad_UniformInflectorGun_PerfectMatch_dP001_CollimatorON.log"
          append : false
          threshold : "ERROR"
        }
@@ -68,9 +68,14 @@ services: {
      // Global simulation settings
      RunSettings : {
        SpinTracking : {
-        spinTrackingEnabled : true
+	   spinTrackingEnabled : false
+	   edmTrackingEnabled : false
+	   Q : 1
+	   Eta : 0.00
+	   Gm2 : -1.0
        }
       G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel
+#      G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel_muminus
     
     }
 
@@ -80,7 +85,9 @@ services: {
       // Action(s) for the simulation
       StackingAction: {  
             name: "stackingAction"
-	    OnlyTrackMuons: true
+	    OnlyTrackPrimary: false
+  	    TrackPrimaryDecay: true
+            TrackOrphans: false
             minWavelength:250 //nm
             maxWavelength:950  //nm
       }
@@ -90,7 +97,9 @@ services: {
 
     TrackingAction : {
           name : "trackingAction"
-	  OnlyTrackMuons: true
+	  OnlyTrackPrimary: false
+	  TrackPrimaryDecay: true
+          TrackOrphans: false
     }
 
     ClockAction: {}
@@ -108,21 +117,22 @@ services: {
         name: "inflectorgun"
         inflectorVerbosity: true
 	SigmaT: 25
-	EmittanceX: 40
-	EmittanceY: 40
+	EmittanceX: 2
+	EmittanceY: 2
 	BetaX:  7.66477
 	BetaY:  19.0763
 	AlphaX:  0.0
 	AlphaY:  0.0
 	Pmean: -1
 	dPOverP: 0.0001
+	Particle: "pi+"
 	StartUpstream:  false
 	StartUpstreamCryo:  false
 	StartDownstream:  false
 	StartPerfect:  true
 	GenGaussian: false
 	LaunchAngle: 0
-	StorageOffset: 20
+	StorageOffset: -1
     }
 
 
@@ -145,8 +155,8 @@ services: {
 
     MuonStorageStatusAction: {
       name: "MuonStorageStatusAction"
-      turnsForStorage: 101
-      heartbeatFreq: 2
+      turnsForStorage: 35
+      heartbeatFreq: 20
     }
 
   } //user:
@@ -155,7 +165,7 @@ services: {
 outputs: {
 out1: {
   module_type: RootOutput   
-  fileName: "/gm2/data/users/tgadfort/gm2ringsim/output/ScrapingOFF_NewSupports_101Turns_CentralOrbit_Offset20_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize40pimmmrad_UniformInflectorGun_PerfectMatch_dP0001_CollimatorON/ScrapingOFF_NewSupports_101Turns_CentralOrbit_Offset20_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize40pimmmrad_UniformInflectorGun_PerfectMatch_dP0001_CollimatorON.root"
+  fileName: "/gm2/data/users/tgadfort/gm2ringsim/output/ScrapingOFF_NewSupports_35Turns_CentralOrbit_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize2pimmmrad_UniformInflectorGun_PerfectMatch_dP001_CollimatorON/ScrapingOFF_NewSupports_35Turns_CentralOrbit_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize2pimmmrad_UniformInflectorGun_PerfectMatch_dP001_CollimatorON.root"
   }
 }
 
@@ -183,15 +193,16 @@ physics: {
 #
 # Add-ons
 #
-services.user.Quad.DoScraping: false
-services.user.Quad.StoreHV: 24
-services.user.Quad.ScrapeHV: 17
-services.user.Quad.SupportMaterial: Macor
-services.user.Quad.PlateMaterial: Al
-services.user.Kicker.TypeOfKick: LCR
-services.user.Kicker.kPlate1HV : 0 //kilovolt 
-services.user.Kicker.kPlate2HV : 0 //kilovolt 
-services.user.Kicker.kPlate3HV : 0 //kilovolt 
-services.user.Kicker.kickerHV : [0 , 0 , 0 ] //kilovolt
-services.user.Kicker.TypeOfKick: SQUARE
-services.user.Kicker.squareMag : [0 , 0 , 0 ] //gauss
+services.user.RunSettings.G2GPS_downstreamInflectorMandrel.particle: muminus
+services.user.Geometry.quad.DoScraping: false
+services.user.Geometry.quad.StoreHV: 24
+services.user.Geometry.quad.ScrapeHV: 17
+services.user.Geometry.quad.SupportMaterial: Macor
+services.user.Geometry.quad.PlateMaterial: None
+services.user.Geometry.kicker.TypeOfKick: LCR
+services.user.Geometry.kicker.kPlate1HV : 0 //kilovolt 
+services.user.Geometry.kicker.kPlate2HV : 0 //kilovolt 
+services.user.Geometry.kicker.kPlate3HV : 0 //kilovolt 
+services.user.Geometry.kicker.kickerHV : [0 , 0 , 0 ] //kilovolt
+services.user.Geometry.kicker.TypeOfKick: SQUARE
+services.user.Geometry.kicker.squareMag : [0 , 0 , 0 ] //gauss

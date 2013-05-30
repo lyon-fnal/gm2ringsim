@@ -93,13 +93,14 @@ namespace gm2ringsim {
     bool do_scraping(bool enable);
     
   private:
-    QuadField(InnerFieldImpl *ifi, OuterFieldImpl *ofi, bool DoScraping, double ScrapeHV, double StoreHV);
+    QuadField(int quadNumber, int quadSection, InnerFieldImpl *ifi, OuterFieldImpl *ofi, bool DoScraping, double ScrapeHV, double StoreHV, int Charge);
     InnerFieldImpl const *ifi_;
     OuterFieldImpl const *ofi_;
     double scrapingTurnOffTime, quadTimeConstant, timeOffset;
     bool do_scraping_;
     double ScrapeHV_;
     double StoreHV_;
+    int Charge_;
   };
 
 
@@ -202,7 +203,7 @@ enum outer_field_impl_type { VANISHING_OUTER, SIMPLE_OUTER };
 /** A concrete factory that creates the concrete quadField. */
 class QuadFieldFactory {
 public:
-  QuadFieldFactory(bool DoScraping, double ScrapeHV, double StoreHV);
+  QuadFieldFactory(bool DoScraping, double ScrapeHV, double StoreHV, int Charge);
   virtual ~QuadFieldFactory();
   QuadField* buildQuadField(int quadNumber, int quadSection);
 
@@ -219,6 +220,7 @@ private:
   bool DoScraping_;
   double ScrapeHV_;
   double StoreHV_;
+  int Charge_;
 };
 
 

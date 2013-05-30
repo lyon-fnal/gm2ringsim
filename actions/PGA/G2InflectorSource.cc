@@ -59,11 +59,12 @@ gm2ringsim::G2InflectorSource::G2InflectorSource() :
   AlphaY(0.0),
   Pmean(0.005),
   dPOverP(0.005),
-  SigmaT(50)
+  SigmaT(50),
+  Particle_("mu+")
 {
   inflectorGun_ = new G4ParticleGun();
+  //inflectorGun_->SetVerbosity(true);
   g2GPS_ = new G2GeneralParticleSource();
-  //G4cout << "HELLO WORLD" << G4endl;
 }
 
 gm2ringsim::G2InflectorSource::~G2InflectorSource() 
@@ -103,20 +104,38 @@ void gm2ringsim::G2InflectorSource::TransportTwiss(double alpha, double beta, do
 // EndOfPrimaryGeneratorAction
 void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
 {
+  //bool debug = false;
+
   //G4cout << "G2InflectorSource::GeneratePrimaryVertex  --- GENERATING EVENT!" << G4endl;
 
   mf::LogInfo("G2InflectorSource") << "GeneratePrimaryVertex";
 
-  if ( first_event ) {
-    G4String defaultParticle = "mu-";
-    G4String particle = g2GPS_ ->GetParticleDefinition()->GetParticleName();
-    
-    if( g2GPS_ ->GetParticleDefinition()!=NULL && particle!=defaultParticle ){
-      inflectorGun_ ->SetParticleDefinition( g2GPS_ ->GetParticleDefinition() );
-    } else {
-      inflectorGun_ ->SetParticleDefinition( G4ParticleTable::GetParticleTable()->FindParticle(defaultParticle) );
-    }    
+  G4ParticleDefinition *def = G4ParticleTable::GetParticleTable()->FindParticle(Particle_);
+  if ( def ) {
+    if ( first_event ) {
+      G4cout << "Found Particle Info for [" << Particle_ << "]" << G4endl;
+      G4cout << " g-2/2 : " << def->CalculateAnomaly() << G4endl;
+      def->DumpTable();
+    }
+    inflectorGun_ ->SetParticleDefinition( G4ParticleTable::GetParticleTable()->FindParticle(Particle_) );    
   }
+  else {
+    G4ParticleTable::GetParticleTable()->DumpTable();
+    G4cout << "Could not find Particle Info for [" << Particle_ << "]" << G4endl;
+    exit(1);
+  }
+    
+
+//   if ( first_event ) {
+//     G4String defaultParticle = "mu-";
+//     G4String particle = g2GPS_ ->GetParticleDefinition()->GetParticleName();
+    
+//     if( g2GPS_ ->GetParticleDefinition()!=NULL && particle!=defaultParticle ){
+//       inflectorGun_ ->SetParticleDefinition( g2GPS_ ->GetParticleDefinition() );
+//     } else {
+//       inflectorGun_ ->SetParticleDefinition( G4ParticleTable::GetParticleTable()->FindParticle(defaultParticle) );
+//     }    
+//   }
   
 
   //====================================================================//
@@ -562,9 +581,11 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
       G4cout << "sqrt(emit*betaY) = " << std::sqrt( epsilonY*betaY0 ) << G4endl;
       G4cout << "sqrt(emit*gamY)  = " << std::sqrt( epsilonY*gammaY0 ) << G4endl;
     }
-    G4cout << "<P>       = " << Pmean << G4endl;
+    G4cout << "<P>       = " << Pmean << " +/- " << Pmean * dP_over_P << " MeV" << G4endl;
     G4cout << "dP/P      = " << dP_over_P << G4endl;
-      
+    G4cout << "s-dot-p   = " << s.x() << " , " << s.y() << " , " << s.z() << endl;
+    G4cout << "Particle  = " << Particle_ << G4endl;
+
     G4cout << "Inflector Coordinates:" << G4endl;
     G4cout << "  xAxis.SetXYZ(" << xAxis.x() << " , " << xAxis.y() << " , " << xAxis.z() << ");" << G4endl;
     G4cout << "  yAxis.SetXYZ(" << yAxis.x() << " , " << yAxis.y() << " , " << yAxis.z() << ");" << G4endl;
@@ -572,15 +593,26 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
     G4cout << "  beamStart.SetXYZ(" << beam_start_offset.x() << " , " << beam_start_offset.y() << " , " << beam_start_offset.z() << ");" << G4endl;
     G4cout << "  rhat_offset = " << sqrt(beam_start_offset.x()*beam_start_offset.x() + beam_start_offset.z()*beam_start_offset.z()) - R_magic() << ";" << G4endl;
     G4cout << "  yhat_offset = " << beam_start_offset.y() - 0.0 << ";" << G4endl;
+    G4cout << G4endl;
     first_event = false;
   }
 
 
 
-
-
-  //  FIRE    
-  mf::LogInfo("G2InflectorSource") << "About to call inflectorGun_->GeneratePrimaryVertex";  
+  //  FIRE
+  if ( 0 ) {
+  G4cout << "ID: " << evt->GetEventID() << G4endl;
+  G4cout << "To be Kept: " << evt->ToBeKept() << G4endl;
+  G4cout << "NumPV: " << evt->GetNumberOfPrimaryVertex() << G4endl;
+  G4cout << "IsAborted: " << evt->IsAborted() << G4endl;
+  G4cout << "G2InflectorSource: About to call inflectorGun_->GeneratePrimaryVertex" << G4endl;
+  }
   inflectorGun_->GeneratePrimaryVertex( evt );
-  mf::LogInfo("G2InflectorSource") << "Just got back from calling inflectorGun_->GeneratePrimaryVertex";  
+  if ( 0 ) {
+    G4cout << "G2InflectorSource: About to call inflectorGun_->GeneratePrimaryVertex" << G4endl;
+    G4cout << "ID: " << evt->GetEventID() << G4endl;
+    G4cout << "To be Kept: " << evt->ToBeKept() << G4endl;
+    G4cout << "NumPV: " << evt->GetNumberOfPrimaryVertex() << G4endl;
+    G4cout << "IsAborted: " << evt->IsAborted() << G4endl;
+  }
 } // generatePrimaries

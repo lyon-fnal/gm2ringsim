@@ -52,6 +52,8 @@ gm2ringsim::physicsList::physicsList() : verboseLevel_(1),
 			     decayStatus_(decay_init),
 			     decayPhysicsList_(new G4DecayPhysics),
 			     physics_(new PhysicsListVector) {
+  G4cout << "gm2ringsim::physicsList::physicsList()" << G4endl;
+
   defaultCutValue = 1*mm;
 
   physics_ -> push_back(new G4EmStandardPhysics);
@@ -152,8 +154,10 @@ void gm2ringsim::physicsList::ConstructProcess(){
   theParticleIterator->reset();
   while( (*theParticleIterator)() ){
      G4ParticleDefinition* particle = theParticleIterator->value();
+     //G4cout << "Processing: " << particle->GetParticleName() << G4endl;
      G4ProcessManager* pmanager = particle->GetProcessManager();
      G4String particleName = particle->GetParticleName();
+     //G4cout << "Processing: " << particleName << G4endl;
      if (theCerenkovProcess->IsApplicable(*particle)) {
 	pmanager->AddProcess(theCerenkovProcess);
 	pmanager->SetProcessOrdering(theCerenkovProcess,idxPostStep);
@@ -164,11 +168,11 @@ void gm2ringsim::physicsList::ConstructProcess(){
 	pmanager->SetProcessOrderingToLast(theScintillationProcess, idxPostStep);
      }
      if (particleName == "opticalphoton") {
-	G4cout << " AddDiscreteProcess to OpticalPhoton " << G4endl;
-	pmanager->AddDiscreteProcess(theAbsorptionProcess);
-	pmanager->AddDiscreteProcess(theRayleighScatteringProcess);
-//	pmanager->AddDiscreteProcess(theMieHGScatteringProcess);
-	pmanager->AddDiscreteProcess(theBoundaryProcess);
+       G4cout << " AddDiscreteProcess to OpticalPhoton (pdgid=" << particle->GetPDGEncoding() << ")" << G4endl;
+       pmanager->AddDiscreteProcess(theAbsorptionProcess);
+       pmanager->AddDiscreteProcess(theRayleighScatteringProcess);
+       //	pmanager->AddDiscreteProcess(theMieHGScatteringProcess);
+       pmanager->AddDiscreteProcess(theBoundaryProcess);
      }
   }
 }
@@ -396,6 +400,8 @@ void gm2ringsim::physicsList::enableStepLimiter(){
     G4ProcessManager* pmanager = particle->GetProcessManager();
     G4String particleName = particle->GetParticleName();
     G4double charge = particle->GetPDGCharge();
+    
+    //G4cout << "physicsList::enableStepLimiter - " << particleName << G4endl;
     
     if (!pmanager) {
       G4cerr << "Particle " << particleName << "without a Process Manager";

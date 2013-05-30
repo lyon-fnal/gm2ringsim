@@ -57,6 +57,7 @@ namespace gm2ringsim
     double Pmean_;
     double dPOverP_;
     double SigmaT_;
+    std::string Particle_;
     
   }; // End InflectorPGA class 
 }

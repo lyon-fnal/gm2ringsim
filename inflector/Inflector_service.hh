@@ -135,7 +135,9 @@ namespace gm2ringsim {
       G4double conductorCurrent_;
       G4double fieldNormConst_;
       G4double currentToMagFieldConversion_;
+      bool nospin_tracking_;
       bool const spin_tracking_;
+      bool const edm_tracking_;
       G4String inflectorSDname_;
       G4String ringSDname_;
       InflectorSD *inflectorSD_;
