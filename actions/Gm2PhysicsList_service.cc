@@ -29,6 +29,7 @@
 #include "Geant4/G4MuonDecayChannel.hh"
 #include "Geant4/G4MuonDecayChannelWithSpin.hh"
 #include "Geant4/G4MuonRadiativeDecayChannelWithSpin.hh"
+#include "Geant4/G4PhaseSpaceDecayChannel.hh"
 
 #include "Geant4/G4HadronDElasticPhysics.hh"
 #include "Geant4/G4QStoppingPhysics.hh"
@@ -286,9 +287,9 @@ void gm2ringsim::Gm2PhysicsListService::enableIsotropicDecay(){
 
   this->muonDecay<G4Decay>();
 
-  unpolDecayChannel();
-
   this->pionDecay<G4Decay>();
+
+  unpolDecayChannel();
 
   decayStatus_ = decay_isotropic;
 }
@@ -399,6 +400,16 @@ void gm2ringsim::Gm2PhysicsListService::unpolDecayChannel(){
   dt = new G4DecayTable;
   dt->Insert( new G4MuonDecayChannel("mu-", 1.) );
   G4MuonMinus::MuonMinus()->SetDecayTable(dt);
+
+  dt = new G4DecayTable;
+  dt->Insert(new G4PhaseSpaceDecayChannel("pi+",0.999877,2,"mu+","nu_mu"));
+  dt->Insert(new G4PhaseSpaceDecayChannel("pi+",0.000123,2,"e+","nu_e"));
+  G4PionPlus::PionPlus()->SetDecayTable(dt);	     
+
+  dt = new G4DecayTable;
+  dt->Insert(new G4PhaseSpaceDecayChannel("pi-",0.999877,2,"mu-","anti_nu_mu"));
+  dt->Insert(new G4PhaseSpaceDecayChannel("pi-",0.000123,2,"e-","anti_nu_e"));
+  G4PionMinus::PionMinus()->SetDecayTable(dt);	     
 }
 
 void gm2ringsim::Gm2PhysicsListService::polDecayChannel(){
