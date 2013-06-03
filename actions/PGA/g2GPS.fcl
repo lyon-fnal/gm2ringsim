@@ -63,6 +63,37 @@ G2GPS_downstreamInflectorMandrel : {
    
 }
 
+G2GPS_downstreamInflectorMandrel_muplus : {
+   particle : muplus
+   pos_type : Beam
+   pos_rot1 :[ 0.994268, 0, -0.106915 ] 
+   pos_rot2 :[0, -1,  0]
+    
+   pos_shape : Rectangle
+   pos_centre: [ 7149.62, 0, -751.455 ] //mm
+   pos_halfx : 9 //mm
+   pos_halfy : 28 //mm
+   pos_sigma_x : 2 //mm
+   pos_sigma_y : 2 //mm
+   
+   ang_rot1 :[0.994268, 0, -0.106915] 
+   ang_rot2 :[0, -1, 0]
+     
+   ang_type: beam2d
+   ang_sigma_x : 0.5 //mrad
+   ang_sigma_y : 1.6 //mrad
+
+   ene_type: Gauss
+   ene_mono: 2.99049378258 //GeV
+   ene_sigma: 0.01364 //GeV 
+   
+
+   tType: Gauss
+   tMono: 100 //ns
+   tSigma: 25 //ns
+   
+}
+
 G2GPS_upstreamInflectorMandrel : {
    particle : muminus
    pos_type : Beam

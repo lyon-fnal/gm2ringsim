@@ -38,6 +38,10 @@ gm2ringsim::G2GPSSettings::G2GPSSettings(std::string const & detName) :
   polarization( p.get<std::vector<double>>("polarization", {0,0,0} ) ),
   parSetKeys_(p.get_keys())
 {
+  G4cout << "================ G2GPSSettings ===============" << G4endl;
+  G4cout << "| Particle = " << particle << G4endl;
+  G4cout << "==============================================" << G4endl;
+
   // radians??
   //FIXME: Need to check angular units
   // for (auto& entry : pos_rot1 ) { entry *= ; }

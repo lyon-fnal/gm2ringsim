@@ -60,14 +60,16 @@ namespace gm2ringsim {
       
     private:
       //bool enabled_; // not really needed since fcl will determine if enabled
-     SpinTrackingSettings sts_;
-     bool spin_tracking_;
-     OctGeometry og_;
-     G4FieldManager *withSpin_, *withoutSpin_;
-     G4LogicalVolume *fieldRegion_L_;
-     G4VPhysicalVolume *fieldRegion_P_;
-     std::tr1::array<G4LogicalVolume *, 16> tubes_L_, water_L_;
-     std::tr1::array<G4VPhysicalVolume *, 16> tubes_P_, water_P_;
+      SpinTrackingSettings sts_;
+      bool nospin_tracking_;
+      bool spin_tracking_;
+      bool edm_tracking_;
+      OctGeometry og_;
+      G4FieldManager *withSpin_, *withoutSpin_, *withEDM_;
+      G4LogicalVolume *fieldRegion_L_;
+      G4VPhysicalVolume *fieldRegion_P_;
+      std::tr1::array<G4LogicalVolume *, 16> tubes_L_, water_L_;
+      std::tr1::array<G4VPhysicalVolume *, 16> tubes_P_, water_P_;
 
       // Private overriden methods
       // Create the logical volumes

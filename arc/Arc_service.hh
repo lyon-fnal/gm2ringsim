@@ -41,10 +41,13 @@ namespace gm2ringsim {
 
     private:
       SpinTrackingSettings sts_;
+      bool nospin_tracking_;
       bool const spin_tracking_;
+      bool const edm_tracking_;
 
       G4FieldManager *withoutSpin_;
       G4FieldManager *withSpin_;
+      G4FieldManager *withEDM_;
 
 
       

@@ -1,7 +1,7 @@
 services: {
 
   TFileService: {
-    fileName: "myout.root"
+    fileName: "rootfiles/gm2ringsim_ScrapingOFF_NewSupports_35Turns_CentralOrbit_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize2pimmmrad_UniformInflectorGun_PerfectMatch_dP001_CollimatorON.root"
   }
 
   message : {
@@ -31,7 +31,7 @@ process_name: readRingTrackers
 source: {
    module_type: RootInput
    maxEvents:  -1
-   fileNames: [ "gm2ringsimout.root" ]
+   fileNames: [ "/gm2/data/users/tgadfort/gm2ringsim/output/ScrapingOFF_NewSupports_35Turns_CentralOrbit_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize2pimmmrad_UniformInflectorGun_PerfectMatch_dP001_CollimatorON/ScrapingOFF_NewSupports_35Turns_CentralOrbit_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize2pimmmrad_UniformInflectorGun_PerfectMatch_dP001_CollimatorON.root" ]
 }
 
 physics: {
@@ -41,7 +41,11 @@ physics: {
       hist_dir: ""
       tree_dir: ""
       beamstart: "CentralOrbit"
-      maxturns: 10
+      basename: "ScrapingOFF_NewSupports_35Turns_CentralOrbit_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize2pimmmrad_UniformInflectorGun_PerfectMatch_dP001_CollimatorON"
+      maxturns: 35
+      LaunchAngle: 0
+      InflectorAngle: 0
+      StorageOffset: -1
     }
   }
   path1: [ readRingTrackers ]

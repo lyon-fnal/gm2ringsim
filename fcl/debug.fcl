@@ -11,9 +11,9 @@
 #include "geom/collimator.fcl"
 #include "geom/PGA.fcl"
 #include "geom/g2GPS.fcl"
-#include "geom/traceback.fcl"
+#include "geom/strawtracker.fcl"
 
-process_name:myProcessName
+process_name: myProcessName
 
 source: {
   module_type: EmptyEvent
@@ -62,7 +62,7 @@ services: {
       calorimeter: @local::calorimeter_geom
       collimator: @local::collimator_geom
       pga: @local::PGA_geom
-      traceback: @local::traceback_geom
+      strawtracker: @local::strawtracker_geom
      }
 
      // Global simulation settings
@@ -102,12 +102,16 @@ services: {
 //        muonGasVerbosity: false
 //    }
 
-//    CaloElectronPGA: {}
+//    CaloElectronPGA: {} // shoots one electron directly into calo #8
+
+//    CaloHitPGA: {} // creates particles from stored calo hits (need to change 
+                     // source module type at top of file to RootInput and use 
+                     // different process name than first pass)
 
     // Detectors
     World: {}	
     Ring: {}    // This is for the RingHits
-    Tracker: {} // This is for the virtual tracker planes in the vac
+    VirtualRingStation: {} // This is for the virtual tracker planes in the vac
     Arc: {}
     VacuumChamber: {}
     Inflector:{}
@@ -118,7 +122,8 @@ services: {
     Station: {}
     Calorimeter: {}
     Collimator : {}
-    Traceback: {}
+    StrawTracker: {}
+    Straws:{}
 
 
     MuonStorageStatusAction: {

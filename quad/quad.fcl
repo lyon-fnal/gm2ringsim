@@ -4,6 +4,10 @@
 BEGIN_PROLOG
 
 quad_geom : {	
+	  DoScraping : true
+	  PlateMaterial : Al
+	  ScrapeHV : 17 //kilovolt
+	  StoreHV : 24 //kilovolt
 	  topBottomWidth : 4.7 //cm
 	  topBottomThickness : 0.3 //cm
           innerOuterWidth : 4.382 //cm
@@ -18,6 +22,7 @@ quad_geom : {
 	  outerCurlMajorRadius : 716.359 //cm
 	  curlHeightAboveMidplane : 2.191 //cm
   
+	  SupportMaterial : Macor
 	  support_nPlanes : 7
 	  support_rInner : [0.,0.,0.,0.,0.,0.,0.] //cm
         //support_rOuter : [0.483,0.483,0.606,0.841,0.954,0.954,0.954] //cm

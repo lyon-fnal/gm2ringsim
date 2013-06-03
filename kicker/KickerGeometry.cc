@@ -8,6 +8,7 @@
 
 gm2ringsim::KickerGeometry::KickerGeometry(std::string const & detName) :
   GeometryBase(detName),
+  TypeOfKick( p.get<std::string>("TypeOfKick", "SQUARE")),
   kickTime1( p.get<double>("kickTime1") * ns),
   kickTime2( p.get<double>("kickTime2") * ns),
   //  kickPercent( p.get<double>("kickPercent") * mm),

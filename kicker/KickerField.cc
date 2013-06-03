@@ -24,6 +24,7 @@
 #include <cstdlib>
 
 #include "gm2ringsim/kicker/KickerField.hh"
+#include "gm2ringsim/common/g2PreciseValues.hh"
 #include "gm2ringsim/arc/StorageRingField.hh"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -124,7 +125,7 @@ void gm2ringsim::MorseModifier::ModifyKickField(G4double const Point[4],
 
 void gm2ringsim::KickField::GetFieldValue(double const Point[4],
 			      double Bfield[3]) const {
-  storageFieldController::getInstance().GetFieldValue(Point, Bfield);
+  storageFieldController::getInstance().GetFieldValue(Point, Bfield, Charge_);
   double Kfield[3];
   this->KickFieldValue(Point,Kfield);
   mod_->ModifyKickField(Point,Kfield);
@@ -134,15 +135,52 @@ void gm2ringsim::KickField::GetFieldValue(double const Point[4],
 }
 
 gm2ringsim::LCRKickField::LCRKickField(G4double kickerHV,
-			   G4double kickerOffsetTime, G4double circuitC,
-			   G4double circuitL, G4double circuitR,
-			   KickModifier* mod) : 
-  KickField(mod),
+				       G4double kickerOffsetTime, G4double circuitC,
+				       G4double circuitL, G4double circuitR,
+				       KickModifier* mod,
+				       int Charge) : 
+  KickField(mod, Charge),
   HV(kickerHV), offsetTime(kickerOffsetTime), 
   C(circuitC), L(circuitL), R(circuitR),
   omega(sqrt( 1/(L*C) - (R*R/( 4.0*L*L )) )),
-  X( R/( 2.0*L ) ), i0( HV / ( omega*L ) )
-{}
+  X( R/( 2.0*L ) ), i0( HV / ( omega*L ) ),
+  Charge_(Charge)
+{
+  //-------------------
+  // Correct for polarity if we run with positive muons.
+  //-------------------
+  if ( Charge_ == 1 ) { kickerHV *= -1; }
+  G4double tmp_kickerHV = kickerHV;
+
+  kickerHV = 95*kilovolt;
+  if ( Charge_ == 1 ) { kickerHV *= -1; }
+  G4cout << "============ LCRKickField ===============" << G4endl;
+  G4cout << "| Square field: " << kickerHV << G4endl;
+  G4cout << "| Beam Charge:  " << Charge_ << G4endl;
+  G4ThreeVector pnt(0, 0, gm2ringsim::R_magic());
+  G4ThreeVector v(-1, 0, 0);
+  double Bfield[3];
+  double Point[4];
+  Point[0] = pnt.x();
+  Point[1] = pnt.y();
+  Point[2] = pnt.z();
+  Point[3] = 0.0;
+  KickFieldValue(Point, Bfield);
+  //if ( Charge_ == 1 ) {
+  //for ( int i = 0; i < 3; i++ ) { Bfield[i] *= -1; }
+  //}
+  G4ThreeVector B(Bfield[0], Bfield[1], Bfield[2]);
+  if ( B.mag() > 0 ) {
+    G4cout << "| v(0,0,R)      = " << v << G4endl;
+    G4cout << "| B(0,0,R)      = " << B << "  Gauss." << G4endl;
+    G4ThreeVector F = v.cross(B)/(v.mag()*B.mag());
+    G4cout << "| q(v x B)      = " << Charge * F << G4endl;
+    if ( Charge_ * F.x() < 0 ) { G4cout << "| Kick is toward to the center of the ring." << G4endl; }
+    else { G4cout << "| Kick is outward from the center of the ring." << G4endl; }
+  }
+  G4cout << "===========================================" << G4endl;
+  kickerHV = tmp_kickerHV;
+}
 
 void gm2ringsim::LCRKickField::KickFieldValue(double const Point[4],
 				  double Kfield[3]) const {
@@ -199,10 +237,44 @@ void gm2ringsim::LCRKickField::KickFieldValue(double const Point[4],
 
 
 gm2ringsim::SquareKickField::SquareKickField(G4double kickSquareField,
-				 KickModifier* mod) : 
-  KickField(mod), squareField(kickSquareField) 
+					     KickModifier* mod,
+					     int Charge) : 
+  KickField(mod, Charge), squareField(kickSquareField), Charge_(Charge)
 {
-  //  std::cout << "Square field: " << squareField << '\n';
+  //-------------------
+  // Correct for polarity if we run with positive muons.
+  //-------------------
+  if ( Charge_ == 1 ) { squareField *= -1; }
+  G4double tmp_squareField = squareField;
+
+  squareField = 220*gauss;
+  if ( Charge_ == 1 ) { squareField *= -1; }
+  G4cout << "============ SquareKickField ===============" << G4endl;
+  G4cout << "| Square field: " << squareField << G4endl;
+  G4cout << "| Beam Charge:  " << Charge_ << G4endl;
+  G4ThreeVector pnt(0, 0, gm2ringsim::R_magic());
+  G4ThreeVector v(-1, 0, 0);
+  double Bfield[3];
+  double Point[4];
+  Point[0] = pnt.x();
+  Point[1] = pnt.y();
+  Point[2] = pnt.z();
+  Point[3] = 0.0;
+  KickFieldValue(Point, Bfield);
+  //if ( Charge_ == 1 ) {
+  //for ( int i = 0; i < 3; i++ ) { Bfield[i] *= -1; }
+  //}
+  G4ThreeVector B(Bfield[0], Bfield[1], Bfield[2]);
+  if ( B.mag() > 0 ) {
+    G4cout << "| v(0,0,R)      = " << v << G4endl;
+    G4cout << "| B(0,0,R)      = " << B << "  Gauss." << G4endl;
+    G4ThreeVector F = v.cross(B)/(v.mag()*B.mag());
+    G4cout << "| q(v x B)      = " << Charge * F << G4endl;
+    if ( Charge_ * F.x() < 0 ) { G4cout << "| Kick is toward to the center of the ring." << G4endl; }
+    else { G4cout << "| Kick is outward from the center of the ring." << G4endl; }
+  }
+  G4cout << "===========================================" << G4endl;
+  squareField = tmp_squareField;
 }
 
 namespace{
@@ -231,7 +303,7 @@ void gm2ringsim::SquareKickField::KickFieldValue(G4double const /*Point*/[4],
 
 
 
-gm2ringsim::NoKickField::NoKickField(KickModifier* mod) : KickField(mod) {}
+gm2ringsim::NoKickField::NoKickField(KickModifier* mod, int Charge) : KickField(mod, Charge), Charge_(Charge) {}
 
 void gm2ringsim::NoKickField::KickFieldValue(G4double const /*Point*/[4],
 				 G4double Kfield[3]) const {

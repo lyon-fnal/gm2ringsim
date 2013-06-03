@@ -52,15 +52,20 @@ gm2ringsim::InflectorPGA::InflectorPGA(fhicl::ParameterSet const& p, art::Activi
   GenGaussian_(p.get<bool>("GenGaussian", true)),
   LaunchAngle_(p.get<double>("LaunchAngle", -9999.9)),
   StorageOffset_(p.get<double>("StorageOffset", -9999.9)),
-  Emittance_(p.get<double>("Emittance", -9999.9)),
+  EmittanceX_(p.get<double>("EmittanceX", -9999.9)),
+  EmittanceY_(p.get<double>("EmittanceY", -9999.9)),
   BetaX_(p.get<double>("BetaX", -9999.9)),
   BetaY_(p.get<double>("BetaY", -9999.9)),
   AlphaX_(p.get<double>("AlphaX", -9999.9)),
   AlphaY_(p.get<double>("AlphaY", -9999.9)),
   Pmean_(p.get<double>("Pmean", -9999.9)),
   dPOverP_(p.get<double>("dPOverP", -9999.9)),
-  SigmaT_(p.get<double>("SigmaT", -9999.9)) 
+  SigmaT_(p.get<double>("SigmaT", -9999.9)),
+  Particle_(p.get<std::string>("Particle", "mu+")) 
 {
+  if ( EmittanceX_ <= 0.0 ) { EmittanceX_ = 1e-10; }
+  if ( EmittanceY_ <= 0.0 ) { EmittanceY_ = 1e-10; }
+  
   if ( inflectorVerbosity_ > 0 ) {
     G4cout << "================== InflectorPGA ==================" << G4endl;
     G4cout << "  inflectorVerbosity  " << inflectorVerbosity_ << G4endl;
@@ -71,7 +76,8 @@ gm2ringsim::InflectorPGA::InflectorPGA(fhicl::ParameterSet const& p, art::Activi
     G4cout << "  GenGaussian         " << GenGaussian_ << G4endl;
     G4cout << "  LaunchAngle         " << LaunchAngle_ << G4endl;
     G4cout << "  StorageOffset       " << StorageOffset_ << G4endl;
-    G4cout << "  Emittance           " << Emittance_ << G4endl;
+    G4cout << "  EmittanceX          " << EmittanceX_ << G4endl;
+    G4cout << "  EmittanceY          " << EmittanceY_ << G4endl;
     G4cout << "  BetaX               " << BetaX_ << G4endl;
     G4cout << "  BetaY               " << BetaY_ << G4endl;
     G4cout << "  AlphaX              " << AlphaX_ << G4endl;
@@ -79,6 +85,7 @@ gm2ringsim::InflectorPGA::InflectorPGA(fhicl::ParameterSet const& p, art::Activi
     G4cout << "  dPOverP             " << dPOverP_ << G4endl;
     G4cout << "  Pmean               " << Pmean_ << G4endl;
     G4cout << "  SigmaT              " << SigmaT_ << G4endl;
+    G4cout << "  Particle            " << Particle_ << G4endl;
   }
 }
 
@@ -92,7 +99,7 @@ void gm2ringsim::InflectorPGA::initialize() {
   
   //  particleGun_ = new G4ParticleGun(1);
   // Read the parameter set and figure out what sort of gun to use
-  G4cout << "CALLING InflectorPGA::initialize()" << G4endl;
+  //G4cout << "CALLING InflectorPGA::initialize()" << G4endl;
   gps_ = new G2InflectorSource();
   gps_ -> SetVerbosity(inflectorVerbosity_);
   gps_ -> SetStartUpstream(StartUpstream_);
@@ -102,7 +109,8 @@ void gm2ringsim::InflectorPGA::initialize() {
   gps_ -> SetGenGaussian(GenGaussian_);
   gps_ -> SetLaunchAngle(LaunchAngle_);
   gps_ -> SetStorageOffset(StorageOffset_);
-  gps_ -> SetEmittance(Emittance_);
+  gps_ -> SetEmittanceX(EmittanceX_);
+  gps_ -> SetEmittanceY(EmittanceY_);
   gps_ -> SetBetaX(BetaX_);
   gps_ -> SetBetaY(BetaY_);
   gps_ -> SetAlphaX(AlphaX_);
@@ -110,7 +118,8 @@ void gm2ringsim::InflectorPGA::initialize() {
   gps_ -> SetdPOverP(dPOverP_);
   gps_ -> SetPmean(Pmean_);
   gps_ -> SetSigmaT(SigmaT_);
-  G4cout << "Done calling InflectorPGA::initialize()" << G4endl;
+  gps_ -> SetParticle(Particle_);
+  //G4cout << "Done calling InflectorPGA::initialize()" << G4endl;
   //////////////////////////////////
 }
 

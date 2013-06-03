@@ -50,13 +50,17 @@ namespace gm2ringsim {
 
 
       SpinTrackingSettings sts_;
+      bool nospin_tracking_;
       const bool spin_tracking_; //set it and forget it
+      const bool edm_tracking_; //set it and forget it
       KickerGeometry kg_;
       enum {KICKER1 = 0, KICKER2 = 1, KICKER3 = 2};
       G4int const numKickers_;
       G4int const numKickerObjects_;
       enum {KICK_LCR, KICK_SQUARE, KICK_OTHER};
-      G4int kickType_;
+      G4int KickType_;
+
+      G4int BeamChargeFactor_;
 
       G4LogicalVolume *kicker_L_[3][3];
       G4VPhysicalVolume *kicker_P_[3][3];

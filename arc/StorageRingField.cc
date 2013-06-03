@@ -23,6 +23,8 @@
 #include "gm2ringsim/common/g2PreciseValues.hh"
 
 #include "Geant4/G4PhysicalConstants.hh"
+#include "Geant4/G4ThreeVector.hh"
+
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
@@ -30,9 +32,54 @@
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 
+gm2ringsim::storageRingField::storageRingField(int Charge) :
+  Charge_(Charge)
+{
+  G4cout << "============= storageRingField =============" << G4endl;
+  G4cout << "| Beam Charge   = " << Charge_ << G4endl;
+  G4ThreeVector pnt(gm2ringsim::R_magic(), 0, 0);
+  G4ThreeVector v(0, 0, 1);
+  double Bfield[3];
+  double Point[3];
+  Point[0] = pnt.x();
+  Point[1] = pnt.y();
+  Point[2] = pnt.z();
+  storageFieldController::getInstance().GetFieldValue(Point, Bfield, Charge_);
+  G4ThreeVector B(Bfield[0], Bfield[1], Bfield[2]);
+  G4cout << "| v(R,0,0)      = " << v << G4endl;
+  G4cout << "| B(R,0,0)      = " << B << G4endl;
+  G4ThreeVector F = v.cross(B)/(v.mag()*B.mag());
+  G4cout << "| q(v x B)      = " << Charge_ * F << G4endl;
+  if ( Charge_ * F.x() < 0 ) { G4cout << "| Force is toward to the center." << G4endl; }
+  else { G4cout << "| Force is outward." << G4endl; }
+
+  G4cout << "===========================================" << G4endl;
+}
+
 void gm2ringsim::storageRingField::GetFieldValue( const double Point[3],
 				      double *Bfield ) const {
-  storageFieldController::getInstance().GetFieldValue(Point, Bfield);
+  storageFieldController::getInstance().GetFieldValue(Point, Bfield, Charge_);
+}
+
+gm2ringsim::storageRingEMField::storageRingEMField(int Charge) :
+  Charge_(Charge)
+{}
+
+void gm2ringsim::storageRingEMField::GetFieldValue( const double Point[3],
+				      double *field ) const {
+  storageFieldController::getInstance().GetFieldValue(Point, field, Charge_);
+  
+  //-------------------------------
+  // Set E-field to zero. (For EDM)
+  //-------------------------------
+  field[3] = 0.0;
+  field[4] = 0.0;
+  field[5] = 0.0;
+  if ( 0 ) {
+    for ( int i = 0; i < 6; i++ ) {
+      G4cout << "EMField:field[" << i << "] = " << field[i] << G4endl;
+    }
+  }
 }
 
 
@@ -57,18 +104,26 @@ gm2ringsim::storageFieldController const& gm2ringsim::storageFieldController::ge
 
 /** @bug Fix the hard coded constants in this member. */
 void gm2ringsim::storageFieldController::GetFieldValue( const double Point[3],
-					    double *Bfield ) const {
+							double *Bfield,
+							int Charge) const {
 
   double const xc = sqrt(Point[0]*Point[0]+Point[2]*Point[2])-gm2ringsim::R_magic();
   double const rc = std::sqrt(Point[1]*Point[1] + xc*xc);
-  //  std::cout << "xc rc " << xc << ' ' << rc << '\n';
+  //std::cout << "xc rc " << xc << ' ' << rc << '\n';
   if( rc <= 45.*mm ){
-    //    std::cout << "central\n";
+    //std::cout << "central\n";
     centralimpl_->GetFieldValue(Point,Bfield);
   }
   else {
-    //    std::cout << "fringe\n";
+    //std::cout << "fringe\n";
     fringeimpl_->GetFieldValue(Point,Bfield);
+  }
+
+  //-----------------------------------------
+  // Assumes negative field. Fix for positive
+  //-----------------------------------------
+  if ( Charge == 1 ) {
+    for ( int i = 0; i < 3; i++ ) { Bfield[i] *= -1; }
   }
 }
 

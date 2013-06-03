@@ -27,6 +27,7 @@
 #include <utility>
 
 #include "Geant4/G4MagneticField.hh"
+#include "Geant4/G4ElectroMagneticField.hh"
 #include "Geant4/G4ThreeVector.hh"
 
 #include "Geant4/globals.hh"
@@ -39,9 +40,37 @@ namespace gm2ringsim {
   class storageRingField : public G4MagneticField
   {
   public:
+    
+    /** Should only be called by octupoleConstruction members */
+    storageRingField(int Charge);
+    
+    //Always include a virtual destructor
+    virtual ~storageRingField(){}
+
     void GetFieldValue( const double Point[3],
 			double *Bfield ) const;
     
+  private:
+    int Charge_;
+  };
+
+  /** The concrete interface to the storage EM field */
+  class storageRingEMField : public G4ElectroMagneticField
+  {
+  public:
+    
+    /** Should only be called by octupoleConstruction members */
+    storageRingEMField(int Charge);
+    
+    //Always include a virtual destructor
+    virtual ~storageRingEMField(){}
+
+    void GetFieldValue( const double Point[3],
+			double *field ) const;
+    G4bool DoesFieldChangeEnergy() const { return false; }
+    
+  private:
+    int Charge_;
   };
   
   /** Abstract base class for the internal field implementation classes */
@@ -66,7 +95,8 @@ namespace gm2ringsim {
     
     static storageFieldController const& getInstance();
     void GetFieldValue( const double Point[3],
-			double *Bfield ) const;  
+			double *Bfield,
+			int Charge) const;  
     
     void setFieldType(G4String);
     
@@ -89,6 +119,8 @@ namespace gm2ringsim {
     std::tr1::shared_ptr<storageFieldMessenger> sfm_;
     
     std::string centralname_, fringename_;
+
+    int Charge_;
     
     // don't implement! these!
     storageFieldController(storageFieldController const&); 

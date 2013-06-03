@@ -122,8 +122,11 @@ namespace gm2ringsim {
     QuadGeometry qg_;
     QuadFieldFactory qff_;
     
+    bool nospin_tracking_;
     const bool spin_tracking_;
+    const bool edm_tracking_;
 
+    double ScrapeHV, StoreHV_;
 
       plate_map_t plate_map_;
       curl_map_t curl_map_;
@@ -164,10 +167,12 @@ namespace gm2ringsim {
     G4VPhysicalVolume *genericQuadRegion_P_[4][2];
     
     
+    G4Material *plate_material;
     // quad region, section, plate
     G4LogicalVolume *genericQuadPlate_L_[4][2][4];
     G4VPhysicalVolume *genericQuadPlate_P_[4][2][4];
-    
+
+    G4Material *support_material;
     // quad region, section, support
     G4LogicalVolume *genericInnerSupport_L_[4][2][6];
     G4VPhysicalVolume *genericInnerSupport_P_[4][2][6];
@@ -178,6 +183,9 @@ namespace gm2ringsim {
     // quad region, section  
     G4FieldManager *withoutSpin_[4][2];
     G4FieldManager *withSpin_[4][2];
+    G4FieldManager *withEDM_[4][2];
+
+
 
     //      enum plate_type {INNERPLATE, OUTERPLATE, TOPPLATE, BOTTOMPLATE, plate_type_end};
     

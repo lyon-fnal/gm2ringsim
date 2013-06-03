@@ -48,7 +48,8 @@ namespace gm2ringsim
     bool GenGaussian_;
     double LaunchAngle_;
     double StorageOffset_;
-    double Emittance_;
+    double EmittanceX_;
+    double EmittanceY_;
     double BetaX_;
     double BetaY_;
     double AlphaX_;
@@ -56,6 +57,7 @@ namespace gm2ringsim
     double Pmean_;
     double dPOverP_;
     double SigmaT_;
+    std::string Particle_;
     
   }; // End InflectorPGA class 
 }

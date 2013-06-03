@@ -51,18 +51,20 @@ gm2ringsim::G2InflectorSource::G2InflectorSource() :
   GenGaussian(false),
   LaunchAngle(0.0),
   StorageOffset(0.0),
-  Emittance(40.0),
+  EmittanceX(40.0),
+  EmittanceY(40.0),
   BetaX(19.1),
   BetaY(7.6),
   AlphaX(0.0),
   AlphaY(0.0),
   Pmean(0.005),
   dPOverP(0.005),
-  SigmaT(50)
+  SigmaT(50),
+  Particle_("mu+")
 {
   inflectorGun_ = new G4ParticleGun();
+  //inflectorGun_->SetVerbosity(true);
   g2GPS_ = new G2GeneralParticleSource();
-  G4cout << "HELLO WORLD" << G4endl;
 }
 
 gm2ringsim::G2InflectorSource::~G2InflectorSource() 
@@ -102,20 +104,38 @@ void gm2ringsim::G2InflectorSource::TransportTwiss(double alpha, double beta, do
 // EndOfPrimaryGeneratorAction
 void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
 {
+  //bool debug = false;
+
   //G4cout << "G2InflectorSource::GeneratePrimaryVertex  --- GENERATING EVENT!" << G4endl;
 
   mf::LogInfo("G2InflectorSource") << "GeneratePrimaryVertex";
 
-  if ( first_event ) {
-    G4String defaultParticle = "mu-";
-    G4String particle = g2GPS_ ->GetParticleDefinition()->GetParticleName();
-    
-    if( g2GPS_ ->GetParticleDefinition()!=NULL && particle!=defaultParticle ){
-      inflectorGun_ ->SetParticleDefinition( g2GPS_ ->GetParticleDefinition() );
-    } else {
-      inflectorGun_ ->SetParticleDefinition( G4ParticleTable::GetParticleTable()->FindParticle(defaultParticle) );
-    }    
+  G4ParticleDefinition *def = G4ParticleTable::GetParticleTable()->FindParticle(Particle_);
+  if ( def ) {
+    if ( first_event ) {
+      G4cout << "Found Particle Info for [" << Particle_ << "]" << G4endl;
+      G4cout << " g-2/2 : " << def->CalculateAnomaly() << G4endl;
+      def->DumpTable();
+    }
+    inflectorGun_ ->SetParticleDefinition( G4ParticleTable::GetParticleTable()->FindParticle(Particle_) );    
   }
+  else {
+    G4ParticleTable::GetParticleTable()->DumpTable();
+    G4cout << "Could not find Particle Info for [" << Particle_ << "]" << G4endl;
+    exit(1);
+  }
+    
+
+//   if ( first_event ) {
+//     G4String defaultParticle = "mu-";
+//     G4String particle = g2GPS_ ->GetParticleDefinition()->GetParticleName();
+    
+//     if( g2GPS_ ->GetParticleDefinition()!=NULL && particle!=defaultParticle ){
+//       inflectorGun_ ->SetParticleDefinition( g2GPS_ ->GetParticleDefinition() );
+//     } else {
+//       inflectorGun_ ->SetParticleDefinition( G4ParticleTable::GetParticleTable()->FindParticle(defaultParticle) );
+//     }    
+//   }
   
 
   //====================================================================//
@@ -124,26 +144,20 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
   G4double epsilonX, betaX, alphaX, gammaX, numSigmaX, numSigmaXPrime;
   G4double epsilonY, betaY, alphaY, gammaY, numSigmaY, numSigmaYPrime;
   G4double x0, y0, x0Prime, y0Prime, randX, randY, randXPrime, randYPrime;
-  G4double dP_over_P, emittance;
+  G4double dP_over_P, emittanceX, emittanceY;
 
   //static G4double const inflectorLength = 1.7*m;
 
-  emittance = GetEmittance();
+  emittanceX = GetEmittanceX();
+  emittanceY = GetEmittanceY();
 
-  if ( 0 ) {
-    G4cout << "e = " << emittance << G4endl;
-    G4cout << "betaX = " << betaX << G4endl;
-    G4cout << "betaY = " << betaY << G4endl;
-    G4cout << "alphaX = " << alphaX << G4endl;
-    G4cout << "alphaY = " << alphaY << G4endl;
-  }
 
   //  DEFAULTS: The emittances below are Fermilab's spec., and seem to be fairly well cinched down.  
   //  Here, I will assume pi * epsilon{X,Y} is the AREA OF THE BOUNDING ELLIPSE IN PHASE SPACE, 
   //  which I will take to be 99% Gaussians.  NB: gamma{X,Y} isn't actually ever needed, because of 
   //  the invariant relation beta*gamma - alpha*alpha = 1.  Default is to "sneak" the beam through
   //  the E821 inflector (see below).
-  epsilonX       = emittance*mm*mrad;
+  epsilonX       = emittanceX*mm*mrad;
   alphaX         = -0.543951;
   betaX          =  2.025*m;
   numSigmaX      =  2.57583; // sqrt( epsilonX*betaX  ) = numSigmaX, i.e. 1, 2, 3..., in this case 99%
@@ -151,7 +165,7 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
   //numSigmaX      =  2.0; 
   //numSigmaXPrime =  2.0; 
   //
-  epsilonY       = emittance*mm*mrad;
+  epsilonY       = emittanceY*mm*mrad;
   alphaY         = -0.0434492;
   betaY          = 19.600*m;
   numSigmaY      =  2.57583; // sqrt( epsilonY*betaY  ) = numSigmaY, i.e. 1, 2, 3..., in this case 99%
@@ -547,19 +561,13 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
       G4cout << "Launching muon beam with a " << 1000*launch_angle << " mrad kick." << G4endl;
     }
 
-    if ( 0 ) {
-      emittance = GetEmittance();
-      betaX = GetBetaX();
-      betaY = GetBetaY();
-      alphaX = GetAlphaX();
-      alphaY = GetAlphaY();
-    }
       
-    G4cout << "emittance = " << emittance << G4endl;
-    G4cout << "betaX     = " << betaX << G4endl;
-    G4cout << "betaY     = " << betaY << G4endl;
-    G4cout << "alphaX    = " << alphaX << G4endl;
-    G4cout << "alphaY    = " << alphaY << G4endl;
+    G4cout << "emittanceX = " << emittanceX << G4endl;
+    G4cout << "emittanceY = " << emittanceY << G4endl;
+    G4cout << "betaX      = " << betaX << G4endl;
+    G4cout << "betaY      = " << betaY << G4endl;
+    G4cout << "alphaX     = " << alphaX << G4endl;
+    G4cout << "alphaY     = " << alphaY << G4endl;
 
     if ( GetGenGaussian() ) {
       G4cout << "sigma(x)  = " << sigmaX0 << G4endl;
@@ -573,9 +581,11 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
       G4cout << "sqrt(emit*betaY) = " << std::sqrt( epsilonY*betaY0 ) << G4endl;
       G4cout << "sqrt(emit*gamY)  = " << std::sqrt( epsilonY*gammaY0 ) << G4endl;
     }
-    G4cout << "<P>       = " << Pmean << G4endl;
+    G4cout << "<P>       = " << Pmean << " +/- " << Pmean * dP_over_P << " MeV" << G4endl;
     G4cout << "dP/P      = " << dP_over_P << G4endl;
-      
+    G4cout << "s-dot-p   = " << s.x() << " , " << s.y() << " , " << s.z() << endl;
+    G4cout << "Particle  = " << Particle_ << G4endl;
+
     G4cout << "Inflector Coordinates:" << G4endl;
     G4cout << "  xAxis.SetXYZ(" << xAxis.x() << " , " << xAxis.y() << " , " << xAxis.z() << ");" << G4endl;
     G4cout << "  yAxis.SetXYZ(" << yAxis.x() << " , " << yAxis.y() << " , " << yAxis.z() << ");" << G4endl;
@@ -583,15 +593,26 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
     G4cout << "  beamStart.SetXYZ(" << beam_start_offset.x() << " , " << beam_start_offset.y() << " , " << beam_start_offset.z() << ");" << G4endl;
     G4cout << "  rhat_offset = " << sqrt(beam_start_offset.x()*beam_start_offset.x() + beam_start_offset.z()*beam_start_offset.z()) - R_magic() << ";" << G4endl;
     G4cout << "  yhat_offset = " << beam_start_offset.y() - 0.0 << ";" << G4endl;
+    G4cout << G4endl;
     first_event = false;
   }
 
 
 
-
-
-  //  FIRE    
-  mf::LogInfo("G2InflectorSource") << "About to call inflectorGun_->GeneratePrimaryVertex";  
+  //  FIRE
+  if ( 0 ) {
+  G4cout << "ID: " << evt->GetEventID() << G4endl;
+  G4cout << "To be Kept: " << evt->ToBeKept() << G4endl;
+  G4cout << "NumPV: " << evt->GetNumberOfPrimaryVertex() << G4endl;
+  G4cout << "IsAborted: " << evt->IsAborted() << G4endl;
+  G4cout << "G2InflectorSource: About to call inflectorGun_->GeneratePrimaryVertex" << G4endl;
+  }
   inflectorGun_->GeneratePrimaryVertex( evt );
-  mf::LogInfo("G2InflectorSource") << "Just got back from calling inflectorGun_->GeneratePrimaryVertex";  
+  if ( 0 ) {
+    G4cout << "G2InflectorSource: About to call inflectorGun_->GeneratePrimaryVertex" << G4endl;
+    G4cout << "ID: " << evt->GetEventID() << G4endl;
+    G4cout << "To be Kept: " << evt->ToBeKept() << G4endl;
+    G4cout << "NumPV: " << evt->GetNumberOfPrimaryVertex() << G4endl;
+    G4cout << "IsAborted: " << evt->IsAborted() << G4endl;
+  }
 } // generatePrimaries

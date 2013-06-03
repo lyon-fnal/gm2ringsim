@@ -18,6 +18,8 @@ namespace gm2ringsim {
   
   struct KickerGeometry : public artg4::GeometryBase {
     KickerGeometry(std::string const &);
+
+    std::string TypeOfKick;
     
     const double kickTime1;
     const double kickTime2;

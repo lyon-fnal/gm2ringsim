@@ -19,6 +19,7 @@ namespace gm2ringsim{
 }
 
 gm2ringsim::SpinHit::SpinHit(G4Step* step) : 
+  position(step->GetPreStepPoint()->GetPosition()),
   momentum(step->GetPreStepPoint()->GetMomentum()),
   spin(step->GetPreStepPoint()->GetPolarization())
 {
@@ -31,6 +32,8 @@ void gm2ringsim::SpinHit::draw(){
 }
 
 void gm2ringsim::SpinHit::print(){
-  G4cout << " spin: " << spin
+  G4cout << " SpinHit::Print() --- momentum: " << momentum
+	 << " position: " << position
+	 << " spin: " << spin
 	 << "\n";
 }

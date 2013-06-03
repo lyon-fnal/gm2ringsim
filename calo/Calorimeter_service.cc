@@ -50,10 +50,15 @@ gm2ringsim::Calorimeter::Calorimeter(fhicl::ParameterSet const & p, art::Activit
              p.get<std::string>("name", "calorimeter"),
              p.get<std::string>("category", "calorimeter"),
              p.get<std::string>("mother_category", "station")),
+    stationGeomName_(p.get<std::string>("stationGeomName", "")), // Use if the mother category isn't a station (e.g. test beam)
     caloSD_(0),
     xtalSD_(0),
     photodetectorSD_(0)
-{}
+{
+  if ( stationGeomName_.empty() ) {
+    stationGeomName_ = motherCategory();
+  }
+}
 
 G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeometry& caloGeom, int calorimeterNumber ) {
     
@@ -422,7 +427,7 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
 std::vector<G4LogicalVolume *> gm2ringsim::Calorimeter::doBuildLVs() {
     
     // create the calorimeter geometry, which initializes itself from the parameter set
-    CalorimeterGeometry caloGeom(myName());
+    CalorimeterGeometry caloGeom; // "calorimeter" is the default parameter
     caloGeom.print();
     
     // sensitive detectors
@@ -434,7 +439,7 @@ std::vector<G4LogicalVolume *> gm2ringsim::Calorimeter::doBuildLVs() {
     caloSD_->KillShowers(caloGeom.killShowers);
     
     // make sure sensitive detectors have the right number of xtals/photodetectors
-    int nCalo = 24;
+    int nCalo = caloGeom.nCalorimeters;
     int nXtals = nCalo * caloGeom.nXtalRows * caloGeom.nXtalCols;
     xtalSD_->setXtalNum(nXtals);
     photodetectorSD_->setPhotodetectorNum(nXtals);
@@ -443,7 +448,7 @@ std::vector<G4LogicalVolume *> gm2ringsim::Calorimeter::doBuildLVs() {
     std::vector<G4LogicalVolume*> calorimeterLVs;
     
     // Build the logical volumes
-    for ( unsigned int calorimeterNumber = 0; calorimeterNumber != 24; ++calorimeterNumber ) {
+    for (  int calorimeterNumber = 0; calorimeterNumber != nCalo; ++calorimeterNumber ) {
         // Push this into the vector
         calorimeterLVs.push_back( makeCalorimeterLV(caloGeom, calorimeterNumber ));
     }
@@ -465,8 +470,8 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Calorimeter::doPlaceToPVs( std::vec
     //      +y downstream into calorimeter
     //      +z vertical down
     
-    StationGeometry stationGeom(motherCategory());
-    CalorimeterGeometry caloGeom(myName());
+    StationGeometry stationGeom(stationGeomName_);
+    CalorimeterGeometry caloGeom; // "calorimeter" is the default parameter
     
 /*    if ( stations.size() != lvs().size() ) {
         throw cet::exception("# of Calorimeter logical volumes (")
@@ -551,13 +556,13 @@ void gm2ringsim::Calorimeter::doFillEventWithCaloHits(G4HCofThisEvent * hc) {
             myArtHits->emplace_back( e->turnNum,
                                     e->caloNum,
                                     e->trackID,
-                                    e->local_pos.x(), // radial coordinate
-                                    e->local_pos.z(), // thickness coordinate
-                                    e->local_pos.y(), // vertical coordinate
+                                    e->global_pos.x(), // radial coordinate
+                                    e->global_pos.y(), // thickness coordinate
+                                    e->global_pos.z(), // vertical coordinate
                                     e->time,
-                                    e->local_mom.x(),
-                                    e->local_mom.z(),
-                                    e->local_mom.y() );
+                                    e->global_mom.x(),
+                                    e->global_mom.y(),
+                                    e->global_mom.z() );
         }
     }
     else {

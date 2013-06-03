@@ -8,6 +8,8 @@
 #include "artg4/material/Materials.hh"
 #include "artg4/util/util.hh"
 
+#include "gm2ringsim/common/g2PreciseValues.hh"
+
 #include "gm2ringsim/arc/ArcGeometry.hh"
 
 #include "boost/format.hpp"
@@ -21,6 +23,8 @@
 #include "Geant4/G4Mag_EqRhs.hh"
 #include "Geant4/G4Mag_UsualEqRhs.hh"
 #include "Geant4/G4Mag_SpinEqRhs.hh"
+#include "Geant4/G4EqEMFieldWithEDM.hh"
+#include "Geant4/G4EqEMFieldWithSpin.hh"
 #include "Geant4/G4ChordFinder.hh"
 #include "Geant4/G4MagIntegratorStepper.hh"
 #include "Geant4/G4ClassicalRK4.hh"
@@ -37,29 +41,59 @@ gm2ringsim::Arc::Arc(fhicl::ParameterSet const & p, art::ActivityRegistry & ) :
 		 p.get<std::string>("category", "arc"),
 		 p.get<std::string>("mother_category", "world")),
   sts_("SpinTracking"), //This is a shortcut to get the SpinTracking par list from the fhicl
+  nospin_tracking_(true),
   spin_tracking_(sts_.spinTrackingEnabled),
+  edm_tracking_(sts_.edmTrackingEnabled),
   withoutSpin_(0),    //will set in the constructor function
-  withSpin_(0)        //will set in the constructor function
+  withSpin_(0),        //will set in the constructor function
+  withEDM_(0)
 {
 
-  storageRingField *storageField = new storageRingField();
 
-  // build the spin ignoring field equations                                                         
-  G4Mag_EqRhs *equation =
-  new G4Mag_UsualEqRhs(storageField);
-  G4ClassicalRK4 *stepper =
-    new G4ClassicalRK4(equation);
-  G4ChordFinder *iChordFinder =
-    new G4ChordFinder(storageField, 0.01*mm, stepper);
+  G4cout << "=========== Arc (Storage Ring Field) ===========" << G4endl;
+  G4cout << "| Beam Charge        = " << sts_.GetCharge() << G4endl;
+  G4cout << "| Spin Tracking      = " << spin_tracking_ << G4endl;
+  G4cout << "| EDM Tracking       = " << edm_tracking_ << G4endl;
+  G4cout << "================================================" << G4endl;
+
+
+  storageRingField *storageField = new storageRingField(sts_.GetCharge());
+  storageRingEMField *storageEMField = new storageRingEMField(sts_.GetCharge());
+
+
+  //----------------------------------------
+  // build the spin ignoring field equations
+  //----------------------------------------
+  G4Mag_EqRhs *equation = new G4Mag_UsualEqRhs(storageField);
+  G4ClassicalRK4 *stepper = new G4ClassicalRK4(equation);
+  G4ChordFinder *iChordFinder = new G4ChordFinder(storageField, 0.01*mm, stepper);
   withoutSpin_ = new G4FieldManager(storageField, iChordFinder);
 
-  // build the spin evolving field equations                                                         
-  //  equation = new G4Mag_SpinEqRhs(storageField);                                                  
-  equation = new G4Mag_SpinEqRhs(storageField);
-  stepper = new G4ClassicalRK4(equation,12);
-  iChordFinder = new G4ChordFinder(storageField, 0.01*mm, stepper);
-  withSpin_ = new G4FieldManager(storageField, iChordFinder);
 
+
+  //----------------------------------------
+  // build the spin evolving field equations
+  //----------------------------------------
+  
+  // build the spin evolving field equations
+  if ( edm_tracking_ ) {
+    G4EqEMFieldWithEDM *equation2 = new G4EqEMFieldWithEDM(storageEMField);
+    //G4EqEMFieldWithSpin *equation2 = new G4EqEMFieldWithSpin(storageEMField);
+    if ( equation2 ) { G4cout << "Created it w/ spin." << G4endl; }
+    equation2->SetEta(sts_.GetEta());
+    equation2->SetAnomaly(sts_.GetGm2());
+    stepper = new G4ClassicalRK4(equation2,12);
+    G4MagInt_Driver *driver = new G4MagInt_Driver(0.01*mm, stepper, stepper->GetNumberOfVariables());
+    iChordFinder = new G4ChordFinder(driver);
+    withEDM_ = new G4FieldManager(storageEMField, iChordFinder);
+  }
+  if ( spin_tracking_ ) {
+    equation = new G4Mag_SpinEqRhs(storageField);
+    equation->SetChargeMomentumMass(-1, P_magic(), mMuon());	
+    stepper = new G4ClassicalRK4(equation,12);
+    iChordFinder = new G4ChordFinder(storageField, 0.01*mm, stepper);
+    withSpin_ = new G4FieldManager(storageField, iChordFinder);
+  }
 }
 
 gm2ringsim::Arc::~Arc() {
@@ -68,6 +102,9 @@ gm2ringsim::Arc::~Arc() {
 
   if (withSpin_)
     delete withSpin_;
+
+  if (withEDM_)
+    delete withEDM_;
 }
   
 void gm2ringsim::Arc::initialize() {
@@ -76,14 +113,23 @@ void gm2ringsim::Arc::initialize() {
 
 }
 
-G4LogicalVolume* gm2ringsim::Arc::makeAnArcLV(gm2ringsim::ArcGeometry const & g, unsigned int arcNum) {
+G4LogicalVolume* gm2ringsim::Arc::makeAnArcLV(gm2ringsim::ArcGeometry const & g, unsigned int arcNum)
+{
   
 
-mf::LogInfo("Arc") <<"In the Arc::makeAnArcLV, with spin_tracking_ set to "<<spin_tracking_;
+  mf::LogInfo("Arc") <<"In the Arc::makeAnArcLV, with spin_tracking_ set to "<<spin_tracking_;
+  mf::LogInfo("Arc") <<"In the Arc::makeAnArcLV, with edm_tracking_ set to "<<edm_tracking_;
 
-  G4FieldManager *tmpFieldManager=withoutSpin_;
-  if (spin_tracking_)
+  G4FieldManager *tmpFieldManager;
+  if ( nospin_tracking_ ) { 
+    tmpFieldManager = withoutSpin_;
+  }
+  if (spin_tracking_) {
     tmpFieldManager = withSpin_;
+  }
+  if (edm_tracking_) {
+    tmpFieldManager = withEDM_;
+  }
   
   double extension = 0.0;
   if ( arcNum == 11 ) extension = g.arc11_rExtension;

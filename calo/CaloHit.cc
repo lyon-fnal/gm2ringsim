@@ -23,7 +23,6 @@
 #include "Geant4/G4TouchableHandle.hh"
 
 #include "gm2ringsim/actions/muonStorageStatus/TurnCounter.hh"
-//#include "rootStorageManager.hh"
 
 #include <string>
 #include <sstream>
@@ -39,16 +38,6 @@ time(step->GetPreStepPoint()->GetGlobalTime()),
 turnNum(TurnCounter::getInstance().turns()),
 trackID(step->GetTrack()->GetTrackID())
 {
-    G4TouchableHandle const touchy = step->GetPreStepPoint()->GetTouchableHandle();
-    local_pos =
-    touchy->GetHistory()->GetTopTransform().TransformPoint(global_pos);
-    // local coords for calo volume: radial is x, vertical is y, thickness (into calo) is z
-    
-    G4VTouchable const *feely = step->GetPreStepPoint()->GetTouchable();
-    G4RotationMatrix const *rot = feely->GetRotation();
-    local_mom = global_mom;
-    local_mom.transform(*rot);
-    
     // get calorimeter number...
     
     /** @bug This is much nastier than it should be. */
@@ -82,7 +71,7 @@ void gm2ringsim::CaloHit::Print(){
     << " calo: " << caloNum
     << " time: " << time
     << '\n';
-    G4cout << "\tlpos: " << local_pos << '\n'
-    << "\tlmom: " << local_mom << '\n';
+    G4cout << "\tlpos: " << global_pos << '\n'
+    << "\tlmom: " << global_mom << '\n';
 }
 

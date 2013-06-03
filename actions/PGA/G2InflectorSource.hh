@@ -69,8 +69,11 @@ namespace gm2ringsim
     void SetStorageOffset( double aDouble ){ StorageOffset=aDouble; }
     double GetStorageOffset( ){ return StorageOffset; }
     
-    void SetEmittance( double aDouble ){ Emittance=aDouble; }
-    double GetEmittance( ){ return Emittance; }
+    void SetEmittanceX( double aDouble ){ EmittanceX=aDouble; }
+    double GetEmittanceX( ){ return EmittanceX; }
+    
+    void SetEmittanceY( double aDouble ){ EmittanceY=aDouble; }
+    double GetEmittanceY( ){ return EmittanceY; }
     
     void SetBetaX( double aDouble ){ BetaX=aDouble; }
     double GetBetaX( ){ return BetaX; }
@@ -92,6 +95,9 @@ namespace gm2ringsim
     
     void SetSigmaT( double aDouble ){ SigmaT=aDouble; }
     double GetSigmaT( ){ return SigmaT; }
+    
+    void SetParticle( std::string aString ){ Particle_=aString; }
+    std::string GetParticle(){ return Particle_; }
 
 
   private:
@@ -112,7 +118,8 @@ namespace gm2ringsim
     bool GenGaussian;
     double LaunchAngle;
     double StorageOffset;
-    double Emittance;
+    double EmittanceX;
+    double EmittanceY;
     double BetaX;
     double BetaY;
     double AlphaX;
@@ -120,7 +127,7 @@ namespace gm2ringsim
     double Pmean;
     double dPOverP;
     double SigmaT;
-
+    std::string Particle_;
     
   }; // End G2InflectorSource class
 } //namespace gm2ringsim
