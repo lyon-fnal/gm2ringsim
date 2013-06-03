@@ -1,6 +1,7 @@
 // PhysicsListService
 
 #include "gm2ringsim/actions/Gm2PhysicsList_service.hh"
+#include "gm2ringsim/actions/physicsList.hh"
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 
@@ -71,8 +72,14 @@ G4VUserPhysicsList* gm2ringsim::Gm2PhysicsListService::makePhysicsList() {
   
   // Construct a new Physics List
   G4PhysListFactory factory;
-  G4VModularPhysicsList *mPL = factory.GetReferencePhysList(physicsListName_);
-
+  G4VModularPhysicsList *mPL(0);
+  if(!strcmp(physicsListName_.c_str(), "") || !strcmp(physicsListName_.c_str(), "old")){
+    mPL = new physicsList;
+  }
+  else{
+    mPL = factory.GetReferencePhysList(physicsListName_);
+  }
+  
   if(mPL){
     thePhysicsList_ = mPL;
   }
