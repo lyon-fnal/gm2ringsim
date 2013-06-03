@@ -15,3 +15,5 @@ foreach(aFile ${fcl_files})
   get_filename_component( basename ${aFile} NAME )
   configure_file( ${aFile} ${CMAKE_BINARY_DIR}/fcl/geom/${basename} COPYONLY )
 endforeach(aFile)
+
+add_subdirectory(arthits)

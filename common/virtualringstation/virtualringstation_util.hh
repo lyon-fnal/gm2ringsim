@@ -1,7 +1,7 @@
 #ifndef VIRTUALRINGSTATION_UTIL_HH
 #define VIRTUALRINGSTATION_UTIL_HH
 
-#include "gm2ringsim/common/virtualringstation/VirtualRingStationArtRecord.hh"
+#include "gm2ringsim/common/virtualringstation/arthits/VirtualRingStationArtRecord.hh"
 #include "gm2ringsim/common/virtualringstation/VirtualRingStationHit.hh"
 
 #include "gm2ringsim/common/g2PreciseValues.hh"

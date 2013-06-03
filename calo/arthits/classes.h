@@ -3,11 +3,11 @@
 #include <vector>
 
 #include "art/Persistency/Common/Wrapper.h"
-#include "gm2ringsim/calo/CaloArtRecord.hh"
-#include "gm2ringsim/calo/XtalArtRecord.hh"
-#include "gm2ringsim/calo/XtalPhotonArtRecord.hh"
-#include "gm2ringsim/calo/PhotodetectorArtRecord.hh"
-#include "gm2ringsim/calo/PhotodetectorPhotonArtRecord.hh"
+#include "gm2ringsim/calo/arthits/CaloArtRecord.hh"
+#include "gm2ringsim/calo/arthits/XtalArtRecord.hh"
+#include "gm2ringsim/calo/arthits/XtalPhotonArtRecord.hh"
+#include "gm2ringsim/calo/arthits/PhotodetectorArtRecord.hh"
+#include "gm2ringsim/calo/arthits/PhotodetectorPhotonArtRecord.hh"
 
 // Template the vector (don't use typedef)
 template class std::vector< gm2ringsim::CaloArtRecord >;

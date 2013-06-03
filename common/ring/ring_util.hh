@@ -1,7 +1,7 @@
 #ifndef RING_UTIL_HH
 #define RING_UTIL_HH
 
-#include "gm2ringsim/common/ring/RingArtRecord.hh"
+#include "gm2ringsim/common/ring/arthits/RingArtRecord.hh"
 #include "gm2ringsim/common/ring/RingHit.hh"
 
 #include "gm2ringsim/common/g2PreciseValues.hh"

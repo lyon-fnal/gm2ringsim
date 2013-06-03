@@ -1,7 +1,7 @@
 // Implementation of VirtualRingStation
 #include "gm2ringsim/common/virtualringstation/VirtualRingStation_service.hh"
 #include "gm2ringsim/common/virtualringstation/VirtualRingStationHit.hh"
-#include "gm2ringsim/common/virtualringstation/VirtualRingStationArtRecord.hh"
+#include "gm2ringsim/common/virtualringstation/arthits/VirtualRingStationArtRecord.hh"
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "artg4/material/Materials.hh"

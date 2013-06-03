@@ -45,10 +45,10 @@
 #include "gm2ringsim/inflector/InflectorSD.hh"
 #include "gm2ringsim/common/ring/RingSD.hh"
 #include "gm2ringsim/actions/SpinTrackingSettings.hh"
-#include "gm2ringsim/inflector/InflectorArtRecord.hh"
+#include "gm2ringsim/inflector/arthits/InflectorArtRecord.hh"
 #include "gm2ringsim/inflector/InflectorHit.hh"
 
-#include "gm2ringsim/common/ring/RingArtRecord.hh"
+#include "gm2ringsim/common/ring/arthits/RingArtRecord.hh"
 #include "gm2ringsim/common/ring/RingHit.hh"
 
 // Within a namespace

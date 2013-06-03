@@ -22,7 +22,7 @@
 // Get the base class for the service
 #include "artg4/Core/DetectorBase.hh"
 
-#include "gm2ringsim/common/ring/RingArtRecord.hh"
+#include "gm2ringsim/common/ring/arthits/RingArtRecord.hh"
 #include "gm2ringsim/common/ring/ring_util.hh"
 
 // Within a namespace

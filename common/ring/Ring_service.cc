@@ -1,7 +1,7 @@
 // Implementation of Ring
 #include "gm2ringsim/common/ring/Ring_service.hh"
 #include "gm2ringsim/common/ring/RingHit.hh"
-#include "gm2ringsim/common/ring/RingArtRecord.hh"
+#include "gm2ringsim/common/ring/arthits/RingArtRecord.hh"
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "artg4/material/Materials.hh"

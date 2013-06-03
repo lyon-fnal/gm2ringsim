@@ -31,7 +31,7 @@
 #include "artg4/actionBase/TrackingActionBase.hh"
 
 // Other includes
-#include "gm2ringsim/actions/track/TrackingActionArtRecord.hh"
+#include "gm2ringsim/actions/track/arthits/TrackingActionArtRecord.hh"
 #include "Geant4/G4Track.hh"
 
 namespace gm2ringsim {
