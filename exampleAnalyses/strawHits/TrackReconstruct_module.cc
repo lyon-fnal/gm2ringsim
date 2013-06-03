@@ -10,7 +10,7 @@
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
-#include "gm2ringsim/strawtracker/StrawArtRecord.hh"
+#include "gm2ringsim/strawtracker/arthits/StrawArtRecord.hh"
 
 
 namespace gm2ringsim {

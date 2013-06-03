@@ -17,7 +17,7 @@ process_name:myProcessName
 
 source: {
   module_type: EmptyEvent
-  maxEvents:  200
+  maxEvents:  10
 }
 
 services: {
@@ -33,7 +33,7 @@ services: {
        }
        LogToFile : {
          type : "file"
-         filename : "/gm2/data/users/tgadfort/gm2ringsim/output/ScrapingOFF_NewSupports_35Turns_CentralOrbit_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize2pimmmrad_UniformInflectorGun_PerfectMatch_dP001_CollimatorON/ScrapingOFF_NewSupports_35Turns_CentralOrbit_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize2pimmmrad_UniformInflectorGun_PerfectMatch_dP001_CollimatorON.log"
+         filename : "infgunlog.log"
          append : false
          threshold : "ERROR"
        }
@@ -165,7 +165,7 @@ services: {
 outputs: {
 out1: {
   module_type: RootOutput   
-  fileName: "/gm2/data/users/tgadfort/gm2ringsim/output/ScrapingOFF_NewSupports_35Turns_CentralOrbit_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize2pimmmrad_UniformInflectorGun_PerfectMatch_dP001_CollimatorON/ScrapingOFF_NewSupports_35Turns_CentralOrbit_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize2pimmmrad_UniformInflectorGun_PerfectMatch_dP001_CollimatorON.root"
+  fileName: "infgunout.out"
   }
 }
 
