@@ -234,7 +234,6 @@ void gm2ringsim::G2GeneralParticleSource::setParticleDefinition(std::string newV
     { printf("identified that we have muplus particles\n");
       newValues = "mu+";
     }
-<<<<<<< HEAD
   if (!strcmp(newValues.c_str(),"piminus"))
     { printf("identified that we have piminus particles\n");
       newValues = "pi-";
@@ -242,8 +241,7 @@ void gm2ringsim::G2GeneralParticleSource::setParticleDefinition(std::string newV
   if (!strcmp(newValues.c_str(),"piplus"))
     { printf("identified that we have piplus particles\n");
       newValues = "pi+";
-    }
-    
+    }  
   if (!strcmp(newValues.c_str(),"proton"))
     { printf("identified that we have proton particles\n");
       newValues = "proton";
