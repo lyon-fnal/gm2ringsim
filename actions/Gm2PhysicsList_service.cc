@@ -72,7 +72,7 @@ G4VUserPhysicsList* gm2ringsim::Gm2PhysicsListService::makePhysicsList() {
   
   // Construct a new Physics List
   G4PhysListFactory factory;
-  G4VModularPhysicsList *mPL(0);
+  G4VModularPhysicsList *mPL{0};
   if(!strcmp(physicsListName_.c_str(), "") || !strcmp(physicsListName_.c_str(), "old")){
     mPL = new physicsList;
   }
