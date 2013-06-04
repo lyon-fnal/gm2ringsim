@@ -1,11 +1,17 @@
-////////////////////////////////////////////////////////////////////////
 // Class:       geantFreeReadCalo
 // Module Type: analyzer
 // File:        geantFreeReadCalo_module.cc
 //
-// Generated at Wed May 29 16:29:15 2013 by Natasha Arvanitis using artmod
-// from art v1_02_04.
-////////////////////////////////////////////////////////////////////////
+// @author Tasha Arvanitis
+// @date June 2013
+
+// This analyzer module demonstrates the ability to create and run
+// analyzers without needing to load hefty Geant4 libraries. It doesn't do
+// much - it just reads the calorimeter hits from a previous run and puts them
+// in a tree. The important thing is that it does so without ever using or
+// even loading Geant4 libraries. (You can see that from the CMakeLists.txt
+// file in this directory.)
+
 // STL includes
 #include <vector>
 #include <iostream>
@@ -15,12 +21,10 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
 
 // Root includes
 #include "TTree.h"
-#include "TVector3.h"
-// art service for root files.
+// Art service for root files.
 #include "art/Framework/Services/Optional/TFileService.h"
 
 #include "gm2ringsim/calo/arthits/CaloArtRecord.hh"
