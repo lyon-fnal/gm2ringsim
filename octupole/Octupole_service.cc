@@ -35,6 +35,8 @@
 #include "Geant4/G4ChordFinder.hh"
 
 #include "gm2ringsim/fields/g2FieldEqRhs.hh"
+#include "gm2ringsim/fields/g2EqEMFieldWithSpin.hh"
+#include "gm2ringsim/fields/g2EqEMFieldWithEDM.hh"
 #include "artg4/util/array_macros.hh"
 #include "artg4/material/Materials.hh"
 #include "gm2ringsim/common/g2PreciseValues.hh"
@@ -188,6 +190,9 @@ void gm2ringsim::Octupole::buildFieldManagers(){
   G4Mag_EqRhs *equation;
   G4MagIntegratorStepper *stepper;
   G4ChordFinder *chord;
+
+  bool myspin = false;
+  bool myedm = false;
   
   // spin free
   if ( nospin_tracking_ ) {
@@ -199,16 +204,30 @@ void gm2ringsim::Octupole::buildFieldManagers(){
 
   // with spin
   if ( spin_tracking_ ) {
-    equation = new g2TimeDepMagField_SpinEqRhs(field);
-    stepper = new G4ClassicalRK4(equation, 12);
+    if ( myspin ) {
+      g2EqEMFieldWithSpin *equation2 = new g2EqEMFieldWithSpin(field);
+      stepper = new G4ClassicalRK4(equation2, 12);
+    }
+    else {
+      equation = new g2TimeDepMagField_SpinEqRhs(field);
+      stepper = new G4ClassicalRK4(equation, 12);
+    }
     chord = new G4ChordFinder(field, .01*mm, stepper);
     withSpin_ = new G4FieldManager(field, chord);
   }
 
   // with edm
   if ( edm_tracking_ ) {
-    equation = new g2TimeDepMagField_SpinEqRhs(field);
-    stepper = new G4ClassicalRK4(equation, 12);
+    if ( myedm ) {
+      g2EqEMFieldWithEDM *equation2 = new g2EqEMFieldWithEDM(field);
+      equation2->SetEta(sts_.GetEta());
+      //equation2->SetAnomaly(sts_.GetGm2());
+      stepper = new G4ClassicalRK4(equation2, 12);
+    }
+    else {
+      equation = new g2TimeDepMagField_SpinEqRhs(field);
+      stepper = new G4ClassicalRK4(equation, 12);
+    }
     chord = new G4ChordFinder(field, .01*mm, stepper);
     withEDM_ = new G4FieldManager(field, chord);
   }

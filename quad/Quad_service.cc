@@ -59,6 +59,9 @@
 #include "Geant4/G4ClassicalRK4.hh"
 #include "Geant4/G4UserLimits.hh"
 
+#include "gm2ringsim/fields/g2EqEMFieldWithSpin.hh"
+#include "gm2ringsim/fields/g2EqEMFieldWithEDM.hh"
+
 #include <sstream>
 
 // Constructor for the service 
@@ -510,6 +513,9 @@ void gm2ringsim::Quad::assignFieldManagers(){
 
 void gm2ringsim::Quad::buildFieldManagers(G4int quadRegion, G4int sectionType) {
   
+  bool myspin = false;
+  bool myedm = false;
+
   //G4cout << "buildFieldManagers: " << quadRegion << ' ' << sectionType << '\n';
   
   G4ElectroMagneticField *field;
@@ -540,7 +546,12 @@ void gm2ringsim::Quad::buildFieldManagers(G4int quadRegion, G4int sectionType) {
   // build the spin evolving field equations
   //----------------------------------------
   if ( spin_tracking_ ) {
-    equation = new G4EqEMFieldWithSpin(field);
+    if ( myspin ) {
+      equation = new g2EqEMFieldWithSpin(field);
+    }
+    else {
+      equation = new G4EqEMFieldWithSpin(field);
+    }
     stepper = new G4ClassicalRK4(equation, 12); // modifies spin, so 12
     driver = new G4MagInt_Driver(0.01*mm, stepper, stepper->GetNumberOfVariables());
     chord = new G4ChordFinder(driver);
@@ -548,9 +559,18 @@ void gm2ringsim::Quad::buildFieldManagers(G4int quadRegion, G4int sectionType) {
   }
  
   if ( edm_tracking_ ) {
-    G4EqEMFieldWithEDM *equation2 = new G4EqEMFieldWithEDM(field);
-    equation2->SetEta(1e-2);
-    stepper = new G4ClassicalRK4(equation2,12);
+    if ( myedm ) {
+      g2EqEMFieldWithEDM *equation2 = new g2EqEMFieldWithEDM(field);
+      equation2->SetEta(sts_.GetEta());
+      //equation2->SetAnomaly(sts_.GetGm2());
+      stepper = new G4ClassicalRK4(equation2,12);
+    }
+    else {
+      G4EqEMFieldWithEDM *equation2 = new G4EqEMFieldWithEDM(field);
+      equation2->SetEta(sts_.GetEta());
+      //equation2->SetAnomaly(sts_.GetGm2());
+      stepper = new G4ClassicalRK4(equation2,12);
+    }
     G4MagInt_Driver *driver = new G4MagInt_Driver(0.01*mm, stepper, stepper->GetNumberOfVariables());
     chord = new G4ChordFinder(driver);
     withEDM_[quadRegion][sectionType] = new G4FieldManager(field, chord, true);
