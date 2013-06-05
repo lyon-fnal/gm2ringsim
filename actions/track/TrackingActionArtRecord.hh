@@ -73,6 +73,8 @@ namespace gm2ringsim {
     // Fraction of the particle's momentum oriented vertically at birth
     double pvhat;
 
+    double e;
+
     double polx, poly, polz;
   };
 
