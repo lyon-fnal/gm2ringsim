@@ -5,6 +5,33 @@ name()
 {
     extra="Scraping${scraping}${quadname}${numturns}Turns"    
 
+    if [ ${particle} == "e+" ]; then
+	particlename="eplus"
+    elif [ ${particle} == "e-" ]; then
+	particlename="eminus"
+    elif [ ${particle} == "mu+" ]; then
+	particlename="muplus"
+    elif [ ${particle} == "mu-" ]; then
+	particlename="muminus"
+    elif [ ${particle} == "pi+" ]; then
+	particlename="piplus"
+    elif [ ${particle} == "pi-" ]; then
+	particlename="piminus"
+    else
+	particlename="${particle}"
+    fi
+    extra="${extra}_${particlename}"
+
+    if [ -z ${spintracking} ]; then
+	extra="${extra}_NoSpinTracking"
+    else
+	if [ ${spintracking} == "spin" ]; then
+	    extra="${extra}_SpinTracking"
+	elif [ ${spintracking} == "edm" ]; then
+	    extra="${extra}_EDMTracking_Eta_${edmsize}"
+	fi
+    fi
+
     if [ ${beamstart} == "uc" ] || [ ${beamstart} == "UpstreamCryo" ]; then
 	extra="${extra}_UpstreamCryo"
     elif [ ${beamstart} == "dc" ] || [ ${beamstart} == "DownstreamCryo" ]; then
@@ -203,8 +230,15 @@ name()
 	extra="${extra}"
     fi
     
+    
     if [ ${muondecay} == "standard" ]; then
-	extra="${extra}_MuonDecayON"
+	extra="${extra}_StandardMuonDecay"
+    elif [ ${muondecay} == "sm" ]; then
+	extra="${extra}_StandardModelMuonDecay"
+    elif [ ${muondecay} == "iso" ]; then
+	extra="${extra}_IsotropicMuonDecay"
+    elif [ ${muondecay} == "none" ]; then
+	extra="${extra}_NoMuonDecay"
     fi
 }
 
@@ -252,10 +286,33 @@ export collimator_status=1
 
 # Muon Decay
 #
-export muondecay="none"
-#export muondecay="standard"
+#export muondecay="none"
+export muondecay="iso"
+export muondecay="sm"
+muondecayname="decay ${muondecay}"
+
+#
+# Injected Particle
+#
+particle="proton"
+particle="mu+"
+charge=1
+export particle=${particle}
+export charge=${charge}
+
+#
+# Spin Tracking
+#
+spintracking="edm"
+edmsize="3em4"
+edmsizename="edmsize ${edmsize}"
+export spintracking=${spintracking}
 
 
+bestedms()
+{
+    thebestedms="0"
+}
 
 bestkicks()
 {
@@ -660,6 +717,7 @@ if [ ${beamstarts} == "CentralOrbit" ]; then
     moms="${moms} E821Match_dP0001 E821Match_dP001 E821Match_dP0025 E821Match_dP005 E821Match_dP0075 E821Match E821Match_dP025 E821Match_dP05 E821Match_dP075 E821Match_dP1 E821Match_dP2 E821Match_dP5 E821Match_dP10"
 #    moms="E821Match_dP05 PerfectMatch_dP05 E821Match_dP005 PerfectMatch_dP005 E821Match_dP0001 PerfectMatch_dP0001"
     moms="PerfectMatch_dP001"
+#    moms="PerfectMatch_dP05"
     core=0
 #    fields="0 1"
     fields="0"
@@ -698,7 +756,7 @@ fi
 #quads="NoQuads_Ap18mm NoQuads_Ap30mm"
 #quads="NoQuads_Ap18mm NoQuads_Ap40mm"
 #quads="NewSupports_Ap40mm NewSupports_Ap18mm"
-##betaX="5.625" ### for Ap=30
+##beta="5.625" ### for Ap=30
 #betaX="10.0" ### for Ap=40
 #betaX="2.025"
 setbetax=0
@@ -741,8 +799,9 @@ scrapings="OFF"
 beamtypes="Gaussian Uniform"
 beamtypes="Uniform"
 #beamtypes="Gaussian"
-numturns=35
-#numturns=50
+numturns=5
+#numturns=51
+#numturns=101
 
 beamsizes="10 20 30 40 50 60"
 #beamsizes="40 1 20"
@@ -751,7 +810,7 @@ beamsizes="10 20 30 40 50 60"
 beamsizes="40 0 20"
 #beamsizes="40"
 beamsizes="40 0"
-beamsizes="2"
+beamsizes="0"
 #beamsizes="40 20 1"
 
 
@@ -762,6 +821,7 @@ beamsizes="2"
 
 subjob=0
 clearnotinqueue=0
+suball=0
 if [ -z ${1} ]; then
 #    extraname="_${beamstarts}"
 #    inftypes="InflectorOpen ClosedInflector PartiallyOpen"
@@ -770,6 +830,13 @@ else
     if [ ${1} == "rm" ] || [ ${1} == "del" ]; then
 	clearnotinqueue=1
 	subjob=1
+	suball=1
+	cleanval="clean"
+    elif [ ${1} == "keep" ]; then
+	subjob=1
+	suball=1
+	clearnotinqueue=0
+	cleanval=""
     else
 	subjob=0
     fi
@@ -803,6 +870,7 @@ export submittingjob=1
 submitname="local"
 #submitname="submit"
 
+
 njobsmax=25000
 
 
@@ -810,7 +878,6 @@ runit=1
 
 if [ ${runit} == 1 ]; then    
        
-    suball=0
     runall=0
     sigmats="25"
     nrun=0
@@ -907,7 +974,7 @@ if [ ${runit} == 1 ]; then
 			    fi
 
 			    if [ ${beamstart} == "CentralOrbit" ]; then
-				numevts=200
+				numevts=2500
 			    fi
 			    
 			    echo "      Beamstart [${beamstart} / (${beamstarts})]"		    
@@ -1020,7 +1087,7 @@ if [ ${runit} == 1 ]; then
 						printname=0
 						if [ ${printname} == 1 ]; then
 						# Test things
-						    ./submit.sh ${submitname} ${myinf} ${beamstart} ${resubfieldname} d ${delta} l ${launch} ${kicksubname} ${kick} BeamSize ${beamsize} ${mom} ${sigmatname} o ${offset} num ${numevts} quad ${quad} scraping ${scraping} numturns ${numturns} ${beamtype} ${beamtype} prefix ${prefix} "print"
+						    ./submit.sh ${submitname} ${myinf} ${beamstart} ${resubfieldname} d ${delta} l ${launch} ${kicksubname} ${kick} BeamSize ${beamsize} ${mom} ${sigmatname} o ${offset} num ${numevts} quad ${quad} scraping ${scraping} numturns ${numturns} ${beamtype} Particle ${particle} ${charge} ${spintracking} "${edmsizename}" "${muondecayname}" ${betaxname} "print"
 						    echo ${outname}
 						    echo "Above is local name"
 						    echo ""
@@ -1030,10 +1097,24 @@ if [ ${runit} == 1 ]; then
 
 						if [ ${subjob} == 1 ]; then
 						    if ! [ -d ${datadir}/${outname} ] || [ ${suball} == 1 ]; then
+							if [ ${clearnotinqueue} == 1 ]; then
+							    if [ -d ${datadir}/${outname} ]; then
+								rm -rf ${datadir}/${outname}
+								echo "Found and removed [${outname}]"
+							    fi
+							fi
+
 							((nsubjobs++))
-							echo "No dir [${outname}]"
+							if ! [ -d ${datadir}/${outname} ]; then
+							    echo "No dir [${outname}]"
+							else
+							    if [ ${suball} == 1 ]; then
+								echo "Found dir, but rerunning."
+								rootfile="${outname}.root"
+							    fi
+							fi
 							echo "export submittingjob=1" >> ${subfile}
-							echo "./submit.sh ${submitname} ${myinf} ${beamstart} ${resubfieldname} d ${delta} l ${launch} ${kicksubname} ${kick} BeamSize ${beamsize} ${mom} ${sigmatname} o ${offset} num ${numevts} quad ${quad} scraping ${scraping} numturns ${numturns} ${beamtype} ${betaxname} ${cleanval}" >> ${subfile}
+							echo "./submit.sh ${submitname} ${myinf} ${beamstart} ${resubfieldname} d ${delta} l ${launch} ${kicksubname} ${kick} BeamSize ${beamsize} ${mom} ${sigmatname} o ${offset} num ${numevts} quad ${quad} scraping ${scraping} numturns ${numturns} ${beamtype} Particle ${particle} ${charge} ${spintracking} ${edmsizename} ${muondecayname} ${betaxname} ${cleanval}" >> ${subfile}
 							echo "sleep ${sleepnum}" >> ${subfile}
 							continue;
 						    else
@@ -1100,7 +1181,7 @@ if [ ${runit} == 1 ]; then
 							    ((nsubjobs++))
 							    echo "No root file in [${outname}]"
 							    echo "export submittingjob=1" >> ${subfile}
-							    echo "./submit.sh ${submitname} ${myinf} ${beamstart} ${resubfieldname} d ${delta} l ${launch} ${kicksubname} ${kick} BeamSize ${beamsize} ${mom} ${sigmatname} o ${offset} num ${numevts} quad ${quad} scraping ${scraping} numturns ${numturns} ${beamtype} ${betaxname} ${cleanval}" >> ${subfile}
+							    echo "./submit.sh ${submitname} ${myinf} ${beamstart} ${resubfieldname} d ${delta} l ${launch} ${kicksubname} ${kick} BeamSize ${beamsize} ${mom} ${sigmatname} o ${offset} num ${numevts} quad ${quad} scraping ${scraping} numturns ${numturns} ${beamtype} Particle ${particle} ${charge} ${spintracking} ${edmsizename} ${muondecayname} ${betaxname} ${cleanval}" >> ${subfile}
 							    echo "sleep ${sleepnum}" >> ${subfile}
 							    continue				
 							fi
@@ -1169,9 +1250,9 @@ if [ ${runit} == 1 ]; then
 							    echo "Weird...."
 							    continue;
 							    echo "export submittingjob=1"
-							    echo "./submit.sh ${submitname} ${myinf} ${beamstart} ${resubfieldname} d ${delta} l ${launch} ${kicksubname} ${kick} BeamSize ${beamsize} ${mom} ${sigmatname} o ${offset} num ${numevts} quad ${quad} scraping ${scraping} numturns ${numturns} ${beamtype} ${betaxname} ${cleanval}"
+							    echo "./submit.sh ${submitname} ${myinf} ${beamstart} ${resubfieldname} d ${delta} l ${launch} ${kicksubname} ${kick} BeamSize ${beamsize} ${mom} ${sigmatname} o ${offset} num ${numevts} quad ${quad} scraping ${scraping} numturns ${numturns} ${beamtype} Particle ${particle} ${charge} ${spintracking} ${edmsizename} ${muondecayname} ${betaxname} ${cleanval}"
 							    echo "export submittingjob=1" >> ${subfile}
-							    echo "./submit.sh ${submitname} ${myinf} ${beamstart} ${resubfieldname} d ${delta} l ${launch} ${kicksubname} ${kick} BeamSize ${beamsize} ${mom} ${sigmatname} o ${offset} num ${numevts} quad ${quad} scraping ${scraping} numturns ${numturns} ${beamtype} ${betaxname} ${cleanval}" >> ${subfile}
+							    echo "./submit.sh ${submitname} ${myinf} ${beamstart} ${resubfieldname} d ${delta} l ${launch} ${kicksubname} ${kick} BeamSize ${beamsize} ${mom} ${sigmatname} o ${offset} num ${numevts} quad ${quad} scraping ${scraping} numturns ${numturns} ${beamtype} Particle ${particle} ${charge} ${spintracking} ${edmsizename} ${muondecayname} ${betaxname} ${cleanval}" >> ${subfile}
 							    echo "sleep ${sleepnum}" >> ${subfile}
 							    continue;
 							else
@@ -1181,9 +1262,9 @@ if [ ${runit} == 1 ]; then
 								echo "### No events were generated..." >> ${subfile}
 								echo "${outname}"
 								echo "export submittingjob=1"
-								echo "./submit.sh ${submitname} ${myinf} ${beamstart} ${resubfieldname} d ${delta} l ${launch} ${kicksubname} ${kick} BeamSize ${beamsize} ${mom} ${sigmatname} o ${offset} num ${numevts} quad ${quad} scraping ${scraping} numturns ${numturns} ${beamtype} ${betaxname} ${cleanval}"
+								echo "./submit.sh ${submitname} ${myinf} ${beamstart} ${resubfieldname} d ${delta} l ${launch} ${kicksubname} ${kick} BeamSize ${beamsize} ${mom} ${sigmatname} o ${offset} num ${numevts} quad ${quad} scraping ${scraping} numturns ${numturns} ${beamtype} Particle ${particle} ${charge} ${spintracking} ${edmsizename} ${muondecayname} ${betaxname} ${cleanval}"
 								echo "export submittingjob=1" >> ${subfile}
-								echo "./submit.sh ${submitname} ${myinf} ${beamstart} ${resubfieldname} d ${delta} l ${launch} ${kicksubname} ${kick} BeamSize ${beamsize} ${mom} ${sigmatname} o ${offset} num ${numevts} quad ${quad} scraping ${scraping} numturns ${numturns} ${beamtype} ${betaxname} ${cleanval}" >> ${subfile}
+								echo "./submit.sh ${submitname} ${myinf} ${beamstart} ${resubfieldname} d ${delta} l ${launch} ${kicksubname} ${kick} BeamSize ${beamsize} ${mom} ${sigmatname} o ${offset} num ${numevts} quad ${quad} scraping ${scraping} numturns ${numturns} ${beamtype} Particle ${particle} ${charge} ${spintracking} ${edmsizename} ${muondecayname} ${betaxname} ${cleanval}" >> ${subfile}
 								echo "sleep ${sleepnum}" >> ${subfile}
 								continue;
 							    fi
