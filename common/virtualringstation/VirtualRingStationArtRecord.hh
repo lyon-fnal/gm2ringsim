@@ -30,6 +30,8 @@ namespace gm2ringsim{
     float theta;
     /** Global event time, ns. */
     float time;
+
+    int pdgid;
     
     /** Total momentum, MeV. */
     float p; 
@@ -56,18 +58,18 @@ namespace gm2ringsim{
     
     
     VirtualRingStationArtRecord() :
-      rhat(0), vhat(0), theta(0), time(0), p(0), prhat(0), pvhat(0),
+      rhat(0), vhat(0), theta(0), time(0), pdgid(0), p(0), prhat(0), pvhat(0),
       turn(-1), volumeUID(0), trackID(-1), polx(0), poly(0), polz(0) {}
 
     ~VirtualRingStationArtRecord(){};
     
 #ifndef __GCCXML__
     VirtualRingStationArtRecord(float rin, float vin, float thetain,
-		     float tin, float pin, float prin, float pvin,
-		     float turnin,float volin,int trackin,
-		     float polxin, float polyin, float polzin) :
+				float tin, int pdgidin, float pin, float prin, float pvin,
+				float turnin,float volin,int trackin,
+				float polxin, float polyin, float polzin) :
       rhat(rin), vhat(vin), theta(thetain),
-      time(tin), p(pin), prhat(prin), pvhat(pvin),
+      time(tin), pdgid(pdgidin), p(pin), prhat(prin), pvhat(pvin),
       turn(turnin), volumeUID(volin),trackID(trackin),
       polx(polxin), poly(polyin), polz(polzin)
     {}
