@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "art/Persistency/Common/Wrapper.h"
-#include "gm2ringsim/inflector/InflectorArtRecord.hh"
+#include "gm2ringsim/inflector/arthits/InflectorArtRecord.hh"
 
 // Template the vector (don't use typedef)
 template class std::vector< gm2ringsim::InflectorArtRecord >;

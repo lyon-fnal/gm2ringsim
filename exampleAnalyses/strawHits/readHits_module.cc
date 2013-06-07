@@ -16,7 +16,7 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 
 // Hit includes
-#include "gm2ringsim/strawtracker/StrawArtRecord.hh"
+#include "gm2ringsim/strawtracker/arthits/StrawArtRecord.hh"
 #include <map>
 #include <vector>
 

@@ -1,7 +1,7 @@
 // Implementation of FiberHarp
 #include "gm2ringsim/fiberHarp/FiberHarp_service.hh"
 #include "gm2ringsim/fiberHarp/FiberHarpHit.hh"
-#include "gm2ringsim/fiberHarp/FiberHarpArtRecord.hh"
+#include "gm2ringsim/fiberHarp/arthits/FiberHarpArtRecord.hh"
 
 #include "gm2ringsim/common/g2PreciseValues.hh"
 

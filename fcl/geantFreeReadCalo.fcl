@@ -1,0 +1,53 @@
+process_name: artFreeReadCalo
+
+source: {
+   module_type: RootInput
+   maxEvents:  -1
+   fileNames: [ "infgunout.root" ]
+}
+services: {
+	TFileService : { fileName : "geantFreeReadback.root" }
+	message: { 
+		debugModules : ["*"]
+		suppressInfo : []
+		 
+		destinations : {
+		  LogToConsole : {
+			 type : "cout"
+			 threshold : "ERROR"
+		  }
+		  LogToFile : {
+			 type : "file"
+			 filename : "infgunlog.log"
+			 append : false
+			 threshold : "ERROR"
+		  }
+		}
+    }
+}
+
+outputs: {
+  out1: {
+    module_type: RootOutput
+    fileName: "geantFreeOut.root"
+  }
+}
+
+physics: {
+  analyzers: {
+    readTracks: {
+      module_type: geantFreeReadCalo
+		hitModuleLabel: "artg4"
+		instanceName: "calorimeter"
+    }
+  }
+
+
+  path1: [ ]
+  readPath: [ readTracks ]
+  stream1:  [ out1 ]
+
+  trigger_paths: [ path1 ]
+  end_paths: [ readPath, stream1 ]
+
+}

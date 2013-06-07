@@ -24,7 +24,7 @@
 
 #include "gm2ringsim/strawtracker/StrawTrackerGeometry.hh"
 #include "gm2ringsim/strawtracker/StrawSD.hh"
-#include "gm2ringsim/strawtracker/StrawArtRecord.hh"
+#include "gm2ringsim/strawtracker/arthits/StrawArtRecord.hh"
 #include "gm2ringsim/strawtracker/StrawHit.hh"
 
 #include "boost/format.hpp"
