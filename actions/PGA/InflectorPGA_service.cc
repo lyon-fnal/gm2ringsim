@@ -61,7 +61,8 @@ gm2ringsim::InflectorPGA::InflectorPGA(fhicl::ParameterSet const& p, art::Activi
   Pmean_(p.get<double>("Pmean", -9999.9)),
   dPOverP_(p.get<double>("dPOverP", -9999.9)),
   SigmaT_(p.get<double>("SigmaT", -9999.9)),
-  Particle_(p.get<std::string>("Particle", "mu+")) 
+  Particle_(p.get<std::string>("Particle", "mu+")),
+  NumParticles_(p.get<int>("NumParticles", 1)) 
 {
   if ( EmittanceX_ <= 0.0 ) { EmittanceX_ = 1e-10; }
   if ( EmittanceY_ <= 0.0 ) { EmittanceY_ = 1e-10; }
@@ -86,6 +87,7 @@ gm2ringsim::InflectorPGA::InflectorPGA(fhicl::ParameterSet const& p, art::Activi
     G4cout << "  Pmean               " << Pmean_ << G4endl;
     G4cout << "  SigmaT              " << SigmaT_ << G4endl;
     G4cout << "  Particle            " << Particle_ << G4endl;
+    G4cout << "  NumParticles        " << NumParticles_ << G4endl;
   }
 }
 
@@ -119,6 +121,7 @@ void gm2ringsim::InflectorPGA::initialize() {
   gps_ -> SetPmean(Pmean_);
   gps_ -> SetSigmaT(SigmaT_);
   gps_ -> SetParticle(Particle_);
+  gps_ -> SetNumParticles(NumParticles_);
   //G4cout << "Done calling InflectorPGA::initialize()" << G4endl;
   //////////////////////////////////
 }

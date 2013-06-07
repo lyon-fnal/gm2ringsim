@@ -118,6 +118,7 @@ namespace gm2ringsim
 	@bug ... this function really should be taken over by a class
 	that tracks lots of stuff on a run by run basis. */
     void incrementMuonStorageCounter();
+    void incrementMuonKillCounter();
 
 
     //SteppingAction Stuff
@@ -133,6 +134,7 @@ namespace gm2ringsim
     
     //RunAction Stuff
     G4int muonStorageCounter_;  
+    G4int muonKillCounter_;  
 
     //SteppingAction Stuff
     float turnsForStorage_; //Double to allow for fractional turns 

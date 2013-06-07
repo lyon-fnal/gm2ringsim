@@ -15,6 +15,7 @@
 
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "gm2ringsim/actions/muonStorageStatus/MuonStorageStatusAction_service.hh"
+#include "artg4/pluginActions/physicalVolumeStore/physicalVolumeStore_service.hh"
 
 namespace gm2ringsim {
 G4Allocator<VirtualRingStationHit> VirtualRingStationHitAllocator;
@@ -25,11 +26,12 @@ gm2ringsim::VirtualRingStationHit::VirtualRingStationHit(G4Step* step) :
   polarization(step->GetPreStepPoint()->GetPolarization()),
   time(step->GetPreStepPoint()->GetGlobalTime()),
   turnNum(TurnCounter::getInstance().turns()),
-  trackID(step->GetTrack()->GetTrackID()),
-  volumeUID(0)
+  PDGID((int)step->GetTrack()->GetParticleDefinition()->GetPDGEncoding()),
+  trackID(step->GetTrack()->GetTrackID())
 {
-  ;
-  //Print();
+  art::ServiceHandle<artg4::PhysicalVolumeStoreService> pvs;
+  volumeUID = pvs->idGivenPhysicalVolume( step->GetPreStepPoint()->GetPhysicalVolume() );
+  //  G4cout << "VolID: " << volumeUID << "\t" << pvs->stringGivenID(volumeUID) << G4endl;
 }
 
 
@@ -53,11 +55,13 @@ void gm2ringsim::VirtualRingStationHit::Draw(){
 
 void gm2ringsim::VirtualRingStationHit::Print(){
   G4cout.precision(3);
-  if ( trackID == 1 ) {
-    G4cout << " VirtualRingStationHit::Print() --- turnNum: " << turnNum
-	   << " time: " << time
-	   << " polarization: " << polarization
-	   << " position: " << position
+  if ( trackID == 1 || 1 ) {
+    G4cout << " VirtualRingStationHit::Print() --- ";
+    G4cout << "  Particle: " << PDGID
+	   << "  turnNum: " << turnNum
+	   << "  time: " << time
+	   << "  polarization: " << polarization
+	   << "  position: " << position
 	   << "\n";
   }
 }

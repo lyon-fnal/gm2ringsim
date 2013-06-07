@@ -60,7 +60,8 @@ gm2ringsim::G2InflectorSource::G2InflectorSource() :
   Pmean(0.005),
   dPOverP(0.005),
   SigmaT(50),
-  Particle_("mu+")
+  Particle_("mu+"),
+  NumParticles_(1)
 {
   inflectorGun_ = new G4ParticleGun();
   //inflectorGun_->SetVerbosity(true);
@@ -115,9 +116,11 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
     if ( first_event ) {
       G4cout << "Found Particle Info for [" << Particle_ << "]" << G4endl;
       G4cout << " g-2/2 : " << def->CalculateAnomaly() << G4endl;
+      def->SetPDGLifeTime(def->GetPDGLifeTime()/500.0);
       def->DumpTable();
     }
-    inflectorGun_ ->SetParticleDefinition( G4ParticleTable::GetParticleTable()->FindParticle(Particle_) );    
+    inflectorGun_ ->SetParticleDefinition(def);
+    inflectorGun_ ->SetNumberOfParticles(NumParticles_);
   }
   else {
     G4ParticleTable::GetParticleTable()->DumpTable();

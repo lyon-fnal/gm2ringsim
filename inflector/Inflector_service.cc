@@ -55,6 +55,9 @@
 #include "gm2ringsim/common/g2PreciseValues.hh"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+#include "gm2ringsim/fields/g2EqEMFieldWithSpin.hh"
+#include "gm2ringsim/fields/g2EqEMFieldWithEDM.hh"
+
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -895,6 +898,9 @@ void gm2ringsim::Inflector::rebuildFieldImpl(){
 //        avoid all of these rebuilds...
 void gm2ringsim::Inflector::rebuildEOM(){
 
+  bool myspin = false;
+  bool myedm = false;
+
   if( iEquation_ )
     delete iEquation_;
   if( iStepper_ )
@@ -908,12 +914,26 @@ void gm2ringsim::Inflector::rebuildEOM(){
     iStepper_ = new G4ClassicalRK4(iEquation_);
   }
   else if ( spin_tracking_ ) {
-    iEquation_ = new G4Mag_SpinEqRhs(inflectorMagField_);
-    iStepper_ = new G4ClassicalRK4(iEquation_, 12);
+    if ( myspin ) {
+      g2EqEMFieldWithSpin *iEquation = new g2EqEMFieldWithSpin(inflectorMagField_);
+      iStepper_ = new G4ClassicalRK4(iEquation, 12);
+    }
+    else {
+      iEquation_ = new G4Mag_SpinEqRhs(inflectorMagField_);
+      iStepper_ = new G4ClassicalRK4(iEquation_, 12);
+    }
   }
   else if ( edm_tracking_ ) {
-    iEquation_ = new G4Mag_SpinEqRhs(inflectorMagField_);
-    iStepper_ = new G4ClassicalRK4(iEquation_, 12);
+    if ( myedm ) {
+      g2EqEMFieldWithEDM *iEquation = new g2EqEMFieldWithEDM(inflectorMagField_);
+      iEquation->SetEta(sts_.GetEta());
+      //iEquation->SetAnomaly(sts_.GetGm2());
+      iStepper_ = new G4ClassicalRK4(iEquation, 12);
+    }
+    else {
+      iEquation_ = new G4Mag_SpinEqRhs(inflectorMagField_);
+      iStepper_ = new G4ClassicalRK4(iEquation_, 12);
+    }
   }
   // Create the chord finder that calculates curved trajectories                
   iChordFinder_ = new G4ChordFinder(inflectorMagField_,

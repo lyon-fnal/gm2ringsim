@@ -78,10 +78,10 @@ services: {
      // Global simulation settings
      RunSettings : {
        SpinTracking : {
-	   spinTrackingEnabled : false
-	   edmTrackingEnabled : false
-	   Q : 1
-	   Eta : 0.00
+	   spinTrackingEnabled : ${spintrackingname}
+	   edmTrackingEnabled : ${edmtrackingname}
+	   Q : ${charge}
+	   Eta : ${edmval}
 	   Gm2 : -1.0
        }
       G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel
@@ -103,7 +103,9 @@ services: {
       }
 
     physicalVolumeStore: {}
-    Gm2PhysicsList: {}
+    Gm2PhysicsList: {
+	muonDecayMode: ${muondecay}
+    }
 
     TrackingAction : {
           name : "trackingAction"
@@ -113,15 +115,6 @@ services: {
     }
 
     ClockAction: {}
-
-//    G2PGA: {
-//	      name: "primary"
-//    }
-
-//    MuonGasPGA: {
-//        name: "muongas"
-//        muonGasVerbosity: false
-//    }
 
     InflectorPGA: {
         name: "inflectorgun"
@@ -135,7 +128,7 @@ services: {
 	AlphaY:  ${alphaY}
 	Pmean: ${pmean}
 	dPOverP: ${dPoverP}
-	Particle: "pi+"
+	Particle: "${particle}"
 EOF
 
 if [ ${beamstart} == um ]; then
