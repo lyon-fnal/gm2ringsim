@@ -38,11 +38,11 @@
 #include "gm2ringsim/calo/PhotodetectorHit.hh"
 #include "gm2ringsim/calo/PhotodetectorPhotonHit.hh"
 
-#include "gm2ringsim/calo/arthits/CaloArtRecord.hh"
-#include "gm2ringsim/calo/arthits/XtalArtRecord.hh"
-#include "gm2ringsim/calo/arthits/XtalPhotonArtRecord.hh"
-#include "gm2ringsim/calo/arthits/PhotodetectorArtRecord.hh"
-#include "gm2ringsim/calo/arthits/PhotodetectorPhotonArtRecord.hh"
+#include "gm2ringsim/calo/CaloArtRecord.hh"
+#include "gm2ringsim/calo/XtalArtRecord.hh"
+#include "gm2ringsim/calo/XtalPhotonArtRecord.hh"
+#include "gm2ringsim/calo/PhotodetectorArtRecord.hh"
+#include "gm2ringsim/calo/PhotodetectorPhotonArtRecord.hh"
 
 // Constructor for the service
 gm2ringsim::Calorimeter::Calorimeter(fhicl::ParameterSet const & p, art::ActivityRegistry & ) :

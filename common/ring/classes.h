@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "art/Persistency/Common/Wrapper.h"
-#include "gm2ringsim/common/ring/arthits/RingArtRecord.hh"
+#include "gm2ringsim/common/ring/RingArtRecord.hh"
 
 // Template the vector (don't use typedef)
 template class std::vector< gm2ringsim::RingArtRecord >;

@@ -24,11 +24,11 @@
 #include "gm2ringsim/common/UsefulVariables.hh"
 
 // Hit includes
-#include "gm2ringsim/strawtracker/arthits/StrawArtRecord.hh"
-#include "gm2ringsim/common/virtualringstation/arthits/VirtualRingStationArtRecord.hh"
-#include "gm2ringsim/common/ring/arthits/RingArtRecord.hh"
-#include "gm2ringsim/actions/track/arthits/TrackingActionArtRecord.hh"
-#include "gm2ringsim/inflector/arthits/InflectorArtRecord.hh"
+#include "gm2ringsim/strawtracker/StrawArtRecord.hh"
+#include "gm2ringsim/common/virtualringstation/VirtualRingStationArtRecord.hh"
+#include "gm2ringsim/common/ring/RingArtRecord.hh"
+#include "gm2ringsim/actions/track/TrackingActionArtRecord.hh"
+#include "gm2ringsim/inflector/InflectorArtRecord.hh"
 
 #include <map>
 #include <vector>

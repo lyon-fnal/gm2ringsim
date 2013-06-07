@@ -20,8 +20,8 @@
 
 #include "artg4/services/ActionHolder_service.hh"
 
-#include "gm2ringsim/calo/arthits/CaloArtRecord.hh"
-#include "gm2ringsim/actions/track/arthits/TrackingActionArtRecord.hh"
+#include "gm2ringsim/calo/CaloArtRecord.hh"
+#include "gm2ringsim/actions/track/TrackingActionArtRecord.hh"
 
 // Geant includes
 #include "Geant4/G4ParticleTable.hh"

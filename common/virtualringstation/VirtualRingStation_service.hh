@@ -22,7 +22,7 @@
 // Get the base class for the service
 #include "artg4/Core/DetectorBase.hh"
 
-#include "gm2ringsim/common/virtualringstation/arthits/VirtualRingStationArtRecord.hh"
+#include "gm2ringsim/common/virtualringstation/VirtualRingStationArtRecord.hh"
 #include "gm2ringsim/common/virtualringstation/virtualringstation_util.hh"
 
 

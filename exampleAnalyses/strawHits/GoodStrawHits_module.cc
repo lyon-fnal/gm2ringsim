@@ -11,7 +11,7 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
 
-#include "gm2ringsim/strawtracker/arthits/StrawArtRecord.hh"
+#include "gm2ringsim/strawtracker/StrawArtRecord.hh"
 
 #include "art/Framework/Services/Optional/TFileService.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"

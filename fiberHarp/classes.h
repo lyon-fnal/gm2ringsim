@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "art/Persistency/Common/Wrapper.h"
-#include "gm2ringsim/fiberHarp/arthits/FiberHarpArtRecord.hh"
+#include "gm2ringsim/fiberHarp/FiberHarpArtRecord.hh"
 
 // Template the vector (don't use typedef)
 template class std::vector< gm2ringsim::FiberHarpArtRecord >;
