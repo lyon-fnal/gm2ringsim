@@ -55,7 +55,7 @@ gm2ringsim::Gm2PhysicsListService::Gm2PhysicsListService(fhicl::ParameterSet con
   PhysicsListServiceBase(),
   muonDecayMode_(p.get<std::string>("muonDecayMode", "")),
   pionDecayEnabled_(p.get<bool>("pionDecayEnabled", true)),
-  physicsListName_(G4String(p.get<std::string>("physicsListName", "FTFP_BERT"))),
+  physicsListName_(G4String(p.get<std::string>("physicsListName", ""))),
   verboseLevel_(p.get<int>("verboseLevel", 0)),
   thePhysicsList_(0),
   theParticleIterator_(G4ParticleTable::GetParticleTable()->GetIterator()),

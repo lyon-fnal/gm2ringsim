@@ -119,7 +119,7 @@ void gm2ringsim::G2GeneralParticleSource::checkForConsistency(){
   // 
   // 1) Spin tracking
   SpinTrackingSettings sts_("SpinTracking");
-  bool const spin_tracking = sts_.spinTrackingEnabled;
+  bool const spin_tracking = sts_.spinTrackingEnabled || sts_.edmTrackingEnabled;
 
   // 2) muon V-A decay
   bool muonVAdecay = false;
@@ -156,7 +156,7 @@ void gm2ringsim::G2GeneralParticleSource::checkForConsistency(){
     message += "Muon V-A decay is on but\n";
     if(!spin_tracking){
       throwException = true;
-      message += "    - no spin tracking set\n";
+      message += "    - no spin or EDM tracking set\n";
     }
     
     if(!polarizedMuonGun && !polarizedPionGun){
@@ -168,7 +168,7 @@ void gm2ringsim::G2GeneralParticleSource::checkForConsistency(){
   
   message = "";
   if(spin_tracking){ 
-    message += "Spin tracking set but\n" ;
+    message += "Spin or EDM tracking set but\n" ;
     if(!muonVAdecay){
       throwException = true;
       message += "    - no muon V-A decay\n";
@@ -186,7 +186,7 @@ void gm2ringsim::G2GeneralParticleSource::checkForConsistency(){
     message += "Polarized muon gun but\n" ;
    if(!spin_tracking){
       throwException = true;
-      message += "    - no spin tracking set\n";
+      message += "    - no spin or EDM tracking set\n";
     }
 
     if(!muonVAdecay){
