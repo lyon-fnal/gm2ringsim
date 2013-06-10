@@ -619,13 +619,25 @@ void MakePlot(TH2F *hist, int r, int i, double *int_prev, double *int_curr, doub
 
 
   if ( hname.Contains("PvhatTurn") || hname.Contains("PrhatTurn") ) {
-    ymax = 12.5; ymin = -12.5;
-    if ( histymax < 10 && histymin > -10 ) {
-      ymax = 10; ymin = -10;
+    if ( hname.Contains("Electron") ) {
+      ymax = 100.0; ymin = -100.0;
+      if ( histymax < 50 && histymin > -50 ) {
+	ymax = 50; ymin = -50;
+      }
+      
+      if ( histymax < 25 && histymin > -25 ) {
+	ymax = 25; ymin = -25;
+      }
     }
-
-    if ( histymax < 5 && histymin > -5 ) {
-      ymax = 5; ymin = -5;
+    else {
+      ymax = 12.5; ymin = -12.5;
+      if ( histymax < 10 && histymin > -10 ) {
+	ymax = 10; ymin = -10;
+      }
+      
+      if ( histymax < 5 && histymin > -5 ) {
+	ymax = 5; ymin = -5;
+      }
     }
   }
 
@@ -638,6 +650,25 @@ void MakePlot(TH2F *hist, int r, int i, double *int_prev, double *int_curr, doub
 
     if ( histymax < 10 && histymin > -10 ) {
       ymax = 10; ymin = -10;
+    }
+  }
+
+
+  if ( hname.Contains("Electron") ) {
+    if ( hname.Contains("Xprime") || hname.Contains("Yprime") ) {
+      xmax = 45.0; xmin = -45.0;
+      ymax = 100.0; ymin = -100.0;
+      if ( histymax < 50 && histymin > -50 ) {
+	ymax = 50; ymin = -50;
+      }
+      
+      if ( histymax < 25 && histymin > -25 ) {
+	ymax = 25; ymin = -25;
+      }
+    }
+    if ( hname.Contains("RhoY") ) {
+      xmax = 45.0; xmin = -45.0;
+      ymax = 45.0; ymin = -45.0;
     }
   }
 
@@ -1431,11 +1462,18 @@ void MakePlot1D(TH1F *hist, int r, int i, double *int_prev, double *int_curr, do
     xmax = 125.0;
   }
   else if ( hname.Contains("_Mom") ) {
-    hist->Rebin(2);
-    //xmin = 3090*(1-3*dPoverP);
-    //xmax = 3090*(1+3*dPoverP);
-    xmin = 1.0*(1-3*dPoverP);
-    xmax = 1.0*(1+3*dPoverP);
+    if ( hname.Contains("_Electron") ) {
+      hist->Rebin(2);
+      xmin = 0.0;
+      xmax = 1.0*(1+3*dPoverP);
+    }
+    else {
+      hist->Rebin(2);
+      //xmin = 3090*(1-3*dPoverP);
+      //xmax = 3090*(1+3*dPoverP);
+      xmin = 1.0*(1-3*dPoverP);
+      xmax = 1.0*(1+3*dPoverP);
+    }
   }
 
 
@@ -1495,6 +1533,19 @@ void MakePlot1D(TH1F *hist, int r, int i, double *int_prev, double *int_curr, do
     if ( histxmin > -5 && histxmax < 5 ) { xmin = -5.0; xmax = 5.0; }
   }
 
+  if ( hname.Contains("_Electron") ) {
+    if ( hname.Contains("dX") ) {
+      hist->Rebin(5);
+    }
+    if ( hname.Contains("dCosTheta") ) {
+      hist->Rebin(5);
+    }
+    if ( hname.Contains("_Mom") ) {
+      hist->Rebin(20);
+    }
+  }
+
+
 
   bool dolog = true;
   bool dologx = false;
@@ -1512,8 +1563,11 @@ void MakePlot1D(TH1F *hist, int r, int i, double *int_prev, double *int_curr, do
        hname.Contains("Vhat") ||
        hname.Contains("Xprime") ||
        hname.Contains("Yprime") ||
+       hname.Contains("dCosTheta") ||
+       hname.Contains("dX") ||
        hname.Contains("Pol") ||
        hname.Contains("PolX") ||
+       hname.Contains("PolY") ||
        hname.Contains("TrackerY") ) {
     dolog = false;
     ymin = 0.0;
@@ -1639,7 +1693,7 @@ void MakePlot1D(TH1F *hist, int r, int i, double *int_prev, double *int_curr, do
   else if ( hname.Contains("Yprime") ) { yt << " mrad"; }
   else if ( hname.Contains("Degree") ) { yt << " ^{#circ}"; }
   else if ( hname.Contains("Xe") || hname.Contains("Vhat") ) { yt << " mm"; }
-  else if ( hname.Contains("Pol") || hname.Contains("PolX") ) { yt << ""; }
+  else if ( hname.Contains("Pol") || hname.Contains("PolX")|| hname.Contains("PolY") ) { yt << ""; }
   else if ( hname.Contains("Rhat") || hname.Contains("Vhat") ) { yt << " mm"; }
   else if ( hname.Contains("Time") ) { yt << " #mus"; }
   else { yt << " [Unit]"; }
@@ -2613,134 +2667,142 @@ void plotinflector()
   
   
 
-  
-  string trknames[16] = {"TrackerRhoTurn", "TrackerYTurn", "TrackerPrhatTurn", "TrackerPvhatTurn", "TrackerMomTurn", "TrackerPolTurn", "TrackerPolXTurn", "TrackerXeTurn", "TrackerRhoOncePerTurn", "TrackerYOncePerTurn", "TrackerPrhatOncePerTurn", "TrackerPvhatOncePerTurn", "TrackerMomOncePerTurn", "TrackerPolOncePerTurn", "TrackerPolXOncePerTurn", "TrackerXeOncePerTurn"};
+  string trknames[9] = {"TrackerRho", "TrackerY", "TrackerPrhat", "TrackerPvhat", "TrackerMom", "TrackerPol", "TrackerPolX", "TrackerPolY", "TrackerXe"};
+  string suffixes[3] = {"Turn", "OncePerTurn", "Turn_Electron"};
+
   int maxturnplots = 1;
   if ( plotdiagnostic ) { 
     maxturnplots = 5;
-    for ( int i = 0; i < 16; i++ ) {
-      zoom = false; zoom2 = false; zoom3 = false;
-      //if ( plotinf ) { continue; }
-      int_prev = -1.0;
-      hname << trknames[i];
-      TH2F *hist = GetHistogram(file, hname.str(), &int_prev, &int_curr, &int_start);
+    for ( int i = 0; i < 3; i++ ) {
+      if ( i == 2 ) { continue; }
+      for ( int j = 0; j < 9; j++ ) {
+	if ( j == 2 || j == 3 ) { continue; }
+	
+	zoom = false; zoom2 = false; zoom3 = false;
+	//if ( plotinf ) { continue; }
+	int_prev = -1.0;
+	hname << trknames[j] << suffixes[i];
+	TH2F *hist = GetHistogram(file, hname.str(), &int_prev, &int_curr, &int_start);
       
-      zoom = false; zoom2 = false; zoom3 = false;
-      MakePlot(hist, -1, -1, &int_prev, &int_curr, &int_start);
-      hname.str("");
-
-      if ( i == 0 ) {
-	if ( hist ) {
-	  int first_bin = 12*10;
-	  int last_bin = 12*5000;
-	  TH1F *h_X_tmp = (TH1F*)(hist->ProjectionY("_py1", first_bin, last_bin));
-	  if ( h_X_tmp ) {
-	    TH1F *h_X = (TH1F*)h_X_tmp->Clone("TrackerRho");
-	    MakePlot1D(h_X, -1, i, &int_prev, &int_curr, &int_start);    
-	    hname.str("");
+	zoom = false; zoom2 = false; zoom3 = false;
+	MakePlot(hist, -1, -1, &int_prev, &int_curr, &int_start);
+	hname.str("");
+	
+	continue;
+	
+	if ( i == 0 && j == 0 ) {
+	  if ( hist ) {
+	    int first_bin = 12*10;
+	    int last_bin = 12*5000;
+	    TH1F *h_X_tmp = (TH1F*)(hist->ProjectionY("_py1", first_bin, last_bin));
+	    if ( h_X_tmp ) {
+	      TH1F *h_X = (TH1F*)h_X_tmp->Clone("TrackerRho");
+	      MakePlot1D(h_X, -1, i, &int_prev, &int_curr, &int_start);    
+	      hname.str("");
+	    }
 	  }
 	}
-      }
-      if ( i == 1 ) {
-	if ( hist ) {
-	  int first_bin = 12*10;
-	  int last_bin = 12*5000;
-	  TH1F *h_Y_tmp = (TH1F*)(hist->ProjectionY("_py2", first_bin, last_bin));
-	  if ( h_Y_tmp ) {
-	    TH1F *h_Y = (TH1F*)h_Y_tmp->Clone("TrackerY");
-	    MakePlot1D(h_Y, -1, i, &int_prev, &int_curr, &int_start);     
-	    hname.str("");  
+	if ( i == 0 && j == 1 ) {
+	  if ( hist ) {
+	    int first_bin = 12*10;
+	    int last_bin = 12*5000;
+	    TH1F *h_Y_tmp = (TH1F*)(hist->ProjectionY("_py2", first_bin, last_bin));
+	    if ( h_Y_tmp ) {
+	      TH1F *h_Y = (TH1F*)h_Y_tmp->Clone("TrackerY");
+	      MakePlot1D(h_Y, -1, i, &int_prev, &int_curr, &int_start);     
+	      hname.str("");  
+	    }
 	  }
-	}
-      }
-      
-      if ( ( runFFT ) && ( i == 0 || i == 1  ) ) {
-	TH1F *hist1D = (TH1F*)hist->ProjectionX();
-	for ( int bin = 1; bin <= hist1D->GetNbinsX(); bin++ ) {
-	  TH1D *yaxis = hist->ProjectionY("tmp", bin, bin);
-	  hist1D->SetBinContent(bin, yaxis->GetMean()+yaxis->GetRMS());
-	  if ( yaxis->GetMean() > 0 || yaxis->GetMean() < 0 ) {
-	    ;//cout << hist1D->GetBinCenter(bin) << "\t" << hist1D->GetBinContent(bin) << endl;
-	  }
-	}
-      
-	TH1F *profX = (TH1F*)hist1D->Clone("RhoTurn1D");
-	TH1 *h_FFT_Mag = 0;
-	TH1 *h_FFT_Ph = 0;
-	TVirtualFFT::SetTransform(0);
-	h_FFT_Mag = profX->FFT(h_FFT_Mag, "MAG");
-	h_FFT_Ph  = profX->FFT(h_FFT_Ph, "PH");
-	cout << "Bins = " << profX->GetNbinsX() << endl;
-	cout << "Bins = " << h_FFT_Mag->GetNbinsX() << endl;
-	TH1F *hprofX2 = (TH1F*)hist1D->Clone("RhoTurn1D");
-	double max = -9.9;
-	double maxbin = -1;
-	double range = profX->GetBinLowEdge(profX->GetNbinsX()-1) + profX->GetBinWidth(1) - profX->GetBinLowEdge(1);
-	TH1F *wavelength = 0;
-	TH1F *mag = 0;
-	TH1F *ph = 0;
-
-	if ( i == 0 ) {
-	  wavelength = new TH1F("WavelengthX", "", profX->GetNbinsX(), 0.0, profX->GetNbinsX()/range);
-	  wavelength->SetXTitle("Radial Betatron Frequency [1/#lambda_{x}]");
-	  mag = (TH1F*)h_FFT_Mag->Clone("MagX");
-	  ph = (TH1F*)h_FFT_Ph->Clone("PhX");
-	}
-	if ( i == 1 ) {
-	  wavelength = new TH1F("WavelengthY", "", profX->GetNbinsX(), 0.0, profX->GetNbinsX()/range);
-	  wavelength->SetXTitle("Vertical Betatron Frequency [1/#lambda_{y}]");
-	  mag = (TH1F*)h_FFT_Mag->Clone("MagY");
-	  ph = (TH1F*)h_FFT_Ph->Clone("PhY");
 	}
 	
-	for ( int bin = 1; bin < h_FFT_Mag->GetNbinsX(); bin++ ) {
-	  wavelength->SetBinContent(bin, h_FFT_Mag->GetBinContent(bin)/range);
-	  if ( h_FFT_Mag->GetBinContent(bin) > max ) {
-	    max = h_FFT_Mag->GetBinContent(bin);
-	    maxbin = bin;
+	if ( ( runFFT ) && ( i == 0 && ( j == 0 || j == 1  ) ) ) {
+	  TH1F *hist1D = (TH1F*)hist->ProjectionX();
+	  for ( int bin = 1; bin <= hist1D->GetNbinsX(); bin++ ) {
+	    TH1D *yaxis = hist->ProjectionY("tmp", bin, bin);
+	    hist1D->SetBinContent(bin, yaxis->GetMean()+yaxis->GetRMS());
+	    if ( yaxis->GetMean() > 0 || yaxis->GetMean() < 0 ) {
+	      ;//cout << hist1D->GetBinCenter(bin) << "\t" << hist1D->GetBinContent(bin) << endl;
+	    }
 	  }
-	  //double binval = h_FFT_Mag->GetBinCenter(bin);
-	  //cout << binval / h_FFT_Mag->GetNbinsX() << "\t" << h_FFT_Mag->GetBinContent(bin) << endl;
+	  
+	  TH1F *profX = (TH1F*)hist1D->Clone("RhoTurn1D");
+	  TH1 *h_FFT_Mag = 0;
+	  TH1 *h_FFT_Ph = 0;
+	  TVirtualFFT::SetTransform(0);
+	  h_FFT_Mag = profX->FFT(h_FFT_Mag, "MAG");
+	  h_FFT_Ph  = profX->FFT(h_FFT_Ph, "PH");
+	  cout << "Bins = " << profX->GetNbinsX() << endl;
+	  cout << "Bins = " << h_FFT_Mag->GetNbinsX() << endl;
+	  TH1F *hprofX2 = (TH1F*)hist1D->Clone("RhoTurn1D");
+	  double max = -9.9;
+	  double maxbin = -1;
+	  double range = profX->GetBinLowEdge(profX->GetNbinsX()-1) + profX->GetBinWidth(1) - profX->GetBinLowEdge(1);
+	  TH1F *wavelength = 0;
+	  TH1F *mag = 0;
+	  TH1F *ph = 0;
+	  
+	  if ( i == 0 && j == 0 ) {
+	    wavelength = new TH1F("WavelengthX", "", profX->GetNbinsX(), 0.0, profX->GetNbinsX()/range);
+	    wavelength->SetXTitle("Radial Betatron Frequency [1/#lambda_{x}]");
+	    mag = (TH1F*)h_FFT_Mag->Clone("MagX");
+	    ph = (TH1F*)h_FFT_Ph->Clone("PhX");
+	  }
+	  if ( i == 0 && j == 1 ) {
+	    wavelength = new TH1F("WavelengthY", "", profX->GetNbinsX(), 0.0, profX->GetNbinsX()/range);
+	    wavelength->SetXTitle("Vertical Betatron Frequency [1/#lambda_{y}]");
+	    mag = (TH1F*)h_FFT_Mag->Clone("MagY");
+	    ph = (TH1F*)h_FFT_Ph->Clone("PhY");
+	  }
+	  
+	  for ( int bin = 1; bin < h_FFT_Mag->GetNbinsX(); bin++ ) {
+	    wavelength->SetBinContent(bin, h_FFT_Mag->GetBinContent(bin)/range);
+	    if ( h_FFT_Mag->GetBinContent(bin) > max ) {
+	      max = h_FFT_Mag->GetBinContent(bin);
+	      maxbin = bin;
+	    }
+	    //double binval = h_FFT_Mag->GetBinCenter(bin);
+	    //cout << binval / h_FFT_Mag->GetNbinsX() << "\t" << h_FFT_Mag->GetBinContent(bin) << endl;
+	  }
+	  
+	  // 	if ( wavelength ) {
+	  // 	  wavelength->AddBinContent(1, wavelength->GetBinContent(0));
+	  // 	  wavelength->AddBinContent(wavelength->GetNbinsX()-1, wavelength->GetBinContent(wavelength->GetNbinsX()));
+	  // 	}
+	  
+	  cout << "Max Freq: " << wavelength->GetMaximum() << endl;
+	  cout << "Max Frequency @ " << h_FFT_Mag->GetBinCenter(maxbin)/range << endl;
+	  cout << "1/Max Freq is " << 1.0/(h_FFT_Mag->GetBinCenter(maxbin)/range) << endl;
+	  cout << "Wavelength is " << TMath::TwoPi() / (h_FFT_Mag->GetBinCenter(maxbin)/range) << endl;      
+	  MakePlot1D(wavelength, -1, j, &int_prev, &int_curr, &int_start);    
+	  hname.str("");
+	  //MakePlot1D(mag, -1, i, &int_prev, &int_curr, &int_start);    
+	  //hname.str("");
+	  //MakePlot1D(ph, -1, i, &int_prev, &int_curr, &int_start);    
+	  //hname.str("");
+	  //MakePlot1D((TH1F*)h_FFT_Mag, -1, i, &int_prev, &int_curr, &int_start);
+	  //hname.str("");
+	  //MakePlot1D((TH1F*)h_FFT_Ph, -1, i, &int_prev, &int_curr, &int_start);    
+	  //hname.str("");
+	  
+	  delete wavelength;
 	}
-
-// 	if ( wavelength ) {
-// 	  wavelength->AddBinContent(1, wavelength->GetBinContent(0));
-// 	  wavelength->AddBinContent(wavelength->GetNbinsX()-1, wavelength->GetBinContent(wavelength->GetNbinsX()));
-// 	}
-
-	cout << "Max Freq: " << wavelength->GetMaximum() << endl;
-	cout << "Max Frequency @ " << h_FFT_Mag->GetBinCenter(maxbin)/range << endl;
-	cout << "1/Max Freq is " << 1.0/(h_FFT_Mag->GetBinCenter(maxbin)/range) << endl;
-	cout << "Wavelength is " << TMath::TwoPi() / (h_FFT_Mag->GetBinCenter(maxbin)/range) << endl;      
-	MakePlot1D(wavelength, -1, i, &int_prev, &int_curr, &int_start);    
-	hname.str("");
-	//MakePlot1D(mag, -1, i, &int_prev, &int_curr, &int_start);    
-	//hname.str("");
-	//MakePlot1D(ph, -1, i, &int_prev, &int_curr, &int_start);    
-	//hname.str("");
-	//MakePlot1D((TH1F*)h_FFT_Mag, -1, i, &int_prev, &int_curr, &int_start);
-	//hname.str("");
-	//MakePlot1D((TH1F*)h_FFT_Ph, -1, i, &int_prev, &int_curr, &int_start);    
-	//hname.str("");
-
-	delete wavelength;
-      }
-
-
-
-      if ( 0 ) {
-	zoom = true; zoom2 = false; zoom3 = false;
-	MakePlot(hist, -1, -1, &int_prev, &int_curr, &int_start);
-
-	zoom = false; zoom2 = true; zoom3 = false;
-	//hist->RebinX(2);
-	MakePlot(hist, -1, -1, &int_prev, &int_curr, &int_start);
-	//hist->RebinY(2);
-
-	zoom = false; zoom2 = false; zoom3 = true;
-	MakePlot(hist, -1, -1, &int_prev, &int_curr, &int_start);
-	hname.str("");
-	zoom = false; zoom2 = false; zoom3 = false;
+	
+	
+	
+	if ( 0 ) {
+	  zoom = true; zoom2 = false; zoom3 = false;
+	  MakePlot(hist, -1, -1, &int_prev, &int_curr, &int_start);
+	  
+	  zoom = false; zoom2 = true; zoom3 = false;
+	  //hist->RebinX(2);
+	  MakePlot(hist, -1, -1, &int_prev, &int_curr, &int_start);
+	  //hist->RebinY(2);
+	  
+	  zoom = false; zoom2 = false; zoom3 = true;
+	  MakePlot(hist, -1, -1, &int_prev, &int_curr, &int_start);
+	  hname.str("");
+	  zoom = false; zoom2 = false; zoom3 = false;
+	}
       }
     }
   }
@@ -2750,157 +2812,208 @@ void plotinflector()
     cout << endl;
   }
 
+  cout << "YO" << endl;
   
 
   if ( plot_phasespace ) {
-  plotringeff = true;
-  for ( int t = 5; t < maxtimes; t++ ) {
-    string time = times[t];
-    if ( times[t] == "-" ) { time = ""; }
-    else { time = "_" + time; }
+    plotringeff = true;
+    for ( int t = 5; t < maxtimes; t++ ) {
+      string time = times[t];
+      if ( times[t] == "-" ) { time = ""; }
+      else { time = "_" + time; }
+      if ( time.find("0us") != string::npos ) { continue; }
+      if ( time.find("5us") != string::npos ) { continue; }
+      if ( time.find("10us") != string::npos ) { continue; }
+      if ( time.find("50us") != string::npos ) { continue; }
+      if ( time.find("100us") != string::npos ) { continue; }
+      if ( time.find("5turns") != string::npos ) { continue; }
+      if ( time.find("10turns") != string::npos ) { continue; }
+      if ( time.find("50turns") != string::npos ) { continue; }
+      if ( time.find("100turns") != string::npos ) { continue; }
       
-    if ( time.find("0us") != string::npos ) { continue; }
-    if ( time.find("5us") != string::npos ) { continue; }
-    if ( time.find("10us") != string::npos ) { continue; }
-    if ( time.find("50us") != string::npos ) { continue; }
-    if ( time.find("100us") != string::npos ) { continue; }
-    if ( time.find("5turns") != string::npos ) { continue; }
-    if ( time.find("10turns") != string::npos ) { continue; }
-    if ( time.find("50turns") != string::npos ) { continue; }
-    if ( time.find("100turns") != string::npos ) { continue; }
+      hname << "RingTracker_Time_Rhat" + time;
+      TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
+      MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
+      hname.str("");
       
-    hname << "RingTracker_Time_Rhat" + time;
-    TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
-    MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
-    hname.str("");
+      cout << time << endl;
+      hname << "RingTracker_Time_Xe" + time;
+      TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
+      MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
+      hname.str("");
       
-    hname << "RingTracker_Time_Xe" + time;
-    TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
-    MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
-    hname.str("");
+      hname << "RingTracker_Time_Vhat" + time;
+      TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
+      MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
+      hname.str("");
       
-    hname << "RingTracker_Time_Vhat" + time;
-    TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
-    MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
-    hname.str("");
+      hname << "RingTracker_Time_Pol" + time;
+      TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
+      MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
+      hname.str("");
       
-    hname << "RingTracker_Time_Pol" + time;
-    TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
-    MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
-    hname.str("");
+      hname << "RingTracker_Time_PolX" + time;
+      TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
+      MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
+      hname.str("");
       
-    hname << "RingTracker_Time_Xprime" + time;
-    TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
-    MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
-    hname.str("");
+      hname << "RingTracker_Time_PolY" + time;
+      TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
+      MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
+      hname.str("");
+      
+      hname << "RingTracker_Time_Xprime" + time;
+      TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
+      MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
+      hname.str("");
+      
+      hname << "RingTracker_Time_Yprime" + time;
+      TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
+      MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
+      hname.str("");
+      
+      //       hname << "RingTracker_Time_RhoY" + time;
+      //       TH2F *hist = GetHistogram(file, hname.str(), &int_prev, &int_curr, &int_start);
+      //       MakePlot(hist, -1, i, &int_prev, &int_curr, &int_start);    
+      //       hname.str("");
+      
+      hname << "RingTracker_Time_Mom" + time;
+      TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
+      MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
+      hname.str("");
+    }
     
-    hname << "RingTracker_Time_Yprime" + time;
-    TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
-    MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
-    hname.str("");
-    
-    //       hname << "RingTracker_Time_RhoY" + time;
-    //       TH2F *hist = GetHistogram(file, hname.str(), &int_prev, &int_curr, &int_start);
-    //       MakePlot(hist, -1, i, &int_prev, &int_curr, &int_start);    
-    //       hname.str("");
-    
-    hname << "RingTracker_Time_Mom" + time;
-    TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
-    MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
-    hname.str("");
-  }
+    plotringeff = false;
+    plotringeff = true;
 
-  plotringeff = false;
-  plotringeff = true;
-
-  for ( int t = 0; t < maxtimes; t++ ) {
-    string time = times[t];
-    if ( times[t] == "-" ) { time = ""; }
-    else { time = "_" + time; }
+    
+    cout << "Truth" << endl;
+    
+    for ( int p = 0; p < 2; p++ ) {
+      string truth_part_name;
+      if ( p == 0 ) { truth_part_name = ""; }
+      if ( p == 1 ) { truth_part_name = "_Electron"; }
       
-    if ( time.find("0us") != string::npos ) { continue; }
-    if ( time.find("5us") != string::npos ) { continue; }
-    if ( time.find("10us") != string::npos ) { continue; }
-    if ( time.find("50us") != string::npos ) { continue; }
-    if ( time.find("100us") != string::npos ) { continue; }
-    if ( time.find("5turns") != string::npos ) { continue; }
-    if ( time.find("10turns") != string::npos ) { continue; }
-    if ( time.find("50turns") != string::npos ) { continue; }
-    if ( time.find("100turns") != string::npos ) { continue; }
+      for ( int t = 0; t < maxtimes; t++ ) {
+	string time = times[t];
+	if ( times[t] == "-" ) { time = ""; }
+	else { time = "_" + time; }
+	
+	if ( time.find("0us") != string::npos ) { continue; }
+	if ( time.find("5us") != string::npos ) { continue; }
+	if ( time.find("10us") != string::npos ) { continue; }
+	if ( time.find("50us") != string::npos ) { continue; }
+	if ( time.find("100us") != string::npos ) { continue; }
+	if ( time.find("5turns") != string::npos ) { continue; }
+	if ( time.find("10turns") != string::npos ) { continue; }
+	if ( time.find("50turns") != string::npos ) { continue; }
+	if ( time.find("100turns") != string::npos ) { continue; }
+	
+	if ( p == 1 && t > 0 ) { continue; }
+	
+	
+	hname << "G4Track_Time_Rhat" + time + truth_part_name;
+	TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
+	MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
+	hname.str("");
+	
+	hname << "G4Track_Time_Xe" + time + truth_part_name;
+	TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
+	MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
+	hname.str("");
+	
+	if ( p == 1 ) {
+	  hname << "G4Track_Time_dXdCosTheta" + time + truth_part_name;
+	  TH2F *hist = GetHistogram(file, hname.str(), &int_prev, &int_curr, &int_start);
+	  MakePlot(hist, -1, i, &int_prev, &int_curr, &int_start);    
+	  hname.str("");
 
+	  hname << "G4Track_Time_dX" + time + truth_part_name;
+	  TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
+	  MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
+	  hname.str("");
 
-    hname << "G4Track_Time_Rhat" + time;
-    TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
-    MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
-    hname.str("");
-
-    hname << "G4Track_Time_Xe" + time;
-    TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
-    MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
-    hname.str("");
+	  hname << "G4Track_Time_dCosTheta" + time + truth_part_name;
+	  TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
+	  MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
+	  hname.str("");
+	}
       
-    hname << "G4Track_Time_Vhat" + time;
-    TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
-    MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
-    hname.str("");
-      
-    hname << "G4Track_Time_Xprime" + time;
-    TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
-    MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
-    hname.str("");
+	hname << "G4Track_Time_Vhat" + time + truth_part_name;
+	TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
+	MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
+	hname.str("");
+	
+	hname << "G4Track_Time_Xprime" + time + truth_part_name;
+	TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
+	MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
+	hname.str("");
+	
+	hname << "G4Track_Time_Yprime" + time + truth_part_name;
+	TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
+	MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
+	hname.str("");
     
-    hname << "G4Track_Time_Yprime" + time;
-    TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
-    MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
-    hname.str("");
+	hname << "G4Track_Time_Mom" + time + truth_part_name;
+	TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
+	MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
+	hname.str("");
     
-    hname << "G4Track_Time_Mom" + time;
-    TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
-    MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
-    hname.str("");
+	hname << "G4Track_Time_Pol" + time + truth_part_name;
+	TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
+	MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
+	hname.str("");
     
-    hname << "G4Track_Time_Pol" + time;
-    TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
-    MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
-    hname.str("");
+	hname << "G4Track_Time_PolX" + time + truth_part_name;
+	TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
+	MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
+	hname.str("");
+    
+	hname << "G4Track_Time_PolY" + time + truth_part_name;
+	TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
+	MakePlot1D(hist1d, -1, i, &int_prev, &int_curr, &int_start);    
+	hname.str("");
 
 
-    hname << "G4Track_Time_XprimeX" + time;
-    TH2F *hist = GetHistogram(file, hname.str(), &int_prev, &int_curr, &int_start);
-    MakePlot(hist, -1, -1, &int_prev, &int_curr, &int_start);    
-    hname.str("");
+	hname << "G4Track_Time_XprimeX" + time + truth_part_name;
+	TH2F *hist = GetHistogram(file, hname.str(), &int_prev, &int_curr, &int_start);
+	MakePlot(hist, -1, -1, &int_prev, &int_curr, &int_start);    
+	hname.str("");
     
-    hname << "G4Track_Time_YprimeY" + time;
-    TH2F *hist = GetHistogram(file, hname.str(), &int_prev, &int_curr, &int_start);
-    MakePlot(hist, -1, -1, &int_prev, &int_curr, &int_start);    
-    hname.str("");
+	hname << "G4Track_Time_YprimeY" + time + truth_part_name;
+	TH2F *hist = GetHistogram(file, hname.str(), &int_prev, &int_curr, &int_start);
+	MakePlot(hist, -1, -1, &int_prev, &int_curr, &int_start);    
+	hname.str("");
     
-    //     hname << "G4Track_Time_Mom" + time;
-    //     TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
-    //     MakePlot1D(hist1d, -1, -1, &int_prev, &int_curr, &int_start);    
-    //     hname.str("");
+	//     hname << "G4Track_Time_Mom" + time + truth_part_name;
+	//     TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
+	//     MakePlot1D(hist1d, -1, -1, &int_prev, &int_curr, &int_start);    
+	//     hname.str("");
     
-    //     hname << "G4Track_Time_t0" + time;
-    //     TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
-    //     MakePlot1D(hist1d, -1, -1, &int_prev, &int_curr, &int_start);    
-    //     hname.str("");
+	//     hname << "G4Track_Time_t0" + time + truth_part_name;
+	//     TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
+	//     MakePlot1D(hist1d, -1, -1, &int_prev, &int_curr, &int_start);    
+	//     hname.str("");
     
-    hname << "G4Track_Time_RhoY" + time;
-    TH2F *hist = GetHistogram(file, hname.str(), &int_prev, &int_curr, &int_start);
-    MakePlot(hist, -1, -1, &int_prev, &int_curr, &int_start);    
-    hname.str("");
+	hname << "G4Track_Time_RhoY" + time + truth_part_name;
+	TH2F *hist = GetHistogram(file, hname.str(), &int_prev, &int_curr, &int_start);
+	MakePlot(hist, -1, -1, &int_prev, &int_curr, &int_start);    
+	hname.str("");
     
-    //     hname << "G4Track_Time_XZ" + time;
-    //     TH2F *hist = GetHistogram(file, hname.str(), &int_prev, &int_curr, &int_start);
-    //     MakePlot(hist, -1, -1, &int_prev, &int_curr, &int_start);    
-    //     hname.str("");
-  }
+	//     hname << "G4Track_Time_XZ" + time + truth_part_name;
+	//     TH2F *hist = GetHistogram(file, hname.str(), &int_prev, &int_curr, &int_start);
+	//     MakePlot(hist, -1, -1, &int_prev, &int_curr, &int_start);    
+	//     hname.str("");
+      }
+    }
   }
   else {
     cout << endl;
     cout << "Not plotting time averaged phase space distributions." << endl;
     cout << endl;
   }
+
+  cout << "Down here" << endl;
 
   plotringeff = false;
 

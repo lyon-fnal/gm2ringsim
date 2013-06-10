@@ -26,6 +26,7 @@ namespace gm2ringsim {
     ts.volumeUID = pth->volumeUID;
     ts.trackID = pth->trackID;
     ts.time = pth->time;
+    ts.pdgid = pth->PDGID;
 
 
     //-------------------

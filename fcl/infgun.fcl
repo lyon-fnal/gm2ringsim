@@ -17,7 +17,7 @@ process_name:myProcessName
 
 source: {
   module_type: EmptyEvent
-  maxEvents:  200
+  maxEvents:  2500
 }
 
 services: {
@@ -33,7 +33,7 @@ services: {
        }
        LogToFile : {
          type : "file"
-         filename : "/gm2/data/users/tgadfort/gm2ringsim/output/ScrapingOFF_NewSupports_35Turns_CentralOrbit_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize2pimmmrad_UniformInflectorGun_PerfectMatch_dP001_CollimatorON/ScrapingOFF_NewSupports_35Turns_CentralOrbit_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize2pimmmrad_UniformInflectorGun_PerfectMatch_dP001_CollimatorON.log"
+         filename : "/gm2/data/users/tgadfort/gm2ringsim/output/ScrapingOFF_NewSupports_5Turns_muplus_EDMTracking_Eta_3em4_CentralOrbit_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize0pimmmrad_UniformInflectorGun_PerfectMatch_dP001_CollimatorON_StandardModelMuonDecay/ScrapingOFF_NewSupports_5Turns_muplus_EDMTracking_Eta_3em4_CentralOrbit_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize0pimmmrad_UniformInflectorGun_PerfectMatch_dP001_CollimatorON_StandardModelMuonDecay.log"
          append : false
          threshold : "ERROR"
        }
@@ -69,9 +69,9 @@ services: {
      RunSettings : {
        SpinTracking : {
 	   spinTrackingEnabled : false
-	   edmTrackingEnabled : false
+	   edmTrackingEnabled : true
 	   Q : 1
-	   Eta : 0.00
+	   Eta : 3e-4
 	   Gm2 : -1.0
        }
       G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel
@@ -93,7 +93,9 @@ services: {
       }
 
     physicalVolumeStore: {}
-    Gm2PhysicsList: {}
+    Gm2PhysicsList: {
+	muonDecayMode: sm
+    }
 
     TrackingAction : {
           name : "trackingAction"
@@ -104,28 +106,19 @@ services: {
 
     ClockAction: {}
 
-//    G2PGA: {
-//	      name: "primary"
-//    }
-
-//    MuonGasPGA: {
-//        name: "muongas"
-//        muonGasVerbosity: false
-//    }
-
     InflectorPGA: {
         name: "inflectorgun"
         inflectorVerbosity: true
 	SigmaT: 25
-	EmittanceX: 2
-	EmittanceY: 2
+	EmittanceX: 0
+	EmittanceY: 0
 	BetaX:  7.66477
 	BetaY:  19.0763
 	AlphaX:  0.0
 	AlphaY:  0.0
 	Pmean: -1
 	dPOverP: 0.0001
-	Particle: "pi+"
+	Particle: "mu+"
 	StartUpstream:  false
 	StartUpstreamCryo:  false
 	StartDownstream:  false
@@ -155,8 +148,8 @@ services: {
 
     MuonStorageStatusAction: {
       name: "MuonStorageStatusAction"
-      turnsForStorage: 35
-      heartbeatFreq: 20
+      turnsForStorage: 5
+      heartbeatFreq: 250
     }
 
   } //user:
@@ -165,7 +158,7 @@ services: {
 outputs: {
 out1: {
   module_type: RootOutput   
-  fileName: "/gm2/data/users/tgadfort/gm2ringsim/output/ScrapingOFF_NewSupports_35Turns_CentralOrbit_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize2pimmmrad_UniformInflectorGun_PerfectMatch_dP001_CollimatorON/ScrapingOFF_NewSupports_35Turns_CentralOrbit_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize2pimmmrad_UniformInflectorGun_PerfectMatch_dP001_CollimatorON.root"
+  fileName: "/gm2/data/users/tgadfort/gm2ringsim/output/ScrapingOFF_NewSupports_5Turns_muplus_EDMTracking_Eta_3em4_CentralOrbit_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize0pimmmrad_UniformInflectorGun_PerfectMatch_dP001_CollimatorON_StandardModelMuonDecay/ScrapingOFF_NewSupports_5Turns_muplus_EDMTracking_Eta_3em4_CentralOrbit_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize0pimmmrad_UniformInflectorGun_PerfectMatch_dP001_CollimatorON_StandardModelMuonDecay.root"
   }
 }
 

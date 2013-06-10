@@ -133,10 +133,10 @@ void gm2ringsim::TrackingAction::preUserTrackingAction(const G4Track * currentTr
   // Don't store unwanted truth particles
   //-------------------------------------
   G4cout.precision(3);
+  if ( debug ) { G4cout << "Found track[" << currentTrack->GetParticleDefinition()->GetParticleName() << "] [t=" << currentTrack->GetGlobalTime() << "] [" << currentTrack->GetParentID() << "] : " << keep_track << G4endl; }
   if ( debug && !keep_track ) { G4cout << "Not storing track [" << currentTrack->GetDefinition()->GetParticleName() << "] for some reason." << G4endl; }
   if ( keep_track == false ) { return; }
   
-  if ( debug  ) { G4cout << "Found track[" << currentTrack->GetParticleDefinition()->GetParticleName() << "] [t=" << currentTrack->GetGlobalTime() << "] [" << currentTrack->GetParentID() << "] : " << keep_track << G4endl; }
 
   // Create a hit
   TrackingActionArtRecord tr;
@@ -179,6 +179,8 @@ void gm2ringsim::TrackingAction::preUserTrackingAction(const G4Track * currentTr
   tr.p = mom.mag();
   tr.prhat = prhat;
   tr.pvhat = pvhat;
+  tr.e = currentTrack->GetTotalEnergy();
+
 
 
   //-----------------------
@@ -187,7 +189,7 @@ void gm2ringsim::TrackingAction::preUserTrackingAction(const G4Track * currentTr
   tr.polx = pol.x();
   tr.poly = pol.y();
   tr.polz = pol.z();
-
+  //G4cout << tr.trackType << "\tPol[x,z] = " << pol.x() << "\t" << pol.z() << G4endl;
   
   // Add the hit to our collection
   myArtHits_->push_back(tr);

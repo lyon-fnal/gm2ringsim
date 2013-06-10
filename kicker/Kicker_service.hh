@@ -25,6 +25,9 @@
 #include "gm2ringsim/common/spin/SpinController.hh"
 #include "gm2ringsim/actions/SpinTrackingSettings.hh"
 
+#include "gm2ringsim/fields/g2EqEMFieldWithSpin.hh"
+#include "gm2ringsim/fields/g2EqEMFieldWithEDM.hh"
+
 #include <vector>
 
 // Get the base class for the service
@@ -69,6 +72,8 @@ namespace gm2ringsim {
       KickModifier *modifier_[3];
       G4MagneticField *kickerMagField_[3];
       G4Mag_EqRhs *iEquation_[3];
+      g2EqEMFieldWithSpin *iEquation2_[3];
+      g2EqEMFieldWithEDM *iEquation3_[3];
       G4MagIntegratorStepper *iStepper_[3];
       G4ChordFinder *iChordFinder_[3];
       G4FieldManager *manager_[3];

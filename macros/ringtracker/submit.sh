@@ -186,6 +186,33 @@ bestlaunches()
 name()
 {
     extra="Scraping${scraping}${quadname}${numturns}Turns"    
+ 
+    if [ ${particle} == "e+" ]; then
+	particlename="eplus"
+    elif [ ${particle} == "e-" ]; then
+	particlename="eminus"
+    elif [ ${particle} == "mu+" ]; then
+	particlename="muplus"
+    elif [ ${particle} == "mu-" ]; then
+	particlename="muminus"
+    elif [ ${particle} == "pi+" ]; then
+	particlename="piplus"
+    elif [ ${particle} == "pi-" ]; then
+	particlename="piminus"
+    else
+	particlename="${particle}"
+    fi
+    extra="${extra}_${particlename}"
+
+    if [ -z ${spintracking} ]; then
+	extra="${extra}_NoSpinTracking"
+    else
+	if [ ${spintracking} == "spin" ]; then
+	    extra="${extra}_SpinTracking"
+	elif [ ${spintracking} == "edm" ]; then
+	    extra="${extra}_EDMTracking_Eta_${edmsize}"
+	fi
+    fi
 
     if [ ${beamstart} == "uc" ] || [ ${beamstart} == "UpstreamCryo" ]; then
 	extra="${extra}_UpstreamCryo"
@@ -430,7 +457,13 @@ name()
     fi
     
     if [ ${muondecay} == "standard" ]; then
-	extra="${extra}_MuonDecayON"
+	extra="${extra}_StandardMuonDecay"
+    elif [ ${muondecay} == "sm" ]; then
+	extra="${extra}_StandardModelMuonDecay"
+    elif [ ${muondecay} == "iso" ]; then
+	extra="${extra}_IsotropicMuonDecay"
+    elif [ ${muondecay} == "none" ]; then
+	extra="${extra}_NoMuonDecay"
     fi
 }
 
@@ -538,7 +571,7 @@ export evts=10000
 #
 #
 export numturns=101
-export muondecay="none"
+#export muondecay="none"
 #export muondecay="standard"
 
 #
@@ -549,6 +582,12 @@ export keepringhits="on"
 # Collimator Status
 #
 export collimator_status=1
+
+#
+# Spin Tracking
+#
+export spintrackingname=false
+export edmtrackingname=false
 
 if [ ${sub} == 0 ]; then
     if [ ${infstart} == 1 ]; then
@@ -663,10 +702,53 @@ until [ -z ${1} ]; do
 	clean=1
 	shift 1
 	continue
+    elif [ ${1} == "decay" ]; then
+	shift 1
+	muondecay=${1}
+	export muondecay=${1}
+	shift 1
+	continue
+    elif [ ${1} == "spin" ]; then
+	spintracking="spin"
+	export spintrackingname=true	
+	shift 1
+	continue
+    elif [ ${1} == "edm" ]; then
+	spintracking="edm"
+	export edmtrackingname=true
+	shift 1
+	continue
+    elif [ ${1} == "edmsize" ]; then
+	shift 1
+	edmsize=${1}
+	edmval=0.0
+	mags="3 4 5 6 7 8 9"
+	nums="1 2 3 4 5 6 7 8 9"
+	for mag in ${mags}; do
+	    if ! [ ${edmsize/"m${mag}"/} == ${edmsize} ]; then
+		for num in ${nums}; do
+		    if ! [ ${edmsize/"${num}em"/} == ${edmsize} ]; then
+			edmval="${num}e-${mag}"
+		    fi
+		done
+	    fi
+	done
+	export edmval="${edmval}"
+	echo "EDM = ${edmval}"
+	shift 1
+	continue
     elif [ ${1} == "numturns" ]; then
 	shift 1
 	numturns=${1}
 	export numturns=${1}
+	continue
+    elif [ ${1} == "Particle" ]; then
+	shift 1
+	particle=${1}
+	export particle=${1}
+	shift 1
+	charge=${1}
+	export charge=${1}
 	continue
     elif [ ${1} == "scraping" ]; then
 	shift 1
@@ -1312,7 +1394,8 @@ for o in ${offsets}; do
 		    
 		    njobs="1"
 		    if [ ${submit} == 1 ]; then
-			echo "jobsub -e fullDir -e basename -e MYREL -N ${njobs} -g condor.sh"
+			echo "jobsub -g --opportunistic -dMYDIR ${fullDir} sub2.sh"
+#			echo "jobsub -e fullDir -e basename -e MYREL -N ${njobs} -g condor2.sh"
 		    fi
 		    
 		    ./makefcl.sh "inflector" 
@@ -1321,12 +1404,17 @@ for o in ${offsets}; do
 			    rm cmd.sh
 			fi
 			echo "Output Directory [${fullDir}]"
-			echo "jobsub -e fullDir -e basename -e MYREL -N ${njobs} -g condor.sh" > cmd.sh
-			chmod 777 cmd.sh
-			sleep 1
-			source cmd.sh
-			rm cmd.sh
-			sleep 1
+			MYDIR=${fullDir}
+#			echo "jobsub -g --opportunistic -d ${MYDIR} -e MYREL -e fullDir -N ${njobs} -g condor2.sh" > cmd.sh
+#			echo "jobsub -g --opportunistic -e fullDir -e basename -e MYREL -N ${njobs} -g condor2.sh" > cmd.sh
+#			echo "jobsub -e fullDir -e basename -e MYREL -N ${njobs} -g condor2.sh" > cmd.sh
+			
+			jobsub -g --opportunistic -dMYDIR ${fullDir} sub2.sh
+#			chmod 777 cmd.sh
+#			sleep 1
+#			source cmd.sh
+#			rm cmd.sh
+#			sleep 1
 		    else			
 			if [ -a ${fullDir}/runner.fcl ]; then
 			    echo ${fullDir}/runner.fcl
@@ -1334,7 +1422,10 @@ for o in ${offsets}; do
 				rm dump
 				gm2 -c ${fullDir}/runner.fcl | tee dump
 			    else
+				touch ${fullDir}/START
 				gm2 -c ${fullDir}/runner.fcl | tee ${fullDir}/output.dat
+				rm ${fullDir}/START
+				touch ${fullDir}/DONE
 #				mv ${extra}*.root ${fullDir}/
 				echo ""
 				echo "./run.sh ${subDir}"

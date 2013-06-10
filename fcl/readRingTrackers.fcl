@@ -1,7 +1,7 @@
 services: {
 
   TFileService: {
-    fileName: "rootfiles/gm2ringsim_ScrapingOFF_NewSupports_35Turns_CentralOrbit_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize2pimmmrad_UniformInflectorGun_PerfectMatch_dP001_CollimatorON.root"
+    fileName: "rootfiles/gm2ringsim_ScrapingOFF_NewSupports_5Turns_muplus_EDMTracking_Eta_3em4_CentralOrbit_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize0pimmmrad_UniformInflectorGun_PerfectMatch_dP001_CollimatorON_StandardModelMuonDecay.root"
   }
 
   message : {
@@ -31,7 +31,7 @@ process_name: readRingTrackers
 source: {
    module_type: RootInput
    maxEvents:  -1
-   fileNames: [ "/gm2/data/users/tgadfort/gm2ringsim/output/ScrapingOFF_NewSupports_35Turns_CentralOrbit_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize2pimmmrad_UniformInflectorGun_PerfectMatch_dP001_CollimatorON/ScrapingOFF_NewSupports_35Turns_CentralOrbit_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize2pimmmrad_UniformInflectorGun_PerfectMatch_dP001_CollimatorON.root" ]
+   fileNames: [ "/gm2/data/users/tgadfort/gm2ringsim/output/ScrapingOFF_NewSupports_5Turns_muplus_EDMTracking_Eta_3em4_CentralOrbit_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize0pimmmrad_UniformInflectorGun_PerfectMatch_dP001_CollimatorON_StandardModelMuonDecay/ScrapingOFF_NewSupports_5Turns_muplus_EDMTracking_Eta_3em4_CentralOrbit_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize0pimmmrad_UniformInflectorGun_PerfectMatch_dP001_CollimatorON_StandardModelMuonDecay.root" ]
 }
 
 physics: {
@@ -41,8 +41,8 @@ physics: {
       hist_dir: ""
       tree_dir: ""
       beamstart: "CentralOrbit"
-      basename: "ScrapingOFF_NewSupports_35Turns_CentralOrbit_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize2pimmmrad_UniformInflectorGun_PerfectMatch_dP001_CollimatorON"
-      maxturns: 35
+      basename: "ScrapingOFF_NewSupports_5Turns_muplus_EDMTracking_Eta_3em4_CentralOrbit_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize0pimmmrad_UniformInflectorGun_PerfectMatch_dP001_CollimatorON_StandardModelMuonDecay"
+      maxturns: 5
       LaunchAngle: 0
       InflectorAngle: 0
       StorageOffset: -1

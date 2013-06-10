@@ -26,6 +26,7 @@ namespace gm2ringsim {
       theta(0),
       time(0),
       p(0),
+      e(0),
       prhat(0),
       pvhat(0)
     {}
@@ -63,6 +64,8 @@ namespace gm2ringsim {
 
     // Total momentum of the particle at birth
     double p;
+
+    double e;
 
     // Fraction of the particle's momentum oriented radially at birth
     double prhat;
