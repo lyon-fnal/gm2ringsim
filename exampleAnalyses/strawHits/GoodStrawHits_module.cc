@@ -19,19 +19,23 @@
 #include "TVector3.h"
 
 namespace gm2ringsim {
-  class GoodStrawHits;
   struct Track;
+  //struct Hit;
+  class GoodStrawHits;
 }
 
 
+/*struct gm2ringsim::Hit{
+  int strawNumber;
+  int layerNumber;
+  int viewNumber;
+  int strawInLayer;
+  int stationNumber;
+  TVector3 position;
+};*/
+
 struct gm2ringsim::Track{
   std::vector<int> strawsHit;
-  std::vector<int> layersHit;
-  std::vector<int> viewsHit;
-  std::vector<int> strawInRowHit;
-  std::vector<int> stationsHit;
-  std::vector<int> trackID;
-  std::vector<TVector3> position;
   std::vector<std::string> particle_name;
   std::vector<int> parentID;
 };
@@ -86,14 +90,7 @@ bool gm2ringsim::GoodStrawHits::filter(art::Event & e)
   Track track_info;;
 
   for ( auto hdata : hits) {
-    TVector3 the_position(hdata.x_global, hdata.z_global, hdata.y_global);
     track_info.strawsHit.push_back(hdata.strawNumber);
-    track_info.strawInRowHit.push_back(hdata.strawInRow);
-    track_info.layersHit.push_back(hdata.layerNumber);
-    track_info.viewsHit.push_back(hdata.viewNumber);
-    track_info.stationsHit.push_back(hdata.stationNumber);
-    track_info.position.push_back(the_position);
-    track_info.trackID.push_back(hdata.trackID);
     track_info.particle_name.push_back(hdata.particle_name);
     track_info.parentID.push_back(hdata.parent_ID);
     

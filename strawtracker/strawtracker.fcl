@@ -6,19 +6,19 @@ BEGIN_PROLOG
 strawtracker_geom : {
     
 
-  whichScallopLocations: [12] //[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]
-  strawStationLocation: [540.0, 625, 710 , 795, 880, 965, 1050, 1135, 1220, 1305, 1390 ] 
-  strawStationSize: [122.0, 122.0, 122.0, 122.0, 122.0, 170.0, 170, 170, 170, 170, 170] 
+  whichScallopLocations: [12]
+  strawStationLocation: [540.0, 625, 710 , 795, 880, 965, 1050, 1135, 1220, 1305, 1390 ]
+  strawStationSize: [122.0, 122.0, 122.0, 122.0, 122.0, 170.0, 170, 170, 170, 170, 170]
   strawStationOffset: [0,10,20,30,40, 0, 5, 10, 15, 20, 18]
   strawStationType: [16,16, 16, 16, 16, 24, 24, 24, 24, 24, 24] 
   strawView: 2
   strawLayers: 2
-  strawStationHeight: 153.2
-  strawStationWidth: 74.5
+  strawStationHeight: 141
+  strawStationWidth: 76.5
   
   innerRadiusOfTheStraw:  0 //mm
   outerRadiusOfTheStraw: 2.55 //mm
-  heightOfTheStraw: 10 //cm
+  heightOfTheStraw: 9.1 //cm
   startAngleOfTheStraw: 0 //deg
   spanningAngleOfTheStraw:  360. //deg
 
@@ -26,8 +26,8 @@ strawtracker_geom : {
   straw_diameter: 5.1 //mm
   layer_angle: 7.5 //deg
   
-  x_position_straw0: [10.79, 13.51, 30.59, 26.87]
-  y_position: [13.0, 17.76, 32.7, 37.46]
+  x_position_straw0: [18.98, 16.21, 28.19, 30.96]
+  y_position: [37.86, 42.62, 59.46, 64.22]
   
   displayStation: true
   stationColor: [0.2, 0.6, 1.0, 1.0] //blue
