@@ -180,9 +180,10 @@ G4bool gm2ringsim::XtalSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){
             // 	      << " edep " << xHit->energyDep
             // 	      << " length " << xHit->trackLength << std::endl ;
             
-        } else if ( pdg == 0 ) {
-            std::cout << "Track id " << thisID << " for optical photon entering new volume" << std::endl;
         }
+        // else if ( pdg == 0 ) {
+            // std::cout << "Track id " << thisID << " for optical photon entering new volume" << std::endl;
+        // }
         if ( initiatedShower ) {
             int hitIndex = xtalID_[ copyID ];
             m_parentPosition.setY(0);
