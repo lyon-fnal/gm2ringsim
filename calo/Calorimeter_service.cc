@@ -232,6 +232,7 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
     int xtalCount = 0 ;
     int nXtalRows = caloGeom.nXtalRows;
     int nXtalCols = caloGeom.nXtalCols;
+    int nXtalsPerCalo = nXtalRows * nXtalCols;
     
     // --- loop over rows, starting with bottom (smallest y coordinate)
     for( int irow = 0 ; irow < nXtalRows ; ++irow )
@@ -281,7 +282,7 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
                                   xtalName.str(),
                                   caloBound_L,
                                   false,
-                                  xtalCount ) ;
+                                  (calorimeterNumber * nXtalsPerCalo) + xtalCount ) ;
             
 
             // --- declare optical coupling and photodetector logical volumes outside if statemnt
@@ -338,6 +339,9 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
             // --- optical coupling visual attributes
             artg4::setVisAtts(opticalCoupling_L, caloGeom.displayCrystalArray, caloGeom.opticalCouplingColor);
             
+            // -- include optical coupling volume with xtalSD
+            opticalCoupling_L->SetSensitiveDetector(xtalSD_);
+            
             // --- photodetector visual attributes
             artg4::setVisAtts(photodetector_L, caloGeom.displayCrystalArray, caloGeom.photodetectorColor);
             
@@ -355,7 +359,7 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
                                   ocName.str(),
                                   backWrapping_L,
                                   false,
-                                  xtalCount ) ;
+                                  (calorimeterNumber * nXtalsPerCalo) + xtalCount ) ;
 
             // --- place photodetector volume inside caloBound volume
             std::ostringstream pdName;
@@ -368,7 +372,7 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
                               pdName.str(),
                               caloBound_L,
                               false,
-                              xtalCount ) ;
+                              (calorimeterNumber * nXtalsPerCalo) + xtalCount ) ;
             
             // --- Define the optical surface for the long side
                 G4OpticalSurface* sideXtalSurface =
@@ -440,9 +444,12 @@ std::vector<G4LogicalVolume *> gm2ringsim::Calorimeter::doBuildLVs() {
     
     // make sure sensitive detectors have the right number of xtals/photodetectors
     int nCalo = caloGeom.nCalorimeters;
-    int nXtals = nCalo * caloGeom.nXtalRows * caloGeom.nXtalCols;
-    xtalSD_->setXtalNum(nXtals);
-    photodetectorSD_->setPhotodetectorNum(nXtals);
+    int nXtalsPerCalo = caloGeom.nXtalRows * caloGeom.nXtalCols;
+    int nXtalsTotal = nCalo * nXtalsPerCalo;
+    xtalSD_->setTotalXtals(nXtalsTotal);
+    photodetectorSD_->setTotalPhotodetectors(nXtalsTotal);
+    xtalSD_->setXtalsPerCalo(nXtalsPerCalo);
+    photodetectorSD_->setPhotodetectorsPerCalo(nXtalsPerCalo);
 
     // Create the vector of logical volumes
     std::vector<G4LogicalVolume*> calorimeterLVs;
@@ -508,7 +515,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Calorimeter::doPlaceToPVs( std::vec
                                                     calorimeterLabel,
                                                     stations[ calorimeterNum ],
                                                     false,
-                                                    0 ) );
+                                                    calorimeterNum ) );
         
         
         calorimeterNum++;
@@ -656,8 +663,8 @@ void gm2ringsim::Calorimeter::doFillEventWithXtalPhotonHits(G4HCofThisEvent * hc
                                     e->xtalNum,
                                     e->trackID,
                                     e->local_pos.x(), // radial coordinate
-                                    e->local_pos.z(), // thickness coordinate
                                     e->local_pos.y(), // vertical coordinate
+                                    e->local_pos.z(), // thickness coordinate
                                     e->cosTheta,
                                     e->phi,
                                     e->energy,
