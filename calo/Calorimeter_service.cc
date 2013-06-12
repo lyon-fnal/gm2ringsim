@@ -663,8 +663,8 @@ void gm2ringsim::Calorimeter::doFillEventWithXtalPhotonHits(G4HCofThisEvent * hc
                                     e->xtalNum,
                                     e->trackID,
                                     e->local_pos.x(), // radial coordinate
-                                    e->local_pos.z(), // thickness coordinate
                                     e->local_pos.y(), // vertical coordinate
+                                    e->local_pos.z(), // thickness coordinate
                                     e->cosTheta,
                                     e->phi,
                                     e->energy,
