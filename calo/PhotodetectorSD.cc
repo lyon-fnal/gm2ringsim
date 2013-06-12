@@ -60,9 +60,10 @@ void gm2ringsim::PhotodetectorSD::Initialize(G4HCofThisEvent* HCoTE){
     HCoTE->AddHitsCollection( thisHCID, thisHC );
     HCoTE->AddHitsCollection( thisPhotonHCID, thisPhotonHC );
     
-    for( G4int i = 0 ; i < nPhotodetectors_ ; ++i )
+    if (photodetectorID_.size() < nPhotodetectorsTotal_) photodetectorID_.resize(nPhotodetectorsTotal_);
+    for( unsigned int i = 0 ; i < photodetectorID_.size() ; ++i )
     {
-        photodetectorID_.push_back(-1) ;
+        photodetectorID_[i] = -1 ;
     }
 }
 
@@ -81,6 +82,10 @@ G4bool gm2ringsim::PhotodetectorSD::ProcessHits(G4Step* thisStep, G4TouchableHis
     G4ThreeVector local_mom = global_mom;
     local_mom.transform(*rot);
     
+    // find out which calorimeter station & which photodetector contain this step
+    int copyID = thisStep->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo(); // each photodetector in the entire ring has a unique copy number
+    int caloNum = copyID / nPhotodetectorsPerCalo_ ; // integer division
+    int PDNum = copyID % nPhotodetectorsPerCalo_ ; // photodetector num local to that calo
     
     //   if( track->GetParticleDefinition()->GetPDGEncoding() == 0 ) // opticalphoton
     if( track->GetDefinition()->GetPDGEncoding() == 0 ) // opticalphoton
@@ -98,6 +103,8 @@ G4bool gm2ringsim::PhotodetectorSD::ProcessHits(G4Step* thisStep, G4TouchableHis
             
             // Store ALL photons
             PhotodetectorPhotonHit* ph = new PhotodetectorPhotonHit(thisStep) ;
+            ph->caloNum = caloNum ;
+            ph->photodetectorNum = PDNum ;
             thisPhotonHC->insert(ph);
             
             // Apply photon detection efficiency
@@ -349,27 +356,11 @@ G4bool gm2ringsim::PhotodetectorSD::ProcessHits(G4Step* thisStep, G4TouchableHis
             ph->accepted = true ;
             PhotonHitCorrelator::getInstance().registerPhotodetectorTrack( track->GetTrackID(), true );
             
-            //       std::cout << "Photodetector Track " << track->GetTrackID()
-            // 		<< " name " << track->GetParticleDefinition()->GetParticleName()
-            // 		<< " mat " << track->GetMaterial()->GetName()
-            // 		<< std::endl
-            // 		<< " pos " << track->GetPosition()
-            // 		<< " mom " << track->GetMomentum()
-            // 		<< std::endl ;
-            
-            G4TouchableHistory* hist =
-            (G4TouchableHistory*)(thisStep->GetPreStepPoint()->GetTouchable());
-            //const G4VPhysicalVolume* physVol = hist->GetVolume();
-            G4int copyID = hist->GetReplicaNumber();
-            
-            //       std::cout << "Photodetector copy " << copyID
-            // 		<< " track " << track->GetTrackID()
-            // 		<< " pdg " << track->GetParticleDefinition()->GetPDGEncoding()
-            // 		<< std::endl ;
-            
             if(photodetectorID_[copyID]==-1)
             {
                 PhotodetectorHit* pHit = new PhotodetectorHit( thisStep );
+                pHit->caloNum = caloNum ;
+                pHit->photodetectorNum = PDNum ;
                 pHit->energy = thisStep->GetPreStepPoint()->GetTotalEnergy() ;
                 ++( pHit->nphoton ) ;
                 

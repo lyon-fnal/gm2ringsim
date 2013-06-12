@@ -39,6 +39,8 @@ global_mom(step->GetPreStepPoint()->GetMomentum()),
 time(step->GetPreStepPoint()->GetGlobalTime()),
 turnNum(TurnCounter::getInstance().turns()),
 trackID(step->GetTrack()->GetTrackID()),
+caloNum( -1 ),
+photodetectorNum( -1 ),
 energy( step->GetPreStepPoint()->GetTotalEnergy() ),
 accepted( false )
 {
@@ -51,17 +53,6 @@ accepted( false )
     G4RotationMatrix const *rot = feely->GetRotation();
     local_mom = global_mom;
     local_mom.transform(*rot);
-    
-    // get photodetector number...
-    
-    /** @bug This is much nastier than it should be. */
-    std::string name = step->GetPreStepPoint()->GetPhysicalVolume()->GetName();
-    int left = name.find('[');
-    std::string num(name, left+1, left+2);
-    std::istringstream iss(num);
-    iss >> caloNum;
-    
-    photodetectorNum = step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo() ;
 }
 
 
