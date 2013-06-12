@@ -36,16 +36,9 @@ global_pos(step->GetPreStepPoint()->GetPosition()),
 global_mom(step->GetPreStepPoint()->GetMomentum()),
 time(step->GetPreStepPoint()->GetGlobalTime()),
 turnNum(TurnCounter::getInstance().turns()),
-trackID(step->GetTrack()->GetTrackID())
+trackID(step->GetTrack()->GetTrackID()),
+caloNum(step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo())
 {
-    // get calorimeter number...
-    
-    /** @bug This is much nastier than it should be. */
-    std::string name = step->GetPreStepPoint()->GetPhysicalVolume()->GetName();
-    int left = name.find('[');
-    std::string num(name, left+1, left+2);
-    std::istringstream iss(num);
-    iss >> caloNum;
 }
 
 

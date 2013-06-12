@@ -64,7 +64,7 @@ void gm2ringsim::XtalSD::Initialize(G4HCofThisEvent* HCoTE){
     HCoTE->AddHitsCollection( thisHCID,       thisHC );
     HCoTE->AddHitsCollection( thisPhotonHCID, thisPhotonHC );
     
-    if (xtalID_.size() < nXtals_) xtalID_.resize(nXtals_);
+    if (xtalID_.size() < nXtalsTotal_) xtalID_.resize(nXtalsTotal_);
     for( unsigned int i = 0 ; i < xtalID_.size() ; ++i )
     {
         xtalID_[i] = -1 ;
@@ -86,6 +86,11 @@ G4bool gm2ringsim::XtalSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){
     bool chargedParticle = (track->GetDefinition()->GetPDGCharge() != 0);
     int signedPdg = track->GetDefinition()->GetPDGEncoding();
     int pdg = abs( signedPdg ) ;
+    
+    // find out which calorimeter station & which xtal contain this step
+    int copyID = thisStep->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo(); // each xtal in the entire ring has a unique copy number
+    int caloNum = copyID / nXtalsPerCalo_ ; // integer division
+    int xtalNum = copyID % nXtalsPerCalo_ ; // xtal num local to that calo
     
     bool alreadyPartOfShower = false;
     bool initiatedShower = false;
@@ -139,13 +144,6 @@ G4bool gm2ringsim::XtalSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){
     G4double edep = thisStep->GetTotalEnergyDeposit();
     if(edep<=0. && ( pdg == 11 || pdg == 13 ) ) return false;
     
-    G4TouchableHistory* hist =
-    (G4TouchableHistory*)(thisStep->GetPreStepPoint()->GetTouchable());
-    //const G4VPhysicalVolume* physVol = hist->GetVolume();
-    G4int copyID = hist->GetReplicaNumber();
-    
-	// std::cout << " copyID, xtalID: " << copyID << " " << xtalID[copyID] << std::endl;
-    
     if(xtalID_[copyID]==-1)
     {
         // Only count optical photons if a track has already been seen, so don't make
@@ -160,7 +158,8 @@ G4bool gm2ringsim::XtalSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){
         {
             int initiateId = ShowerListManager::instance().showerParentList()[thisID];
             XtalHit* xHit = new XtalHit( thisStep, initiateId );
-            
+            xHit->caloNum = caloNum ;
+            xHit->xtalNum = xtalNum ;
             xHit->energyDep = edep ;
             if ( chargedParticle ) {
                 xHit->trackLength = thisStep->GetStepLength() ;
@@ -226,6 +225,8 @@ G4bool gm2ringsim::XtalSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){
                 
                 // create a photonHit entry for this photon
                 XtalPhotonHit *xph = new XtalPhotonHit(thisStep);
+                xph->caloNum = caloNum;
+                xph->xtalNum = xtalNum;
                 thisPhotonHC->insert(xph);
                 PhotonHitCorrelator::getInstance().addTrack(thisID,xph);
             }

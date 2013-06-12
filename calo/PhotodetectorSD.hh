@@ -48,7 +48,8 @@ public:
     G4int DrawLevel() const { return drawLevel; };
     G4int DrawLevel(G4int newLevel);
     
-    void setPhotodetectorNum(int n) { nPhotodetectors_ = n; };
+    void setTotalPhotodetectors(int n) { nPhotodetectorsTotal_ = n; };
+    void setPhotodetectorsPerCalo(int n) { nPhotodetectorsPerCalo_ = n; };
     
     
 private:
@@ -57,7 +58,8 @@ private:
     
     G4int printLevel, drawLevel;
     
-    unsigned int nPhotodetectors_;
+    unsigned int nPhotodetectorsTotal_;
+    int nPhotodetectorsPerCalo_;
     
     std::vector<int> photodetectorID_ ;
 };
