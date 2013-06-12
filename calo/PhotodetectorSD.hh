@@ -57,7 +57,7 @@ private:
     
     G4int printLevel, drawLevel;
     
-    int nPhotodetectors_;
+    unsigned int nPhotodetectors_;
     
     std::vector<int> photodetectorID_ ;
 };

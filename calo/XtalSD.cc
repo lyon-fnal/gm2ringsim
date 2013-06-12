@@ -63,9 +63,11 @@ void gm2ringsim::XtalSD::Initialize(G4HCofThisEvent* HCoTE){
     // Add to HCoTE
     HCoTE->AddHitsCollection( thisHCID,       thisHC );
     HCoTE->AddHitsCollection( thisPhotonHCID, thisPhotonHC );
-    for( G4int i = 0 ; i < nXtals_ ; ++i )
+    
+    if (xtalID_.size() < nXtals_) xtalID_.resize(nXtals_);
+    for( unsigned int i = 0 ; i < xtalID_.size() ; ++i )
     {
-        xtalID_.push_back(-1) ;
+        xtalID_[i] = -1 ;
     }
     
     photonTracks.clear();

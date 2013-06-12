@@ -53,7 +53,7 @@ private:
     G4ThreeVector m_parentPosition;
     int nShowerElectrons_;
     
-    int nXtals_;
+    unsigned int nXtals_;
     
     std::vector<int> xtalID_ ;
 };

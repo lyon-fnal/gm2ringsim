@@ -60,9 +60,10 @@ void gm2ringsim::PhotodetectorSD::Initialize(G4HCofThisEvent* HCoTE){
     HCoTE->AddHitsCollection( thisHCID, thisHC );
     HCoTE->AddHitsCollection( thisPhotonHCID, thisPhotonHC );
     
-    for( G4int i = 0 ; i < nPhotodetectors_ ; ++i )
+    if (photodetectorID_.size() < nPhotodetectors_) photodetectorID_.resize(nPhotodetectors_);
+    for( unsigned int i = 0 ; i < photodetectorID_.size() ; ++i )
     {
-        photodetectorID_.push_back(-1) ;
+        photodetectorID_[i] = -1 ;
     }
 }
 
