@@ -339,6 +339,9 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
             // --- optical coupling visual attributes
             artg4::setVisAtts(opticalCoupling_L, caloGeom.displayCrystalArray, caloGeom.opticalCouplingColor);
             
+            // -- include optical coupling volume with xtalSD
+            opticalCoupling_L->SetSensitiveDetector(xtalSD_);
+            
             // --- photodetector visual attributes
             artg4::setVisAtts(photodetector_L, caloGeom.displayCrystalArray, caloGeom.photodetectorColor);
             
