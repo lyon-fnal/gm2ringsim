@@ -14,6 +14,9 @@
 // Get the PGA header
 #include "gm2ringsim/actions/PGA/InflectorPGA_service.hh"
 
+// Random numbers
+#include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 
 // ART includes
 #include "art/Framework/Services/Registry/ServiceMacros.h"
@@ -62,11 +65,12 @@ gm2ringsim::InflectorPGA::InflectorPGA(fhicl::ParameterSet const& p, art::Activi
   dPOverP_(p.get<double>("dPOverP", -9999.9)),
   SigmaT_(p.get<double>("SigmaT", -9999.9)),
   Particle_(p.get<std::string>("Particle", "mu+")),
-  NumParticles_(p.get<int>("NumParticles", 1)) 
+  NumParticles_(p.get<int>("NumParticles", 1)),
+  DecayScaleFactor_(p.get<int>("DecayScaleFactor", 1))
 {
-  if ( EmittanceX_ <= 0.0 ) { EmittanceX_ = 1e-10; }
-  if ( EmittanceY_ <= 0.0 ) { EmittanceY_ = 1e-10; }
-  
+  if ( EmittanceX_ <= 0.0 ) { EmittanceX_ = 0.0; }
+  if ( EmittanceY_ <= 0.0 ) { EmittanceY_ = 0.0; }
+
   if ( inflectorVerbosity_ > 0 ) {
     G4cout << "================== InflectorPGA ==================" << G4endl;
     G4cout << "  inflectorVerbosity  " << inflectorVerbosity_ << G4endl;
@@ -87,7 +91,8 @@ gm2ringsim::InflectorPGA::InflectorPGA(fhicl::ParameterSet const& p, art::Activi
     G4cout << "  Pmean               " << Pmean_ << G4endl;
     G4cout << "  SigmaT              " << SigmaT_ << G4endl;
     G4cout << "  Particle            " << Particle_ << G4endl;
-    G4cout << "  NumParticles        " << NumParticles_ << G4endl;
+    G4cout << "  NumParticles        " << NumParticles_ << G4endl;    
+    G4cout << "  DecayScaleFactor    " << DecayScaleFactor_ << G4endl;    
   }
 }
 
@@ -122,6 +127,7 @@ void gm2ringsim::InflectorPGA::initialize() {
   gps_ -> SetSigmaT(SigmaT_);
   gps_ -> SetParticle(Particle_);
   gps_ -> SetNumParticles(NumParticles_);
+  gps_ -> SetDecayScaleFactor(DecayScaleFactor_);
   //G4cout << "Done calling InflectorPGA::initialize()" << G4endl;
   //////////////////////////////////
 }

@@ -101,6 +101,9 @@ namespace gm2ringsim
  
     void SetNumParticles( int aInt ){ NumParticles_=aInt; }
     int GetNumParticles( ){ return NumParticles_; }
+ 
+    void SetDecayScaleFactor( int aInt ){ DecayScaleFactor_=aInt; }
+    int GetDecayScaleFactor( ){ return DecayScaleFactor_; }
     
 
 
@@ -133,6 +136,7 @@ namespace gm2ringsim
     double SigmaT;
     std::string Particle_;
     int NumParticles_;
+    int DecayScaleFactor_;
     
   }; // End G2InflectorSource class
 } //namespace gm2ringsim

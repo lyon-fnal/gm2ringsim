@@ -59,7 +59,10 @@ namespace gm2ringsim
     double SigmaT_;
     std::string Particle_;
     int NumParticles_;
-    
+    int DecayScaleFactor_;
+
+   
+
   }; // End InflectorPGA class 
 }
 #endif // INFLECTORPGA_SERVICE_HH
