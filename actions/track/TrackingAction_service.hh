@@ -46,6 +46,10 @@ namespace gm2ringsim {
     // add it to our collection
     virtual void preUserTrackingAction(const G4Track * currentTrack);
 
+    // Overload the PostUserTrackingAction method to initialize the track and
+    // add it to our collection
+    virtual void postUserTrackingAction(const G4Track * currentTrack);
+
     // We want to add something to the event, so we need callArtProduces
     // and fillEventWithArtStuff.
 
@@ -54,6 +58,9 @@ namespace gm2ringsim {
 
     // Actually add the collection to the Art event.
     virtual void fillEventWithArtStuff(art::Event & e);
+
+    // Fill ArtRecord
+    void FillTrackingActionArtRecord(const G4Track * currentTrack, int status);
 
   private:
     

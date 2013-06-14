@@ -38,9 +38,29 @@ gm2ringsim::TrackingAction::~TrackingAction()
 {}
 
 
+
+
+// Overload the PreUserTrackingAction method to initialize the track and
+// add it to our collection
+void gm2ringsim::TrackingAction::postUserTrackingAction(const G4Track * currentTrack)
+{
+  if ( currentTrack->GetTrackID() == 1 ) {   
+    FillTrackingActionArtRecord(currentTrack, 1);
+  }
+}
+
+
+
 // Overload the PreUserTrackingAction method to initialize the track and
 // add it to our collection
 void gm2ringsim::TrackingAction::preUserTrackingAction(const G4Track * currentTrack)
+{
+  FillTrackingActionArtRecord(currentTrack, 0);
+}
+
+
+// Fill ArtRecord
+void gm2ringsim::TrackingAction::FillTrackingActionArtRecord(const G4Track * currentTrack, int status)
 {
   bool debug = false;
   bool keep_track = true;
@@ -114,7 +134,7 @@ void gm2ringsim::TrackingAction::preUserTrackingAction(const G4Track * currentTr
     //G4cout << "TrackOrphans: " << currentTrack->GetTrackID() << " , " << currentTrack->GetParentID() << G4endl;
     if ( currentTrack->GetTrackID() != 1 ) { 
       if ( currentTrack->GetParentID() != 1 ) { 
-	if ( debug || 1 ) { G4cout << "Not storing track [" << currentTrack->GetDefinition()->GetParticleName() << "] because it's not primary decay product." << G4endl; }
+	if ( debug ) { G4cout << "Not storing track [" << currentTrack->GetDefinition()->GetParticleName() << "] because it's not primary decay product." << G4endl; }
 	keep_track = false;
       }
     }
@@ -133,7 +153,6 @@ void gm2ringsim::TrackingAction::preUserTrackingAction(const G4Track * currentTr
   // Don't store unwanted truth particles
   //-------------------------------------
   G4cout.precision(3);
-  if ( debug ) { G4cout << "Found track[" << currentTrack->GetParticleDefinition()->GetParticleName() << "] [t=" << currentTrack->GetGlobalTime() << "] [" << currentTrack->GetParentID() << "] : " << keep_track << G4endl; }
   if ( debug && !keep_track ) { G4cout << "Not storing track [" << currentTrack->GetDefinition()->GetParticleName() << "] for some reason." << G4endl; }
   if ( keep_track == false ) { return; }
   
@@ -153,6 +172,9 @@ void gm2ringsim::TrackingAction::preUserTrackingAction(const G4Track * currentTr
   // Get the volume ID
   art::ServiceHandle<artg4::PhysicalVolumeStoreService> pvs;
   tr.volumeUID = pvs->idGivenPhysicalVolume( currentTrack->GetVolume() );
+
+  // The track status, 0 for pre and 1 for post
+  tr.status = status;
   
   G4ThreeVector pos = currentTrack->GetPosition();
   G4ThreeVector mom = currentTrack->GetMomentum();
@@ -181,6 +203,8 @@ void gm2ringsim::TrackingAction::preUserTrackingAction(const G4Track * currentTr
   tr.pvhat = pvhat;
   tr.e = currentTrack->GetTotalEnergy();
 
+
+  if ( debug ) { G4cout << "Found track[" << currentTrack->GetParticleDefinition()->GetParticleName() << "] [t=" << currentTrack->GetGlobalTime() << "] [" << currentTrack->GetParentID() << "] : " << status << "\t" << keep_track << "\t" << prhat << "\t" << pvhat << G4endl; }
 
 
   //-----------------------
