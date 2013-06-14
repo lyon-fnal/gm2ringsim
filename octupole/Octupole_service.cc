@@ -221,7 +221,7 @@ void gm2ringsim::Octupole::buildFieldManagers(){
     if ( myedm ) {
       g2EqEMFieldWithEDM *equation2 = new g2EqEMFieldWithEDM(field);
       equation2->SetEta(sts_.GetEta());
-      //equation2->SetAnomaly(sts_.GetGm2());
+      if ( sts_.GetGm2() >= 0 ) { equation2->SetAnomaly(sts_.GetGm2()); }
       stepper = new G4ClassicalRK4(equation2, 12);
     }
     else {

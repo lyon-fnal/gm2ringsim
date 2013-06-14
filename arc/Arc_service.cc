@@ -84,16 +84,14 @@ gm2ringsim::Arc::Arc(fhicl::ParameterSet const & p, art::ActivityRegistry & ) :
   if ( edm_tracking_ ) {
     if ( myedm ) {
       g2EqEMFieldWithEDM *equation2 = new g2EqEMFieldWithEDM(storageEMField);
-      if ( equation2 ) { G4cout << "Created it w/ spin." << G4endl; }
       equation2->SetEta(sts_.GetEta());
-      //equation2->SetAnomaly(sts_.GetGm2());
+      if ( sts_.GetGm2() >= 0 ) { equation2->SetAnomaly(sts_.GetGm2()); }
       stepper = new G4ClassicalRK4(equation2,12);
     }
     else {
       G4EqEMFieldWithEDM *equation2 = new G4EqEMFieldWithEDM(storageEMField);
-      if ( equation2 ) { G4cout << "Created it w/ spin." << G4endl; }
       equation2->SetEta(sts_.GetEta());
-      //equation2->SetAnomaly(sts_.GetGm2());
+      if ( sts_.GetGm2() >= 0 ) { equation2->SetAnomaly(sts_.GetGm2()); }
       stepper = new G4ClassicalRK4(equation2,12);
     }
     G4MagInt_Driver *driver = new G4MagInt_Driver(0.01*mm, stepper, stepper->GetNumberOfVariables());

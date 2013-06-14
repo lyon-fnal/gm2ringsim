@@ -383,6 +383,25 @@ void gm2ringsim::QuadField::GetFieldValue( const double *Point,
   } else {
     pf->GetStorageFieldValue(Point, EMfield);
   }
+
+
+  
+  bool debug = false;
+  if ( debug ) {
+    std::cout.precision(3);
+    double dB = EMfield[1] - 0.00145;
+    dB = 0.0;
+    if ( EMfield[0] > 0.01 || EMfield[2] > 0.01 || EMfield[0] < -0.01 || EMfield[2] < -0.01 || dB > 0.01 || dB < -0.01 ) {
+      std::cout << "QuadField::GetFieldValue(" << xq << " , " << yq << ") = ["
+		<< EMfield[0] << " , "
+		<< EMfield[1] << " , "
+		<< EMfield[2] << "]" << std::endl;
+      std::cout << "QuadField::GetFieldValue(" << xq << " , " << yq << ") = ["
+		<< EMfield[3] << " , "
+		<< EMfield[4] << " , "
+		<< EMfield[5] << "]" << std::endl;
+    }
+  }
 }
   
 double gm2ringsim::QuadField::scraping_turnoff(double offtime){

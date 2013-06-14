@@ -927,11 +927,12 @@ void gm2ringsim::Inflector::rebuildEOM(){
     if ( myedm ) {
       g2EqEMFieldWithEDM *iEquation = new g2EqEMFieldWithEDM(inflectorMagField_);
       iEquation->SetEta(sts_.GetEta());
-      //iEquation->SetAnomaly(sts_.GetGm2());
+      if ( sts_.GetGm2() >= 0 ) { iEquation->SetAnomaly(sts_.GetGm2()); }
       iStepper_ = new G4ClassicalRK4(iEquation, 12);
     }
     else {
       iEquation_ = new G4Mag_SpinEqRhs(inflectorMagField_);
+      G4cout << "WARNING: EDM + spin tracking does not work in the inflector...." << G4endl;
       iStepper_ = new G4ClassicalRK4(iEquation_, 12);
     }
   }
