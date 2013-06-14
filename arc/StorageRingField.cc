@@ -63,7 +63,7 @@ void gm2ringsim::storageRingField::GetFieldValue( const double Point[3],
 
 
   
-  bool debug = true;
+  bool debug = false;
   if ( debug ) {
     double r = sqrt(Point[0]*Point[0] + Point[2]*Point[2]) - R_magic();
     double y = Point[1];
