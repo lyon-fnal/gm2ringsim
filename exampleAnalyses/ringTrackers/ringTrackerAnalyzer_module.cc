@@ -41,9 +41,9 @@
 #include <string>
 #include <iterator>
 
-#define Rhobin_Inflector 401
-#define Rhomin_Inflector -200.5
-#define Rhomax_Inflector 200.5
+#define Rhatbin_Inflector 401
+#define Rhatmin_Inflector -200.5
+#define Rhatmax_Inflector 200.5
 
 #define Xbin_Inflector 101
 #define Xmin_Inflector -50.5
@@ -69,9 +69,9 @@
 #define YPrimemin_Inflector -25.5
 #define YPrimemax_Inflector 25.5
 
-#define Rhobin_Ring 701
-#define Rhomin_Ring -300.5
-#define Rhomax_Ring 400.5
+#define Rhatbin_Ring 701
+#define Rhatmin_Ring -300.5
+#define Rhatmax_Ring 400.5
 
 #define Xbin_Ring 261
 #define Xmin_Ring -60.5
@@ -142,6 +142,8 @@ private:
   std::string ringtrackerinstanceName_;
   std::string truthhitModuleLabel_;
   std::string truthinstanceName_;
+  std::string truthfinishedhitModuleLabel_;
+  std::string truthfinishedinstanceName_;
   std::string inflectorhitModuleLabel_;
   std::string inflectorinstanceName_;
   std::string ringhitModuleLabel_;
@@ -169,13 +171,16 @@ private:
   bool SaveVRing1PlaneHits_;
   
   bool debug_;
-
+  
+  int IsSomething(string name);
   bool IsSomething(string name, int comp);
   bool IsKicker(string name);
   bool IsQuad(string name);
   bool IsCryostat(string name);
+  bool IsCollimator(string name);
   bool IsInflector(string name);
   bool IsVacuumChamber(string name);
+  bool IsVirtualRingStation(string name);
   bool IsVirtualRingStation(string name, int *num);
 
   double Pmagic();
@@ -190,8 +195,12 @@ private:
   void FillRingTracker(int hist, int type, double xe, double rhat, double vhat, double prhat, double pvhat, double mom, double polz, double polx, double poly);
   void FillTimeRingTracker(int hist, double xe, double rhat, double vhat, double prhat, double pvhat, double mom, double polz, double polx, double poly);
   void FillStoredRingTracker(int hist, double xe, double rhat, double vhat, double prhat, double pvhat, double mom, double polz, double polx, double poly);
-  void FillTruthTracker(int hist, int part, double xe, double r_truth, double y_truth, double rprime_truth, double yprime_truth, double p, double x, double z, double t0, double polz, double polx, double poly);
-  void FillTruthTurnTime(double dT, int counter, int trackID, double time, double xe, double rhat, double y, double prhat, double pvhat, double mom, double polz, double polx, double poly, double e);
+
+  void FillTruthTracker(int hist, int status, int pdgid, double xe, double r_truth, double y_truth, double rprime_truth, double yprime_truth, double p, double x, double z, double t0, double polz, double polx, double poly, double Py, double Polarization);
+  void FillTruthTracker(int hist, int particle, double xe_truth, double r_truth, double y_truth, double rprime_truth, double yprime_truth, double p, double x, double z, double t0, double polz, double polx, double poly, double Py, double Polarization);
+  void FillTruthTurnTime(double dT, int counter, int status, int pdgid, double time, double xe, double rhat, double y, double prhat, double pvhat, double mom, double polz, double polx, double poly, double e);
+  void FillTruthTurnTime(double xval, int hist, int particle, double xe, double rhat, double y, double prhat, double pvhat, double mom, double polz, double polx, double poly, double e);
+
   void FillTurnTime(double dT, int counter, int trackID, double time, double xe, double rhat, double y, double prhat, double pvhat, double mom, double polz, double polx, double poly, double e);
   void FillKickDegree(int histtype, double degree_at_r0, double kick_at_r0, double mom);
   void FillInflector(int hist, double x_inf, double y_inf, double z_inf, double r_inf, double prhat_ring, double pvhat_ring, double xprime_inf, double yprime_inf);
@@ -221,8 +230,10 @@ private:
   int Ninside_allkicker = 0;
   int Noutside_kickers = 0;
   int Npass_Nturns[5][2];
-
-
+  int Ntimevals;
+  string timevals[2];
+  int Ntimestamps;
+  string timestamps[2];
 
   string rtnames[9];
  
@@ -250,7 +261,7 @@ private:
   //-------------------------------
   int Nringtrackers;
   string ringtrackernames[9];
-  TH2F *h_RingTracker_RhoY[9];
+  TH2F *h_RingTracker_RhatY[9];
   TH2F *h_RingTracker_XprimeX[9];
   TH2F *h_RingTracker_YprimeY[9];  
   TH1F *h_RingTracker_Mom[9];
@@ -266,20 +277,20 @@ private:
   // Virtual Ring Trackers
   //--------------------------
   int Nringtrackertimes;
-  string times[10];
-  TH1F *h_RingTracker_Time_Xprime[10][2];
-  TH1F *h_RingTracker_Time_Yprime[10][2];
-  TH2F *h_RingTracker_Time_XprimeX[10][2];
-  TH2F *h_RingTracker_Time_YprimeY[10][2];
-  TH2F *h_RingTracker_Time_XprimeYprime[10][2];
-  TH2F *h_RingTracker_Time_RhoY[10][2];
-  TH1F *h_RingTracker_Time_Rhat[10][2];
-  TH1F *h_RingTracker_Time_Xe[10][2];
-  TH1F *h_RingTracker_Time_Vhat[10][2];
-  TH1F *h_RingTracker_Time_Mom[10][2];
-  TH1F *h_RingTracker_Time_Pol[10][2];
-  TH1F *h_RingTracker_Time_PolX[10][2];
-  TH1F *h_RingTracker_Time_PolY[10][2];
+  string times[3];
+  TH1F *h_RingTracker_Time_Xprime[3][2];
+  TH1F *h_RingTracker_Time_Yprime[3][2];
+  TH2F *h_RingTracker_Time_XprimeX[3][2];
+  TH2F *h_RingTracker_Time_YprimeY[3][2];
+  TH2F *h_RingTracker_Time_XprimeYprime[3][2];
+  TH2F *h_RingTracker_Time_RhatY[3][2];
+  TH1F *h_RingTracker_Time_Rhat[3][2];
+  TH1F *h_RingTracker_Time_Xe[3][2];
+  TH1F *h_RingTracker_Time_Vhat[3][2];
+  TH1F *h_RingTracker_Time_Mom[3][2];
+  TH1F *h_RingTracker_Time_Pol[3][2];
+  TH1F *h_RingTracker_Time_PolX[3][2];
+  TH1F *h_RingTracker_Time_PolY[3][2];
   TH1F *h_RingTracker_Time_dNdXe;
   TH1F *h_RingTracker_Time_dNdX;
   TH1F *h_RingTracker_Time_dNdXprime;
@@ -295,68 +306,72 @@ private:
   //string rtsnames[11];
 
 
-  TH2F *h_RingTracker_Rho_vs_Time[4];
-  TH2F *h_RingTracker_Xe_vs_Time[4];
-  TH2F *h_RingTracker_Prhat_vs_Time[4];
-  TH2F *h_RingTracker_Pvhat_vs_Time[4];
-  TH2F *h_RingTracker_Mom_vs_Time[4];
-  TH2F *h_RingTracker_Y_vs_Time[4];
-  TH2F *h_RingTracker_Pol_vs_Time[4];
-  TH2F *h_RingTracker_PolX_vs_Time[4];
-  TH2F *h_RingTracker_PolY_vs_Time[4];
-  TH1F *h_RingTracker_NgtEth_vs_Time[4];
-  TH1F *h_RingTracker_NwghtE_vs_Time[4];
-  TH1F *h_RingTracker_N_vs_Time[4];
+  TH2F *h_RingTracker_Rhat_vs_Time[2];
+  TH2F *h_RingTracker_Xe_vs_Time[2];
+  TH2F *h_RingTracker_Prhat_vs_Time[2];
+  TH2F *h_RingTracker_Pvhat_vs_Time[2];
+  TH2F *h_RingTracker_Mom_vs_Time[2];
+  TH2F *h_RingTracker_Y_vs_Time[2];
+  TH2F *h_RingTracker_Pol_vs_Time[2];
+  TH2F *h_RingTracker_PolX_vs_Time[2];
+  TH2F *h_RingTracker_PolY_vs_Time[2];
+  TH1F *h_RingTracker_NgtEth_vs_Time[2];
+  TH1F *h_RingTracker_NwghtE_vs_Time[2];
+  TH1F *h_RingTracker_N_vs_Time[2];
 
 
   //------------------
   // Truth Information
   //------------------
   int Ntruthtimes;
-  TH1F *h_G4Tracker_Time_Xe[10][2];
-  TH1F *h_G4Tracker_Time_Rhat[10][2];
-  TH1F *h_G4Tracker_Time_Vhat[10][2];
-  TH1F *h_G4Tracker_Time_Pol[10][2];
-  TH1F *h_G4Tracker_Time_PolX[10][2];
-  TH1F *h_G4Tracker_Time_PolY[10][2];
-  TH1F *h_G4Tracker_Time_Xprime[10][2];
-  TH1F *h_G4Tracker_Time_Yprime[10][2];
-  TH2F *h_G4Tracker_Time_XprimeX[10][2];
-  TH2F *h_G4Tracker_Time_YprimeY[10][2];
-  TH2F *h_G4Tracker_Time_RhoY[10][2];
-  TH2F *h_G4Tracker_Time_XZ[10][2];
-  TH1F *h_G4Tracker_Time_Mom[10][2];
-  TH1F *h_G4Tracker_Time_t0[10][2];
-  TH1F *h_G4Tracker_Time_dCosTheta[10][2];
-  TH1F *h_G4Tracker_Time_Polarization[10][2];
-  TH2F *h_G4Tracker_Time_dXdCosTheta[10][2];
-  TH1F *h_G4Tracker_Time_dX[10][2];
-  TH1F *h_G4Tracker_Time_NudAsym[10][2];
-
-  TH2F *h_G4Tracker_Rho_vs_Time[5];
-  TH2F *h_G4Tracker_Xe_vs_Time[5];
-  TH2F *h_G4Tracker_Prhat_vs_Time[5];
-  TH2F *h_G4Tracker_Pvhat_vs_Time[5];
-  TH2F *h_G4Tracker_Mom_vs_Time[5];
-  TH2F *h_G4Tracker_Y_vs_Time[5];
-  TH2F *h_G4Tracker_Pol_vs_Time[5];
-  TH2F *h_G4Tracker_PolX_vs_Time[5];
-  TH2F *h_G4Tracker_PolY_vs_Time[5];
-  TH2F *h_G4Tracker_E_vs_Time[5];
-  TH1F *h_G4Tracker_NgtEth_vs_Time[5];
-  TH1F *h_G4Tracker_NwghtE_vs_Time[5];
-  TH1F *h_G4Tracker_N_vs_Time[5];
-  TH1F *h_G4Tracker_NudAsym_vs_Time[5];
-  TH1F *h_G4Tracker_Nud_vs_Time[5];
-  int G4Tracker_Nu[5];
-  int G4Tracker_Nd[5];
+  int Nparticles;
+  string truth_particle_names[7];
+  TH1F *h_G4Tracker_Time_Xe[3][7];
+  TH1F *h_G4Tracker_Time_Rhat[3][7];
+  TH1F *h_G4Tracker_Time_Vhat[3][7];
+  TH1F *h_G4Tracker_Time_Pol[3][7];
+  TH1F *h_G4Tracker_Time_PolX[3][7];
+  TH1F *h_G4Tracker_Time_PolY[3][7];
+  TH1F *h_G4Tracker_Time_Xprime[3][7];
+  TH1F *h_G4Tracker_Time_Yprime[3][7];
+  TH2F *h_G4Tracker_Time_XprimeX[3][7];
+  TH2F *h_G4Tracker_Time_YprimeY[3][7];
+  TH2F *h_G4Tracker_Time_RhatY[3][7];
+  TH2F *h_G4Tracker_Time_XZ[3][7];
+  TH1F *h_G4Tracker_Time_Mom[3][7];
+  TH1F *h_G4Tracker_Time_t0[3][7];
+  TH1F *h_G4Tracker_Time_dCosTheta[3][7];
+  TH1F *h_G4Tracker_Time_Polarization[3][7];
+  TH2F *h_G4Tracker_Time_dXdCosTheta[3][7];
+  TH1F *h_G4Tracker_Time_dX[3][7];
+  
+  TH2F *h_G4Tracker_Rhat_vs_Time[2][7];
+  TH2F *h_G4Tracker_Xe_vs_Time[2][7];
+  TH2F *h_G4Tracker_Prhat_vs_Time[2][7];
+  TH2F *h_G4Tracker_Pvhat_vs_Time[2][7];
+  TH2F *h_G4Tracker_Mom_vs_Time[2][7];
+  TH2F *h_G4Tracker_Y_vs_Time[2][7];
+  TH2F *h_G4Tracker_Pol_vs_Time[2][7];
+  TH2F *h_G4Tracker_PolX_vs_Time[2][7];
+  TH2F *h_G4Tracker_PolY_vs_Time[2][7];
+  TH2F *h_G4Tracker_E_vs_Time[2][7];
+  TH1F *h_G4Tracker_NgtEth_vs_Time[2][7];
+  TH1F *h_G4Tracker_NwghtE_vs_Time[2][7];
+  TH1F *h_G4Tracker_N_vs_Time[2][7];
+  TH1F *h_G4Tracker_Ndown_vs_Time[2][7];
+  TH1F *h_G4Tracker_Nup_vs_Time[2][7];
+  TH1F *h_G4Tracker_Nud_vs_Time[2][7];
+  TH1F *h_G4Tracker_Yprime_vs_Time[2][7];
+  TH1F *h_G4Tracker_Vhat_vs_Time[2][7];
+  int G4Tracker_Nu[7];
+  int G4Tracker_Nd[7];
 
 
   //--------------------------
   // Physical Energy Deposits
   //--------------------------
   int Nsystemtrackers;
-  string rhitnames[10];
+  string rhitnames[11];
   int kInflectorHit;
   int kCryostatHit;
   int kQuadHit;
@@ -366,11 +381,12 @@ private:
   int kStrawSystemHit;
   int kCaloSystemHit;
   int kXtalSystemHit;  
-  int kVacuumChamberHit;
+  int kVirtualRingStationHit;
+  int kAllSystemsHit;
   TH1F *h_SystemHitTracker_Nhits[11][2];
   TH2F *h_SystemHitTracker_XZ[11][2];
-  TH2F *h_SystemHitTracker_RhoY[11][2];
-  TH2F *h_SystemHitTracker_RhoTime[11][2];
+  TH2F *h_SystemHitTracker_RhatY[11][2];
+  TH2F *h_SystemHitTracker_RhatTime[11][2];
   TH2F *h_SystemHitTracker_YTime[11][2];
   TH1F *h_SystemHitTracker_DeltaPx[11][2];
   TH1F *h_SystemHitTracker_DeltaPy[11][2];
@@ -383,8 +399,8 @@ private:
   string inames[22];
   TH1F *h_RingHitTracker_Nhits[22][2];
   TH2F *h_RingHitTracker_XZ[22][2];
-  TH2F *h_RingHitTracker_RhoY[22][2];
-  TH2F *h_RingHitTracker_RhoTime[22][2];
+  TH2F *h_RingHitTracker_RhatY[22][2];
+  TH2F *h_RingHitTracker_RhatTime[22][2];
   TH2F *h_RingHitTracker_YTime[22][2];
   TH1F *h_RingHitTracker_DeltaPx[22][2];
   TH1F *h_RingHitTracker_DeltaPy[22][2];
@@ -397,7 +413,7 @@ private:
   int Ninflectortrackers;
   TH2F *h_InflectorTracker_XprimeX[12];
   TH2F *h_InflectorTracker_YprimeY[12];
-  TH2F *h_InflectorTracker_RhoY[12];
+  TH2F *h_InflectorTracker_RhatY[12];
   TH2F *h_InflectorTracker_XZ[12];
   TH2F *h_InflectorTracker_RZ;
   TH2F *h_InflectorTracker_X;
@@ -451,63 +467,42 @@ void gm2ringsim::ringTrackerAnalyzer::endRun(art::Run const &r)
   out << 1000*Nxpat0/(Ninside_midkicker+Ninside_allkicker) << "  0.0" << endl;
   out.close();
 
-  if ( SaveTruthHits_ ) {
-    for ( int i = 0; i < 5; i++ ) {
-      h_G4Tracker_NudAsym_vs_Time[i]->Scale(1.0/h_G4Tracker_NudAsym_vs_Time[i]->GetEntries());
-    }
-  }
 
   if ( SaveVRingHits_ ) {
-  for ( int i = 0; i < 4; i++ ) {
-    cout << i << endl;
-    cout << Npass_Nturns[i][1] << "\t" <<  Npass_Nturns[i][0] << endl;
-    if ( Npass_Nturns[i][1] > 0 && Npass_Nturns[i][0] > 0 ) {
-      double finalavg_sf = (double)Npass_Nturns[i][1] / Npass_Nturns[i][0];
-      cout << "Scaling FinalAvg histograms by " << finalavg_sf << endl;
-      h_RingTracker_Time_Xprime[6+i][0]->Scale(finalavg_sf);
-      h_RingTracker_Time_Yprime[6+i][0]->Scale(finalavg_sf);
-      h_RingTracker_Time_XprimeX[6+i][0]->Scale(finalavg_sf);
-      h_RingTracker_Time_YprimeY[6+i][0]->Scale(finalavg_sf);
-      h_RingTracker_Time_XprimeYprime[6+i][0]->Scale(finalavg_sf);
-      h_RingTracker_Time_RhoY[6+i][0]->Scale(finalavg_sf);
-      h_RingTracker_Time_Rhat[6+i][0]->Scale(finalavg_sf);
-      h_RingTracker_Time_Xe[6+i][0]->Scale(finalavg_sf);
-      h_RingTracker_Time_Vhat[6+i][0]->Scale(finalavg_sf);
-      h_RingTracker_Time_Mom[6+i][0]->Scale(finalavg_sf);
-      h_RingTracker_Time_Pol[6+i][0]->Scale(finalavg_sf);
-      h_RingTracker_Time_PolX[6+i][0]->Scale(finalavg_sf);
-      h_RingTracker_Time_PolY[6+i][0]->Scale(finalavg_sf);
+    for ( int i = 0; i < Nringtrackertimes; i++ ) {
+      if ( times[i] != "FinalAvg" ) { continue; }
+      if ( Npass_final > 0 && Npass_finalavg > 0 ) {
+	double finalavg_sf = (double)Npass_final / Npass_finalavg;
+	cout << "Scaling FinalAvg histograms by " << finalavg_sf << endl;
+	h_RingTracker_Time_Xprime[i][0]->Scale(finalavg_sf);
+	h_RingTracker_Time_Yprime[i][0]->Scale(finalavg_sf);
+	h_RingTracker_Time_XprimeX[i][0]->Scale(finalavg_sf);
+	h_RingTracker_Time_YprimeY[i][0]->Scale(finalavg_sf);
+	h_RingTracker_Time_XprimeYprime[i][0]->Scale(finalavg_sf);
+	h_RingTracker_Time_RhatY[i][0]->Scale(finalavg_sf);
+	h_RingTracker_Time_Rhat[i][0]->Scale(finalavg_sf);
+	h_RingTracker_Time_Xe[i][0]->Scale(finalavg_sf);
+	h_RingTracker_Time_Vhat[i][0]->Scale(finalavg_sf);
+	h_RingTracker_Time_Mom[i][0]->Scale(finalavg_sf);
+	h_RingTracker_Time_Pol[i][0]->Scale(finalavg_sf);
+	h_RingTracker_Time_PolX[i][0]->Scale(finalavg_sf);
+	h_RingTracker_Time_PolY[i][0]->Scale(finalavg_sf);
+      }
     }
-  }
 
-  cout << "YP" << endl;
-  if ( Npass_final > 0 && Npass_finalavg > 0 ) {
-    double finalavg_sf = (double)Npass_final / Npass_finalavg;
-    cout << "Scaling FinalAvg histograms by " << finalavg_sf << endl;
-    h_RingTracker_Time_Xprime[5][0]->Scale(finalavg_sf);
-    h_RingTracker_Time_Yprime[5][0]->Scale(finalavg_sf);
-    h_RingTracker_Time_XprimeX[5][0]->Scale(finalavg_sf);
-    h_RingTracker_Time_YprimeY[5][0]->Scale(finalavg_sf);
-    h_RingTracker_Time_XprimeYprime[5][0]->Scale(finalavg_sf);
-    h_RingTracker_Time_RhoY[5][0]->Scale(finalavg_sf);
-    h_RingTracker_Time_Rhat[5][0]->Scale(finalavg_sf);
-    h_RingTracker_Time_Xe[5][0]->Scale(finalavg_sf);
-    h_RingTracker_Time_Vhat[5][0]->Scale(finalavg_sf);
-    h_RingTracker_Time_Mom[5][0]->Scale(finalavg_sf);
-    h_RingTracker_Time_Pol[5][0]->Scale(finalavg_sf);
-    h_RingTracker_Time_PolX[5][0]->Scale(finalavg_sf);
-    h_RingTracker_Time_PolY[5][0]->Scale(finalavg_sf);
-	
-    h_RingTracker_Time_dNdXe->Scale(finalavg_sf);
-    h_RingTracker_Time_dNdX->Scale(finalavg_sf);
-    h_RingTracker_Time_dNdXprime->Scale(finalavg_sf);
-    h_RingTracker_Time_d2NdXprimeX->Scale(finalavg_sf);
-    h_RingTracker_Time_dNdY->Scale(finalavg_sf);
-    h_RingTracker_Time_dNdYprime->Scale(finalavg_sf);
-    h_RingTracker_Time_d2NdYprimeY->Scale(finalavg_sf);
-    h_RingTracker_Time_d2NdXY->Scale(finalavg_sf);
-    h_RingTracker_Time_d2NdXprimeYprime->Scale(finalavg_sf);
-  }
+    if ( Npass_final > 0 && Npass_finalavg > 0 ) {
+      double finalavg_sf = (double)Npass_final / Npass_finalavg;
+      cout << "Scaling FinalAvg histograms by " << finalavg_sf << endl;
+      h_RingTracker_Time_dNdXe->Scale(finalavg_sf);
+      h_RingTracker_Time_dNdX->Scale(finalavg_sf);
+      h_RingTracker_Time_dNdXprime->Scale(finalavg_sf);
+      h_RingTracker_Time_d2NdXprimeX->Scale(finalavg_sf);
+      h_RingTracker_Time_dNdY->Scale(finalavg_sf);
+      h_RingTracker_Time_dNdYprime->Scale(finalavg_sf);
+      h_RingTracker_Time_d2NdYprimeY->Scale(finalavg_sf);
+      h_RingTracker_Time_d2NdXY->Scale(finalavg_sf);
+      h_RingTracker_Time_d2NdXprimeYprime->Scale(finalavg_sf);
+    }
   }
  
 
@@ -544,6 +539,8 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
   ringtrackerinstanceName_   ( p.get<std::string>("ringtrackerinstanceName",    "VirtualRingStation"     ) ),
   truthhitModuleLabel_       ( p.get<std::string>("truthhitModuleLabel",  "artg4"   ) ),
   truthinstanceName_         ( p.get<std::string>("truthinstanceName",    ""     ) ),
+  truthfinishedhitModuleLabel_       ( p.get<std::string>("truthfinishedhitModuleLabel",  "artg4"   ) ),
+  truthfinishedinstanceName_         ( p.get<std::string>("truthfinishedinstanceName",    "FinishedTracks"     ) ),
   inflectorhitModuleLabel_   ( p.get<std::string>("inflectorhitModuleLabel",  "artg4"   ) ),
   inflectorinstanceName_     ( p.get<std::string>("inflectorinstanceName",    "inflector"     ) ),
   ringhitModuleLabel_        ( p.get<std::string>("ringhitModuleLabel",  "artg4"   ) ),
@@ -562,7 +559,9 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
   SaveRingHits_      ( p.get<bool>("SaveRingHits", false)),
   SaveTruthHits_      ( p.get<bool>("SaveTruthHits", false)),
   SaveVRingHits_      ( p.get<bool>("SaveVRingHits", false)),
-  SaveVRing1PlaneHits_      ( p.get<bool>("SaveVRing1PlaneHits", false))
+  SaveVRing1PlaneHits_      ( p.get<bool>("SaveVRing1PlaneHits", false)),
+  debug_                    ( p.get<bool>("debug", false))
+	
 {
   //truthinstanceName_   ( p.get<std::string>("truthinstanceName",    "TrackingAction"     ) ),
   // You could require that hist_dir and tree_dir have some real strings, but what if the
@@ -601,7 +600,7 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
   
   // Create the histogram objects
 
-  debug_ = false;
+  //debug_ = false;
 
   maxturns_ = maxturnsreal_;
   Ndegat0 = 0.0;
@@ -620,7 +619,7 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
   }
 
 
-  Nsystemtrackers = 10;
+  Nsystemtrackers = 11;
   rhitnames[0] = "Inflector";
   rhitnames[1] = "Cryostat" ;
   rhitnames[2] = "Quad" ;
@@ -630,7 +629,8 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
   rhitnames[6] = "StrawTracker" ;
   rhitnames[7] = "Calo" ;
   rhitnames[8] = "Xtal";
-  rhitnames[9] = "Vacuum";
+  rhitnames[9] = "VirtualRingStation";
+  rhitnames[10] = "AllSystems";
   kInflectorHit = 0;
   kCryostatHit = 1;
   kQuadHit = 2;
@@ -640,23 +640,20 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
   kStrawSystemHit = 6;
   kCaloSystemHit = 7;
   kXtalSystemHit = 8;
-  kVacuumChamberHit = 9;
+  kVirtualRingStationHit = 9;
+  kAllSystemsHit = 10;
 
-  Nringtrackertimes = 10;
-  Ntruthtimes = 10;
-  times[0] = "-";
-  times[1] = "5us";
-  times[2] = "20us"; 
-  times[3] = "50us"; 
-  times[4] = "Final"; 
-  times[5] = "FinalAvg"; 
-  times[6] = "5turns"; 
-  times[7] = "10turns"; 
-  times[8] = "50turns"; 
-  times[9] = "100turns";
+  Nringtrackertimes = 3;
+  Ntruthtimes = 3;
+  times[0] = "Init";
+  times[1] = "Final"; 
+  times[2] = "FinalAvg"; 
 
+  Ntimevals = 2;
+  timevals[0] = "Init";
+  timevals[1] = "Store";
 
-  Nringhits = 22; 
+  Nringhits = 0; 
   inames[0] = "UpstreamEndFlange";
   inames[1] = "UpstreamEquivalentNbTi";  
   inames[2] = "UpstreamEquivalentAl";  
@@ -696,20 +693,32 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
   ringtrackernames[8] = "08";
 
   
-//   Nstoredtrackers = 11;
-//   rtsnames[0] = "0Turn";  
-//   rtsnames[1] = "1Turn";  
-//   rtsnames[2] = "2Turn";  
-//   rtsnames[3] = "5Turn";  
-//   rtsnames[4] = "10Turn";  
-//   rtsnames[5] = "50Turn";  
-//   rtsnames[6] = "100Turn";  
-//   rtsnames[7] = "200Turn";  
-//   rtsnames[8] = "500Turn";  
-//   rtsnames[9] = "1000Turn";  
-//   rtsnames[10] = "2000Turn";
+  //   Nstoredtrackers = 11;
+  //   rtsnames[0] = "0Turn";  
+  //   rtsnames[1] = "1Turn";  
+  //   rtsnames[2] = "2Turn";  
+  //   rtsnames[3] = "5Turn";  
+  //   rtsnames[4] = "10Turn";  
+  //   rtsnames[5] = "50Turn";  
+  //   rtsnames[6] = "100Turn";  
+  //   rtsnames[7] = "200Turn";  
+  //   rtsnames[8] = "500Turn";  
+  //   rtsnames[9] = "1000Turn";  
+  //   rtsnames[10] = "2000Turn";
+
+  Ntimestamps = 2;
+  timestamps[0] = "Turn";
+  timestamps[1] = "OncePerTurn";
 
 
+  Nparticles = 7;
+  truth_particle_names[0] = "BirthMuon";
+  truth_particle_names[1] = "DecayMuon";
+  truth_particle_names[2] = "LostMuon";
+  truth_particle_names[3] = "DecayElectron";
+  truth_particle_names[4] = "BirthElectron";
+  truth_particle_names[5] = "DecayElectronEgtEth";
+  truth_particle_names[6] = "BirthElectronEgtEth";
   fill = true;
 
 
@@ -718,822 +727,815 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
 
   if ( SaveVRingHits_ ) {
 
-  for ( int typ = 0; typ < 2; typ++ ) {
-    string typname = "";
-    if ( typ == 1 ) { typname = "_InitVal"; }
+    for ( int t = 0; t < Ntimevals; t++ ) {
+      string typname = timevals[t];
     
-    for ( int t = 0; t < Nringtrackertimes; t++ ) {
-      string ringtracker_time_name = times[t];
-      if ( times[t] == "-" ) { ringtracker_time_name = ""; }
-      else { ringtracker_time_name = "_" + times[t]; }      
+      for ( int tt = 0; tt < Nringtrackertimes; tt++ ) {
+	string ringtracker_time_name = times[tt];
       
-      if ( fill ) {
+	if ( fill ) {
 	
-	hname << "RingTracker_Time_Xprime" << ringtracker_time_name << typname;
-	h_RingTracker_Time_Xprime[t][typ] = histDir.make<TH1F>(hname.str().c_str(), "", XPrimebin_Ring, XPrimemin_Ring, XPrimemax_Ring);
-	h_RingTracker_Time_Xprime[t][typ]->SetXTitle("x'_{ring} #equiv P_{x}/P_{z} [mrad]");
-	hname.str("");
+	  hname << "RingTracker_Time_Xprime_" << ringtracker_time_name << "_" << typname;
+	  //cout << hname.str() << endl;
+	  h_RingTracker_Time_Xprime[tt][t] = histDir.make<TH1F>(hname.str().c_str(), "", XPrimebin_Ring, XPrimemin_Ring, XPrimemax_Ring);
+	  h_RingTracker_Time_Xprime[tt][t]->SetXTitle("x'_{ring} #equiv P_{x}/P_{z} [mrad]");
+	  hname.str("");
 	
-	hname << "RingTracker_Time_Yprime" << ringtracker_time_name << typname;
-	h_RingTracker_Time_Yprime[t][typ] = histDir.make<TH1F>(hname.str().c_str(), "", YPrimebin_Ring, YPrimemin_Ring, YPrimemax_Ring);
-	h_RingTracker_Time_Yprime[t][typ]->SetXTitle("y'_{ring} #equiv P_{y}/P_{z} [mrad]");
-	hname.str("");
+	  hname << "RingTracker_Time_Yprime_" << ringtracker_time_name << "_" << typname;
+	  h_RingTracker_Time_Yprime[tt][t] = histDir.make<TH1F>(hname.str().c_str(), "", YPrimebin_Ring, YPrimemin_Ring, YPrimemax_Ring);
+	  h_RingTracker_Time_Yprime[tt][t]->SetXTitle("y'_{ring} #equiv P_{y}/P_{z} [mrad]");
+	  hname.str("");
 	
-	hname << "RingTracker_Time_XprimeX" << ringtracker_time_name << typname;
-	h_RingTracker_Time_XprimeX[t][typ] = histDir.make<TH2F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax, XPrimebin_Ring, XPrimemin_Ring, XPrimemax_Ring);
-	h_RingTracker_Time_XprimeX[t][typ]->SetXTitle("x_{ring} [mm]");
-	h_RingTracker_Time_XprimeX[t][typ]->SetYTitle("x'_{ring} #equiv P_{x}/P_{z} [mrad]");
-	hname.str("");
+	  hname << "RingTracker_Time_XprimeX_" << ringtracker_time_name << "_" << typname;
+	  h_RingTracker_Time_XprimeX[tt][t] = histDir.make<TH2F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax, XPrimebin_Ring, XPrimemin_Ring, XPrimemax_Ring);
+	  h_RingTracker_Time_XprimeX[tt][t]->SetXTitle("x_{ring} [mm]");
+	  h_RingTracker_Time_XprimeX[tt][t]->SetYTitle("x'_{ring} #equiv P_{x}/P_{z} [mrad]");
+	  hname.str("");
 	
-	hname << "RingTracker_Time_YprimeY" << ringtracker_time_name << typname;
-	h_RingTracker_Time_YprimeY[t][typ] = histDir.make<TH2F>(hname.str().c_str(), "", Ybin_Ring, Ymin_Ring, Ymax_Ring, YPrimebin_Ring, YPrimemin_Ring, YPrimemax_Ring);
-	h_RingTracker_Time_YprimeY[t][typ]->SetXTitle("y_{ring} [mm]");
-	h_RingTracker_Time_YprimeY[t][typ]->SetYTitle("y'_{ring} #equiv P_{y}/P_{z} [mrad]");
-	hname.str("");
+	  hname << "RingTracker_Time_YprimeY_" << ringtracker_time_name << "_" << typname;
+	  h_RingTracker_Time_YprimeY[tt][t] = histDir.make<TH2F>(hname.str().c_str(), "", Ybin_Ring, Ymin_Ring, Ymax_Ring, YPrimebin_Ring, YPrimemin_Ring, YPrimemax_Ring);
+	  h_RingTracker_Time_YprimeY[tt][t]->SetXTitle("y_{ring} [mm]");
+	  h_RingTracker_Time_YprimeY[tt][t]->SetYTitle("y'_{ring} #equiv P_{y}/P_{z} [mrad]");
+	  hname.str("");
       
-	hname << "RingTracker_Time_XprimeYprime" << ringtracker_time_name << typname;
-	h_RingTracker_Time_XprimeYprime[t][typ] = histDir.make<TH2F>(hname.str().c_str(), "", XPrimebin_Ring, XPrimemin_Ring, XPrimemax_Ring, YPrimebin_Ring, YPrimemin_Ring, YPrimemax_Ring);
-	h_RingTracker_Time_XprimeYprime[t][typ]->SetXTitle("x'_{ring} #equiv P_{x}/P_{z} [mrad]");
-	h_RingTracker_Time_XprimeYprime[t][typ]->SetYTitle("y'_{ring} #equiv P_{y}/P_{z} [mrad]");
-	hname.str("");
+	  hname << "RingTracker_Time_XprimeYprime_" << ringtracker_time_name << "_" << typname;
+	  h_RingTracker_Time_XprimeYprime[tt][t] = histDir.make<TH2F>(hname.str().c_str(), "", XPrimebin_Ring, XPrimemin_Ring, XPrimemax_Ring, YPrimebin_Ring, YPrimemin_Ring, YPrimemax_Ring);
+	  h_RingTracker_Time_XprimeYprime[tt][t]->SetXTitle("x'_{ring} #equiv P_{x}/P_{z} [mrad]");
+	  h_RingTracker_Time_XprimeYprime[tt][t]->SetYTitle("y'_{ring} #equiv P_{y}/P_{z} [mrad]");
+	  hname.str("");
 	
-	hname << "RingTracker_Time_RhoY" << ringtracker_time_name << typname;
-	h_RingTracker_Time_RhoY[t][typ] = histDir.make<TH2F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax, Rhatbin, Rhatmin, Rhatmax);
-	h_RingTracker_Time_RhoY[t][typ]->SetXTitle("x_{ring} #equiv R - R_{m} [mm]");
-	h_RingTracker_Time_RhoY[t][typ]->SetYTitle("y_{ring} [mm]");
-	hname.str("");
+	  hname << "RingTracker_Time_RhatY_" << ringtracker_time_name << "_" << typname;
+	  h_RingTracker_Time_RhatY[tt][t] = histDir.make<TH2F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax, Rhatbin, Rhatmin, Rhatmax);
+	  h_RingTracker_Time_RhatY[tt][t]->SetXTitle("x_{ring} #equiv R - R_{m} [mm]");
+	  h_RingTracker_Time_RhatY[tt][t]->SetYTitle("y_{ring} [mm]");
+	  hname.str("");
 	
-	hname << "RingTracker_Time_Rhat" << ringtracker_time_name << typname;
-	h_RingTracker_Time_Rhat[t][typ] = histDir.make<TH1F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax);
-	h_RingTracker_Time_Rhat[t][typ]->SetXTitle("x_{ring} #equiv R - R_{m} [mm]");
-	hname.str("");
+	  hname << "RingTracker_Time_Rhat_" << ringtracker_time_name << "_" << typname;
+	  h_RingTracker_Time_Rhat[tt][t] = histDir.make<TH1F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax);
+	  h_RingTracker_Time_Rhat[tt][t]->SetXTitle("x_{ring} #equiv R - R_{m} [mm]");
+	  hname.str("");
 	
-	hname << "RingTracker_Time_Xe" << ringtracker_time_name << typname;
-	h_RingTracker_Time_Xe[t][typ] = histDir.make<TH1F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax);
-	h_RingTracker_Time_Xe[t][typ]->SetXTitle("x_{e} #equiv #frac{(p - p_{m})R_{m}}{p_{m}(1-n)} [mm]");
-	hname.str("");
+	  hname << "RingTracker_Time_Xe_" << ringtracker_time_name << "_" << typname;
+	  h_RingTracker_Time_Xe[tt][t] = histDir.make<TH1F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax);
+	  h_RingTracker_Time_Xe[tt][t]->SetXTitle("x_{e} #equiv #frac{(p - p_{m})R_{m}}{p_{m}(1-n)} [mm]");
+	  hname.str("");
 	
-	hname << "RingTracker_Time_Vhat" << ringtracker_time_name << typname;
-	h_RingTracker_Time_Vhat[t][typ] = histDir.make<TH1F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax);
-	h_RingTracker_Time_Vhat[t][typ]->SetXTitle("y_{ring} [mm]");
-	hname.str("");
+	  hname << "RingTracker_Time_Vhat_" << ringtracker_time_name << "_" << typname;
+	  h_RingTracker_Time_Vhat[tt][t] = histDir.make<TH1F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax);
+	  h_RingTracker_Time_Vhat[tt][t]->SetXTitle("y_{ring} [mm]");
+	  hname.str("");
       
-	hname << "RingTracker_Time_Mom" << ringtracker_time_name << typname;
-	h_RingTracker_Time_Mom[t][typ] = histDir.make<TH1F>(hname.str().c_str(), "", Mombin, Mommin, Mommax);
-	h_RingTracker_Time_Mom[t][typ]->SetXTitle("P_{#mu} / P_{m}");
-	hname.str("");
+	  hname << "RingTracker_Time_Mom_" << ringtracker_time_name << "_" << typname;
+	  h_RingTracker_Time_Mom[tt][t] = histDir.make<TH1F>(hname.str().c_str(), "", Mombin, Mommin, Mommax);
+	  h_RingTracker_Time_Mom[tt][t]->SetXTitle("P_{#mu} / P_{m}");
+	  hname.str("");
 
-	hname << "RingTracker_Time_Pol" << ringtracker_time_name << typname;
-	h_RingTracker_Time_Pol[t][typ] = histDir.make<TH1F>(hname.str().c_str(), "", Polbin, Polmin, Polmax);
-	h_RingTracker_Time_Pol[t][typ]->SetXTitle("#hat{s}#bullet#hat{p}_{z}");
-	hname.str("");
+	  hname << "RingTracker_Time_Pol_" << ringtracker_time_name << "_" << typname;
+	  h_RingTracker_Time_Pol[tt][t] = histDir.make<TH1F>(hname.str().c_str(), "", Polbin, Polmin, Polmax);
+	  h_RingTracker_Time_Pol[tt][t]->SetXTitle("#hat{s}#bullet#hat{p}_{z}");
+	  hname.str("");
 
-	hname << "RingTracker_Time_PolX" << ringtracker_time_name << typname;
-	h_RingTracker_Time_PolX[t][typ] = histDir.make<TH1F>(hname.str().c_str(), "", Polbin, Polmin, Polmax);
-	h_RingTracker_Time_PolX[t][typ]->SetXTitle("#hat{s}#bullet#hat{p}_{r}");
-	hname.str("");
+	  hname << "RingTracker_Time_PolX_" << ringtracker_time_name << "_" << typname;
+	  h_RingTracker_Time_PolX[tt][t] = histDir.make<TH1F>(hname.str().c_str(), "", Polbin, Polmin, Polmax);
+	  h_RingTracker_Time_PolX[tt][t]->SetXTitle("#hat{s}#bullet#hat{p}_{r}");
+	  hname.str("");
 
-	hname << "RingTracker_Time_PolY" << ringtracker_time_name << typname;
-	h_RingTracker_Time_PolY[t][typ] = histDir.make<TH1F>(hname.str().c_str(), "", PolYbin, PolYmin, PolYmax);
-	h_RingTracker_Time_PolY[t][typ]->SetXTitle("#hat{s}#bullet#hat{p}_{y}");
-	hname.str("");
+	  hname << "RingTracker_Time_PolY_" << ringtracker_time_name << "_" << typname;
+	  h_RingTracker_Time_PolY[tt][t] = histDir.make<TH1F>(hname.str().c_str(), "", PolYbin, PolYmin, PolYmax);
+	  h_RingTracker_Time_PolY[tt][t]->SetXTitle("#hat{s}#bullet#hat{p}_{y}");
+	  hname.str("");
+	}
       }
     }
-  }
 
-  if ( fill ) {
-    hname.str("");  
-    hname << "RingTracker_PrhatPvhatEntrance";
-    h_RingTracker_PrhatPvhatEntrance = histDir.make<TH2F>(hname.str().c_str(), "", XPrimebin_Ring/10, XPrimemin_Ring/100, XPrimemax_Ring/100, YPrimebin_Ring/10, YPrimemin_Ring/100, YPrimemax_Ring/100);
-    h_RingTracker_PrhatPvhatEntrance->SetYTitle("#hat{P}_{v}");
-    h_RingTracker_PrhatPvhatEntrance->SetXTitle("#hat{P}_{r}");
-    hname.str("");  
-
-    hname << "RingTracker_Time_dNdXe";
-    h_RingTracker_Time_dNdXe = histDir.make<TH1F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax);
-    h_RingTracker_Time_dNdXe->SetXTitle("x_{e} #equiv #frac{(p - p_{m})R_{m}}{p_{m}(1-n)} [mm]");
-    hname.str("");
-
-    hname << "RingTracker_Time_dNdX";
-    h_RingTracker_Time_dNdX = histDir.make<TH1F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax);
-    h_RingTracker_Time_dNdX->SetXTitle("x_{ring} #equiv R - R_{m} [mm]");
-    hname.str("");
-    
-    hname << "RingTracker_Time_dNdY";
-    h_RingTracker_Time_dNdY = histDir.make<TH1F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax);
-    h_RingTracker_Time_dNdY->SetXTitle("y_{ring} [mm]");
-    hname.str("");
-    
-    hname << "RingTracker_Time_d2NdXY";
-    h_RingTracker_Time_d2NdXY = histDir.make<TH2F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax, Rhatbin, Rhatmin, Rhatmax);
-    h_RingTracker_Time_d2NdXY->SetXTitle("x_{ring} #equiv R - R_{m} [mm]");
-    h_RingTracker_Time_d2NdXY->SetYTitle("y_{ring} [mm]");
-    hname.str("");
-
-
-    hname << "RingTracker_Time_dNdXprime";
-    h_RingTracker_Time_dNdXprime = histDir.make<TH1F>(hname.str().c_str(), "", XPrimebin_Ring, XPrimemin_Ring, XPrimemax_Ring);
-    h_RingTracker_Time_dNdXprime->SetXTitle("x'_{ring} [mm]");
-    hname.str("");
-    
-    hname << "RingTracker_Time_dNdYprime";
-    h_RingTracker_Time_dNdYprime = histDir.make<TH1F>(hname.str().c_str(), "", YPrimebin_Ring, YPrimemin_Ring, YPrimemax_Ring);
-    h_RingTracker_Time_dNdYprime->SetXTitle("y'_{ring} [mm]");
-    hname.str("");
-    
-    hname << "RingTracker_Time_d2NdXprimeYprime";
-    h_RingTracker_Time_d2NdXprimeYprime = histDir.make<TH2F>(hname.str().c_str(), "", XPrimebin_Ring, XPrimemin_Ring, XPrimemax_Ring, YPrimebin_Ring, YPrimemin_Ring, YPrimemax_Ring);
-    h_RingTracker_Time_d2NdXprimeYprime->SetYTitle("x'_{ring} #equiv R - R_{m} [mm]");
-    h_RingTracker_Time_d2NdXprimeYprime->SetXTitle("y'_{ring} [mm]");
-    hname.str("");
-    
-    hname << "RingTracker_Time_dNdXprimeX";
-    h_RingTracker_Time_d2NdXprimeX = histDir.make<TH2F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax, XPrimebin_Ring, XPrimemin_Ring, XPrimemax_Ring);
-    h_RingTracker_Time_d2NdXprimeX->SetYTitle("x'_{ring} [mm]");
-    h_RingTracker_Time_d2NdXprimeX->SetXTitle("x_{ring} #equiv R - R_{m} [mm]");
-    hname.str("");
-    
-    hname << "RingTracker_Time_dNdYprimeY";
-    h_RingTracker_Time_d2NdYprimeY = histDir.make<TH2F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax, YPrimebin_Ring, YPrimemin_Ring, YPrimemax_Ring);
-    h_RingTracker_Time_d2NdYprimeY->SetYTitle("y'_{ring} [mm]");
-    h_RingTracker_Time_d2NdYprimeY->SetXTitle("y_{ring} [mm]");
-    hname.str("");
-  }
-
-  if ( fill ) {
-
-    for ( int st = 0; st < 2; st++ ) {
-      string stname = "";
-      if ( st == 1 ) { stname = "_Stored"; }
-      
-      hname << "RingTracker" << stname << "_DegreeAtRhat0";
-      h_RingTracker_DegreeAtRhat0[st] = histDir.make<TH1F>(hname.str().c_str(), "", 180, 0, 180.0);
-      h_RingTracker_DegreeAtRhat0[st]->SetXTitle("#theta_{ring}(R=R_{magic}) [deg]");
-      hname.str(""); 
-      
-      for ( int mom = 0; mom < 6; mom++ ) {
-      	hname << "RingTracker" << stname << "_DegreeAtRhat0_Mom" << mom;
-	h_RingTracker_DegreeAtRhat0_Mom[st][mom] = histDir.make<TH1F>(hname.str().c_str(), "", 180, 0, 180.0);
-	h_RingTracker_DegreeAtRhat0_Mom[st][mom]->SetXTitle("#theta_{ring}(R=R_{magic}) [deg]");
-	hname.str(""); 
-      }
-
-      hname << "RingTracker" << stname << "_DegreeAtRhat0RhatInit";
-      h_RingTracker_DegreeAtRhat0RhatInit[st] = histDir.make<TH2F>(hname.str().c_str(), "", 180, 0, 180.0, Rhobin_Ring, Rhomin_Ring, Rhomax_Ring);
-      h_RingTracker_DegreeAtRhat0RhatInit[st]->SetXTitle("#theta_{ring}(x=0) [deg]");
-      h_RingTracker_DegreeAtRhat0RhatInit[st]->SetYTitle("x_{ring} #equiv (R - R_{magic})(#theta=0) [mm]");
-      hname.str(""); 
-      
-      hname << "RingTracker" << stname << "_DegreeAtQuad";
-      h_RingTracker_DegreeAtQuad[st] = histDir.make<TH1F>(hname.str().c_str(), "", 180, 0, 180.0);
-      h_RingTracker_DegreeAtQuad[st]->SetXTitle("#theta_{ring}(R=R_{magic}+50 mm) [deg]");
-      hname.str(""); 
-      
-      hname << "RingTracker" << stname << "_KickAtRhat0";
-      h_RingTracker_KickAtRhat0[st] = histDir.make<TH1F>(hname.str().c_str(), "", 10*XPrimebin_Ring, XPrimemin_Ring, XPrimemax_Ring);
-      h_RingTracker_KickAtRhat0[st]->SetXTitle("x'_{ring}(R=R_{magic})(x=0) [mrad]");
-      hname.str(""); 
-      
-      for ( int mom = 0; mom < 6; mom++ ) {
-	hname << "RingTracker" << stname << "_KickAtRhat0_Mom" << mom;
-	h_RingTracker_KickAtRhat0_Mom[st][mom] = histDir.make<TH1F>(hname.str().c_str(), "", 10*XPrimebin_Ring, XPrimemin_Ring, XPrimemax_Ring);
-	h_RingTracker_KickAtRhat0_Mom[st][mom]->SetXTitle("x'_{ring}(R=R_{magic})(x=0) [mrad]");
-	hname.str(""); 
-      }
-
-      hname << "RingTracker" << stname << "_KickAtRhat0RhatInit";
-      h_RingTracker_KickAtRhat0RhatInit[st] = histDir.make<TH2F>(hname.str().c_str(), "", XPrimebin_Ring, XPrimemin_Ring, XPrimemax_Ring, Rhatbin, Rhatmin, Rhatmax);
-      h_RingTracker_KickAtRhat0RhatInit[st]->SetXTitle("x'_{ring}(x=0) [mrad]");
-      h_RingTracker_KickAtRhat0RhatInit[st]->SetYTitle("x_{ring} #equiv (R - R_{magic})(#theta=0) [mm]");
-      hname.str(""); 
-    
-      hname << "RingTracker" << stname << "_DegreeAtRhat0KickAtRhat0";
-      h_RingTracker_DegreeAtRhat0KickAtRhat0[st] = histDir.make<TH2F>(hname.str().c_str(), "", 180, 0, 180.0, XPrimebin_Ring, XPrimemin_Ring, XPrimemax_Ring);
-      h_RingTracker_DegreeAtRhat0KickAtRhat0[st]->SetXTitle("#theta_{ring}(x=0) [deg]");
-      h_RingTracker_DegreeAtRhat0KickAtRhat0[st]->SetYTitle("x'_{ring}(x=0) [mrad]");
-      hname.str(""); 
-      
-      for ( int mom = 0; mom < 6; mom++ ) {
-	hname << "RingTracker" << stname << "_DegreeAtRhat0KickAtRhat0_Mom" << mom;
-	h_RingTracker_DegreeAtRhat0KickAtRhat0_Mom[st][mom] = histDir.make<TH2F>(hname.str().c_str(), "", 180, 0, 180.0, XPrimebin_Ring, XPrimemin_Ring, XPrimemax_Ring);
-	h_RingTracker_DegreeAtRhat0KickAtRhat0_Mom[st][mom]->SetXTitle("#theta_{ring}(x=0) [deg]");
-	h_RingTracker_DegreeAtRhat0KickAtRhat0_Mom[st][mom]->SetYTitle("x'_{ring}(x=0) [mrad]");
-	hname.str(""); 
-      }
-    
-      hname << "RingTracker" << stname << "_FirstTurnX";
-      h_RingTracker_FirstTurnX[st] = histDir.make<TH2F>(hname.str().c_str(), "", 360, 0, 360.0, Rhatbin, Rhatmin, Rhatmax);
-      h_RingTracker_FirstTurnX[st]->SetYTitle("x_{ring} #equiv R - R_{m} [mm]");
-      h_RingTracker_FirstTurnX[st]->SetXTitle("#theta_{ring} [deg]");
-      hname.str(""); 
-    
-      hname << "RingTracker" << stname << "_FirstTurnY";
-      h_RingTracker_FirstTurnY[st] = histDir.make<TH2F>(hname.str().c_str(), "", 360, 0, 360.0, Rhatbin, Rhatmin, Rhatmax);
-      h_RingTracker_FirstTurnY[st]->SetYTitle("y_{ring} #equiv R - R_{m} [mm]");
-      h_RingTracker_FirstTurnY[st]->SetXTitle("#theta_{ring} [deg]");
-      hname.str(""); 
-    }
-  } 
-
-  for ( int i = 0; i < Nringtrackers; i++ ) {
     if ( fill ) {
-      hname << "RingTracker_" << ringtrackernames[i] << "_RhoY";
-      h_RingTracker_RhoY[i] = histDir.make<TH2F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax, Rhatbin, Rhatmin, Rhatmax);
-      h_RingTracker_RhoY[i]->SetXTitle("x_{ring} #equiv R - R_{m} [mm]");
-      h_RingTracker_RhoY[i]->SetYTitle("y_{ring} [mm]");
-      hname.str(""); 
+      hname.str("");  
+      hname << "RingTracker_PrhatPvhatEntrance";
+      h_RingTracker_PrhatPvhatEntrance = histDir.make<TH2F>(hname.str().c_str(), "", XPrimebin_Ring/10, XPrimemin_Ring/100, XPrimemax_Ring/100, YPrimebin_Ring/10, YPrimemin_Ring/100, YPrimemax_Ring/100);
+      h_RingTracker_PrhatPvhatEntrance->SetYTitle("#hat{P}_{v}");
+      h_RingTracker_PrhatPvhatEntrance->SetXTitle("#hat{P}_{r}");
+      hname.str("");  
+
+      hname << "RingTracker_Time_dNdXe";
+      h_RingTracker_Time_dNdXe = histDir.make<TH1F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax);
+      h_RingTracker_Time_dNdXe->SetXTitle("x_{e} #equiv #frac{(p - p_{m})R_{m}}{p_{m}(1-n)} [mm]");
+      hname.str("");
+
+      hname << "RingTracker_Time_dNdX";
+      h_RingTracker_Time_dNdX = histDir.make<TH1F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax);
+      h_RingTracker_Time_dNdX->SetXTitle("x_{ring} #equiv R - R_{m} [mm]");
+      hname.str("");
     
-      hname << "RingTracker_" << ringtrackernames[i] << "_YprimeY";
-      h_RingTracker_YprimeY[i] = histDir.make<TH2F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax, YPrimebin_Ring, YPrimemin_Ring, YPrimemax_Ring);
-      h_RingTracker_YprimeY[i]->SetXTitle("y_{ring} [mm]");
-      h_RingTracker_YprimeY[i]->SetYTitle("y'_{ring} #equiv P_{y}/P_{z} [mrad]");
+      hname << "RingTracker_Time_dNdY";
+      h_RingTracker_Time_dNdY = histDir.make<TH1F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax);
+      h_RingTracker_Time_dNdY->SetXTitle("y_{ring} [mm]");
+      hname.str("");
+    
+      hname << "RingTracker_Time_d2NdXY";
+      h_RingTracker_Time_d2NdXY = histDir.make<TH2F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax, Rhatbin, Rhatmin, Rhatmax);
+      h_RingTracker_Time_d2NdXY->SetXTitle("x_{ring} #equiv R - R_{m} [mm]");
+      h_RingTracker_Time_d2NdXY->SetYTitle("y_{ring} [mm]");
       hname.str("");
 
-      hname << "RingTracker_" << ringtrackernames[i] << "_XprimeX";
-      h_RingTracker_XprimeX[i] = histDir.make<TH2F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax, XPrimebin_Ring, XPrimemin_Ring, XPrimemax_Ring);
-      h_RingTracker_XprimeX[i]->SetXTitle("x_{ring} [mm]");
-      h_RingTracker_XprimeX[i]->SetYTitle("x'_{ring} #equiv P_{x}/P_{z} [mrad]");
-      hname.str("");
 
-      hname << "RingTracker_" << ringtrackernames[i] << "_Mom";
-      h_RingTracker_Mom[i] = histDir.make<TH1F>(hname.str().c_str(), "", Mombin, Mommin, Mommax);
-      h_RingTracker_Mom[i]->SetXTitle("P_{#mu} / P_{m}");
+      hname << "RingTracker_Time_dNdXprime";
+      h_RingTracker_Time_dNdXprime = histDir.make<TH1F>(hname.str().c_str(), "", XPrimebin_Ring, XPrimemin_Ring, XPrimemax_Ring);
+      h_RingTracker_Time_dNdXprime->SetXTitle("x'_{ring} [mm]");
       hname.str("");
-
-      hname << "RingTracker_" << ringtrackernames[i] << "_Rhat";
-      h_RingTracker_Rhat[i] = histDir.make<TH1F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax);
-      h_RingTracker_Rhat[i]->SetXTitle("x_{ring} #equiv R - R_{m} [mm]");
+    
+      hname << "RingTracker_Time_dNdYprime";
+      h_RingTracker_Time_dNdYprime = histDir.make<TH1F>(hname.str().c_str(), "", YPrimebin_Ring, YPrimemin_Ring, YPrimemax_Ring);
+      h_RingTracker_Time_dNdYprime->SetXTitle("y'_{ring} [mm]");
       hname.str("");
-
-      hname << "RingTracker_" << ringtrackernames[i] << "_Xe";
-      h_RingTracker_Xe[i] = histDir.make<TH1F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax);
-      h_RingTracker_Xe[i]->SetXTitle("x_{e} #equiv #frac{(p - p_{m})R_{m}}{p_{m}(1-n)} [mm]");
+    
+      hname << "RingTracker_Time_d2NdXprimeYprime";
+      h_RingTracker_Time_d2NdXprimeYprime = histDir.make<TH2F>(hname.str().c_str(), "", XPrimebin_Ring, XPrimemin_Ring, XPrimemax_Ring, YPrimebin_Ring, YPrimemin_Ring, YPrimemax_Ring);
+      h_RingTracker_Time_d2NdXprimeYprime->SetYTitle("x'_{ring} #equiv R - R_{m} [mm]");
+      h_RingTracker_Time_d2NdXprimeYprime->SetXTitle("y'_{ring} [mm]");
       hname.str("");
-
-      hname << "RingTracker_" << ringtrackernames[i] << "_Vhat";
-      h_RingTracker_Vhat[i] = histDir.make<TH1F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax);
-      h_RingTracker_Vhat[i]->SetXTitle("y_{ring} [mm]");
+    
+      hname << "RingTracker_Time_dNdXprimeX";
+      h_RingTracker_Time_d2NdXprimeX = histDir.make<TH2F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax, XPrimebin_Ring, XPrimemin_Ring, XPrimemax_Ring);
+      h_RingTracker_Time_d2NdXprimeX->SetYTitle("x'_{ring} [mm]");
+      h_RingTracker_Time_d2NdXprimeX->SetXTitle("x_{ring} #equiv R - R_{m} [mm]");
       hname.str("");
-
-      hname << "RingTracker_" << ringtrackernames[i] << "_Pol";
-      h_RingTracker_Pol[i] = histDir.make<TH1F>(hname.str().c_str(), "", Polbin, Polmin, Polmax);
-      h_RingTracker_Pol[i]->SetXTitle("#hat{s}#bullet#hat{p}_{z}");
-      hname.str("");
-
-      hname << "RingTracker_" << ringtrackernames[i] << "_PolX";
-      h_RingTracker_PolX[i] = histDir.make<TH1F>(hname.str().c_str(), "", Polbin, Polmin, Polmax);
-      h_RingTracker_PolX[i]->SetXTitle("#hat{s}#bullet#hat{p}_{r}");
-      hname.str("");
-
-      hname << "RingTracker_" << ringtrackernames[i] << "_PolY";
-      h_RingTracker_PolY[i] = histDir.make<TH1F>(hname.str().c_str(), "", PolYbin, PolYmin, PolYmax);
-      h_RingTracker_PolY[i]->SetXTitle("#hat{s}#bullet#hat{p}_{y}");
+    
+      hname << "RingTracker_Time_dNdYprimeY";
+      h_RingTracker_Time_d2NdYprimeY = histDir.make<TH2F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax, YPrimebin_Ring, YPrimemin_Ring, YPrimemax_Ring);
+      h_RingTracker_Time_d2NdYprimeY->SetYTitle("y'_{ring} [mm]");
+      h_RingTracker_Time_d2NdYprimeY->SetXTitle("y_{ring} [mm]");
       hname.str("");
     }
-  } 
+
+    if ( fill ) {
+
+      for ( int st = 0; st < 2; st++ ) {
+	string stname = "";
+	if ( st == 1 ) { stname = "_Stored"; }
+      
+	hname << "RingTracker" << stname << "_DegreeAtRhat0";
+	h_RingTracker_DegreeAtRhat0[st] = histDir.make<TH1F>(hname.str().c_str(), "", 180, 0, 180.0);
+	h_RingTracker_DegreeAtRhat0[st]->SetXTitle("#theta_{ring}(R=R_{magic}) [deg]");
+	hname.str(""); 
+      
+	for ( int mom = 0; mom < 6; mom++ ) {
+	  hname << "RingTracker" << stname << "_DegreeAtRhat0_Mom" << mom;
+	  h_RingTracker_DegreeAtRhat0_Mom[st][mom] = histDir.make<TH1F>(hname.str().c_str(), "", 180, 0, 180.0);
+	  h_RingTracker_DegreeAtRhat0_Mom[st][mom]->SetXTitle("#theta_{ring}(R=R_{magic}) [deg]");
+	  hname.str(""); 
+	}
+
+	hname << "RingTracker" << stname << "_DegreeAtRhat0RhatInit";
+	h_RingTracker_DegreeAtRhat0RhatInit[st] = histDir.make<TH2F>(hname.str().c_str(), "", 180, 0, 180.0, Rhatbin_Ring, Rhatmin_Ring, Rhatmax_Ring);
+	h_RingTracker_DegreeAtRhat0RhatInit[st]->SetXTitle("#theta_{ring}(x=0) [deg]");
+	h_RingTracker_DegreeAtRhat0RhatInit[st]->SetYTitle("x_{ring} #equiv (R - R_{magic})(#theta=0) [mm]");
+	hname.str(""); 
+      
+	hname << "RingTracker" << stname << "_DegreeAtQuad";
+	h_RingTracker_DegreeAtQuad[st] = histDir.make<TH1F>(hname.str().c_str(), "", 180, 0, 180.0);
+	h_RingTracker_DegreeAtQuad[st]->SetXTitle("#theta_{ring}(R=R_{magic}+50 mm) [deg]");
+	hname.str(""); 
+      
+	hname << "RingTracker" << stname << "_KickAtRhat0";
+	h_RingTracker_KickAtRhat0[st] = histDir.make<TH1F>(hname.str().c_str(), "", 10*XPrimebin_Ring, XPrimemin_Ring, XPrimemax_Ring);
+	h_RingTracker_KickAtRhat0[st]->SetXTitle("x'_{ring}(R=R_{magic})(x=0) [mrad]");
+	hname.str(""); 
+      
+	for ( int mom = 0; mom < 6; mom++ ) {
+	  hname << "RingTracker" << stname << "_KickAtRhat0_Mom" << mom;
+	  h_RingTracker_KickAtRhat0_Mom[st][mom] = histDir.make<TH1F>(hname.str().c_str(), "", 10*XPrimebin_Ring, XPrimemin_Ring, XPrimemax_Ring);
+	  h_RingTracker_KickAtRhat0_Mom[st][mom]->SetXTitle("x'_{ring}(R=R_{magic})(x=0) [mrad]");
+	  hname.str(""); 
+	}
+
+	hname << "RingTracker" << stname << "_KickAtRhat0RhatInit";
+	h_RingTracker_KickAtRhat0RhatInit[st] = histDir.make<TH2F>(hname.str().c_str(), "", XPrimebin_Ring, XPrimemin_Ring, XPrimemax_Ring, Rhatbin, Rhatmin, Rhatmax);
+	h_RingTracker_KickAtRhat0RhatInit[st]->SetXTitle("x'_{ring}(x=0) [mrad]");
+	h_RingTracker_KickAtRhat0RhatInit[st]->SetYTitle("x_{ring} #equiv (R - R_{magic})(#theta=0) [mm]");
+	hname.str(""); 
+    
+	hname << "RingTracker" << stname << "_DegreeAtRhat0KickAtRhat0";
+	h_RingTracker_DegreeAtRhat0KickAtRhat0[st] = histDir.make<TH2F>(hname.str().c_str(), "", 180, 0, 180.0, XPrimebin_Ring, XPrimemin_Ring, XPrimemax_Ring);
+	h_RingTracker_DegreeAtRhat0KickAtRhat0[st]->SetXTitle("#theta_{ring}(x=0) [deg]");
+	h_RingTracker_DegreeAtRhat0KickAtRhat0[st]->SetYTitle("x'_{ring}(x=0) [mrad]");
+	hname.str(""); 
+      
+	for ( int mom = 0; mom < 6; mom++ ) {
+	  hname << "RingTracker" << stname << "_DegreeAtRhat0KickAtRhat0_Mom" << mom;
+	  h_RingTracker_DegreeAtRhat0KickAtRhat0_Mom[st][mom] = histDir.make<TH2F>(hname.str().c_str(), "", 180, 0, 180.0, XPrimebin_Ring, XPrimemin_Ring, XPrimemax_Ring);
+	  h_RingTracker_DegreeAtRhat0KickAtRhat0_Mom[st][mom]->SetXTitle("#theta_{ring}(x=0) [deg]");
+	  h_RingTracker_DegreeAtRhat0KickAtRhat0_Mom[st][mom]->SetYTitle("x'_{ring}(x=0) [mrad]");
+	  hname.str(""); 
+	}
+    
+	hname << "RingTracker" << stname << "_FirstTurnX";
+	h_RingTracker_FirstTurnX[st] = histDir.make<TH2F>(hname.str().c_str(), "", 360, 0, 360.0, Rhatbin, Rhatmin, Rhatmax);
+	h_RingTracker_FirstTurnX[st]->SetYTitle("x_{ring} #equiv R - R_{m} [mm]");
+	h_RingTracker_FirstTurnX[st]->SetXTitle("#theta_{ring} [deg]");
+	hname.str(""); 
+    
+	hname << "RingTracker" << stname << "_FirstTurnY";
+	h_RingTracker_FirstTurnY[st] = histDir.make<TH2F>(hname.str().c_str(), "", 360, 0, 360.0, Rhatbin, Rhatmin, Rhatmax);
+	h_RingTracker_FirstTurnY[st]->SetYTitle("y_{ring} #equiv R - R_{m} [mm]");
+	h_RingTracker_FirstTurnY[st]->SetXTitle("#theta_{ring} [deg]");
+	hname.str(""); 
+      }
+    } 
+
+    for ( int i = 0; i < Nringtrackers; i++ ) {
+
+      string ring_tracker_name = ringtrackernames[i];
+
+      if ( fill ) {
+	hname << "RingTracker_" << ring_tracker_name << "_RhatY";
+	h_RingTracker_RhatY[i] = histDir.make<TH2F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax, Rhatbin, Rhatmin, Rhatmax);
+	h_RingTracker_RhatY[i]->SetXTitle("x_{ring} #equiv R - R_{m} [mm]");
+	h_RingTracker_RhatY[i]->SetYTitle("y_{ring} [mm]");
+	hname.str(""); 
+    
+	hname << "RingTracker_" << ring_tracker_name << "_YprimeY";
+	h_RingTracker_YprimeY[i] = histDir.make<TH2F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax, YPrimebin_Ring, YPrimemin_Ring, YPrimemax_Ring);
+	h_RingTracker_YprimeY[i]->SetXTitle("y_{ring} [mm]");
+	h_RingTracker_YprimeY[i]->SetYTitle("y'_{ring} #equiv P_{y}/P_{z} [mrad]");
+	hname.str("");
+
+	hname << "RingTracker_" << ring_tracker_name << "_XprimeX";
+	h_RingTracker_XprimeX[i] = histDir.make<TH2F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax, XPrimebin_Ring, XPrimemin_Ring, XPrimemax_Ring);
+	h_RingTracker_XprimeX[i]->SetXTitle("x_{ring} [mm]");
+	h_RingTracker_XprimeX[i]->SetYTitle("x'_{ring} #equiv P_{x}/P_{z} [mrad]");
+	hname.str("");
+
+	hname << "RingTracker_" << ring_tracker_name << "_Mom";
+	h_RingTracker_Mom[i] = histDir.make<TH1F>(hname.str().c_str(), "", Mombin, Mommin, Mommax);
+	h_RingTracker_Mom[i]->SetXTitle("P_{#mu} / P_{m}");
+	hname.str("");
+
+	hname << "RingTracker_" << ring_tracker_name << "_Rhat";
+	h_RingTracker_Rhat[i] = histDir.make<TH1F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax);
+	h_RingTracker_Rhat[i]->SetXTitle("x_{ring} #equiv R - R_{m} [mm]");
+	hname.str("");
+
+	hname << "RingTracker_" << ring_tracker_name << "_Xe";
+	h_RingTracker_Xe[i] = histDir.make<TH1F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax);
+	h_RingTracker_Xe[i]->SetXTitle("x_{e} #equiv #frac{(p - p_{m})R_{m}}{p_{m}(1-n)} [mm]");
+	hname.str("");
+
+	hname << "RingTracker_" << ring_tracker_name << "_Vhat";
+	h_RingTracker_Vhat[i] = histDir.make<TH1F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax);
+	h_RingTracker_Vhat[i]->SetXTitle("y_{ring} [mm]");
+	hname.str("");
+
+	hname << "RingTracker_" << ring_tracker_name << "_Pol";
+	h_RingTracker_Pol[i] = histDir.make<TH1F>(hname.str().c_str(), "", Polbin, Polmin, Polmax);
+	h_RingTracker_Pol[i]->SetXTitle("#hat{s}#bullet#hat{p}_{z}");
+	hname.str("");
+
+	hname << "RingTracker_" << ring_tracker_name << "_PolX";
+	h_RingTracker_PolX[i] = histDir.make<TH1F>(hname.str().c_str(), "", Polbin, Polmin, Polmax);
+	h_RingTracker_PolX[i]->SetXTitle("#hat{s}#bullet#hat{p}_{r}");
+	hname.str("");
+
+	hname << "RingTracker_" << ring_tracker_name << "_PolY";
+	h_RingTracker_PolY[i] = histDir.make<TH1F>(hname.str().c_str(), "", PolYbin, PolYmin, PolYmax);
+	h_RingTracker_PolY[i]->SetXTitle("#hat{s}#bullet#hat{p}_{y}");
+	hname.str("");
+      }
+    } 
   } // if ( SaveVRingHits_ )
 
 
   if ( SaveVRing1PlaneHits_ || SaveVRingHits_ ) {
     if ( fill ) {
-    for ( int j = 0; j < 4; j++ ) {
-      string timename, xtitle;
+      for ( int t = 0; t < Ntimestamps; t++ ) {
+	string timename, xtitle;
+	
+	if ( SaveVRing1PlaneHits_ == true && SaveVRingHits_ == false ) {
+	  if ( t == 0 || t == 1 ) { continue; }
+	}
 
-      if ( SaveVRing1PlaneHits_ == true && SaveVRingHits_ == false ) {
-	if ( j == 0 || j == 1 ) { continue; }
+	xtitle = "Turn";
+	timename = timestamps[t];
+      
+	int xpbin = XPrimebin_Ring;
+	int xpmin = XPrimemin_Ring;
+	int xpmax = XPrimemax_Ring;
+	int ypbin = YPrimebin_Ring;
+	int ypmin = YPrimemin_Ring;
+	int ypmax = YPrimemax_Ring;
+
+	int hitsperturn = 12;
+	if ( t == 1 ) { hitsperturn = 1; }
+
+	hname << "TrackerXe" << "_" << timename;
+	h_RingTracker_Xe_vs_Time[t] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, Rhatbin, Rhatmin, Rhatmax);
+	h_RingTracker_Xe_vs_Time[t]->SetYTitle("x_{e} #equiv #frac{(p - p_{m})R_{m}}{p_{m}(1-n)} [mm]");
+	h_RingTracker_Xe_vs_Time[t]->SetXTitle(xtitle.c_str());
+	hname.str("");
+
+	hname << "TrackerRhat" << "_" << timename;
+	h_RingTracker_Rhat_vs_Time[t] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, Rhatbin, Rhatmin, Rhatmax);
+	h_RingTracker_Rhat_vs_Time[t]->SetYTitle("x_{ring} #equiv R - R_{m} [mm]");
+	h_RingTracker_Rhat_vs_Time[t]->SetXTitle(xtitle.c_str());
+	hname.str("");
+      
+	hname << "TrackerMom" << "_" << timename;
+	h_RingTracker_Mom_vs_Time[t] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, Mombin, Mommin, Mommax);
+	h_RingTracker_Mom_vs_Time[t]->SetYTitle("P_{#mu} / P_{m}");
+	h_RingTracker_Mom_vs_Time[t]->SetXTitle(xtitle.c_str());
+	hname.str("");
+      
+	hname << "TrackerPrhat" << "_" << timename;
+	h_RingTracker_Prhat_vs_Time[t] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, xpbin, xpmin, xpmax);
+	h_RingTracker_Prhat_vs_Time[t]->SetYTitle("x'_{ring} #equiv P_{x}/P_{z} [mrad]");
+	h_RingTracker_Prhat_vs_Time[t]->SetXTitle(xtitle.c_str());
+	hname.str("");
+      
+	hname << "TrackerPvhat" << "_" << timename;
+	h_RingTracker_Pvhat_vs_Time[t] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, ypbin, ypmin, ypmax);
+	h_RingTracker_Pvhat_vs_Time[t]->SetYTitle("y'_{ring} #equiv P_{y}/P_{z} [mrad]");
+	h_RingTracker_Pvhat_vs_Time[t]->SetXTitle(xtitle.c_str());
+	hname.str("");
+      
+	hname << "TrackerY" << "_" << timename;
+	h_RingTracker_Y_vs_Time[t] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, Rhatbin, Rhatmin, Rhatmax);
+	h_RingTracker_Y_vs_Time[t]->SetYTitle("y_{ring} [mm]");
+	h_RingTracker_Y_vs_Time[t]->SetXTitle(xtitle.c_str());
+	hname.str("");
+
+	hname << "TrackerPol" << "_" << timename;
+	h_RingTracker_Pol_vs_Time[t] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, Polbin, Polmin, Polmax);
+	h_RingTracker_Pol_vs_Time[t]->SetYTitle("#hat{s}#bullet#hat{p}_{z}");
+	h_RingTracker_Pol_vs_Time[t]->SetXTitle(xtitle.c_str());
+	hname.str("");
+
+	hname << "TrackerPolX" << "_" << timename;
+	h_RingTracker_PolX_vs_Time[t] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, Polbin, Polmin, Polmax);
+	h_RingTracker_PolX_vs_Time[t]->SetYTitle("#hat{s}#bullet#hat{p}_{r}");
+	h_RingTracker_PolX_vs_Time[t]->SetXTitle(xtitle.c_str());
+	hname.str("");
+
+	hname << "TrackerPolY" << "_" << timename;
+	h_RingTracker_PolY_vs_Time[t] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, PolYbin, PolYmin, PolYmax);
+	h_RingTracker_PolY_vs_Time[t]->SetYTitle("#hat{s}#bullet#hat{p}_{y}");
+	h_RingTracker_PolY_vs_Time[t]->SetXTitle(xtitle.c_str());
+	hname.str("");
+      
+	hname << "TrackerNum" << "_" << timename;
+	h_RingTracker_N_vs_Time[t] = histDir.make<TH1F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_);
+	h_RingTracker_N_vs_Time[t]->SetXTitle(xtitle.c_str());
+	hname.str("");
+      
+	hname << "TrackerNgtEth" << "_" << timename;
+	h_RingTracker_NgtEth_vs_Time[t] = histDir.make<TH1F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_);
+	h_RingTracker_NgtEth_vs_Time[t]->SetXTitle(xtitle.c_str());
+	hname.str("");
+      
+	hname << "TrackerNwghtE" << "_" << timename;
+	h_RingTracker_NwghtE_vs_Time[t] = histDir.make<TH1F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_);
+	h_RingTracker_NwghtE_vs_Time[t]->SetXTitle(xtitle.c_str());
+	hname.str("");
       }
-      
-      if ( j == 0 ) { timename = "Time"; xtitle = "time [#mus]"; }
-      if ( j == 1 ) { timename = "Turn"; xtitle = "Turn"; }
-      if ( j == 2 ) { timename = "OncePerTurn"; xtitle = "Turn"; }
-      if ( j == 3 ) { timename = "Turn_Electron"; xtitle = "Turn"; }
-
-      
-      int xpbin = XPrimebin_Ring;
-      int xpmin = XPrimemin_Ring;
-      int xpmax = XPrimemax_Ring;
-      int ypbin = YPrimebin_Ring;
-      int ypmin = YPrimemin_Ring;
-      int ypmax = YPrimemax_Ring;
-      if ( j == 3 ) {
-	xpbin = XPrimebin_Decay_Ring;
-	xpmin = XPrimemin_Decay_Ring;
-	xpmax = XPrimemax_Decay_Ring;
-	ypbin = YPrimebin_Decay_Ring;
-	ypmin = YPrimemin_Decay_Ring;
-	ypmax = YPrimemax_Decay_Ring;
-      }
-
-      int hitsperturn = 12;
-      if ( j == 2 ) { hitsperturn = 1; }
-
-      hname << "TrackerXe" << timename;
-      h_RingTracker_Xe_vs_Time[j] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, Rhatbin, Rhatmin, Rhatmax);
-      h_RingTracker_Xe_vs_Time[j]->SetYTitle("x_{e} #equiv #frac{(p - p_{m})R_{m}}{p_{m}(1-n)} [mm]");
-      h_RingTracker_Xe_vs_Time[j]->SetXTitle(xtitle.c_str());
-      hname.str("");
-
-      hname << "TrackerRho" << timename;
-      h_RingTracker_Rho_vs_Time[j] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, Rhatbin, Rhatmin, Rhatmax);
-      h_RingTracker_Rho_vs_Time[j]->SetYTitle("x_{ring} #equiv R - R_{m} [mm]");
-      h_RingTracker_Rho_vs_Time[j]->SetXTitle(xtitle.c_str());
-      hname.str("");
-      
-      hname << "TrackerMom" << timename;
-      h_RingTracker_Mom_vs_Time[j] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, Mombin, Mommin, Mommax);
-      h_RingTracker_Mom_vs_Time[j]->SetYTitle("P_{#mu} / P_{m}");
-      h_RingTracker_Mom_vs_Time[j]->SetXTitle(xtitle.c_str());
-      hname.str("");
-      
-      hname << "TrackerPrhat" << timename;
-      h_RingTracker_Prhat_vs_Time[j] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, xpbin, xpmin, xpmax);
-      h_RingTracker_Prhat_vs_Time[j]->SetYTitle("x'_{ring} #equiv P_{x}/P_{z} [mrad]");
-      h_RingTracker_Prhat_vs_Time[j]->SetXTitle(xtitle.c_str());
-      hname.str("");
-      
-      hname << "TrackerPvhat" << timename;
-      h_RingTracker_Pvhat_vs_Time[j] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, ypbin, ypmin, ypmax);
-      h_RingTracker_Pvhat_vs_Time[j]->SetYTitle("y'_{ring} #equiv P_{y}/P_{z} [mrad]");
-      h_RingTracker_Pvhat_vs_Time[j]->SetXTitle(xtitle.c_str());
-      hname.str("");
-      
-      hname << "TrackerY" << timename;
-      h_RingTracker_Y_vs_Time[j] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, Rhatbin, Rhatmin, Rhatmax);
-      h_RingTracker_Y_vs_Time[j]->SetYTitle("y_{ring} [mm]");
-      h_RingTracker_Y_vs_Time[j]->SetXTitle(xtitle.c_str());
-      hname.str("");
-
-      hname << "TrackerPol" << timename;
-      h_RingTracker_Pol_vs_Time[j] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, Polbin, Polmin, Polmax);
-      h_RingTracker_Pol_vs_Time[j]->SetYTitle("#hat{s}#bullet#hat{p}_{z}");
-      h_RingTracker_Pol_vs_Time[j]->SetXTitle(xtitle.c_str());
-      hname.str("");
-
-      hname << "TrackerPolX" << timename;
-      h_RingTracker_PolX_vs_Time[j] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, Polbin, Polmin, Polmax);
-      h_RingTracker_PolX_vs_Time[j]->SetYTitle("#hat{s}#bullet#hat{p}_{r}");
-      h_RingTracker_PolX_vs_Time[j]->SetXTitle(xtitle.c_str());
-      hname.str("");
-
-      hname << "TrackerPolY" << timename;
-      h_RingTracker_PolY_vs_Time[j] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, PolYbin, PolYmin, PolYmax);
-      h_RingTracker_PolY_vs_Time[j]->SetYTitle("#hat{s}#bullet#hat{p}_{y}");
-      h_RingTracker_PolY_vs_Time[j]->SetXTitle(xtitle.c_str());
-      hname.str("");
-      
-      hname << "TrackerNum" << timename;
-      h_RingTracker_N_vs_Time[j] = histDir.make<TH1F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_);
-      h_RingTracker_N_vs_Time[j]->SetXTitle(xtitle.c_str());
-      hname.str("");
-      
-      hname << "TrackerNgtEth" << timename;
-      h_RingTracker_NgtEth_vs_Time[j] = histDir.make<TH1F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_);
-      h_RingTracker_NgtEth_vs_Time[j]->SetXTitle(xtitle.c_str());
-      hname.str("");
-      
-      hname << "TrackerNwghtE" << timename;
-      h_RingTracker_NwghtE_vs_Time[j] = histDir.make<TH1F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_);
-      h_RingTracker_NwghtE_vs_Time[j]->SetXTitle(xtitle.c_str());
-      hname.str("");
     }
-  }  
   
   } // if ( SaveVRing1PlaneHits_ )  
 
-
-
+  
+  
   if ( SaveTruthHits_ ) {
-  for ( int part = 0; part < 2; part++ ) {
-    string truth_part_name;
-    int p = part;
-    if ( part == 0 ) { truth_part_name = ""; }
-    if ( part == 1 ) { truth_part_name = "_Electron"; }
-    for ( int t = 0; t < Ntruthtimes; t++ ) {
-      string truth_time_name = times[t];
-      if ( times[t] == "-" ) { truth_time_name = ""; }
-      else { truth_time_name = "_" + times[t]; }
-      
-      int xpbin = XPrimebin_Ring;
-      int xpmin = XPrimemin_Ring;
-      int xpmax = XPrimemax_Ring;
-      int ypbin = YPrimebin_Ring;
-      int ypmin = YPrimemin_Ring;
-      int ypmax = YPrimemax_Ring;
-      if ( part == 1 ) {
-	xpbin = XPrimebin_Decay_Ring;
-	xpmin = XPrimemin_Decay_Ring;
-	xpmax = XPrimemax_Decay_Ring;
-	ypbin = YPrimebin_Decay_Ring;
-	ypmin = YPrimemin_Decay_Ring;
-	ypmax = YPrimemax_Decay_Ring;
-      }
+    for ( int part = 0; part < Nparticles; part++ ) {
+      string truth_part_name = truth_particle_names[part];
 
-      if ( fill ) {
-	if ( part == 1  ) {
-	  hname << "G4Track_Time_dCosTheta" << truth_time_name << truth_part_name;
-	  h_G4Tracker_Time_dCosTheta[t][p] = histDir.make<TH1F>(hname.str().c_str(), "", Polbin, Polmin, Polmax);
-	  h_G4Tracker_Time_dCosTheta[t][p]->SetXTitle("cos(#theta*)");
-	  hname.str("");
-
-	  hname << "G4Track_Time_dX" << truth_time_name << truth_part_name;
-	  h_G4Tracker_Time_dX[t][p] = histDir.make<TH1F>(hname.str().c_str(), "", 100, 0.0, 1.0);
-	  h_G4Tracker_Time_dX[t][p]->SetXTitle("x #equiv E/E_{max}");
-	  hname.str("");
-
-	  hname << "G4Track_Time_Polarization" << truth_time_name << truth_part_name;
-	  h_G4Tracker_Time_Polarization[t][p] = histDir.make<TH1F>(hname.str().c_str(), "", Polbin, Polmin, Polmax);
-	  h_G4Tracker_Time_Polarization[t][p]->SetXTitle("#hat{s}_{#mu}#bullet#hat{p}_{el}");
-	  hname.str("");
-
-	  hname << "G4Track_Time_NudAsym" << truth_time_name << truth_part_name;
-	  h_G4Tracker_Time_NudAsym[t][p] = histDir.make<TH1F>(hname.str().c_str(), "", Polbin, Polmin, Polmax);
-	  h_G4Tracker_Time_NudAsym[t][p]->SetXTitle("N^{el}_{up} - N^{el}_{down}");
-	  hname.str("");
-	  
-	  hname << "G4Track_Time_dXdCosTheta" << truth_time_name << truth_part_name;
-	  h_G4Tracker_Time_dXdCosTheta[t][p] = histDir.make<TH2F>(hname.str().c_str(), "", 20, 0.0, 1.0, 20, 0.0, 1.0);
-	  h_G4Tracker_Time_dXdCosTheta[t][p]->SetXTitle("x #equiv E/E_{max}");
-	  h_G4Tracker_Time_dXdCosTheta[t][p]->SetYTitle("cos(#theta)");
-	  hname.str("");
+      for ( int t = 0; t < Ntruthtimes; t++ ) {
+	string truth_time_name = times[t];
+	
+	int xpbin = XPrimebin_Ring;
+	int xpmin = XPrimemin_Ring;
+	int xpmax = XPrimemax_Ring;
+	int ypbin = YPrimebin_Ring;
+	int ypmin = YPrimemin_Ring;
+	int ypmax = YPrimemax_Ring;
+	if ( part >= 2 ) {
+	  xpbin = XPrimebin_Decay_Ring;
+	  xpmin = XPrimemin_Decay_Ring;
+	  xpmax = XPrimemax_Decay_Ring;
+	  ypbin = YPrimebin_Decay_Ring;
+	  ypmin = YPrimemin_Decay_Ring;
+	  ypmax = YPrimemax_Decay_Ring;
 	}
 
+	if ( fill ) {
+	  hname << "G4Track_Time_dCosTheta_" << truth_time_name << "_" << truth_part_name;
+	  h_G4Tracker_Time_dCosTheta[t][part] = histDir.make<TH1F>(hname.str().c_str(), "", Polbin, Polmin, Polmax);
+	  h_G4Tracker_Time_dCosTheta[t][part]->SetXTitle("cos(#theta*)");
+	  hname.str("");
+	
+	  hname << "G4Track_Time_dX_" << truth_time_name << "_" << truth_part_name;
+	  h_G4Tracker_Time_dX[t][part] = histDir.make<TH1F>(hname.str().c_str(), "", 100, 0.0, 1.0);
+	  h_G4Tracker_Time_dX[t][part]->SetXTitle("x #equiv E/E_{max}");
+	  hname.str("");
+	
+	  hname << "G4Track_Time_Polarization_" << truth_time_name << "_" << truth_part_name;
+	  h_G4Tracker_Time_Polarization[t][part] = histDir.make<TH1F>(hname.str().c_str(), "", Polbin, Polmin, Polmax);
+	  h_G4Tracker_Time_Polarization[t][part]->SetXTitle("#hat{s}_{#mu}#bullet#hat{p}_{el}");
+	  hname.str("");
+	
+	  hname << "G4Track_Time_dXdCosTheta_" << truth_time_name << "_" << truth_part_name;
+	  h_G4Tracker_Time_dXdCosTheta[t][part] = histDir.make<TH2F>(hname.str().c_str(), "", 20, 0.0, 1.0, 20, 0.0, 1.0);
+	  h_G4Tracker_Time_dXdCosTheta[t][part]->SetXTitle("x #equiv E/E_{max}");
+	  h_G4Tracker_Time_dXdCosTheta[t][part]->SetYTitle("cos(#theta)");
+	  hname.str("");
 
-	hname << "G4Track_Time_XprimeX" << truth_time_name << truth_part_name;
-	h_G4Tracker_Time_XprimeX[t][p] = histDir.make<TH2F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax, xpbin, xpmin, xpmax);
-	h_G4Tracker_Time_XprimeX[t][p]->SetXTitle("x_{gen} [mm]");
-	h_G4Tracker_Time_XprimeX[t][p]->SetYTitle("x'_{gen} #equiv P_{x}/P_{z} [mrad]");
-	hname.str("");
+      
+      
+	  hname << "G4Track_Time_XprimeX_" << truth_time_name << "_" << truth_part_name;
+	  h_G4Tracker_Time_XprimeX[t][part] = histDir.make<TH2F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax, xpbin, xpmin, xpmax);
+	  h_G4Tracker_Time_XprimeX[t][part]->SetXTitle("x_{gen} [mm]");
+	  h_G4Tracker_Time_XprimeX[t][part]->SetYTitle("x'_{gen} #equiv P_{x}/P_{z} [mrad]");
+	  hname.str("");
+      
+	  hname << "G4Track_Time_YprimeY_" << truth_time_name << "_" << truth_part_name;
+	  h_G4Tracker_Time_YprimeY[t][part] = histDir.make<TH2F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax, ypbin, ypmin, ypmax);
+	  h_G4Tracker_Time_YprimeY[t][part]->SetXTitle("y_{gen} [mm]");
+	  h_G4Tracker_Time_YprimeY[t][part]->SetYTitle("y'_{gen} #equiv P_{y}/P_{z} [mrad]");
+	  hname.str("");
+
+	  hname << "G4Track_Time_Rhat_" << truth_time_name << "_" << truth_part_name;
+	  h_G4Tracker_Time_Rhat[t][part] = histDir.make<TH1F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax);
+	  h_G4Tracker_Time_Rhat[t][part]->SetXTitle("x_{gen} #equiv R - R_{m} [mm]");
+	  hname.str("");
+
+	  hname << "G4Track_Time_Xe_" << truth_time_name << "_" << truth_part_name;
+	  h_G4Tracker_Time_Xe[t][part] = histDir.make<TH1F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax);
+	  h_G4Tracker_Time_Xe[t][part]->SetXTitle("x_{e} #equiv #frac{(p - p_{m})R_{m}}{p_{m}(1-n)} [mm]");
+	  hname.str("");
+
+	  hname << "G4Track_Time_Vhat_" << truth_time_name << "_" << truth_part_name;
+	  h_G4Tracker_Time_Vhat[t][part] = histDir.make<TH1F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax);
+	  h_G4Tracker_Time_Vhat[t][part]->SetXTitle("y_{gen} [mm]");
+	  hname.str("");
+      
+	  hname << "G4Track_Time_Pol_" << truth_time_name << "_" << truth_part_name;
+	  h_G4Tracker_Time_Pol[t][part] = histDir.make<TH1F>(hname.str().c_str(), "", Polbin, Polmin, Polmax);
+	  h_G4Tracker_Time_Pol[t][part]->SetXTitle("#hat{s}#bullet#hat{p}_{z}");
+	  hname.str("");
+      
+	  hname << "G4Track_Time_PolX_" << truth_time_name << "_" << truth_part_name;
+	  h_G4Tracker_Time_PolX[t][part] = histDir.make<TH1F>(hname.str().c_str(), "", Polbin, Polmin, Polmax);
+	  h_G4Tracker_Time_PolX[t][part]->SetXTitle("#hat{s}#bullet#hat{p}_{r}");
+	  hname.str("");
+      
+	  hname << "G4Track_Time_PolY_" << truth_time_name << "_" << truth_part_name;
+	  h_G4Tracker_Time_PolY[t][part] = histDir.make<TH1F>(hname.str().c_str(), "", PolYbin, PolYmin, PolYmax);
+	  h_G4Tracker_Time_PolY[t][part]->SetXTitle("#hat{s}#bullet#hat{p}_{y}");
+	  hname.str("");
+
+	  hname << "G4Track_Time_Xprime_" << truth_time_name << "_" << truth_part_name;
+	  h_G4Tracker_Time_Xprime[t][part] = histDir.make<TH1F>(hname.str().c_str(), "", xpbin, xpmin, xpmax);      
+	  h_G4Tracker_Time_Xprime[t][part]->SetXTitle("x'_{gen} #equiv P_{x}/P_{z} [mrad]");
+	  hname.str("");
     
-      hname << "G4Track_Time_YprimeY" << truth_time_name << truth_part_name;
-      h_G4Tracker_Time_YprimeY[t][p] = histDir.make<TH2F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax, ypbin, ypmin, ypmax);
-      h_G4Tracker_Time_YprimeY[t][p]->SetXTitle("y_{gen} [mm]");
-      h_G4Tracker_Time_YprimeY[t][p]->SetYTitle("y'_{gen} #equiv P_{y}/P_{z} [mrad]");
-      hname.str("");
-
-      hname << "G4Track_Time_Rhat" << truth_time_name << truth_part_name;
-      h_G4Tracker_Time_Rhat[t][p] = histDir.make<TH1F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax);
-      h_G4Tracker_Time_Rhat[t][p]->SetXTitle("x_{gen} #equiv R - R_{m} [mm]");
-      hname.str("");
-
-      hname << "G4Track_Time_Xe" << truth_time_name << truth_part_name;
-      h_G4Tracker_Time_Xe[t][p] = histDir.make<TH1F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax);
-      h_G4Tracker_Time_Xe[t][p]->SetXTitle("x_{e} #equiv #frac{(p - p_{m})R_{m}}{p_{m}(1-n)} [mm]");
-      hname.str("");
-
-      hname << "G4Track_Time_Vhat" << truth_time_name << truth_part_name;
-      h_G4Tracker_Time_Vhat[t][p] = histDir.make<TH1F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax);
-      h_G4Tracker_Time_Vhat[t][p]->SetXTitle("y_{gen} [mm]");
-      hname.str("");
-      
-      hname << "G4Track_Time_Pol" << truth_time_name << truth_part_name;
-      h_G4Tracker_Time_Pol[t][p] = histDir.make<TH1F>(hname.str().c_str(), "", Polbin, Polmin, Polmax);
-      h_G4Tracker_Time_Pol[t][p]->SetXTitle("#hat{s}#bullet#hat{p}_{z}");
-      hname.str("");
-      
-      hname << "G4Track_Time_PolX" << truth_time_name << truth_part_name;
-      h_G4Tracker_Time_PolX[t][p] = histDir.make<TH1F>(hname.str().c_str(), "", Polbin, Polmin, Polmax);
-      h_G4Tracker_Time_PolX[t][p]->SetXTitle("#hat{s}#bullet#hat{p}_{r}");
-      hname.str("");
-      
-      hname << "G4Track_Time_PolY" << truth_time_name << truth_part_name;
-      h_G4Tracker_Time_PolY[t][p] = histDir.make<TH1F>(hname.str().c_str(), "", PolYbin, PolYmin, PolYmax);
-      h_G4Tracker_Time_PolY[t][p]->SetXTitle("#hat{s}#bullet#hat{p}_{y}");
-      hname.str("");
-
-      hname << "G4Track_Time_Xprime" << truth_time_name << truth_part_name;
-      h_G4Tracker_Time_Xprime[t][p] = histDir.make<TH1F>(hname.str().c_str(), "", xpbin, xpmin, xpmax);      
-      h_G4Tracker_Time_Xprime[t][p]->SetXTitle("x'_{gen} #equiv P_{x}/P_{z} [mrad]");
-      hname.str("");
+	  hname << "G4Track_Time_Yprime_" << truth_time_name << "_" << truth_part_name;
+	  h_G4Tracker_Time_Yprime[t][part] = histDir.make<TH1F>(hname.str().c_str(), "", ypbin, ypmin, ypmax);
+	  h_G4Tracker_Time_Yprime[t][part]->SetXTitle("y'_{gen} #equiv P_{y}/P_{z} [mrad]");
+	  hname.str("");
     
-      hname << "G4Track_Time_Yprime" << truth_time_name << truth_part_name;
-      h_G4Tracker_Time_Yprime[t][p] = histDir.make<TH1F>(hname.str().c_str(), "", ypbin, ypmin, ypmax);
-      h_G4Tracker_Time_Yprime[t][p]->SetXTitle("y'_{gen} #equiv P_{y}/P_{z} [mrad]");
-      hname.str("");
+	  hname << "G4Track_Time_Mom_" << truth_time_name << "_" << truth_part_name;
+	  h_G4Tracker_Time_Mom[t][part] = histDir.make<TH1F>(hname.str().c_str(), "", Mombin, Mommin, Mommax);
+	  h_G4Tracker_Time_Mom[t][part]->SetXTitle("P_{#mu} / P_{m}");
+	  hname.str("");
     
-      hname << "G4Track_Time_Mom" << truth_time_name << truth_part_name;
-      h_G4Tracker_Time_Mom[t][p] = histDir.make<TH1F>(hname.str().c_str(), "", Mombin, Mommin, Mommax);
-      h_G4Tracker_Time_Mom[t][p]->SetXTitle("P_{#mu} / P_{m}");
-      hname.str("");
+	  hname << "G4Track_Time_t0_" << truth_time_name << "_" << truth_part_name;
+	  h_G4Tracker_Time_t0[t][part] = histDir.make<TH1F>(hname.str().c_str(), "", 300, -100, 200);
+	  h_G4Tracker_Time_t0[t][part]->SetXTitle("t_{0} [ns]");
+	  hname.str("");
     
-      hname << "G4Track_Time_t0" << truth_time_name << truth_part_name;
-      h_G4Tracker_Time_t0[t][p] = histDir.make<TH1F>(hname.str().c_str(), "", 300, -100, 200);
-      h_G4Tracker_Time_t0[t][p]->SetXTitle("t_{0} [ns]");
-      hname.str("");
+	  hname << "G4Track_Time_RhatY_" << truth_time_name << "_" << truth_part_name;
+	  h_G4Tracker_Time_RhatY[t][part] = histDir.make<TH2F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax, Rhatbin, Rhatmin, Rhatmax);
+	  h_G4Tracker_Time_RhatY[t][part]->SetXTitle("x - x_{gen} [mm]");
+	  h_G4Tracker_Time_RhatY[t][part]->SetYTitle("y - y_{gen} [mm]");
+	  hname.str("");
     
-      hname << "G4Track_Time_RhoY" << truth_time_name << truth_part_name;
-      h_G4Tracker_Time_RhoY[t][p] = histDir.make<TH2F>(hname.str().c_str(), "", Rhatbin, Rhatmin, Rhatmax, Rhatbin, Rhatmin, Rhatmax);
-      h_G4Tracker_Time_RhoY[t][p]->SetXTitle("x - x_{gen} [mm]");
-      h_G4Tracker_Time_RhoY[t][p]->SetYTitle("y - y_{gen} [mm]");
-      hname.str("");
-    
-      hname << "G4Track_Time_XZ" << truth_time_name << truth_part_name;
-      h_G4Tracker_Time_XZ[t][p] = histDir.make<TH2F>(hname.str().c_str(), "", Rbin_Ring, Rmin_Ring, Rmax_Ring, Rbin_Ring, Rmin_Ring, Rmax_Ring);
-      h_G4Tracker_Time_XZ[t][p]->SetXTitle("z_{ring} [mm]");
-      h_G4Tracker_Time_XZ[t][p]->SetYTitle("x_{ring} [mm]");    
-      hname.str("");
-    }
-  }
-  }
-
-  
+	  hname << "G4Track_Time_XZ_" << truth_time_name << "_" << truth_part_name;
+	  h_G4Tracker_Time_XZ[t][part] = histDir.make<TH2F>(hname.str().c_str(), "", Rbin_Ring, Rmin_Ring, Rmax_Ring, Rbin_Ring, Rmin_Ring, Rmax_Ring);
+	  h_G4Tracker_Time_XZ[t][part]->SetXTitle("z_{ring} [mm]");
+	  h_G4Tracker_Time_XZ[t][part]->SetYTitle("x_{ring} [mm]");    
+	  hname.str("");
+	} // fill
+      } // loop over times
+    } // loop over 7 particles
 
 
 
-  if ( fill ) {
-    for ( int j = 0; j < 5; j++ ) {
-      string timename, xtitle;
 
-      G4Tracker_Nu[j] = 0;
-      G4Tracker_Nd[j] = 0;
+    if ( fill ) {
+      for ( int part = 0; part < Nparticles; part++ ) {
+	string truth_part_name = truth_particle_names[part];
 
-      if ( SaveVRing1PlaneHits_ == true && SaveVRingHits_ == false ) {
-	if ( j == 0 || j == 1 ) { continue; }
-      }
+	for ( int t = 0; t < Ntimestamps; t++ ) {
+	  string timename, xtitle;
+	  xtitle = "Turn";
+	  timename = timestamps[t];
+	  
+	  int rbin  = Rhatbin;
+	  int rmin  = Rhatmin;
+	  int rmax  = Rhatmax;
+	  int xpbin = XPrimebin_Ring;
+	  int xpmin = XPrimemin_Ring;
+	  int xpmax = XPrimemax_Ring;
+	  int ypbin = YPrimebin_Ring;
+	  int ypmin = YPrimemin_Ring;
+	  int ypmax = YPrimemax_Ring;
+	  if ( part >= 2 ) {
+	    rbin  = Rhatbin;
+	    rmin  = 10*Rhatmin;
+	    rmax  = 10*Rhatmax;
+	    xpbin = XPrimebin_Decay_Ring;
+	    xpmin = XPrimemin_Decay_Ring;
+	    xpmax = XPrimemax_Decay_Ring;
+	    ypbin = YPrimebin_Decay_Ring;
+	    ypmin = YPrimemin_Decay_Ring;
+	    ypmax = YPrimemax_Decay_Ring;
+	  }
+	  
+	  int hitsperturn = 12;
+	  if ( t == 1 ) { hitsperturn = 1; }
+	  
+	  hname << "G4TrackXe" << "_" << truth_part_name << "_" << timename;
+	  h_G4Tracker_Xe_vs_Time[t][part] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, Rhatbin, Rhatmin, Rhatmax);
+	  h_G4Tracker_Xe_vs_Time[t][part]->SetYTitle("x_{e} #equiv #frac{(p - p_{m})R_{m}}{p_{m}(1-n)} [mm]");
+	  h_G4Tracker_Xe_vs_Time[t][part]->SetXTitle(xtitle.c_str());
+	  hname.str("");
+	  
+	  hname << "G4TrackRhat" << "_" << truth_part_name << "_" << timename;
+	  h_G4Tracker_Rhat_vs_Time[t][part] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, rbin, rmin, rmax);
+	  h_G4Tracker_Rhat_vs_Time[t][part]->SetYTitle("x_{ring} #equiv R - R_{m} [mm]");
+	  h_G4Tracker_Rhat_vs_Time[t][part]->SetXTitle(xtitle.c_str());
+	  hname.str("");
+	  
+	  hname << "G4TrackMom" << "_" << truth_part_name << "_" << timename;
+	  h_G4Tracker_Mom_vs_Time[t][part] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, Mombin, Mommin, Mommax);
+	  h_G4Tracker_Mom_vs_Time[t][part]->SetYTitle("P_{#mu} / P_{m}");
+	  h_G4Tracker_Mom_vs_Time[t][part]->SetXTitle(xtitle.c_str());
+	  hname.str("");
       
-      if ( j == 0 ) { timename = "Time"; xtitle = "time [#mus]"; }
-      if ( j == 1 ) { timename = "Turn"; xtitle = "Turn"; }
-      if ( j == 2 ) { timename = "OncePerTurn"; xtitle = "Turn"; }
-      if ( j == 3 ) { timename = "Turn_Electron"; xtitle = "Turn"; }
-      if ( j == 4 ) { timename = "OncePerTurn_Electron"; xtitle = "Turn"; }
+	  hname << "G4TrackE" << "_" << truth_part_name << "_" << timename;
+	  h_G4Tracker_E_vs_Time[t][part] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, Mombin/100, 0.0, Pmagic());
+	  h_G4Tracker_E_vs_Time[t][part]->SetYTitle("Energy [GeV]");
+	  h_G4Tracker_E_vs_Time[t][part]->SetXTitle(xtitle.c_str());
+	  hname.str("");
+      
+	  hname << "G4TrackNum" << "_" << truth_part_name << "_" << timename;
+	  h_G4Tracker_N_vs_Time[t][part] = histDir.make<TH1F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_);
+	  h_G4Tracker_N_vs_Time[t][part]->SetXTitle(xtitle.c_str());
+	  hname.str("");
+      
+	  hname << "G4TrackNgtEth" << "_" << truth_part_name << "_" << timename;
+	  h_G4Tracker_NgtEth_vs_Time[t][part] = histDir.make<TH1F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_);
+	  h_G4Tracker_NgtEth_vs_Time[t][part]->SetXTitle(xtitle.c_str());
+	  hname.str("");
+      
+	  hname << "G4TrackNwghtE" << "_" << truth_part_name << "_" << timename;
+	  h_G4Tracker_NwghtE_vs_Time[t][part] = histDir.make<TH1F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_);
+	  h_G4Tracker_NwghtE_vs_Time[t][part]->SetXTitle(xtitle.c_str());
+	  hname.str("");
+      
+	  hname << "G4TrackPrhat" << "_" << truth_part_name << "_" << timename;
+	  h_G4Tracker_Prhat_vs_Time[t][part] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, xpbin, xpmin, xpmax);
+	  h_G4Tracker_Prhat_vs_Time[t][part]->SetYTitle("x'_{ring} #equiv P_{x}/P_{z} [mrad]");
+	  h_G4Tracker_Prhat_vs_Time[t][part]->SetXTitle(xtitle.c_str());
+	  hname.str("");
+      
+	  hname << "G4TrackPvhat" << "_" << truth_part_name << "_" << timename;
+	  h_G4Tracker_Pvhat_vs_Time[t][part] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, ypbin, ypmin, ypmax);
+	  h_G4Tracker_Pvhat_vs_Time[t][part]->SetYTitle("y'_{ring} #equiv P_{y}/P_{z} [mrad]");
+	  h_G4Tracker_Pvhat_vs_Time[t][part]->SetXTitle(xtitle.c_str());
+	  hname.str("");
+      
+	  hname << "G4TrackY" << "_" << truth_part_name << "_" << timename;
+	  h_G4Tracker_Y_vs_Time[t][part] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, rbin, rmin, rmax);
+	  h_G4Tracker_Y_vs_Time[t][part]->SetYTitle("y_{ring} [mm]");
+	  h_G4Tracker_Y_vs_Time[t][part]->SetXTitle(xtitle.c_str());
+	  hname.str("");
+      
+	  hname << "G4TrackPol" << "_" << truth_part_name << "_" << timename;
+	  h_G4Tracker_Pol_vs_Time[t][part] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, Polbin, Polmin, Polmax);
+	  h_G4Tracker_Pol_vs_Time[t][part]->SetYTitle("#hat{s}#bullet#hat{p}_{z}");
+	  h_G4Tracker_Pol_vs_Time[t][part]->SetXTitle(xtitle.c_str());
+	  hname.str("");
 
-      
-      int xpbin = XPrimebin_Ring;
-      int xpmin = XPrimemin_Ring;
-      int xpmax = XPrimemax_Ring;
-      int ypbin = YPrimebin_Ring;
-      int ypmin = YPrimemin_Ring;
-      int ypmax = YPrimemax_Ring;
-      if ( j == 3 || j == 4 ) {
-	xpbin = XPrimebin_Decay_Ring;
-	xpmin = XPrimemin_Decay_Ring;
-	xpmax = XPrimemax_Decay_Ring;
-	ypbin = YPrimebin_Decay_Ring;
-	ypmin = YPrimemin_Decay_Ring;
-	ypmax = YPrimemax_Decay_Ring;
-      }
+	  hname << "G4TrackPolX" << "_" << truth_part_name << "_" << timename;
+	  h_G4Tracker_PolX_vs_Time[t][part] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, Polbin, Polmin, Polmax);
+	  h_G4Tracker_PolX_vs_Time[t][part]->SetYTitle("#hat{s}#bullet#hat{p}_{r}");
+	  h_G4Tracker_PolX_vs_Time[t][part]->SetXTitle(xtitle.c_str());
+	  hname.str("");
 
-      int hitsperturn = 12;
-      if ( j == 2 ) { hitsperturn = 1; }
-      if ( j == 4 ) { hitsperturn = 1; }
-
-      hname << "G4TrackXe" << timename;
-      h_G4Tracker_Xe_vs_Time[j] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, Rhatbin, Rhatmin, Rhatmax);
-      h_G4Tracker_Xe_vs_Time[j]->SetYTitle("x_{e} #equiv #frac{(p - p_{m})R_{m}}{p_{m}(1-n)} [mm]");
-      h_G4Tracker_Xe_vs_Time[j]->SetXTitle(xtitle.c_str());
-      hname.str("");
-
-      hname << "G4TrackRho" << timename;
-      h_G4Tracker_Rho_vs_Time[j] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, Rhatbin, Rhatmin, Rhatmax);
-      h_G4Tracker_Rho_vs_Time[j]->SetYTitle("x_{ring} #equiv R - R_{m} [mm]");
-      h_G4Tracker_Rho_vs_Time[j]->SetXTitle(xtitle.c_str());
-      hname.str("");
+	  hname << "G4TrackPolY" << "_" << truth_part_name << "_" << timename;
+	  h_G4Tracker_PolY_vs_Time[t][part] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, PolYbin, PolYmin, PolYmax);
+	  h_G4Tracker_PolY_vs_Time[t][part]->SetYTitle("#hat{s}#bullet#hat{p}_{y}");
+	  h_G4Tracker_PolY_vs_Time[t][part]->SetXTitle(xtitle.c_str());
+	  hname.str("");
       
-      hname << "G4TrackMom" << timename;
-      h_G4Tracker_Mom_vs_Time[j] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, Mombin, Mommin, Mommax);
-      h_G4Tracker_Mom_vs_Time[j]->SetYTitle("P_{#mu} / P_{m}");
-      h_G4Tracker_Mom_vs_Time[j]->SetXTitle(xtitle.c_str());
-      hname.str("");
+	  hname << "G4TrackNup" << "_" << truth_part_name << "_" << timename;
+	  h_G4Tracker_Nup_vs_Time[t][part] = histDir.make<TH1F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_);
+	  h_G4Tracker_Nup_vs_Time[t][part]->SetXTitle(xtitle.c_str());
+	  hname.str("");
       
-      hname << "G4TrackE" << timename;
-      h_G4Tracker_E_vs_Time[j] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, Mombin/100, 0.0, Pmagic());
-      h_G4Tracker_E_vs_Time[j]->SetYTitle("Energy [GeV]");
-      h_G4Tracker_E_vs_Time[j]->SetXTitle(xtitle.c_str());
-      hname.str("");
+	  hname << "G4TrackNdown" << "_" << truth_part_name << "_" << timename;
+	  h_G4Tracker_Ndown_vs_Time[t][part] = histDir.make<TH1F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_);
+	  h_G4Tracker_Ndown_vs_Time[t][part]->SetXTitle(xtitle.c_str());
+	  hname.str("");
       
-      hname << "G4TrackNudAsym" << timename;
-      h_G4Tracker_NudAsym_vs_Time[j] = histDir.make<TH1F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_);
-      h_G4Tracker_NudAsym_vs_Time[j]->SetXTitle(xtitle.c_str());
-      hname.str("");
+	  hname << "G4TrackYprime" << "_" << truth_part_name << "_" << timename;
+	  h_G4Tracker_Yprime_vs_Time[t][part] = histDir.make<TH1F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_);
+	  h_G4Tracker_Yprime_vs_Time[t][part]->SetXTitle(xtitle.c_str());
+	  hname.str("");
       
-      hname << "G4TrackNud" << timename;
-      h_G4Tracker_Nud_vs_Time[j] = histDir.make<TH1F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_);
-      h_G4Tracker_Nud_vs_Time[j]->SetXTitle(xtitle.c_str());
-      hname.str("");
+	  hname << "G4TrackVhat" << "_" << truth_part_name << "_" << timename;
+	  h_G4Tracker_Vhat_vs_Time[t][part] = histDir.make<TH1F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_);
+	  h_G4Tracker_Vhat_vs_Time[t][part]->SetXTitle(xtitle.c_str());
+	  hname.str("");
       
-      hname << "G4TrackNum" << timename;
-      h_G4Tracker_N_vs_Time[j] = histDir.make<TH1F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_);
-      h_G4Tracker_N_vs_Time[j]->SetXTitle(xtitle.c_str());
-      hname.str("");
-      
-      hname << "G4TrackNgtEth" << timename;
-      h_G4Tracker_NgtEth_vs_Time[j] = histDir.make<TH1F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_);
-      h_G4Tracker_NgtEth_vs_Time[j]->SetXTitle(xtitle.c_str());
-      hname.str("");
-      
-      hname << "G4TrackNwghtE" << timename;
-      h_G4Tracker_NwghtE_vs_Time[j] = histDir.make<TH1F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_);
-      h_G4Tracker_NwghtE_vs_Time[j]->SetXTitle(xtitle.c_str());
-      hname.str("");
-      
-      hname << "G4TrackPrhat" << timename;
-      h_G4Tracker_Prhat_vs_Time[j] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, xpbin, xpmin, xpmax);
-      h_G4Tracker_Prhat_vs_Time[j]->SetYTitle("x'_{ring} #equiv P_{x}/P_{z} [mrad]");
-      h_G4Tracker_Prhat_vs_Time[j]->SetXTitle(xtitle.c_str());
-      hname.str("");
-      
-      hname << "G4TrackPvhat" << timename;
-      h_G4Tracker_Pvhat_vs_Time[j] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, ypbin, ypmin, ypmax);
-      h_G4Tracker_Pvhat_vs_Time[j]->SetYTitle("y'_{ring} #equiv P_{y}/P_{z} [mrad]");
-      h_G4Tracker_Pvhat_vs_Time[j]->SetXTitle(xtitle.c_str());
-      hname.str("");
-      
-      hname << "G4TrackY" << timename;
-      h_G4Tracker_Y_vs_Time[j] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, Rhatbin, Rhatmin, Rhatmax);
-      h_G4Tracker_Y_vs_Time[j]->SetYTitle("y_{ring} [mm]");
-      h_G4Tracker_Y_vs_Time[j]->SetXTitle(xtitle.c_str());
-      hname.str("");
-
-      hname << "G4TrackPol" << timename;
-      h_G4Tracker_Pol_vs_Time[j] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, Polbin, Polmin, Polmax);
-      h_G4Tracker_Pol_vs_Time[j]->SetYTitle("#hat{s}#bullet#hat{p}_{z}");
-      h_G4Tracker_Pol_vs_Time[j]->SetXTitle(xtitle.c_str());
-      hname.str("");
-
-      hname << "G4TrackPolX" << timename;
-      h_G4Tracker_PolX_vs_Time[j] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, Polbin, Polmin, Polmax);
-      h_G4Tracker_PolX_vs_Time[j]->SetYTitle("#hat{s}#bullet#hat{p}_{r}");
-      h_G4Tracker_PolX_vs_Time[j]->SetXTitle(xtitle.c_str());
-      hname.str("");
-
-      hname << "G4TrackPolY" << timename;
-      h_G4Tracker_PolY_vs_Time[j] = histDir.make<TH2F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_, PolYbin, PolYmin, PolYmax);
-      h_G4Tracker_PolY_vs_Time[j]->SetYTitle("#hat{s}#bullet#hat{p}_{y}");
-      h_G4Tracker_PolY_vs_Time[j]->SetXTitle(xtitle.c_str());
-      hname.str("");
-    }
-  }  
+	  hname << "G4TrackNud" << "_" << truth_part_name << "_" << timename;
+	  h_G4Tracker_Nud_vs_Time[t][part] = histDir.make<TH1F>(hname.str().c_str(), "", maxturns_*hitsperturn, 0.0, maxturns_);
+	  h_G4Tracker_Nud_vs_Time[t][part]->SetXTitle(xtitle.c_str());
+	  hname.str("");
+	} // Loop over hits per turn
+      } // Loop over particles
+    } // fill
   } // if ( SaveTruthHits_ )
 
 
 
   
   if ( SaveInfHits_ ) {
-  for ( int i = 0; i < Ninflectortrackers; i++ ) {
-    stringstream trackername;
-    if ( i < Ninflectortrackers ) { trackername << "" << i << ""; }
-    else { trackername << "" << i-Ninflectortrackers << ""; }
+    for ( int i = 0; i < Ninflectortrackers; i++ ) {
+      stringstream trackername;
+      if ( i < Ninflectortrackers ) { trackername << "" << i << ""; }
+      else { trackername << "" << i-Ninflectortrackers << ""; }
+
+      if ( fill ) {
+	hname << "InflectorTracker_" << trackername.str() << "_XprimeX";
+	h_InflectorTracker_XprimeX[i] = histDir.make<TH2F>(hname.str().c_str(), "", Xbin_Inflector, Xmin_Inflector, Xmax_Inflector, XPrimebin_Inflector, XPrimemin_Inflector, XPrimemax_Inflector);
+	h_InflectorTracker_XprimeX[i]->SetXTitle("x_{inf} [mm]");
+	h_InflectorTracker_XprimeX[i]->SetYTitle("x'_{inf} #equiv P_{x}/P_{z} [mrad]");
+	hname.str("");
+
+	hname << "InflectorTracker_" << trackername.str() << "_YprimeY";
+	h_InflectorTracker_YprimeY[i] = histDir.make<TH2F>(hname.str().c_str(), "", Ybin_Inflector, Ymin_Inflector, Ymax_Inflector, YPrimebin_Inflector, YPrimemin_Inflector, YPrimemax_Inflector);
+	h_InflectorTracker_YprimeY[i]->SetXTitle("y_{inf} [mm]");
+	h_InflectorTracker_YprimeY[i]->SetYTitle("y'_{inf} #equiv P_{y}/P_{z} [mrad]");
+	hname.str("");
+
+	hname << "InflectorTracker_" << trackername.str() << "_RhatY";
+	h_InflectorTracker_RhatY[i] = histDir.make<TH2F>(hname.str().c_str(), "", Rhatbin_Inflector, Rhatmin_Inflector, Rhatmax_Inflector, Vbin_Inflector, Vmin_Inflector, Vmax_Inflector);
+	h_InflectorTracker_RhatY[i]->SetXTitle("x_{inf} [mm]");
+	h_InflectorTracker_RhatY[i]->SetYTitle("y_{inf} [mm]");
+	hname.str("");
+        
+	hname << "InflectorTracker_" << trackername.str() << "_XZ";
+	h_InflectorTracker_XZ[i] = histDir.make<TH2F>(hname.str().c_str(), "", Rbin_Ring, Rmin_Ring, Rmax_Ring, Rbin_Ring, Rmin_Ring, Rmax_Ring);
+	h_InflectorTracker_XZ[i]->SetXTitle("z_{ring} [mm]");
+	h_InflectorTracker_XZ[i]->SetYTitle("x_{ring} [mm]");
+	hname.str("");
+      }
+    }
 
     if ( fill ) {
-      hname << "InflectorTracker_" << trackername.str() << "_XprimeX";
-      h_InflectorTracker_XprimeX[i] = histDir.make<TH2F>(hname.str().c_str(), "", Xbin_Inflector, Xmin_Inflector, Xmax_Inflector, XPrimebin_Inflector, XPrimemin_Inflector, XPrimemax_Inflector);
-      h_InflectorTracker_XprimeX[i]->SetXTitle("x_{inf} [mm]");
-      h_InflectorTracker_XprimeX[i]->SetYTitle("x'_{inf} #equiv P_{x}/P_{z} [mrad]");
-      hname.str("");
-
-      hname << "InflectorTracker_" << trackername.str() << "_YprimeY";
-      h_InflectorTracker_YprimeY[i] = histDir.make<TH2F>(hname.str().c_str(), "", Ybin_Inflector, Ymin_Inflector, Ymax_Inflector, YPrimebin_Inflector, YPrimemin_Inflector, YPrimemax_Inflector);
-      h_InflectorTracker_YprimeY[i]->SetXTitle("y_{inf} [mm]");
-      h_InflectorTracker_YprimeY[i]->SetYTitle("y'_{inf} #equiv P_{y}/P_{z} [mrad]");
-      hname.str("");
-
-      hname << "InflectorTracker_" << trackername.str() << "_RhoY";
-      h_InflectorTracker_RhoY[i] = histDir.make<TH2F>(hname.str().c_str(), "", Rhobin_Inflector, Rhomin_Inflector, Rhomax_Inflector, Vbin_Inflector, Vmin_Inflector, Vmax_Inflector);
-      h_InflectorTracker_RhoY[i]->SetXTitle("x_{inf} [mm]");
-      h_InflectorTracker_RhoY[i]->SetYTitle("y_{inf} [mm]");
-      hname.str("");
         
-      hname << "InflectorTracker_" << trackername.str() << "_XZ";
-      h_InflectorTracker_XZ[i] = histDir.make<TH2F>(hname.str().c_str(), "", Rbin_Ring, Rmin_Ring, Rmax_Ring, Rbin_Ring, Rmin_Ring, Rmax_Ring);
-      h_InflectorTracker_XZ[i]->SetXTitle("z_{ring} [mm]");
-      h_InflectorTracker_XZ[i]->SetYTitle("x_{ring} [mm]");
+      hname.str("");  
+      hname << "InflectorTracker_RZ";
+      h_InflectorTracker_RZ = histDir.make<TH2F>(hname.str().c_str(), "", 90, -4701, 1, Rhatbin_Inflector, Rhatmin_Inflector, Rhatmax_Inflector);
+      h_InflectorTracker_RZ->SetXTitle("z_{inf} [mm]");
+      h_InflectorTracker_RZ->SetYTitle("xy_{inf} [mm]");
+      hname.str("");
+    
+      hname.str("");  
+      hname << "InflectorTracker_PrhatPvhatEntrance";
+      h_InflectorTracker_PrhatPvhatEntrance = histDir.make<TH2F>(hname.str().c_str(), "", YPrimebin_Ring/10, YPrimemin_Ring/100, YPrimemax_Ring/100, YPrimebin_Ring/10, YPrimemin_Ring/100, YPrimemax_Ring/100);
+      h_InflectorTracker_PrhatPvhatEntrance->SetYTitle("#hat{P}_{v}");
+      h_InflectorTracker_PrhatPvhatEntrance->SetXTitle("#hat{P}_{r}");
+
+      hname.str("");  
+      hname << "InflectorTracker_PrhatPvhatExit";
+      h_InflectorTracker_PrhatPvhatExit = histDir.make<TH2F>(hname.str().c_str(), "", YPrimebin_Ring/10, YPrimemin_Ring/100, YPrimemax_Ring/100, YPrimebin_Ring/10, YPrimemin_Ring/100, YPrimemax_Ring/100);
+      h_InflectorTracker_PrhatPvhatExit->SetYTitle("#hat{P}_{v}");
+      h_InflectorTracker_PrhatPvhatExit->SetXTitle("#hat{P}_{r}");
+
+      hname.str("");
+      hname << "InflectorTracker_X";
+      h_InflectorTracker_X = histDir.make<TH2F>(hname.str().c_str(), "", Ninflectortrackers+1, -0.5, Ninflectortrackers+0.5, Xbin_Inflector, Xmin_Inflector, Xmax_Inflector);
+      hname.str("");
+      hname << "InflectorTracker_Y";
+      h_InflectorTracker_Y = histDir.make<TH2F>(hname.str().c_str(), "", Ninflectortrackers+1, -0.5, Ninflectortrackers+0.5, Ybin_Inflector, Ymin_Inflector, Ymax_Inflector);
+      hname.str("");
+      hname << "InflectorTracker_Z";
+      h_InflectorTracker_Z = histDir.make<TH2F>(hname.str().c_str(), "", Ninflectortrackers+1, -0.5, Ninflectortrackers+0.5, Zbin_Inflector, Zmin_Inflector, Zmax_Inflector);
       hname.str("");
     }
-  }
-
-  if ( fill ) {
-        
-    hname.str("");  
-    hname << "InflectorTracker_RZ";
-    h_InflectorTracker_RZ = histDir.make<TH2F>(hname.str().c_str(), "", 90, -4701, 1, Rhobin_Inflector, Rhomin_Inflector, Rhomax_Inflector);
-    h_InflectorTracker_RZ->SetXTitle("z_{inf} [mm]");
-    h_InflectorTracker_RZ->SetYTitle("xy_{inf} [mm]");
-    hname.str("");
-    
-    hname.str("");  
-    hname << "InflectorTracker_PrhatPvhatEntrance";
-    h_InflectorTracker_PrhatPvhatEntrance = histDir.make<TH2F>(hname.str().c_str(), "", YPrimebin_Ring/10, YPrimemin_Ring/100, YPrimemax_Ring/100, YPrimebin_Ring/10, YPrimemin_Ring/100, YPrimemax_Ring/100);
-    h_InflectorTracker_PrhatPvhatEntrance->SetYTitle("#hat{P}_{v}");
-    h_InflectorTracker_PrhatPvhatEntrance->SetXTitle("#hat{P}_{r}");
-
-    hname.str("");  
-    hname << "InflectorTracker_PrhatPvhatExit";
-    h_InflectorTracker_PrhatPvhatExit = histDir.make<TH2F>(hname.str().c_str(), "", YPrimebin_Ring/10, YPrimemin_Ring/100, YPrimemax_Ring/100, YPrimebin_Ring/10, YPrimemin_Ring/100, YPrimemax_Ring/100);
-    h_InflectorTracker_PrhatPvhatExit->SetYTitle("#hat{P}_{v}");
-    h_InflectorTracker_PrhatPvhatExit->SetXTitle("#hat{P}_{r}");
-
-    hname.str("");
-    hname << "InflectorTracker_X";
-    h_InflectorTracker_X = histDir.make<TH2F>(hname.str().c_str(), "", Ninflectortrackers+1, -0.5, Ninflectortrackers+0.5, Xbin_Inflector, Xmin_Inflector, Xmax_Inflector);
-    hname.str("");
-    hname << "InflectorTracker_Y";
-    h_InflectorTracker_Y = histDir.make<TH2F>(hname.str().c_str(), "", Ninflectortrackers+1, -0.5, Ninflectortrackers+0.5, Ybin_Inflector, Ymin_Inflector, Ymax_Inflector);
-    hname.str("");
-    hname << "InflectorTracker_Z";
-    h_InflectorTracker_Z = histDir.make<TH2F>(hname.str().c_str(), "", Ninflectortrackers+1, -0.5, Ninflectortrackers+0.5, Zbin_Inflector, Zmin_Inflector, Zmax_Inflector);
-    hname.str("");
-  }
   }
 
 
 
   if ( SaveRingHits_ ) {
-  for ( int st = 0; st < 2; st++ ) {
-    string stname = "";
-    if ( st == 1 ) { stname = "_Stored"; }
+    for ( int st = 0; st < 2; st++ ) {
+      string stname = "";
+      if ( st == 1 ) { stname = "_Stored"; }
 
-    for ( int i = 0; i < Nsystemtrackers; i++ ) {
-      if ( fill ) {
-	hname << rhitnames[i] << "Hits" << stname << "_XZ";
-	h_SystemHitTracker_XZ[i][st] = histDir.make<TH2F>(hname.str().c_str(), "", Rbin_Ring/2, Rmin_Ring, Rmax_Ring, Rbin_Ring/2, Rmin_Ring, Rmax_Ring);
-	h_SystemHitTracker_XZ[i][st]->SetYTitle("x_{ring} [mm]");
-	h_SystemHitTracker_XZ[i][st]->SetXTitle("z_{ring} [mm]");
-	hname.str("");
+      for ( int i = 0; i < Nsystemtrackers; i++ ) {
+	if ( fill ) {
+	  hname << rhitnames[i] << "Hits" << stname << "_XZ";
+	  //cout << hname.str() << endl;
+	  h_SystemHitTracker_XZ[i][st] = histDir.make<TH2F>(hname.str().c_str(), "", Rbin_Ring/2, Rmin_Ring, Rmax_Ring, Rbin_Ring/2, Rmin_Ring, Rmax_Ring);
+	  h_SystemHitTracker_XZ[i][st]->SetYTitle("x_{ring} [mm]");
+	  h_SystemHitTracker_XZ[i][st]->SetXTitle("z_{ring} [mm]");
+	  hname.str("");
 	
-	hname << rhitnames[i] << "Hits" << stname << "_RhoY";
-	h_SystemHitTracker_RhoY[i][st] = histDir.make<TH2F>(hname.str().c_str(), "", Rhobin_Ring/2, Rhomin_Ring, Rhomax_Ring, Ybin_Ring/2, Ymin_Ring, Ymax_Ring);
-	h_SystemHitTracker_RhoY[i][st]->SetXTitle("x_{ring} #equiv R - R_{m} [mm]");
-	h_SystemHitTracker_RhoY[i][st]->SetYTitle("y_{ring} [mm]");
-	hname.str("");
+	  hname << rhitnames[i] << "Hits" << stname << "_RhatY";
+	  h_SystemHitTracker_RhatY[i][st] = histDir.make<TH2F>(hname.str().c_str(), "", Rhatbin_Ring/2, Rhatmin_Ring, Rhatmax_Ring, Ybin_Ring/2, Ymin_Ring, Ymax_Ring);
+	  h_SystemHitTracker_RhatY[i][st]->SetXTitle("x_{ring} #equiv R - R_{m} [mm]");
+	  h_SystemHitTracker_RhatY[i][st]->SetYTitle("y_{ring} [mm]");
+	  hname.str("");
 	
-	hname << rhitnames[i] << "Hits" << stname << "_RhoTime";
-	h_SystemHitTracker_RhoTime[i][st] = histDir.make<TH2F>(hname.str().c_str(), "", 20000, 0.0, 200, Rhobin_Ring/2, Rhomin_Ring, Rhomax_Ring);
-	h_SystemHitTracker_RhoTime[i][st]->SetYTitle("x_{ring} #equiv R - R_{m} [mm]");
-	h_SystemHitTracker_RhoTime[i][st]->SetXTitle("t_{ring} [#mus]");
-	hname.str("");
+	  hname << rhitnames[i] << "Hits" << stname << "_RhatTime";
+	  h_SystemHitTracker_RhatTime[i][st] = histDir.make<TH2F>(hname.str().c_str(), "", 20000, 0.0, 200, Rhatbin_Ring/2, Rhatmin_Ring, Rhatmax_Ring);
+	  h_SystemHitTracker_RhatTime[i][st]->SetYTitle("x_{ring} #equiv R - R_{m} [mm]");
+	  h_SystemHitTracker_RhatTime[i][st]->SetXTitle("t_{ring} [#mus]");
+	  hname.str("");
 	
-	hname << rhitnames[i] << "Hits" << stname << "_YTime";
-	h_SystemHitTracker_YTime[i][st] = histDir.make<TH2F>(hname.str().c_str(), "", 20000, 0.0, 200, Ybin_Ring/2, Ymin_Ring, Ymax_Ring);
-	h_SystemHitTracker_YTime[i][st]->SetYTitle("y_{ring} [mm]");
-	h_SystemHitTracker_YTime[i][st]->SetXTitle("t_{ring} [#mus]");
-	hname.str("");
+	  hname << rhitnames[i] << "Hits" << stname << "_YTime";
+	  h_SystemHitTracker_YTime[i][st] = histDir.make<TH2F>(hname.str().c_str(), "", 20000, 0.0, 200, Ybin_Ring/2, Ymin_Ring, Ymax_Ring);
+	  h_SystemHitTracker_YTime[i][st]->SetYTitle("y_{ring} [mm]");
+	  h_SystemHitTracker_YTime[i][st]->SetXTitle("t_{ring} [#mus]");
+	  hname.str("");
 	
-	hname << rhitnames[i] << "Hits" << stname << "_DeltaPy";
-	h_SystemHitTracker_DeltaPy[i][st] = histDir.make<TH1F>(hname.str().c_str(), "", 3*YPrimebin_Ring, 3*YPrimemin_Ring, 3*YPrimemax_Ring);
-	h_SystemHitTracker_DeltaPy[i][st]->SetXTitle("#Delta#hat{p}_{y} [MeV]");
-	hname.str("");
+	  hname << rhitnames[i] << "Hits" << stname << "_DeltaPy";
+	  h_SystemHitTracker_DeltaPy[i][st] = histDir.make<TH1F>(hname.str().c_str(), "", 3*YPrimebin_Ring, 3*YPrimemin_Ring, 3*YPrimemax_Ring);
+	  h_SystemHitTracker_DeltaPy[i][st]->SetXTitle("#Delta#hat{p}_{y} [MeV]");
+	  hname.str("");
 	
-	hname << rhitnames[i] << "Hits" << stname << "_DeltaPx";
-	h_SystemHitTracker_DeltaPx[i][st] = histDir.make<TH1F>(hname.str().c_str(), "", 3*XPrimebin_Ring, 3*XPrimemin_Ring, 3*XPrimemax_Ring);
-	h_SystemHitTracker_DeltaPx[i][st]->SetXTitle("#Delta#hat{p}_{x} [MeV]");
-	hname.str("");
+	  hname << rhitnames[i] << "Hits" << stname << "_DeltaPx";
+	  h_SystemHitTracker_DeltaPx[i][st] = histDir.make<TH1F>(hname.str().c_str(), "", 3*XPrimebin_Ring, 3*XPrimemin_Ring, 3*XPrimemax_Ring);
+	  h_SystemHitTracker_DeltaPx[i][st]->SetXTitle("#Delta#hat{p}_{x} [MeV]");
+	  hname.str("");
       
-	hname << rhitnames[i] << stname << "_Nhits";
-	h_SystemHitTracker_Nhits[i][st] = histDir.make<TH1F>(hname.str().c_str(), "", 10, -0.5, 9.5);
-	h_SystemHitTracker_Nhits[i][st]->SetXTitle("Number of energy deposits");
-	hname.str("");
+	  hname << rhitnames[i] << stname << "_Nhits";
+	  h_SystemHitTracker_Nhits[i][st] = histDir.make<TH1F>(hname.str().c_str(), "", 10, -0.5, 9.5);
+	  h_SystemHitTracker_Nhits[i][st]->SetXTitle("Number of energy deposits");
+	  hname.str("");
+	}
       }
     }
-  }
   
 
-  for ( int st = 0; st < 2; st++ ) {
-    string stname = "";
-    if ( st == 1 ) { stname = "_Stored"; }
+    for ( int st = 0; st < 2; st++ ) {
+      string stname = "";
+      if ( st == 1 ) { stname = "_Stored"; }
     
-    for ( int i = 0; i < Nringhits; i++ ) {
+      for ( int i = 0; i < Nringhits; i++ ) {
       
-      if ( fill ) {
-	hname << inames[i] << "Hits" << stname << "_XZ";
-	h_RingHitTracker_XZ[i][st] = histDir.make<TH2F>(hname.str().c_str(), "", Rbin_Ring/2, Rmin_Ring, Rmax_Ring, Rbin_Ring/2, Rmin_Ring, Rmax_Ring);
-	h_RingHitTracker_XZ[i][st]->SetYTitle("x_{ring} [mm]");
-	h_RingHitTracker_XZ[i][st]->SetXTitle("z_{ring} [mm]");
-	hname.str("");
+	if ( fill ) {
+	  hname << inames[i] << "Hits" << stname << "_XZ";
+	  cout << hname.str() << endl;
+	  h_RingHitTracker_XZ[i][st] = histDir.make<TH2F>(hname.str().c_str(), "", Rbin_Ring/2, Rmin_Ring, Rmax_Ring, Rbin_Ring/2, Rmin_Ring, Rmax_Ring);
+	  h_RingHitTracker_XZ[i][st]->SetYTitle("x_{ring} [mm]");
+	  h_RingHitTracker_XZ[i][st]->SetXTitle("z_{ring} [mm]");
+	  hname.str("");
 	
-	hname << inames[i] << "Hits" << stname << "_RhoY";
-	h_RingHitTracker_RhoY[i][st] = histDir.make<TH2F>(hname.str().c_str(), "", Rhobin_Ring/2, Rhomin_Ring, Rhomax_Ring, Ybin_Ring/2, Ymin_Ring, Ymax_Ring);
-	h_RingHitTracker_RhoY[i][st]->SetXTitle("x_{ring} #equiv R - R_{m} [mm]");
-	h_RingHitTracker_RhoY[i][st]->SetYTitle("y_{ring} [mm]");
-	hname.str("");
+	  hname << inames[i] << "Hits" << stname << "_RhatY";
+	  h_RingHitTracker_RhatY[i][st] = histDir.make<TH2F>(hname.str().c_str(), "", Rhatbin_Ring/2, Rhatmin_Ring, Rhatmax_Ring, Ybin_Ring/2, Ymin_Ring, Ymax_Ring);
+	  h_RingHitTracker_RhatY[i][st]->SetXTitle("x_{ring} #equiv R - R_{m} [mm]");
+	  h_RingHitTracker_RhatY[i][st]->SetYTitle("y_{ring} [mm]");
+	  hname.str("");
 	
-	hname << inames[i] << "Hits" << stname << "_RhoTime";
-	h_RingHitTracker_RhoTime[i][st] = histDir.make<TH2F>(hname.str().c_str(), "", 20000, 0.0, 200, Rhobin_Ring/2, Rhomin_Ring, Rhomax_Ring);
-	h_RingHitTracker_RhoTime[i][st]->SetYTitle("x_{ring} #equiv R - R_{m} [mm]");
-	h_RingHitTracker_RhoTime[i][st]->SetXTitle("t_{ring} [#mus]");
-	hname.str("");
+	  hname << inames[i] << "Hits" << stname << "_RhatTime";
+	  h_RingHitTracker_RhatTime[i][st] = histDir.make<TH2F>(hname.str().c_str(), "", 20000, 0.0, 200, Rhatbin_Ring/2, Rhatmin_Ring, Rhatmax_Ring);
+	  h_RingHitTracker_RhatTime[i][st]->SetYTitle("x_{ring} #equiv R - R_{m} [mm]");
+	  h_RingHitTracker_RhatTime[i][st]->SetXTitle("t_{ring} [#mus]");
+	  hname.str("");
 	
-	hname << inames[i] << "Hits" << stname << "_YTime";
-	h_RingHitTracker_YTime[i][st] = histDir.make<TH2F>(hname.str().c_str(), "", 20000, 0.0, 200, Ybin_Ring/2, Ymin_Ring, Ymax_Ring);
-	h_RingHitTracker_YTime[i][st]->SetYTitle("y_{ring} [mm]");
-	h_RingHitTracker_YTime[i][st]->SetXTitle("t_{ring} [#mus]");
-	hname.str("");
+	  hname << inames[i] << "Hits" << stname << "_YTime";
+	  h_RingHitTracker_YTime[i][st] = histDir.make<TH2F>(hname.str().c_str(), "", 20000, 0.0, 200, Ybin_Ring/2, Ymin_Ring, Ymax_Ring);
+	  h_RingHitTracker_YTime[i][st]->SetYTitle("y_{ring} [mm]");
+	  h_RingHitTracker_YTime[i][st]->SetXTitle("t_{ring} [#mus]");
+	  hname.str("");
 	
-	hname << inames[i] << "Hits" << stname << "_DeltaPy";
-	h_RingHitTracker_DeltaPy[i][st] = histDir.make<TH1F>(hname.str().c_str(), "", 3*YPrimebin_Ring, 3*YPrimemin_Ring, 3*YPrimemax_Ring);
-	h_RingHitTracker_DeltaPy[i][st]->SetXTitle("#Delta#hat{p}_{y} [MeV]");
-	hname.str("");
+	  hname << inames[i] << "Hits" << stname << "_DeltaPy";
+	  h_RingHitTracker_DeltaPy[i][st] = histDir.make<TH1F>(hname.str().c_str(), "", 3*YPrimebin_Ring, 3*YPrimemin_Ring, 3*YPrimemax_Ring);
+	  h_RingHitTracker_DeltaPy[i][st]->SetXTitle("#Delta#hat{p}_{y} [MeV]");
+	  hname.str("");
 	
-	hname << inames[i] << "Hits" << stname << "_DeltaPx";
-	h_RingHitTracker_DeltaPx[i][st] = histDir.make<TH1F>(hname.str().c_str(), "", 3*XPrimebin_Ring, 3*XPrimemin_Ring, 3*XPrimemax_Ring);
-	h_RingHitTracker_DeltaPx[i][st]->SetXTitle("#Delta#hat{p}_{x} [MeV]");
-	hname.str("");
+	  hname << inames[i] << "Hits" << stname << "_DeltaPx";
+	  h_RingHitTracker_DeltaPx[i][st] = histDir.make<TH1F>(hname.str().c_str(), "", 3*XPrimebin_Ring, 3*XPrimemin_Ring, 3*XPrimemax_Ring);
+	  h_RingHitTracker_DeltaPx[i][st]->SetXTitle("#Delta#hat{p}_{x} [MeV]");
+	  hname.str("");
       
-	hname << inames[i] << stname << "_Nhits";
-	h_RingHitTracker_Nhits[i][st] = histDir.make<TH1F>(hname.str().c_str(), "", 10, -0.5, 9.5);
-	h_RingHitTracker_Nhits[i][st]->SetXTitle("Number of energy deposits");
-	hname.str("");
+	  hname << inames[i] << stname << "_Nhits";
+	  h_RingHitTracker_Nhits[i][st] = histDir.make<TH1F>(hname.str().c_str(), "", 10, -0.5, 9.5);
+	  h_RingHitTracker_Nhits[i][st]->SetXTitle("Number of energy deposits");
+	  hname.str("");
+	}
       }
     }
-  }
   } // if we set SaveRingHits = true;
 
 
@@ -1666,7 +1668,7 @@ void gm2ringsim::ringTrackerAnalyzer::FillInflector(int hist, double x_inf, doub
   h_InflectorTracker_Y->Fill(hist, y_inf);
   h_InflectorTracker_Z->Fill(hist, z_inf);
   
-  h_InflectorTracker_RhoY[hist]->Fill(x_inf, y_inf);
+  h_InflectorTracker_RhatY[hist]->Fill(x_inf, y_inf);
   h_InflectorTracker_XprimeX[hist]->Fill(x_inf, 1000*xprime_inf);
   h_InflectorTracker_YprimeY[hist]->Fill(y_inf, 1000*yprime_inf);	
 }
@@ -1685,7 +1687,7 @@ void gm2ringsim::ringTrackerAnalyzer::FillTimeRingTracker(int hist, double xe, d
     h_RingTracker_XprimeX[hist]->Fill(rhat, 1000*prhat);
     h_RingTracker_YprimeY[hist]->Fill(vhat, 1000*pvhat);
     h_RingTracker_Mom[hist]->Fill(mom/Pmagic());
-    h_RingTracker_RhoY[hist]->Fill(rhat, vhat);
+    h_RingTracker_RhatY[hist]->Fill(rhat, vhat);
     h_RingTracker_Pol[hist]->Fill(polz);
     h_RingTracker_PolX[hist]->Fill(polx);
     h_RingTracker_PolY[hist]->Fill(poly);
@@ -1693,31 +1695,55 @@ void gm2ringsim::ringTrackerAnalyzer::FillTimeRingTracker(int hist, double xe, d
   if ( debug_ ) { cout << "FillTimeRingTracker(" << hist << ") - Done" << endl; }
 }
   
-void gm2ringsim::ringTrackerAnalyzer::FillTruthTracker(int hist, int part, double xe_truth, double r_truth, double y_truth, double rprime_truth, double yprime_truth, double p, double x, double z, double t0, double polz, double polx, double poly)
+void gm2ringsim::ringTrackerAnalyzer::FillTruthTracker(int hist, int status, int pdgid, double xe_truth, double r_truth, double y_truth, double rprime_truth, double yprime_truth, double p, double x, double z, double t0, double polz, double polx, double poly, double Py, double Polarization)
 {
-  if ( debug_ ) { cout << "FillTruthTracker(" << hist << ", " << part << ")" << endl; }
+  if ( debug_ ) { cout << "FillTruthTracker(" << hist << ")" << endl; }
   if ( SaveTruthHits_ == false ) { return; }
-  //if ( part == 1 ) {
-  //G4cout << "x, y, x', y' = [" << x_truth << " , " << y_truth << " , " << 1000*xprime_truth << " , " << 1000*yprime_truth << G4endl;
-  //}
+  
+  int particle = -1;
+  if ( pdgid == 13 || pdgid == -13 ) {
+    if ( status == gm2ringsim::kBirth ) { particle = 0; }
+    if ( status == gm2ringsim::kDecay ) { particle = 1; }
+    if ( status == gm2ringsim::kLost )  { particle = 2; }
+  }
+  if ( pdgid == 11 || pdgid == -11 ) {
+    if ( status == gm2ringsim::kBirth ) { particle = 4; }
+    if ( status == gm2ringsim::kDecay ) { particle = 3; }
+  }
 
-  //if ( part == 1 ) { cout << "P/Pm = " << p/Pmagic() << endl; }
+  if ( particle == -1 ) { return; }
+
+  FillTruthTracker(hist, particle, xe_truth, r_truth, y_truth, rprime_truth, yprime_truth, p, x, z, t0, polz, polx, poly, Py, Polarization);
+
+  if ( p > 1.8*GeV && ( particle == 3 || particle == 4 ) ) {
+    FillTruthTracker(hist, particle+2, xe_truth, r_truth, y_truth, rprime_truth, yprime_truth, p, x, z, t0, polz, polx, poly, Py, Polarization);
+  }
+}
+
+void gm2ringsim::ringTrackerAnalyzer::FillTruthTracker(int hist, int particle, double xe_truth, double r_truth, double y_truth, double rprime_truth, double yprime_truth, double p, double x, double z, double t0, double polz, double polx, double Py, double poly, double Polarization)
+{
+  double yp = 1000*yprime_truth;
+  if ( particle >= 3 ) {
+    yp = Py;
+  }
+  yp = 1000*yprime_truth;
 
   if ( hist < Ntruthtimes ) {
-    h_G4Tracker_Time_Xe[hist][part]->Fill(xe_truth);
-    h_G4Tracker_Time_Rhat[hist][part]->Fill(r_truth);
-    h_G4Tracker_Time_Vhat[hist][part]->Fill(y_truth);
-    h_G4Tracker_Time_Xprime[hist][part]->Fill(1000*rprime_truth);
-    h_G4Tracker_Time_Yprime[hist][part]->Fill(1000*yprime_truth);
-    h_G4Tracker_Time_XprimeX[hist][part]->Fill(r_truth, 1000*rprime_truth);
-    h_G4Tracker_Time_YprimeY[hist][part]->Fill(y_truth, 1000*yprime_truth);
-    h_G4Tracker_Time_Mom[hist][part]->Fill(p/Pmagic());
-    h_G4Tracker_Time_RhoY[hist][part]->Fill(r_truth, y_truth);
-    h_G4Tracker_Time_XZ[hist][part]->Fill(x, z);
-    h_G4Tracker_Time_t0[hist][part]->Fill(t0);
-    h_G4Tracker_Time_Pol[hist][part]->Fill(polz);
-    h_G4Tracker_Time_PolX[hist][part]->Fill(polx);
-    h_G4Tracker_Time_PolY[hist][part]->Fill(poly);
+    h_G4Tracker_Time_Xe[hist][particle]->Fill(xe_truth);
+    h_G4Tracker_Time_Rhat[hist][particle]->Fill(r_truth);
+    h_G4Tracker_Time_Vhat[hist][particle]->Fill(y_truth);
+    h_G4Tracker_Time_Xprime[hist][particle]->Fill(1000*rprime_truth);
+    h_G4Tracker_Time_Yprime[hist][particle]->Fill(yp);
+    h_G4Tracker_Time_XprimeX[hist][particle]->Fill(r_truth, 1000*rprime_truth);
+    h_G4Tracker_Time_YprimeY[hist][particle]->Fill(y_truth, yp);
+    h_G4Tracker_Time_Mom[hist][particle]->Fill(p/Pmagic());
+    h_G4Tracker_Time_RhatY[hist][particle]->Fill(r_truth, y_truth);
+    h_G4Tracker_Time_XZ[hist][particle]->Fill(x, z);
+    h_G4Tracker_Time_t0[hist][particle]->Fill(t0);
+    h_G4Tracker_Time_Pol[hist][particle]->Fill(polz);
+    h_G4Tracker_Time_PolX[hist][particle]->Fill(polx);
+    h_G4Tracker_Time_PolY[hist][particle]->Fill(poly);
+    h_G4Tracker_Time_Polarization[hist][particle]->Fill(Polarization);
   }
 }
 
@@ -1734,7 +1760,7 @@ void gm2ringsim::ringTrackerAnalyzer::FillRingTracker(int hist, int type, double
     h_RingTracker_Time_Xprime[hist][type]->Fill(1000*prhat);
     h_RingTracker_Time_Yprime[hist][type]->Fill(1000*pvhat);
     h_RingTracker_Time_Mom[hist][type]->Fill(mom/Pmagic());
-    h_RingTracker_Time_RhoY[hist][type]->Fill(rhat, vhat);
+    h_RingTracker_Time_RhatY[hist][type]->Fill(rhat, vhat);
     h_RingTracker_Time_XprimeYprime[hist][type]->Fill(1000*prhat, 1000*pvhat);
     h_RingTracker_Time_Pol[hist][type]->Fill(polz);
     h_RingTracker_Time_PolX[hist][type]->Fill(polx);
@@ -1742,107 +1768,101 @@ void gm2ringsim::ringTrackerAnalyzer::FillRingTracker(int hist, int type, double
   }  
   if ( debug_ ) { cout << "FillRingTracker(" << hist << ", " << type << ") - Done" << endl; }
 }
+ 
+void gm2ringsim::ringTrackerAnalyzer::FillTruthTurnTime(double dT, int counter, int status, int pdgid, double time, double xe, double rhat, double y, double prhat, double pvhat, double mom, double polz, double polx, double poly, double e)
+{  
+  bool debug = debug_;
+  if ( debug ) { cout << "FillTruthTurnTime(" << pdgid << " , " << status << ")" << endl; }
 
-void gm2ringsim::ringTrackerAnalyzer::FillTruthTurnTime(double dT, int counter, int trackID, double time, double xe, double rhat, double y, double prhat, double pvhat, double mom, double polz, double polx, double poly, double e)
-{
+  int particle = -1;
+  if ( pdgid == 13 || pdgid == -13 ) {
+    if ( status == gm2ringsim::kBirth ) { particle = 0; }
+    if ( status == gm2ringsim::kDecay ) { particle = 1; }
+    if ( status == gm2ringsim::kLost )  { particle = 2; }
+  }
+  if ( pdgid == 11 || pdgid == -11 ) {
+    if ( status == gm2ringsim::kBirth ) { particle = 4; }
+    if ( status == gm2ringsim::kDecay ) { particle = 3; }
+  }
+
+  if ( particle == -1 ) { return; }
 
   double xval;
-  for ( int hist = 0; hist < 5; hist++ ) {
-    if ( SaveVRing1PlaneHits_ == true && SaveVRingHits_ == false ) {
-      if ( hist == 0 || hist == 1 ) { continue; }
+  for ( int hist = 0; hist < 2; hist++ ) {
+    xval = dT;
+    if ( hist == 2 ) { xval = time;}
+    if ( hist == 1 && counter != 0 ) { continue; }
+
+
+    FillTruthTurnTime(xval, hist, particle, xe, rhat, y, prhat, pvhat, mom, polz, polx, poly, e);
+    if ( e > 1.8*GeV && ( particle == 3 || particle == 4 ) ) {
+      FillTruthTurnTime(xval, hist, particle+2, xe, rhat, y, prhat, pvhat, mom, polz, polx, poly, e);
     }
-
-    if ( hist == 0 ) { xval = time; }
-    if ( hist == 1 ) { xval = dT; }
-    if ( hist == 2 ) { xval = dT; }
-    if ( hist == 3 ) { xval = time/(149*ns); }
-    if ( hist == 4 ) { xval = time/(149*ns); }
-
-    //G4cout << "FillTurnTime\t" << hist << "\t" << trackID << G4endl;
-
-    if ( hist == 2 && (counter != 0) ) { continue; }
-    if ( hist == 4 && (counter != 0) ) { continue; }
-    if ( trackID == 1 ) {
-      if ( hist == 3 || hist == 4 ) { continue; }
-    }
-    if ( trackID != 1 ) {
-      if ( hist == 0 || hist == 1 || hist == 2 ) { continue; }
-    }
-    
-    if ( hist == 2 ) {
-      ;//cout << polz << "\t" << polx << "\t" << poly << endl;
-    }
-
-    //G4cout << "FillTurnTime\t" << hist << "\t" << trackID << G4endl;
-
-    h_G4Tracker_Xe_vs_Time[hist]->Fill(xval, xe);
-    h_G4Tracker_Rho_vs_Time[hist]->Fill(xval, rhat);
-    h_G4Tracker_Y_vs_Time[hist]->Fill(xval, y);
-    h_G4Tracker_Pol_vs_Time[hist]->Fill(xval, polz);
-    h_G4Tracker_PolX_vs_Time[hist]->Fill(xval, polx);
-    h_G4Tracker_PolY_vs_Time[hist]->Fill(xval, poly);
-    h_G4Tracker_Prhat_vs_Time[hist]->Fill(xval, 1000*prhat);
-    h_G4Tracker_Pvhat_vs_Time[hist]->Fill(xval, 1000*pvhat);
-    h_G4Tracker_Mom_vs_Time[hist]->Fill(xval, mom/Pmagic());
-    h_G4Tracker_E_vs_Time[hist]->Fill(xval, mom);
-
-    if ( pvhat > 0 ) { G4Tracker_Nu[hist]++; }
-    else if ( pvhat < 0 ) { G4Tracker_Nd[hist]++; }
-    //double Nud = G4Tracker_Nu[hist] - G4Tracker_Nd[hist];
-    //if ( hist == 4 ) { cout << "Nud: " << xval << "\t" << Nud << endl; }
-    //double Asym = ((double)G4Tracker_Nu[hist] - (double)G4Tracker_Nd[hist])/((double)G4Tracker_Nu[hist] + (double)G4Tracker_Nd[hist]);
-
-    //h_G4Tracker_NudAsym_vs_Time[hist]->Fill(xval, Asym);
-    if ( pvhat > 0 ) { h_G4Tracker_Nud_vs_Time[hist]->Fill(xval, 1); }
-    else if ( pvhat < 0 ) { h_G4Tracker_Nud_vs_Time[hist]->Fill(xval, -1); }
-    if ( pvhat > 0 ) { h_G4Tracker_NudAsym_vs_Time[hist]->Fill(xval, 1); }
-    else if ( pvhat < 0 ) { h_G4Tracker_NudAsym_vs_Time[hist]->Fill(xval, -1); }
-
-//     if ( hist == 4 ) { 
-//       cout << "Nud: ";
-//       for ( int i = 1; i < h_G4Tracker_Nud_vs_Time[hist]->GetNbinsX(); i++ ) {
-// 	cout << h_G4Tracker_Nud_vs_Time[hist]->GetBinContent(i) << "\t";
-//       }
-//       cout << endl;
-//     }
-
-    
-    if ( e > 1.8*GeV ) {
-      h_G4Tracker_NgtEth_vs_Time[hist]->Fill(xval);
-    }
-    h_G4Tracker_NwghtE_vs_Time[hist]->Fill(xval, e/Pmagic());
-    h_G4Tracker_N_vs_Time[hist]->Fill(xval);
-
   }
+}
+
+void gm2ringsim::ringTrackerAnalyzer::FillTruthTurnTime(double xval, int hist, int particle, double xe, double rhat, double y, double prhat, double pvhat, double mom, double polz, double polx, double poly, double e)  
+{
+  bool debug = debug_;
+  if ( debug ) { cout << "FillTruthTurnTime(" << hist << " , " << particle << ")" << endl; }
+
+  h_G4Tracker_Xe_vs_Time[hist][particle]->Fill(xval, xe);
+  h_G4Tracker_Rhat_vs_Time[hist][particle]->Fill(xval, rhat);
+  h_G4Tracker_Y_vs_Time[hist][particle]->Fill(xval, y);
+  h_G4Tracker_Pol_vs_Time[hist][particle]->Fill(xval, polz);
+  h_G4Tracker_PolX_vs_Time[hist][particle]->Fill(xval, polx);
+  h_G4Tracker_PolY_vs_Time[hist][particle]->Fill(xval, poly);
+  h_G4Tracker_Prhat_vs_Time[hist][particle]->Fill(xval, 1000*prhat);
+  h_G4Tracker_Pvhat_vs_Time[hist][particle]->Fill(xval, 1000*pvhat);
+  h_G4Tracker_Mom_vs_Time[hist][particle]->Fill(xval, mom/Pmagic());
+  h_G4Tracker_E_vs_Time[hist][particle]->Fill(xval, mom);
+
+  h_G4Tracker_Yprime_vs_Time[hist][particle]->Fill(xval, 1000*pvhat);
+  h_G4Tracker_Vhat_vs_Time[hist][particle]->Fill(xval, y);
+
+  
+  if ( y > 0 ) { 
+    h_G4Tracker_Nup_vs_Time[hist][particle]->Fill(xval, 1);
+    h_G4Tracker_Nud_vs_Time[hist][particle]->Fill(xval, 1);
+  }
+  else if ( y < 0 ) { 
+    h_G4Tracker_Ndown_vs_Time[hist][particle]->Fill(xval, -1);
+    h_G4Tracker_Nud_vs_Time[hist][particle]->Fill(xval, -1);
+  }
+  
+  if ( e > 1.8*GeV ) {
+    h_G4Tracker_NgtEth_vs_Time[hist][particle]->Fill(xval);
+  }
+  h_G4Tracker_NwghtE_vs_Time[hist][particle]->Fill(xval, e/Pmagic());
+  h_G4Tracker_N_vs_Time[hist][particle]->Fill(xval);
 }
 
 void gm2ringsim::ringTrackerAnalyzer::FillTurnTime(double dT, int counter, int trackID, double time, double xe, double rhat, double y, double prhat, double pvhat, double mom, double polz, double polx, double poly, double e)
 {
+  bool debug = debug_;
+
+  if ( debug ) { cout << "FillTurnTime(" << trackID << " , " << counter << ")" << endl; }
+
   double xval;
-  for ( int hist = 0; hist < 4; hist++ ) {
+
+  if ( trackID != 1 ) { return; }
+  
+  for ( int hist = 0; hist < Ntimestamps; hist++ ) {
     if ( SaveVRing1PlaneHits_ == true && SaveVRingHits_ == false ) {
-      if ( hist == 0 || hist == 1 ) { continue; }
+      if ( hist == 0 ) { continue; }
     }
-
-    if ( hist == 0 ) { xval = time; }
-    if ( hist == 1 ) { xval = dT; }
-    if ( hist == 2 ) { xval = dT; }
-    if ( hist == 3 ) { xval = dT; }
-
-    //G4cout << "FillTurnTime\t" << hist << "\t" << trackID << G4endl;
-
-    if ( hist == 2 && (counter != 0) ) { continue; }
-    if ( trackID == 1 && hist == 3 ) { continue; }
-    if ( trackID != 1 && hist != 3 ) { continue; }
+    if ( SaveVRing1PlaneHits_ == false ) {
+      if ( hist == 1 ) { continue; }
+    }
     
-    if ( hist == 2 ) {
-      ;//cout << polz << "\t" << polx << "\t" << poly << endl;
-    }
+    xval = dT;
+    if ( hist == 2 ) { xval = time; }
 
-    //G4cout << "FillTurnTime\t" << hist << "\t" << trackID << G4endl;
+    if ( hist == 1 && counter != 0 ) { continue; }
 
+    
     h_RingTracker_Xe_vs_Time[hist]->Fill(xval, xe);
-    h_RingTracker_Rho_vs_Time[hist]->Fill(xval, rhat);
+    h_RingTracker_Rhat_vs_Time[hist]->Fill(xval, rhat);
     h_RingTracker_Y_vs_Time[hist]->Fill(xval, y);
     h_RingTracker_Pol_vs_Time[hist]->Fill(xval, polz);
     h_RingTracker_PolX_vs_Time[hist]->Fill(xval, polx);
@@ -1857,6 +1877,7 @@ void gm2ringsim::ringTrackerAnalyzer::FillTurnTime(double dT, int counter, int t
     h_RingTracker_NwghtE_vs_Time[hist]->Fill(xval, e/Pmagic());
     h_RingTracker_N_vs_Time[hist]->Fill(xval);
   }
+  if ( debug ) { cout << "FillTurnTime(" << trackID << " , " << counter << ") - Done" << endl; }
 }
 
 void gm2ringsim::ringTrackerAnalyzer::FillKickDegree(int histtype, double degree_at_r0, double kick_at_r0, double mom)
@@ -1930,7 +1951,7 @@ double gm2ringsim::ringTrackerAnalyzer::ComputeKickAtRmagicInt(double pr1, doubl
 
 void gm2ringsim::ringTrackerAnalyzer::NewFixTurnCounter(int *global_turn, int mytrack_vol, int ptrack_vol)
 {
-  if ( mytrack_vol < ptrack_vol ) { (*global_turn)++; }  
+  if ( mytrack_vol <= ptrack_vol ) { (*global_turn)++; }  
 }
 
 void gm2ringsim::ringTrackerAnalyzer::FixTurnCounter(int *myturn, int *mytrack, double time, double t1)
@@ -1940,7 +1961,7 @@ void gm2ringsim::ringTrackerAnalyzer::FixTurnCounter(int *myturn, int *mytrack, 
     nskips = 1;
     for ( int tbegin = 10; tbegin > 1; tbegin-- ) {
       if ( time - t1 > tbegin*12 ) { nskips = tbegin; break; }
-	}
+    }
   }
   
   if ( nskips > 0 ) { 
@@ -1985,16 +2006,38 @@ double gm2ringsim::ringTrackerAnalyzer::Pmagic()
   return pMagic_;
 }
 
+int gm2ringsim::ringTrackerAnalyzer::IsSomething(string name)
+{
+  if ( gm2ringsim::ringTrackerAnalyzer::IsKicker(name) ) { return( kKickerHit ); }
+  if ( gm2ringsim::ringTrackerAnalyzer::IsQuad(name) ) { return( kQuadHit ); }
+  if ( gm2ringsim::ringTrackerAnalyzer::IsCollimator(name) ) { return( kCollimatorHit ); }
+  if ( gm2ringsim::ringTrackerAnalyzer::IsCryostat(name) ) { return( kCryostatHit ); }
+  if ( gm2ringsim::ringTrackerAnalyzer::IsInflector(name) ) { return( kInflectorHit ); }
+  if ( gm2ringsim::ringTrackerAnalyzer::IsVacuumChamber(name) ) { return( kVacuumHit ); }
+  if ( gm2ringsim::ringTrackerAnalyzer::IsVirtualRingStation(name) ) { return( kVirtualRingStationHit ); }
+
+  return( -1 );
+}
+
+
+
 bool gm2ringsim::ringTrackerAnalyzer::IsSomething(string name, int comp)
 {
   if ( gm2ringsim::ringTrackerAnalyzer::IsKicker(name) && comp == kKickerHit ) { return( true ); }
+  if ( gm2ringsim::ringTrackerAnalyzer::IsCollimator(name) && comp == kCollimatorHit ) { return( true ); }
   if ( gm2ringsim::ringTrackerAnalyzer::IsQuad(name) && comp == kQuadHit ) { return( true ); }
   if ( gm2ringsim::ringTrackerAnalyzer::IsCryostat(name) && comp == kCryostatHit ) { return( true ); }
   if ( gm2ringsim::ringTrackerAnalyzer::IsInflector(name) && comp == kInflectorHit ) { return( true ); }
-  if ( gm2ringsim::ringTrackerAnalyzer::IsVacuumChamber(name) && comp == kVacuumChamberHit ) { return( true ); }
+  if ( gm2ringsim::ringTrackerAnalyzer::IsVacuumChamber(name) && comp == kVacuumHit ) { return( true ); }
   return( false );
 }
 
+
+bool gm2ringsim::ringTrackerAnalyzer::IsVirtualRingStation(string name)
+{
+  if ( name.find("VirtualRingStationPV") != string::npos ) { return( true ); }
+  return( false );
+}
 
 bool gm2ringsim::ringTrackerAnalyzer::IsVacuumChamber(string name)
 {
@@ -2125,6 +2168,14 @@ bool gm2ringsim::ringTrackerAnalyzer::IsQuad(string name)
   //   return( false );
 }
 
+bool gm2ringsim::ringTrackerAnalyzer::IsCollimator(string name)
+{
+  if ( name.find("Collimator") != string::npos ) { return( true ); }
+
+  return( false );
+}
+
+
 bool gm2ringsim::ringTrackerAnalyzer::IsCryostat(string name)
 {
   if ( name.find("Cryostat") != string::npos ) { return( true ); }
@@ -2188,6 +2239,7 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
   //art::Handle< StrawArtRecordCollection > hitDataHandle;
   art::Handle< VirtualRingStationArtRecordCollection > ringtrackerhitDataHandle;
   art::Handle< TrackingActionArtRecordCollection > truthhitDataHandle;
+  art::Handle< TrackingActionArtRecordCollection > truthfinishedhitDataHandle;
   art::Handle< InflectorArtRecordCollection > inflectorhitDataHandle;
   art::Handle< RingArtRecordCollection > ringhitDataHandle;
   
@@ -2197,6 +2249,7 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
   //e.getByLabel(hitModuleLabel_, instanceName_, hitDataHandle);
   e.getByLabel(ringtrackerhitModuleLabel_, ringtrackerinstanceName_, ringtrackerhitDataHandle);
   e.getByLabel(truthhitModuleLabel_, truthinstanceName_, truthhitDataHandle);
+  e.getByLabel(truthfinishedhitModuleLabel_, truthfinishedinstanceName_, truthfinishedhitDataHandle);
   e.getByLabel(inflectorhitModuleLabel_, inflectorinstanceName_, inflectorhitDataHandle);
   e.getByLabel(ringhitModuleLabel_, ringinstanceName_, ringhitDataHandle);
   
@@ -2204,6 +2257,7 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
   //StrawArtRecordCollection const & hits = *hitDataHandle;
   VirtualRingStationArtRecordCollection const & ringtrackerhits = *ringtrackerhitDataHandle;
   TrackingActionArtRecordCollection const & truthhits = *truthhitDataHandle;
+  TrackingActionArtRecordCollection const & truthfinishedhits = *truthfinishedhitDataHandle;
   InflectorArtRecordCollection const & inflectorhits = *inflectorhitDataHandle;
   RingArtRecordCollection const & ringhits = *ringhitDataHandle;
   // Let's use the nice C++11 vector iteration
@@ -2215,6 +2269,7 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
     mf::LogInfo("ringTrackerAnalyzer") << "There are " << ringhits.size() << " ring hits in this event.";
     mf::LogInfo("ringTrackerAnalyzer") << "There are " << inflectorhits.size() << " inflector hits in this event.";
     mf::LogInfo("ringTrackerAnalyzer") << "There are " << truthhits.size() << " truth hits in this event.";
+    mf::LogInfo("ringTrackerAnalyzer") << "There are " << truthfinishedhits.size() << " truth hits in this event.";
     mf::LogInfo("ringTrackerAnalyzer") << "There are " << ringtrackerhits.size() << " virtual ring station hits in this event.";
   }
 
@@ -2224,14 +2279,14 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
   //-----------------
   // Pass Information
   //-----------------
-  bool pass_5us = false;
-  bool pass_20us = false;
-  bool pass_50us = false;
+//   bool pass_5us = false;
+//   bool pass_20us = false;
+//   bool pass_50us = false;
   bool pass_final = false;
-  bool pass_5turns = false;
-  bool pass_10turns = false;
-  bool pass_50turns = false;
-  bool pass_100turns = false;
+//   bool pass_5turns = false;
+//   bool pass_10turns = false;
+//   bool pass_50turns = false;
+//   bool pass_100turns = false;
   
 
 
@@ -2242,56 +2297,56 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
   // Inflector Information
   //----------------------
   if ( SaveInfHits_ ) {
-  for ( auto hinfdata : inflectorhits ) {    
-    double x_ring_inf = hinfdata.x_ring;
-    double y_ring_inf = hinfdata.y_ring;
-    double z_ring_inf = hinfdata.z_ring;
+    for ( auto hinfdata : inflectorhits ) {    
+      double x_ring_inf = hinfdata.x_ring;
+      double y_ring_inf = hinfdata.y_ring;
+      double z_ring_inf = hinfdata.z_ring;
     
-    double px_ring_inf = hinfdata.px_ring;
-    double py_ring_inf = hinfdata.py_ring;
-    double pz_ring_inf = hinfdata.pz_ring;
+      double px_ring_inf = hinfdata.px_ring;
+      double py_ring_inf = hinfdata.py_ring;
+      double pz_ring_inf = hinfdata.pz_ring;
 
-    double prhat_ring = hinfdata.prhat_ring;
-    double pvhat_ring = hinfdata.pvhat_ring;
+      double prhat_ring = hinfdata.prhat_ring;
+      double pvhat_ring = hinfdata.pvhat_ring;
     
-    int inflector_track_ID = hinfdata.trackID;
+      int inflector_track_ID = hinfdata.trackID;
     
-    TVector3 mom_ring_inf(px_ring_inf, py_ring_inf, pz_ring_inf);
-    TVector3 pos_ring_inf(x_ring_inf, y_ring_inf, z_ring_inf);
-    //double x_acc = x_ring_inf - beamStart.X();
-    //double y_acc = y_ring_inf - beamStart.Y();
-    //double z_acc = z_ring_inf - beamStart.Z();
+      TVector3 mom_ring_inf(px_ring_inf, py_ring_inf, pz_ring_inf);
+      TVector3 pos_ring_inf(x_ring_inf, y_ring_inf, z_ring_inf);
+      //double x_acc = x_ring_inf - beamStart.X();
+      //double y_acc = y_ring_inf - beamStart.Y();
+      //double z_acc = z_ring_inf - beamStart.Z();
     
-    pos_ring_inf -= beamStart_;
+      pos_ring_inf -= beamStart_;
     
-    double x_inf = pos_ring_inf.Dot(xAxis);
-    double y_inf = pos_ring_inf.Dot(yAxis);
-    double r_inf = TMath::Sqrt(x_inf*x_inf + y_inf*y_inf);
-    double z_inf = pos_ring_inf.Dot(zAxis);
+      double x_inf = pos_ring_inf.Dot(xAxis);
+      double y_inf = pos_ring_inf.Dot(yAxis);
+      double r_inf = TMath::Sqrt(x_inf*x_inf + y_inf*y_inf);
+      double z_inf = pos_ring_inf.Dot(zAxis);
     
-    //cout << inum << "\t" << x_acc << "\t" << y_acc << "\t" << z_acc << endl;
+      //cout << inum << "\t" << x_acc << "\t" << y_acc << "\t" << z_acc << endl;
     
-    double xprime_inf = mom_ring_inf.Dot(xAxis)/mom_ring_inf.Mag();
-    double yprime_inf = mom_ring_inf.Dot(yAxis)/mom_ring_inf.Mag();	  
-    //double zprime_acc = mom.Dot(zAxis)/mom.Mag();
+      double xprime_inf = mom_ring_inf.Dot(xAxis)/mom_ring_inf.Mag();
+      double yprime_inf = mom_ring_inf.Dot(yAxis)/mom_ring_inf.Mag();	  
+      //double zprime_acc = mom.Dot(zAxis)/mom.Mag();
     
-    //int inflector_volume_UID = hinfdata.volumeUID;
-    string inflector_volume_name = ""; //uom->lookup(inflector_volume_UID);
+      //int inflector_volume_UID = hinfdata.volumeUID;
+      string inflector_volume_name = ""; //uom->lookup(inflector_volume_UID);
     
-    if ( inflector_track_ID == 1 ) { 
-      for ( int vol = 0; vol < 9; vol++ ) {
-	stringstream volname;
-	if ( vol < 9 ) { volname << "InflectorTracker[0" << vol << "]"; }
-	else { volname << "InflectorTracker[0" << vol-9 << "]"; }
+      if ( inflector_track_ID == 1 ) { 
+	for ( int vol = 0; vol < 9; vol++ ) {
+	  stringstream volname;
+	  if ( vol < 9 ) { volname << "InflectorTracker[0" << vol << "]"; }
+	  else { volname << "InflectorTracker[0" << vol-9 << "]"; }
 	
-	if ( inflector_volume_name == volname.str() ) {
-	  if ( fill ) {
-	    FillInflector(vol, x_inf, y_inf, z_inf, r_inf, prhat_ring, pvhat_ring, xprime_inf, yprime_inf);
+	  if ( inflector_volume_name == volname.str() ) {
+	    if ( fill ) {
+	      FillInflector(vol, x_inf, y_inf, z_inf, r_inf, prhat_ring, pvhat_ring, xprime_inf, yprime_inf);
+	    }
 	  }
 	}
-      }
-    } // loop over trackings
-  } // loop over inflector hits
+      } // loop over trackings
+    } // loop over inflector hits
   } // if ( SaveInfHits_ )
 
 
@@ -2332,262 +2387,228 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
   double degree_r_at_r0 = -9999.9;
   double kick_at_r0 = -9999.9;
   if ( SaveVRingHits_ || SaveVRing1PlaneHits_ ) {
-  for ( auto hdata : ringtrackerhits) {
-    int track_ID   = hdata.trackID;
-    int track_volumeUID = hdata.volumeUID; 
-    string track_volname = pvs.stringGivenID(track_volumeUID);
-    IsVirtualRingStation(track_volname, &mytrack_vol);
+    for ( auto hdata : ringtrackerhits) {
+      int track_ID   = hdata.trackID;
+      int track_volumeUID = hdata.volumeUID; 
+      string track_volname = pvs.stringGivenID(track_volumeUID);
+      IsVirtualRingStation(track_volname, &mytrack_vol);
 
-    NewFixTurnCounter(&global_turn, mytrack_vol, pmytrack_vol);
-    pmytrack_vol = mytrack_vol;
-    if ( SaveVRing1PlaneHits_ == true && SaveVRingHits_ == false ) {
-      if ( mytrack_vol != 0 ) { continue; }
-    }
-
-    double time = hdata.time;
-    double mom = hdata.p;
-    double momentum = mom;
-    double rhat = hdata.rhat;
-    double theta = hdata.theta;
-    double vhat = hdata.vhat;
-    double prhat = hdata.prhat;
-    double pvhat = hdata.pvhat;
-    double y = vhat;
-    //double e = hdata.e;
-    double e = mom;
-    double polx = hdata.polx;
-    double poly = hdata.poly;
-    double polz = hdata.polz;
-    //int pdgid = hdata.pdgid;
-    double xe = ComputeXe(mom, 0.137);
-
-
-    double pol_azimuth, pol_radial, pol_vertical;
-    ComputePolarization(&pol_azimuth, &pol_radial, &pol_vertical, polx, poly, polz, theta);
-
-    if ( track_ID == 1 ) {      
-      if ( t0 <= 0.0 ) { 
-	SetInitial(&t0, &mytrack, &t1, &theta1, &prhat_init, &pvhat_init, &xe_init, &rhat_init, &vhat_init, &pmom_init, &pol_init, 
-		   time, theta, prhat, pvhat, xe, rhat, vhat, mom, pol_azimuth);
+      NewFixTurnCounter(&global_turn, mytrack_vol, pmytrack_vol);
+      pmytrack_vol = mytrack_vol;
+      if ( SaveVRing1PlaneHits_ == true && SaveVRingHits_ == false ) {
+	if ( mytrack_vol != 0 ) { continue; }
       }
-    }
-    
-    if ( mytrack >= 12 ) { myturn++; mytrack = 0; }      
 
-    t1 = time;
-    theta1 = theta;
+      double time = hdata.time;
+      double mom = hdata.p;
+      double momentum = mom;
+      double rhat = hdata.rhat;
+      double theta = hdata.theta;
+      double vhat = hdata.vhat;
+      double prhat = hdata.prhat;
+      double pvhat = hdata.pvhat;
+      double y = vhat;
+      //double e = hdata.e;
+      double e = mom;
+      double polx = hdata.polx;
+      double poly = hdata.poly;
+      double polz = hdata.polz;
+      //int pdgid = hdata.pdgid;
+      double xe = ComputeXe(mom, 0.137);
 
-    
-    if ( debug_ ) { cout << "Made it past the track/turn definitions for turn/track: " << global_turn << " , " << pmytrack_vol << "." << endl; }
-    
 
-    
-    //--------------------
-    // Check Initial Slope
-    //
-    // --
-    //  --
-    //    --    r - r0 = m(deg - deg0)
-    //     --
-    //       --
-    //
-    // deg(@r=0) = - r0/m + deg0
-    //--------------------
-    if ( SaveVRingHits_ ) {
-    double degree = 360 * theta / TMath::TwoPi();
-    if ( track_ID == 1 ) {
-    if ( global_turn == 0 && degree_at_quad < 0 ) {	
-      //cout << degree << "\t" << rhat << endl;
-      if ( rhat < 50 && previous_rhat >= 50 ) {
-	degree_at_quad = ComputeQuadIntAngle(rhat, previous_rhat, degree, previous_degree);
-	if ( fill ) { h_RingTracker_DegreeAtQuad[0]->Fill(degree_at_quad); }	  
-      }
-    }
-    
-    if ( global_turn == 0 && degree_at_r0 < 0 ) {
-      if ( fill ) {
-	h_RingTracker_FirstTurnX[0]->Fill(degree, rhat);
-	h_RingTracker_FirstTurnY[0]->Fill(degree, vhat);
-      }
-      if ( rhat < 0 && previous_rhat >= 0 ) {
-	degree_r_at_r0 = ComputeRmagicIntAngle(rhat, previous_rhat, degree, previous_degree);
-	Ndegat0 += degree_r_at_r0;
-	
-	if ( degree_r_at_r0 > 75.2 && degree_r_at_r0 < 89.3 ) { Ninside_midkicker++; }
-	else if ( degree_r_at_r0 > 60.3 && degree_r_at_r0 < 104.3 ) { Ninside_allkicker++; }
-	else { Noutside_kickers++; }
-	
-	kick_at_r0 = ComputeKickAtRmagicInt(prhat, previous_prhat, degree, previous_degree, degree_r_at_r0);
-	Nxpat0 += kick_at_r0;
-	
-	if ( fill ) { FillKickDegree(0, degree_at_r0, kick_at_r0, mom); }
-      }
-    }
-    }
+      double pol_azimuth, pol_radial, pol_vertical;
+      ComputePolarization(&pol_azimuth, &pol_radial, &pol_vertical, polx, poly, polz, theta);
 
-	      
-    previous_rhat = rhat;
-    previous_prhat = prhat;
-    previous_degree = degree;
-    }
-	      
-    
-    if ( debug_ ) { cout << "Made it past the kick/angle definitions." << endl; }
-    
-
-    if ( track_ID == 1 ) {
-    if ( fill ) {
-      //cout << "Polarization [" << mytrack << "/" << global_turn << "]: " << endl;
-      //cout << "\t" << polx << "\t" << poly << "\t" << polz << endl;
-      //cout << "\t" << pol_azimuth << "\t" << pol_radial << "\t" << pol_vertical << endl;
-
-      if ( global_turn == 0 && mytrack_vol == 1 ) {	  
-	FillRingTracker(0, 0, xe, rhat, vhat, prhat, pvhat, mom, pol_azimuth, pol_radial, pol_vertical);
-      }
-      else if ( global_turn >= 4-1 && global_turn <= 6-1 ) {
-	Npass_Nturns[0][0]++;
-	FillRingTracker(6, 0, xe, rhat, vhat, prhat, pvhat, mom, pol_azimuth, pol_radial, pol_vertical);
-	if ( global_turn == 5-1 && mytrack_vol == 1 ) { Npass_Nturns[0][1]++; pass_5turns = true; }
-      }
-      else if ( global_turn >= 8-1 && global_turn <= 12-1 ) {
-	Npass_Nturns[1][0]++;
-	FillRingTracker(7, 0, xe, rhat, vhat, prhat, pvhat, mom, pol_azimuth, pol_radial, pol_vertical);
-	if ( global_turn == 10-1 && mytrack_vol == 1 ) { Npass_Nturns[1][1]++; pass_10turns = true; }
-      }
-      else if ( global_turn >= 48-1 && global_turn <= 52-1 ) {
-	Npass_Nturns[2][0]++;
-	FillRingTracker(8, 0, xe, rhat, vhat, prhat, pvhat, mom, pol_azimuth, pol_radial, pol_vertical);
-	if ( global_turn == 50-1 && mytrack_vol == 1 ) { Npass_Nturns[2][1]++; pass_50turns = true; }
-      }
-      else if ( global_turn >= 98-1 && global_turn <= 102-1 ) {
-	Npass_Nturns[3][0]++;
-	FillRingTracker(9, 0, xe, rhat, vhat, prhat, pvhat, mom, pol_azimuth, pol_radial, pol_vertical);
-	if ( global_turn == 100-1 && mytrack_vol == 1 ) { Npass_Nturns[3][1]++; pass_100turns = true; }
-      }
-      
-      if ( global_turn >= maxturnsreal_ - 5 - 1 ) {
-	Npass_finalavg++;
-	FillRingTracker(5, 0, xe, rhat, vhat, prhat, pvhat, mom, pol_azimuth, pol_radial, pol_vertical);
-	if ( SaveVRingHits_ == true ) {	
-	  h_RingTracker_Time_dNdXe->Fill(xe);
-	  h_RingTracker_Time_dNdX->Fill(rhat);
-	  h_RingTracker_Time_dNdXprime->Fill(1000*prhat);
-	  h_RingTracker_Time_d2NdXprimeX->Fill(rhat, 1000*prhat);
-	  h_RingTracker_Time_dNdY->Fill(vhat);
-	  h_RingTracker_Time_dNdYprime->Fill(1000*pvhat);
-	  h_RingTracker_Time_d2NdYprimeY->Fill(vhat, 1000*pvhat);
-	  h_RingTracker_Time_d2NdXY->Fill(rhat, vhat);
-	  h_RingTracker_Time_d2NdXprimeYprime->Fill(1000*prhat, 1000*pvhat);
+      if ( track_ID == 1 ) {      
+	if ( t0 <= 0.0 ) { 
+	  SetInitial(&t0, &mytrack, &t1, &theta1, &prhat_init, &pvhat_init, &xe_init, &rhat_init, &vhat_init, &pmom_init, &pol_init, 
+		     time, theta, prhat, pvhat, xe, rhat, vhat, mom, pol_azimuth);
 	}
       }
+    
+      if ( mytrack >= 12 ) { myturn++; mytrack = 0; }      
+
+      t1 = time;
+      theta1 = theta;
+
+    
+      if ( debug_ ) { cout << "Made it past the track/turn definitions for turn/track: " << global_turn << " , " << pmytrack_vol << "." << endl; }
+    
+
+    
+      //--------------------
+      // Check Initial Slope
+      //
+      // --
+      //  --
+      //    --    r - r0 = m(deg - deg0)
+      //     --
+      //       --
+      //
+      // deg(@r=0) = - r0/m + deg0
+      //--------------------
+      if ( SaveVRingHits_ ) {
+	double degree = 360 * theta / TMath::TwoPi();
+	if ( track_ID == 1 ) {
+	  if ( global_turn == 0 && degree_at_quad < 0 ) {	
+	    //cout << degree << "\t" << rhat << endl;
+	    if ( rhat < 50 && previous_rhat >= 50 ) {
+	      degree_at_quad = ComputeQuadIntAngle(rhat, previous_rhat, degree, previous_degree);
+	      if ( fill ) { h_RingTracker_DegreeAtQuad[0]->Fill(degree_at_quad); }	  
+	    }
+	  }
+    
+	  if ( global_turn == 0 && degree_at_r0 < 0 ) {
+	    if ( fill ) {
+	      h_RingTracker_FirstTurnX[0]->Fill(degree, rhat);
+	      h_RingTracker_FirstTurnY[0]->Fill(degree, vhat);
+	    }
+	    if ( rhat < 0 && previous_rhat >= 0 ) {
+	      degree_r_at_r0 = ComputeRmagicIntAngle(rhat, previous_rhat, degree, previous_degree);
+	      Ndegat0 += degree_r_at_r0;
+	
+	      if ( degree_r_at_r0 > 75.2 && degree_r_at_r0 < 89.3 ) { Ninside_midkicker++; }
+	      else if ( degree_r_at_r0 > 60.3 && degree_r_at_r0 < 104.3 ) { Ninside_allkicker++; }
+	      else { Noutside_kickers++; }
+	
+	      kick_at_r0 = ComputeKickAtRmagicInt(prhat, previous_prhat, degree, previous_degree, degree_r_at_r0);
+	      Nxpat0 += kick_at_r0;
+	
+	      if ( fill ) { FillKickDegree(0, degree_at_r0, kick_at_r0, mom); }
+	    }
+	  }
+	}
+
+	      
+	previous_rhat = rhat;
+	previous_prhat = prhat;
+	previous_degree = degree;
+      }
+	      
+    
+      if ( debug_ ) { cout << "Made it past the kick/angle definitions." << endl; }
+
+
+      if ( track_ID == 1 ) {
+	if ( fill ) {
+	  //cout << "Polarization [" << mytrack << "/" << global_turn << "]: " << endl;
+	  //cout << "\t" << polx << "\t" << poly << "\t" << polz << endl;
+	  //cout << "\t" << pol_azimuth << "\t" << pol_radial << "\t" << pol_vertical << endl;
+
+	  if ( global_turn == 0 && mytrack_vol == 0 ) {	  
+	    FillRingTracker(0, 0, xe, rhat, vhat, prhat, pvhat, mom, pol_azimuth, pol_radial, pol_vertical);
+	  }
       
-      //cout << global_turn << "\t" << maxturnsreal_ << "\t" << pass_final << endl;
-      if ( global_turn >= maxturnsreal_ - 1 ) {
-	if ( pass_final == false ) {
-	  pass_final = true;
-	  Npass_final++;
-	  FillRingTracker(4, 0, xe, rhat, vhat, prhat, pvhat, mom, pol_azimuth, pol_radial, pol_vertical);	  
+	  if ( global_turn >= maxturnsreal_ - 30 - 1 ) {
+	    Npass_finalavg++;
+	    FillRingTracker(2, 0, xe, rhat, vhat, prhat, pvhat, mom, pol_azimuth, pol_radial, pol_vertical);
+	    if ( SaveVRingHits_ == true ) {	
+	      h_RingTracker_Time_dNdXe->Fill(xe);
+	      h_RingTracker_Time_dNdX->Fill(rhat);
+	      h_RingTracker_Time_dNdXprime->Fill(1000*prhat);
+	      h_RingTracker_Time_d2NdXprimeX->Fill(rhat, 1000*prhat);
+	      h_RingTracker_Time_dNdY->Fill(vhat);
+	      h_RingTracker_Time_dNdYprime->Fill(1000*pvhat);
+	      h_RingTracker_Time_d2NdYprimeY->Fill(vhat, 1000*pvhat);
+	      h_RingTracker_Time_d2NdXY->Fill(rhat, vhat);
+	      h_RingTracker_Time_d2NdXprimeYprime->Fill(1000*prhat, 1000*pvhat);
+	    }
+	  }
+      
+	  //cout << global_turn << "\t" << maxturnsreal_ << "\t" << pass_final << endl;
+	  if ( global_turn >= maxturnsreal_ - 1 ) {
+	    if ( pass_final == false ) {
+	      pass_final = true;
+	      Npass_final++;
+	      FillRingTracker(1, 0, xe, rhat, vhat, prhat, pvhat, mom, pol_azimuth, pol_radial, pol_vertical);	  
+	    }
+	  }
+	}
+    
+	if ( pass_final ) {
+	  if ( fill ) { FillKickDegree(1, degree_at_r0, kick_at_r0, mom); }
 	}
       }
-      
-      if ( time > 5e3 ) {
-	pass_5us = true;
-	FillRingTracker(1, 0, xe, rhat, vhat, prhat, pvhat, mom, pol_azimuth, pol_radial, pol_vertical);	  
+
+    
+      if ( debug_ ) { cout << "Made it past the stored fills." << endl; }
+    
+
+
+      if ( track_ID == 1 && mytrack_vol == 0 && global_turn == 0 ) { Nstart_ring++; }
+      if ( track_ID == 1 && mytrack_vol == 0 && global_turn == 1 ) { Nstored1_ring++; }
+      if ( track_ID == 1 && mytrack_vol == 0 && global_turn == 10 ) { Nstored10_ring++; }
+      if ( track_ID == 1 && mytrack_vol == 0 && global_turn == 100-1 ) { Nstored100_ring++; }
 	
-	if ( time > 2e4 ) {
-	  pass_20us = true;
-	  FillRingTracker(2, 0, xe, rhat, vhat, prhat, pvhat, mom, pol_azimuth, pol_radial, pol_vertical);	  
+      if ( track_ID == 1 && mytrack_vol == 0 ) {
+	int stored_val = -1;
+	if ( global_turn == 0 )   { stored_val = 0; }
+	if ( global_turn == 1 )   { stored_val = 1; }
+	if ( global_turn == 2 )   { stored_val = 2; }
+	if ( global_turn == 5 )   { stored_val = 3; }
+	if ( global_turn == 10-1 )  { stored_val = 4; }
+	if ( global_turn == 50-1 ) { stored_val = 5; }
+	if ( global_turn == 100-1 ) { stored_val = 6; }
+	if ( global_turn == 200-1 ) { stored_val = 7; }
+	if ( global_turn == 500-1 ) { stored_val = 8; }
+	if ( global_turn == 1000-1 ) { stored_val = 9; }
+	if ( global_turn == 2000-1 ) { stored_val = 10; }
+	//cout << stored_val << endl;
 	  
-	  if ( time > 5e4 ) {
-	    pass_50us = true;
-	    FillRingTracker(3, 0, xe, rhat, vhat, prhat, pvhat, mom, pol_azimuth, pol_radial, pol_vertical);	  
+	if ( stored_val > -1 ) {
+	  if ( fill ) { 
+	    FillRingTracker(stored_val, 1, xe_init, rhat_init, vhat_init, prhat_init, pvhat_init, pmom_init, pol_azimuth, pol_radial, pol_vertical);	  
+	  }	    
+	}
+      }
+
+    
+      if ( debug_ ) { cout << "Made it past all of the stored fills." << endl; }
+    
+
+
+      if ( track_ID == 1 && global_turn == 0 ) {
+	if ( mom_init < 0 ) { 
+	  mom_init = momentum;
+	}
+	station = -1;
+
+	if ( global_turn == 0 ) {
+	  if ( mytrack >= 1 && mytrack <= 7 ) { station = mytrack - 1; }
+	  if ( mytrack_vol == 10 ) { station = 7; }
+	}
+	else if ( global_turn == 1 ) {
+	  if ( mytrack_vol == 0 ) { station = 8; }
+	}
+	
+	if ( station >= 0 ) {
+	  if ( fill ) { 
+	    if ( station < Nringtrackers ) {
+	      FillTimeRingTracker(station, xe, rhat, vhat, prhat, pvhat, mom, pol_azimuth, pol_radial, pol_vertical);	  
+	    }
 	  }
 	}
       }
-    }
-    
-    if ( pass_final ) {
-      if ( fill ) { FillKickDegree(1, degree_at_r0, kick_at_r0, mom); }
-    }
-    }
-
-    
-    if ( debug_ ) { cout << "Made it past the stored fills." << endl; }
-    
 
 
-    if ( track_ID == 1 && mytrack_vol == 1 && global_turn == 0 ) { Nstart_ring++; }
-    if ( track_ID == 1 && mytrack_vol == 1 && global_turn == 1 ) { Nstored1_ring++; }
-    if ( track_ID == 1 && mytrack_vol == 1 && global_turn == 10 ) { Nstored10_ring++; }
-    if ( track_ID == 1 && mytrack_vol == 1 && global_turn == 100-1 ) { Nstored100_ring++; }
-	
-    if ( track_ID == 1 && mytrack_vol == 1 ) {
-      int stored_val = -1;
-      if ( global_turn == 0 )   { stored_val = 0; }
-      if ( global_turn == 1 )   { stored_val = 1; }
-      if ( global_turn == 2 )   { stored_val = 2; }
-      if ( global_turn == 5 )   { stored_val = 3; }
-      if ( global_turn == 10-1 )  { stored_val = 4; }
-      if ( global_turn == 50-1 ) { stored_val = 5; }
-      if ( global_turn == 100-1 ) { stored_val = 6; }
-      if ( global_turn == 200-1 ) { stored_val = 7; }
-      if ( global_turn == 500-1 ) { stored_val = 8; }
-      if ( global_turn == 1000-1 ) { stored_val = 9; }
-      if ( global_turn == 2000-1 ) { stored_val = 10; }
-      //cout << stored_val << endl;
-	  
-      if ( stored_val > -1 ) {
-	if ( fill ) { 
-	  FillRingTracker(stored_val, 1, xe_init, rhat_init, vhat_init, prhat_init, pvhat_init, pmom_init, pol_azimuth, pol_radial, pol_vertical);	  
-	}	    
-      }
-    }
-
-    
-    if ( debug_ ) { cout << "Made it past all of the stored fills." << endl; }
-    
-
-
-    if ( track_ID == 1 && global_turn == 0 ) {
-      if ( mom_init < 0 ) { 
-	mom_init = momentum;
-      }
-      station = -1;
-
-      if ( global_turn == 0 ) {
-	if ( mytrack >= 1 && mytrack <= 7 ) { station = mytrack - 1; }
-	if ( mytrack_vol == 10 ) { station = 7; }
-      }
-      else if ( global_turn == 1 ) {
-	if ( mytrack_vol == 1 ) { station = 8; }
-      }
-	
-      if ( station >= 0 ) {
-	if ( fill ) { 
-	  if ( station < Nringtrackers ) {
-	    FillTimeRingTracker(station, xe, rhat, vhat, prhat, pvhat, mom, pol_azimuth, pol_radial, pol_vertical);	  
-	  }
-	}
-      }
-    }
-
-
-    if ( debug_ ) { cout << "Made it past the 1st turn fills." << endl; }
+      if ( debug_ ) { cout << "Made it past the 1st turn fills." << endl; }
    
 
 
-    double dT = global_turn + theta/TMath::TwoPi();
-    if ( fill ) {
-      //if ( track_ID == 1 ) { G4cout << "Trk: " << pdgid << "\t" << track_ID << "\t" << dT << "\t" << mytrack << "\t" << track_volname << G4endl; }
-      //if ( pdgid > -13 && pdgid < 13 ) { G4cout << "Trk-e: " << pdgid << "\t" << track_ID << "\t" << dT << "\t" << mytrack_vol << "\t" << track_volname << G4endl; }
-      FillTurnTime(dT, mytrack_vol, track_ID, time, xe, rhat, y, prhat, pvhat, mom, pol_azimuth, pol_radial, pol_vertical, e);
-    }
+      double dT = global_turn + theta/TMath::TwoPi();
+      //cout << global_turn << "\t" << dT << "\t" << theta << endl;
+      if ( fill ) {
+	//if ( track_ID == 1 ) { G4cout << "Trk: " << pdgid << "\t" << track_ID << "\t" << dT << "\t" << mytrack << "\t" << track_volname << G4endl; }
+	//if ( pdgid > -13 && pdgid < 13 ) { G4cout << "Trk-e: " << pdgid << "\t" << track_ID << "\t" << dT << "\t" << mytrack_vol << "\t" << track_volname << G4endl; }
+	FillTurnTime(dT, mytrack_vol, track_ID, time, xe, rhat, y, prhat, pvhat, mom, pol_azimuth, pol_radial, pol_vertical, e);
+      }
 
 
-    if ( debug_ ) { cout << "Made it past the time/turn fills." << endl; }
+      if ( debug_ ) { cout << "Made it past the time/turn fills." << endl; }
     
 
-  } // loop over ring tracker hits
+    } // loop over ring tracker hits
   } // if ( SaveVRingHits_ )
 
 
@@ -2606,95 +2627,86 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
   for ( int rh = 0; rh < 30; rh++ ) { numringhits[rh] = 0; }
 
   if ( SaveRingHits_ ) {
-  for ( unsigned int i = 0; i < ringhits.size(); ++i ) {
-    RingArtRecord ringhit = ringhits[i];
     //for ( auto ringhit : ringhits) {
-    int ringtrackID   = ringhit.trackID;
-    int ringvolumeUID = ringhit.volumeUID;    
-    double rhat = ringhit.rhat;
-    double vhat = ringhit.vhat;
-    double ringtheta = ringhit.theta;
-    double x_ring = (rhat+7112) * cos(ringtheta);
-    double z_ring = (rhat+7112) * sin(ringtheta);    
-    double ringtime = ringhit.time;
-    double deltaE = -1*ringhit.deltaE;
-    if ( deltaE <= 0.0 ) { deltaE = 1e-10; }
-    double deltaPrhat = ringhit.deltaPrhat;
-    double deltaPvhat = ringhit.deltaPvhat;
+    for ( unsigned int i = 0; i < ringhits.size(); ++i ) {
+      RingArtRecord ringhit = ringhits[i];
+      //for ( auto ringhit : ringhits) {
+      int ringtrackID   = ringhit.trackID;
+      int ringvolumeUID = ringhit.volumeUID;    
+      double rhat = ringhit.rhat;
+      double vhat = ringhit.vhat;
+      double ringtheta = ringhit.theta;
+      double x_ring = (rhat+7112) * cos(ringtheta);
+      double z_ring = (rhat+7112) * sin(ringtheta);    
+      double ringtime = ringhit.time;
+      double deltaE = 1.0;
+      ///double deltaE = -1*ringhit.deltaE;
+      if ( deltaE <= 0.0 ) { deltaE = 1e-10; }
+      //double deltaPrhat = ringhit.deltaPrhat;
+      //double deltaPvhat = ringhit.deltaPvhat;
  
-    string ringname = pvs.stringGivenID(ringvolumeUID);
-    if ( !IsSomething(ringname, kKickerHit) && 
-	 !IsSomething(ringname, kQuadHit) && 
-	 !IsSomething(ringname, kCryostatHit) && 
-	 !IsSomething(ringname, kInflectorHit) && 
-	 !IsSomething(ringname, kVacuumChamberHit) ) {
-      cout << "Time = " << ringtime << "\tVID = " << ringvolumeUID << " \tName = " << pvs.stringGivenID(ringvolumeUID) << endl;
-    }
-    //continue;
+      string ringname = pvs.stringGivenID(ringvolumeUID);
+      //cout << "Time = " << ringtime << "\tVID = " << ringvolumeUID << " \tName = " << pvs.stringGivenID(ringvolumeUID) << endl;
+      //continue;
+//       if ( !IsSomething(ringname, kKickerHit) && 
+// 	   !IsSomething(ringname, kQuadHit) && 
+// 	   !IsSomething(ringname, kCryostatHit) && 
+// 	   !IsSomething(ringname, kInflectorHit) && 
+// 	   !IsSomething(ringname, kVacuumChamberHit) ) {
+// 	cout << "Time = " << ringtime << "\tVID = " << ringvolumeUID << " \tName = " << pvs.stringGivenID(ringvolumeUID) << endl;
+//       }
+      //continue;
 
-    if ( ringtrackID == 1 ) {
-	    
+      if ( ringtrackID != 1 ) { continue; }
 	
-      for ( int system = 0; system < Nsystemtrackers; system++ ) {
-	if ( system == kCaloSystemHit ||
-	     system == kStrawSystemHit ||
-	     system == kXtalSystemHit ) { continue; }
-	if ( IsSomething(ringname, system) ) {
-	  systemhits[system]++;
-	  if ( fill ) { 
-	    for ( int st = 0; st < 2; st++ ) {
-	      //cout << "\t" << system << "\t" << st << "\t" << pass_final << endl;
-	      if ( st == 1 && pass_final == false ) { continue; }
-	      h_SystemHitTracker_XZ[system][st]->Fill(z_ring, x_ring, deltaE);
-	      h_SystemHitTracker_RhoY[system][st]->Fill(rhat, vhat, deltaE);
-	      h_SystemHitTracker_DeltaPy[system][st]->Fill(deltaPvhat);
-	      h_SystemHitTracker_DeltaPx[system][st]->Fill(deltaPrhat);
-	      //cout << system << "\t" << deltaPvhat << endl;
-	      double dT = ringtime/1000;
-	      h_SystemHitTracker_YTime[system][st]->Fill(dT, vhat, deltaE);
-	      h_SystemHitTracker_RhoTime[system][st]->Fill(dT, rhat, deltaE);
-	    }
-	  }
-	}
+      int system = IsSomething(ringname);
+      //cout << system << "\t" << ringname << "\t" << endl;
+      
+      if ( system == -1 || system >= Nsystemtrackers) {
+	cout << "Time = " << ringtime << "\tVID = " << ringvolumeUID << " \tName = " << pvs.stringGivenID(ringvolumeUID) << endl;
+	continue;
       }
 
+      systemhits[system]++;
+      if ( fill ) { 
+	for ( int st = 0; st < 2; st++ ) {
+	  //cout << "\t" << system << "\t" << st << "\t" << pass_final << endl;
+	  if ( st == 1 && pass_final == false ) { continue; }
+	  h_SystemHitTracker_XZ[system][st]->Fill(z_ring, x_ring, deltaE);
+	  h_SystemHitTracker_RhatY[system][st]->Fill(rhat, vhat, deltaE);
+	  double dT = ringtime/1000;
+	  h_SystemHitTracker_YTime[system][st]->Fill(dT, vhat, deltaE);
+	  h_SystemHitTracker_RhatTime[system][st]->Fill(dT, rhat, deltaE);
+	}
 
+	system = kAllSystemsHit;
+	for ( int st = 0; st < 2; st++ ) {
+	  if ( st == 1 && pass_final == false ) { continue; }
+	  h_SystemHitTracker_XZ[system][st]->Fill(z_ring, x_ring, deltaE);
+	  h_SystemHitTracker_RhatY[system][st]->Fill(rhat, vhat, deltaE);
+	  double dT = ringtime/1000;
+	  h_SystemHitTracker_YTime[system][st]->Fill(dT, vhat, deltaE);
+	  h_SystemHitTracker_RhatTime[system][st]->Fill(dT, rhat, deltaE);
+	}
 
-      //       for ( int ringhitnum = 0; ringhitnum < Nringhits; ringhitnum++ ) {
-      // 	if ( IsSomething(ringname, ringhitnum ) {
-      // 	  numringhits[ringhit]++;
-      // 	  if ( fill ) { 
-      // 	    for ( int st = 0; st < 2; st++ ) {
-      // 	      //cout << "\t" << ringhit << "\t" << st << "\t" << pass_final << endl;
-      // 	      if ( st == 1 && pass_final == false ) { continue; }		    
-      // 	      h_RingHitTracker_XZ[ringhit][st]->Fill(z_ring, x_ring, deltaE);
-      // 	      h_RingHitTracker_RhoY[ringhit][st]->Fill(rhat, vhat, deltaE);
-      // 	      h_RingHitTracker_DeltaPy[ringhit][st]->Fill(deltaPvhat);
-      // 	      h_RingHitTracker_DeltaPx[ringhit][st]->Fill(deltaPrhat);
-      // 	      //if ( st == 0 ) {cout << inames[ringhit] << "\t" << deltaPvhat << "\t" << deltaPrhat << endl;}
-      // 	      double dT = ringtime/1000;
-      // 	      h_RingHitTracker_YTime[ringhit][st]->Fill(dT, vhat, deltaE);
-      // 	      h_RingHitTracker_RhoTime[ringhit][st]->Fill(dT, rhat, deltaE);
-      // 	    }
-      // 	  }
-      // 	}
-      //       }
+      }
+
+      continue;
     }
-  }
 
-  for ( int system = 0; system < Nsystemtrackers; system++ ) {
-    for ( int st = 0; st < 2; st++ ) {
-      if ( st == 1 && pass_final == false ) { continue; }
-      h_SystemHitTracker_Nhits[system][st]->Fill(systemhits[system]);
+    for ( int system = 0; system < Nsystemtrackers; system++ ) {
+      for ( int st = 0; st < 2; st++ ) {
+	if ( st == 1 && pass_final == false ) { continue; }
+	h_SystemHitTracker_Nhits[system][st]->Fill(systemhits[system]);
+      }
     }
-  }
 
-  for ( int rhit = 0; rhit < Nringhits; rhit++ ) {
-    for ( int st = 0; st < 2; st++ ) {
-      if ( st == 1 && pass_final == false ) { continue; }
-      h_RingHitTracker_Nhits[rhit][st]->Fill(numringhits[rhit]);
+    for ( int rhit = 0; rhit < Nringhits; rhit++ ) {
+      for ( int st = 0; st < 2; st++ ) {
+	if ( st == 1 && pass_final == false ) { continue; }
+	h_RingHitTracker_Nhits[rhit][st]->Fill(numringhits[rhit]);
+      }
     }
-  }
   }
 
   if ( debug_ ) { cout << "Made it past the ring hits." << endl; }
@@ -2708,206 +2720,275 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
   //-------------------
   //double x_gen, y_gen, xprime_gen, yprime_gen;
 
-  TLorentzVector mu, el, nu_mu, nu_el, mu_decay;
+  TLorentzVector mu, el, nu_mu, nu_el, mu_decay, el_detector, mu_lost, mu_store;
   TVector3 mu_pol, el_pol, mu_boost;
+  //double CosTheta = -99.9;
   if ( SaveTruthHits_ ) {
-  for ( auto htruthdata : truthhits) {  
 
-    std::string trackType = htruthdata.trackType;
-    int trackID = htruthdata.trackID;
-    //int parentTrackID = htruthdata.parentTrackID;
-    int turn = htruthdata.turn;
-    //int volumeUID = htruthdata.volumeUID;
-    int status = htruthdata.status;
-    double rhat = htruthdata.rhat;
-    double vhat = htruthdata.vhat;
-    double theta = htruthdata.theta;
-    double time = htruthdata.time;
-    double p = htruthdata.p;
-    double e = htruthdata.e;
-    double prhat = htruthdata.prhat;
-    double pvhat = htruthdata.pvhat;
-    double t0 = time;
-    double polx_pre = htruthdata.polx;
-    double poly_pre = htruthdata.poly;
-    double polz_pre = htruthdata.polz;
-    //double xprime = prhat;
-    //double yprime = pvhat;
-    //double x_ring;
-    //double y_ring;
-    //double z_ring;
-    double py = pvhat * p;
-    double px = prhat * p;
-    double pz = TMath::Sqrt(p*p - px*px - py*py);
-    double y = vhat;
-    double x = (rhat + 7112) * TMath::Cos(theta);
-    double z = (rhat + 7112) * TMath::Sin(theta);
-    double r = rhat + 7112;
-    double xe_truth = ComputeXe(p, 0.137);
+    //TrackingActionArtRecordCollection const & truthhits = *truthhitDataHandle;
+    //TrackingActionArtRecordCollection const & truthfinishedhits = *truthfinishedhitDataHandle;
+    TrackingActionArtRecordCollection thits;
+    double t0 = 0.0;
 
-    int part = -1;
-    
-    if ( trackType == "pi+" || trackType == "pi-" ) { part = 0; }
-    else if ( trackType == "mu+" || trackType == "mu-" ) { part = 0; }
-    else if ( trackType == "proton" ) { part = 0; }
-    else if ( trackType == "e+" || trackType == "e-" ) { part = 1; }
-    else { part = 2; }
-
-    if ( trackType == "mu+" || trackType == "mu-" ) { mu.SetPxPyPzE(px, py, pz, e); }
-    if ( trackType == "e+" || trackType == "e-" ) { el.SetPxPyPzE(px, py, pz, e); }
-    if ( trackType == "anti_nu_mu" || trackType == "nu_mu" ) { nu_mu.SetPxPyPzE(px, py, pz, e); }
-    if ( trackType == "anti_nu_e" || trackType == "nu_e" ) { nu_el.SetPxPyPzE(px, py, pz, e); }
-    
-
-
-    if ( part == 2 ) { continue; }
-    //G4cout << trackType << "\t" << part << G4endl;
-    
-    if ( part == -1 ) { continue; }
-
-    TVector3 pol_pre(polx_pre, poly_pre, polz_pre);
-    double polx = pol_pre.Dot(xAxis);      
-    double poly = pol_pre.Dot(yAxis);
-    double polz = pol_pre.Dot(zAxis);
-    if ( part == 0 ) {
-      if ( status == 1 ) {
-	if ( trackType == "mu+" || trackType == "mu-" ) { 
-	  mu_pol.SetXYZ(polx, poly, polz);
-	  mu_decay.SetPxPyPzE(px, py, pz, e);
-	}
-	if ( trackType == "e+" || trackType == "e-" )   {
-	  el_pol.SetXYZ(polx, poly, polz);
-	}
+    int Npart[5] = {0, 0, 0, 0, 0};
+    //cout << endl;
+    for ( int i = 0; i < 2; i++ ) {
+      if ( i == 0 ) {
+	thits = *truthhitDataHandle;
       }
-    }
+      else {
+	thits = *truthfinishedhitDataHandle;
+      }
+      //cout << i << "\t" << thits.size() << endl;
 
-    if ( status == 1 ) { continue; }
+      //for ( auto htruthdata : truthhits) { 
+      for ( auto htruthdata : thits) {  
+	//cout << "i = " << i << endl;
+	std::string trackType = htruthdata.trackType;
+	//int trackID = htruthdata.trackID;
+	//int parentTrackID = htruthdata.parentTrackID;
+	int turn = htruthdata.turn;
+	//int volumeUID = htruthdata.volumeUID;
+	int status = htruthdata.status;
+	double rhat = htruthdata.rhat;
+	double vhat = htruthdata.vhat;
+	double theta = htruthdata.theta;
+	double time = htruthdata.time;
+	double p = htruthdata.p;
+	double e = htruthdata.e;
+	double prhat = htruthdata.prhat;
+	double pvhat = htruthdata.pvhat;
+	double polx_pre = htruthdata.polx;
+	double poly_pre = htruthdata.poly;
+	double polz_pre = htruthdata.polz;
+	//double xprime = prhat;
+	//double yprime = pvhat;
+	//double x_ring;
+	//double y_ring;
+	//double z_ring;
+	double py = pvhat * p;
+	double px = prhat * p;
+	double pz = TMath::Sqrt(p*p - px*px - py*py);
+	double y = vhat;
+	double x = (rhat + 7112) * TMath::Cos(theta);
+	double z = (rhat + 7112) * TMath::Sin(theta);
+	double r = rhat + 7112;
+	int pdgid = 0;
+	double xe_truth = ComputeXe(p, 0.137);
+	double Polarization = -99.9;
+
+
+	TVector3 pol_pre(polx_pre, poly_pre, polz_pre);
+	double polx = pol_pre.Dot(xAxis);      
+	double poly = pol_pre.Dot(yAxis);
+	double polz = pol_pre.Dot(zAxis);    
+	double pol_azimuth_truth, pol_radial_truth, pol_vertical_truth;
+	ComputePolarization(&pol_azimuth_truth, &pol_radial_truth, &pol_vertical_truth, polx, poly, polz);
+
+
+	if ( trackType == "mu+" ) { pdgid = -13; }
+	if ( trackType == "e+" ) { pdgid = -11; }
+	if ( trackType == "mu-" ) { pdgid = 13; }
+	if ( trackType == "e-" ) { pdgid = 11; }
+
+
+	//cout << "i = " << i << "\t" << trackType << "\t" << time << "\t" << pdgid << "\t" << status << endl;
+
+	int part = -1;
     
-    double pol_azimuth_truth, pol_radial_truth, pol_vertical_truth;
-    ComputePolarization(&pol_azimuth_truth, &pol_radial_truth, &pol_vertical_truth, polx, poly, polz);
+	if ( trackType == "pi+" || trackType == "pi-" ) { part = 0; }
+	else if ( trackType == "mu+" || trackType == "mu-" ) { part = 0; }
+	else if ( trackType == "proton" ) { part = 0; }
+	else if ( trackType == "e+" || trackType == "e-" ) { part = 1; }
+	else { part = 2; }
+    
+	if ( status == gm2ringsim::kBirth ) {
+	  if ( trackType == "mu+" || trackType == "mu-" ) { 
+	    mu.SetPxPyPzE(px, py, pz, e);
+	    t0 = time;
+	  }
+	  if ( trackType == "e+" || trackType == "e-" ) { el.SetPxPyPzE(px, py, pz, e); }
+	  if ( trackType == "anti_nu_mu" || trackType == "nu_mu" ) { nu_mu.SetPxPyPzE(px, py, pz, e); }
+	  if ( trackType == "anti_nu_e" || trackType == "nu_e" ) { nu_el.SetPxPyPzE(px, py, pz, e); }
+	}
 
-    if ( part == 1 && 0 ) {
-      cout << "Polarization: " << endl;
-      cout << "\t" << polx_pre << "\t" << poly_pre << "\t" << polz_pre << endl;
-      cout << "\t" << polx << "\t" << poly << "\t" << polz << endl;
-      cout << "\t" << pol_azimuth_truth << "\t" << pol_radial_truth << "\t" << pol_vertical_truth << endl;
-    }
-    //continue;
+	if ( status == gm2ringsim::kStore ) {
+	  if ( pdgid == 13 || pdgid == -13 ) {
+	    mu_store.SetPxPyPzE(px, py, pz, e);
+	  }
+	}
+	if ( status == gm2ringsim::kLost ) {
+	  if ( pdgid == 13 || pdgid == -13 ) {
+	    mu_lost.SetPxPyPzE(px, py, pz, e);
+	  }
+	}
+
+	if ( status == gm2ringsim::kDecay ) {
+	  if ( pdgid == 13 || pdgid == -13 ) {
+	    mu_pol.SetXYZ(pol_radial_truth, pol_vertical_truth, pol_azimuth_truth);
+	    mu_decay.SetPxPyPzE(px, py, pz, e);
+	  }
+	  if ( pdgid == 11 || pdgid == -11 ) {
+	    el_detector.SetPxPyPzE(px, py, pz, e);
+	    el_pol.SetXYZ(px, py, pz);
+	    
+// 	    cout << "Muon Polarization: " << mu_pol.X() << "\t" << mu_pol.Y() << "\t" << mu_pol.Z() << endl;
+// 	    cout << "Electron Momentum: " << el_pol.X() << "\t" << el_pol.Y() << "\t" << el_pol.Z() << endl;
+// 	    cout << "S-dot-P:           " << el_pol.Dot(mu_pol)/el_pol.Mag() << endl;
+	    Polarization = el_pol.Dot(mu_pol)/el_pol.Mag();
+	  }
+	}
+
+	if ( status == gm2ringsim::kBirth ) {
+	  if ( pdgid == 11 || pdgid == -11 ) {
+	    el_pol.SetXYZ(px, py, pz);
+	    
+// 	    cout << "Muon Polarization: " << mu_pol.X() << "\t" << mu_pol.Y() << "\t" << mu_pol.Z() << endl;
+// 	    cout << "Electron Momentum: " << el_pol.X() << "\t" << el_pol.Y() << "\t" << el_pol.Z() << endl;
+// 	    cout << "S-dot-P:           " << el_pol.Dot(mu_pol)/el_pol.Mag() << endl;
+	    Polarization = el_pol.Dot(mu_pol)/el_pol.Mag();
+	  }
+	}
+	  
+	
+
+	if ( part == 1 && 0 ) {
+	  cout << "Polarization: " << endl;
+	  cout << "\t" << polx_pre << "\t" << poly_pre << "\t" << polz_pre << endl;
+	  cout << "\t" << polx << "\t" << poly << "\t" << polz << endl;
+	  cout << "\t" << pol_azimuth_truth << "\t" << pol_radial_truth << "\t" << pol_vertical_truth << endl;
+	}
+	//continue;
       
     
-    TVector3 truthmom(px, py, pz);
-    double x_truth = x - beamStart_.X();
-    double y_truth = y - beamStart_.Y();
-    double z_truth = z - beamStart_.Z();
-    double r_truth = TMath::Sqrt(x_truth*x_truth + z_truth*z_truth);
-    double rhat_truth = r_truth;
-    double xprime_truth = truthmom.Dot(xAxis)/truthmom.Mag();
-    double yprime_truth = truthmom.Dot(yAxis)/truthmom.Mag();	  
-    double zprime_truth = truthmom.Dot(zAxis)/truthmom.Mag();
-    double rprime_truth = TMath::Sqrt(xprime_truth*xprime_truth + zprime_truth*zprime_truth);
+	TVector3 truthmom(px, py, pz);
+	double x_truth = x - beamStart_.X();
+	double y_truth = y - beamStart_.Y();
+	double z_truth = z - beamStart_.Z();
+	double r_truth = TMath::Sqrt(x_truth*x_truth + z_truth*z_truth);
+	double rhat_truth = r_truth;
+	double xprime_truth = truthmom.Dot(xAxis)/truthmom.Mag();
+	double yprime_truth = truthmom.Dot(yAxis)/truthmom.Mag();
+	double zprime_truth = truthmom.Dot(zAxis)/truthmom.Mag();
+	double rprime_truth = TMath::Sqrt(xprime_truth*xprime_truth + zprime_truth*zprime_truth);
+
+	
+    
+	rhat_truth = rhat;
+	rprime_truth = prhat;
+	y_truth = y;
+	x_truth = x;
+	z_truth = z;
+	
+	
+	
+	if ( part == 1 && 0 ) {
+	  G4cout << "\tRhat = " << rhat << "\tRt = " << rhat_truth << "\tR = " << r << "\t" << y << "\t" << y_truth << "\t" << rprime_truth << "\t" << yprime_truth << G4endl;
+	}
 
 
-    if ( part == 1 || part == 0 ) {
-      rhat_truth = rhat;
-      rprime_truth = prhat;
-      y_truth = y;
-      x_truth = x;
-      z_truth = z;
+	//     x_gen = x_truth;
+	//     y_gen = y_gen;
+	//     xprime_gen = xprime_truth;
+	//     yprime_gen = yprime_truth;
+    
+	//     double rhat_offset = 274.3;
+	//     rhat -= rhat_offset;
+    
+	//     double vhat_offset = 0;
+	//     vhat -= vhat_offset;
+    
+	if ( fill ) { 
+	  for ( int mytime = 0; mytime < Ntruthtimes; mytime++ ) {
+	    //if ( mytime == 5 ) { cout << "pass_final = " << pass_final << endl; }
+
+	    if ( mytime == 1 && pass_final == false ) { continue; }
+	    if ( mytime == 2 && pass_final == false ) { continue; }
+
+	    FillTruthTracker(mytime, status, pdgid, xe_truth, rhat_truth, y_truth, rprime_truth, yprime_truth, p, x, z, t0, pol_azimuth_truth, pol_radial_truth, pol_radial_truth, py, Polarization);
+	  }
+	}
+    
+	int counter = -1;
+	if ( theta > 0 && theta <= TMath::TwoPi()/12.0 ) {
+	  counter = 0;
+	}
+
+
+	int particle = -1;
+	if ( pdgid == 13 || pdgid == -13 ) {
+	  if ( status == gm2ringsim::kBirth ) { particle = 0; }
+	  if ( status == gm2ringsim::kDecay ) { particle = 1; }
+	  if ( status == gm2ringsim::kLost )  { particle = 2; }
+	}
+	if ( pdgid == 11 || pdgid == -11 ) {
+	  if ( status == gm2ringsim::kBirth ) { particle = 4; }
+	  if ( status == gm2ringsim::kDecay ) { particle = 3; }
+	}
+	if ( particle > -1 ) { 
+	  Npart[particle]++;
+	}
+  
+
+	turn = (int)(time-t0)/(149*ns);
+	double dT = turn + theta/TMath::TwoPi();
+	//if ( status == gm2ringsim::kDecay ) {
+	//cout << i << "\t" << status << "\tTurn = " << turn << "\t" << time << "\t" << t0 << "\t" << dT << endl;
+	//}
+	if ( fill ) {
+	  //if ( track_ID == 1 ) { G4cout << "Trk: " << pdgid << "\t" << track_ID << "\t" << dT << "\t" << mytrack << "\t" << track_volname << G4endl; }
+	  //if ( pdgid > -13 && pdgid < 13 ) { G4cout << "Trk-e: " << pdgid << "\t" << track_ID << "\t" << dT << "\t" << mytrack_vol << "\t" << track_volname << G4endl; }
+	  FillTruthTurnTime(dT, counter, status, pdgid, time, xe_truth, rhat_truth, y_truth, rprime_truth, yprime_truth, p, pol_azimuth_truth, pol_radial_truth, pol_vertical_truth, e);
+	}
+      } // loop over G4 track
     }
+  
+    if ( mu.Pt() > 0 && el.Pt() > 0 && nu_el.Pt() > 0 && nu_mu.Pt() > 0 && mu_decay.Pt() > 0 && 0 ) {
     
-    
-    if ( part == 1 && 0 ) {
-      G4cout << "\tRhat = " << rhat << "\tRt = " << rhat_truth << "\tR = " << r << "\t" << y << "\t" << y_truth << "\t" << rprime_truth << "\t" << yprime_truth << G4endl;
-    }
+      double Emax = (105.7*105.7 + 0.511*0.511)/(2*105.7);
 
+//       int Nud = 0;
+//       if ( el.Py() < 0 ) { Nud = -1; }
+//       if ( el.Py() > 0 ) { Nud = 1; }
 
-    //     x_gen = x_truth;
-    //     y_gen = y_gen;
-    //     xprime_gen = xprime_truth;
-    //     yprime_gen = yprime_truth;
-    
-//     double rhat_offset = 274.3;
-//     rhat -= rhat_offset;
-    
-//     double vhat_offset = 0;
-//     vhat -= vhat_offset;
-    
-    if ( fill ) { 
+      //cout << "Found all 4 decay products." << G4endl;
+      TLorentzVector mu_comp = el + nu_el + nu_mu;
+      //TVector3 mrf = mu_comp.BoostVector();
+      TVector3 mrf = mu_decay.BoostVector();
+      //cout << mu.M() << "\t" << el.M() << "\t" << nu_el.M() << "\t" << nu_mu.M() << endl;
+      mu_decay.Boost(-mrf);
+      el.Boost(-mrf);
+      //TVector3 el_vec = el.Vect();
+      nu_el.Boost(-mrf);
+      nu_mu.Boost(-mrf);
+      //cout << mu_comp.P() << "\t" << el.P() << "\t" << el.CosTheta() << "\t" << el_vec.Dot(el_pol) << "\t" << endl;
+
+      
+
+      double x = el.E() / Emax;
+      double pol = 1.0;
+      double cosT = 1.0;
+
       for ( int mytime = 0; mytime < Ntruthtimes; mytime++ ) {
 	//if ( mytime == 5 ) { cout << "pass_final = " << pass_final << endl; }
 
-	if ( mytime == 1 && pass_5us == false ) { continue; }
-	if ( mytime == 2 && pass_20us == false ) { continue; }
-	if ( mytime == 3 && pass_50us == false ) { continue; }
-	if ( mytime == 4 && pass_final == false ) { continue; }
-	if ( mytime == 5 && pass_final == false ) { continue; }
-	if ( mytime == 6 && pass_5turns == false ) { continue; }
-	if ( mytime == 7 && pass_10turns == false ) { continue; }
-	if ( mytime == 8 && pass_50turns == false ) { continue; }
-	if ( mytime == 9 && pass_100turns == false ) { continue; }
-
-	FillTruthTracker(mytime, part, xe_truth, rhat_truth, y_truth, rprime_truth, yprime_truth, p, x, z, t0, pol_azimuth_truth, pol_radial_truth, pol_radial_truth);
+	if ( mytime == 1 && pass_final == false ) { continue; }
+	if ( mytime == 2 && pass_final == false ) { continue; }
+      
+	for ( int part = 0; part < Nparticles; part++ ) {
+	  string truth_part_name = truth_particle_names[part];
+	  if ( truth_part_name.find("Electron") ) {
+	    h_G4Tracker_Time_dCosTheta[mytime][part]->Fill(cosT);
+	    h_G4Tracker_Time_dX[mytime][part]->Fill(x);
+	    h_G4Tracker_Time_Polarization[mytime][part]->Fill(pol);
+	    h_G4Tracker_Time_dXdCosTheta[mytime][part]->Fill(x, cosT);
+	  }
+	}
       }
     }
-    
-    int counter = -1;
-    if ( theta > 0 && theta <= TMath::TwoPi()/12.0 ) {
-      counter = 0;
-    }
-    
-    double dT = turn + theta/TMath::TwoPi();
-    if ( fill ) {
-      //if ( track_ID == 1 ) { G4cout << "Trk: " << pdgid << "\t" << track_ID << "\t" << dT << "\t" << mytrack << "\t" << track_volname << G4endl; }
-      //if ( pdgid > -13 && pdgid < 13 ) { G4cout << "Trk-e: " << pdgid << "\t" << track_ID << "\t" << dT << "\t" << mytrack_vol << "\t" << track_volname << G4endl; }
-      FillTruthTurnTime(dT, counter, trackID, time, xe_truth, rhat_truth, y_truth, rprime_truth, yprime_truth, p, pol_azimuth_truth, pol_radial_truth, pol_vertical_truth, e);
-    }
-  } // loop over G4 track
-  
-  if ( mu.Pt() > 0 && el.Pt() > 0 && nu_el.Pt() > 0 && nu_mu.Pt() > 0 && mu_decay.Pt() > 0 ) {
-    
-    double Emax = (105.7*105.7 + 0.511*0.511)/(2*105.7);
-
-    int Nud = 0;
-    if ( el.Py() < 0 ) { Nud = -1; }
-    if ( el.Py() > 0 ) { Nud = 1; }
-
-    //cout << "Found all 4 decay products." << G4endl;
-    TLorentzVector mu_comp = el + nu_el + nu_mu;
-    //TVector3 mrf = mu_comp.BoostVector();
-    TVector3 mrf = mu_decay.BoostVector();
-    //cout << mu.M() << "\t" << el.M() << "\t" << nu_el.M() << "\t" << nu_mu.M() << endl;
-    mu_decay.Boost(-mrf);
-    el.Boost(-mrf);
-    TVector3 el_vec = el.Vect();
-    nu_el.Boost(-mrf);
-    nu_mu.Boost(-mrf);
-    //cout << mu_comp.P() << "\t" << el.P() << "\t" << el.CosTheta() << "\t" << el_vec.Dot(el_pol) << "\t" << endl;
-
-    double x = el.E() / Emax;
-    double pol = el_vec.Dot(mu_pol);
-    double cosT = el.CosTheta();
-
-    for ( int mytime = 0; mytime < Ntruthtimes; mytime++ ) {
-      //if ( mytime == 5 ) { cout << "pass_final = " << pass_final << endl; }
 
 
-      if ( mytime == 2 && pass_20us == false ) { continue; }
-      if ( mytime == 3 && pass_50us == false ) { continue; }
-      if ( mytime == 4 && pass_final == false ) { continue; }
-      if ( mytime == 5 && pass_final == false ) { continue; }
-      if ( mytime == 6 && pass_5turns == false ) { continue; }
-      if ( mytime == 7 && pass_10turns == false ) { continue; }
-      if ( mytime == 8 && pass_50turns == false ) { continue; }
-      if ( mytime == 9 && pass_100turns == false ) { continue; }
-      
-      h_G4Tracker_Time_dCosTheta[mytime][1]->Fill(cosT);
-      h_G4Tracker_Time_dX[mytime][1]->Fill(x);
-      h_G4Tracker_Time_Polarization[mytime][1]->Fill(pol);
-      h_G4Tracker_Time_dXdCosTheta[mytime][1]->Fill(x, cosT);
-      h_G4Tracker_Time_NudAsym[mytime][1]->Fill(Nud);
-    }
   }
-  }  
 
   if ( debug_ ) { cout << "Made it past the truth info." << endl; }
 
