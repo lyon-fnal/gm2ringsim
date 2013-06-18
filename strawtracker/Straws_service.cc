@@ -143,18 +143,14 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Straws::doPlaceToPVs( std::vector<G
         
     int stationIndex = stationNumber % geom_.strawStationSize.size();
     
-    int row = view+layer;
-    if(view == 1){
-      row++;
-    }
+    int plane = geom_.Plane(stationIndex, view, layer);
     
-    x = geom_.x_position_straw0[row] - geom_.strawStationSizeHalf[stationIndex] + geom_.dist_btwn_wires *strawInRow;
+    x = geom_.wirePosition(plane, strawInRow, view) - geom_.strawStationSizeHalf[stationIndex];
+    y = geom_.yPosition(plane);
     
-    if( view == 0 ) x = x + geom_.delta_x;
-    else x = x - geom_.delta_x;
-    y= geom_.y_position[row];
-    
+        
     G4RotationMatrix* yRot = new G4RotationMatrix;
+    
     double rot = geom_.layer_angle;
     if( view == 1 ) rot = -rot;
     yRot -> rotateY(rot);
@@ -164,7 +160,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Straws::doPlaceToPVs( std::vector<G
     double wire_distance_from_scallop = geom_.strawStationLocation[stationNumber] + y;
     
     oss << strawInRow <<", " <<layer<<", "<<view<<", "<<stationNumber<<", "<<wire_distance_from_edge<<", "<<wire_distance_from_scallop<<", "<<x<<", "<<y<<", "<<rot<< "\n";
-
+    
     strawPVs.push_back(new G4PVPlacement(G4Transform3D(*yRot, placement),
                                          aStrawLV,
                                          strawPVName,

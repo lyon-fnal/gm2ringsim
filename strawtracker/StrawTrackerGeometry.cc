@@ -5,6 +5,8 @@
 #include <sstream>
 #include <math.h>
 
+
+
 gm2ringsim::StrawTrackerGeometry::StrawTrackerGeometry(std::string const & detName) :
   GeometryBase(detName),
   whichScallopLocations( p.get<std::vector<int>>("whichScallopLocations")),
@@ -55,9 +57,35 @@ gm2ringsim::StrawTrackerGeometry::StrawTrackerGeometry(std::string const & detNa
   }
   
   delta_x = halfHeightOfTheStraw*tan(layer_angle);
+  number_of_stations = strawStationSize.size() * whichScallopLocations.size();
+}
+
+
+int gm2ringsim::StrawTrackerGeometry::Plane(int station, int view, int layer) {
+  
+  return station*(strawView+strawLayers) + view*2 + layer;
   
 }
 
+
+
+double gm2ringsim::StrawTrackerGeometry::wirePosition(int plane, int wire, int view){
+  
+  double x =  x_position_straw0[plane%4] + wire*dist_btwn_wires;
+  if (view == 0) x = x +delta_x;
+  else x = x-delta_x;
+  
+  return x;
+}
+
+double gm2ringsim::StrawTrackerGeometry::yPosition(int plane){
+  return y_position[plane%4];
+}
+
+/*std::vector<double> gm2ringsim::StrawTrackerGeometry::defineZeroZero(){
+  double x =
+  double y = strawStationLocation[0] - strawStationSizeHalf;
+}*/
 void gm2ringsim::StrawTrackerGeometry::print() const{
   std::ostringstream oss;
   
@@ -67,4 +95,6 @@ void gm2ringsim::StrawTrackerGeometry::print() const{
   oss << "  whichScallopLocations="; for (auto entry : whichScallopLocations) { oss << " " << entry; }; oss << "\n";
   oss << "  lengthOfStraw=" <<lengthOfTheStraw << "\n";
   mf::LogInfo("STRAWTRACKERGEOMETRY") << oss.str();
+  
+ 
 }

@@ -61,7 +61,7 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
   for (unsigned int tb = 0; tb<geom_.whichScallopLocations.size() ;tb++){
     for (unsigned int sc =0 ; sc<geom_.strawStationLocation.size(); sc++){
       
-      G4VSolid *strawStation = new G4Box("strawSystem", geom_.strawStationSizeHalf[sc], geom_.strawStationWidthHalf, geom_.strawStationHeightHalf-10);
+      G4VSolid *strawStation = new G4Box("strawSystem", geom_.strawStationSizeHalf[sc], geom_.strawStationWidthHalf, geom_.strawStationHeightHalf);
       
       std::string strawStationLVName = artg4::addNumberToName("StationChamberLV", sc+tb);
       
@@ -117,8 +117,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::StrawTracker::doPlaceToPVs( std::ve
 
     G4double
     x = 7010,
-    z = 0,
-    //phi = 12.7,
+    y = 0,
     ds = geom_.strawStationLocation[stationIndex],
     deltaX =0;
     
@@ -128,9 +127,9 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::StrawTracker::doPlaceToPVs( std::ve
     deltaX = ds*sin(vacg.phi_a);
     double deltaX_c = deltaX - geom_.straw_station_center_from_edge[stationIndex]*cos(vacg.phi_a);
     x = x - deltaX_c;
-    z = sqrt(ds*ds - deltaX*deltaX) + geom_.straw_station_center_from_edge[stationIndex]*sin(vacg.phi_a) ;
+    y = sqrt(ds*ds - deltaX*deltaX) + geom_.straw_station_center_from_edge[stationIndex]*sin(vacg.phi_a) ;
     
-    G4TwoVector fixup(x,z);
+    G4TwoVector fixup(x,y);
         
     fixup.rotate(15*degree*arcPosition);
         
