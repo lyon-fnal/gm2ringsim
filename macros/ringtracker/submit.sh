@@ -212,6 +212,10 @@ name()
 	elif [ ${spintracking} == "edm" ]; then
 	    extra="${extra}_EDMTracking_Eta_${edmsize}"
 	fi
+	
+	if ! [ -z ${gm2size} ]; then
+	    extra="${extra}_Gm2_${gm2size}"
+	fi
     fi
 
     if [ ${beamstart} == "uc" ] || [ ${beamstart} == "UpstreamCryo" ]; then
@@ -588,6 +592,8 @@ export collimator_status=1
 #
 export spintrackingname=false
 export edmtrackingname=false
+export gm2val=-1
+export edmval=0
 
 if [ ${sub} == 0 ]; then
     if [ ${infstart} == 1 ]; then
@@ -722,19 +728,62 @@ until [ -z ${1} ]; do
 	shift 1
 	edmsize=${1}
 	edmval=0.0
-	mags="3 4 5 6 7 8 9"
-	nums="1 2 3 4 5 6 7 8 9"
-	for mag in ${mags}; do
-	    if ! [ ${edmsize/"m${mag}"/} == ${edmsize} ]; then
-		for num in ${nums}; do
-		    if ! [ ${edmsize/"${num}em"/} == ${edmsize} ]; then
-			edmval="${num}e-${mag}"
-		    fi
-		done
-	    fi
-	done
+	if [ ${edmsize} == "0" ] || [ ${edmsize} == "0.0" ]; then
+	    edmval=0
+	    foundit=true
+	else
+	    mags="1 2 3 4 5 6 7 8 9"
+	    nums="1 2 3 4 5 6 7 8 9"
+	    foundit=false;
+	    for mag in ${mags}; do
+		if ! [ ${edmsize/"m${mag}"/} == ${edmsize} ]; then
+		    for num in ${nums}; do
+			if ! [ ${edmsize/"${num}em"/} == ${edmsize} ]; then
+			    edmval="${num}e-${mag}"
+			    foundit=true
+			fi
+		    done
+		fi
+	    done
+	fi
+
+	if [ ${foundit} == false ]; then
+	    echo "Did not find EDM size you gave [${edmsize}]"
+	    sleep 10000000000
+	fi
 	export edmval="${edmval}"
 	echo "EDM = ${edmval}"
+	shift 1
+	continue
+    elif [ ${1} == "gm2size" ]; then
+	shift 1
+	gm2size=${1}
+	gm2val=-1.0
+	if [ ${gm2size} == "0" ] || [ ${gm2size} == "0.0" ]; then
+	    gm2val=0
+	    foundit=true
+	else
+	    mags="1 2 3 4 5 6 7 8 9 10 11 12"
+	    nums="1 2 3 4 5 6 7 8 9"
+	    foundit=false;
+	    for mag in ${mags}; do
+		if ! [ ${gm2size/"m${mag}"/} == ${gm2size} ]; then
+		    for num in ${nums}; do
+			if ! [ ${gm2size/"${num}em"/} == ${gm2size} ]; then
+			    gm2val="${num}e-${mag}"
+			foundit=true
+		    fi
+		    done
+		fi
+	    done
+	fi
+	
+	if [ ${foundit} == false ]; then
+	    echo "Did not find g-2 size you gave [${gm2size}]"
+	    sleep 10000000000
+	fi
+	export gm2val="${gm2val}"
+	echo "a_{mu} = ${gm2val}"
 	shift 1
 	continue
     elif [ ${1} == "numturns" ]; then
@@ -1387,12 +1436,25 @@ for o in ${offsets}; do
 		    fi
 		    export fullDir=${outDir}/${subDir}
 		    if [ ${clean} == 1 ]; then
+			echo "Calling rm -fr ${fullDir}"
 			rm -fr ${fullDir}
 		    fi
 		    mkdir -p ${fullDir}
 		    chmod g+rw ${fullDir}
+
+		    if [ -a ${fullDir}/${extra}.root ]; then
+			c=1
+			while [ ${c} -gt 0 ]; do
+			    if ! [ -a ${fullDir}/${extra}_v${c}.root ]; then
+				echo "Moving output to v${c}"
+				mv ${fullDir}/${extra}.root ${fullDir}/${extra}_v${c}.root
+				break;
+			    fi
+			    ((c++))
+			done
+		    fi
 		    
-		    njobs="1"
+		    njobs="10"
 		    if [ ${submit} == 1 ]; then
 			echo "jobsub -g --opportunistic -dMYDIR ${fullDir} sub2.sh"
 #			echo "jobsub -e fullDir -e basename -e MYREL -N ${njobs} -g condor2.sh"
@@ -1408,8 +1470,11 @@ for o in ${offsets}; do
 #			echo "jobsub -g --opportunistic -d ${MYDIR} -e MYREL -e fullDir -N ${njobs} -g condor2.sh" > cmd.sh
 #			echo "jobsub -g --opportunistic -e fullDir -e basename -e MYREL -N ${njobs} -g condor2.sh" > cmd.sh
 #			echo "jobsub -e fullDir -e basename -e MYREL -N ${njobs} -g condor2.sh" > cmd.sh
-			
-			jobsub -g --opportunistic -dMYDIR ${fullDir} sub2.sh
+	
+		
+			jobsub -g --opportunistic -e fullDir -dMYDIR ${fullDir} -N ${njobs} sub2.sh
+
+
 #			chmod 777 cmd.sh
 #			sleep 1
 #			source cmd.sh
@@ -1423,6 +1488,7 @@ for o in ${offsets}; do
 				gm2 -c ${fullDir}/runner.fcl | tee dump
 			    else
 				touch ${fullDir}/START
+#				echo ${fullDir}/runner.fcl}
 				gm2 -c ${fullDir}/runner.fcl | tee ${fullDir}/output.dat
 				rm ${fullDir}/START
 				touch ${fullDir}/DONE

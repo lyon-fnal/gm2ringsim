@@ -5,6 +5,9 @@ if [ -a ${outfile} ]; then
     rm ${outfile}
 fi
 
+SPOTS=10000
+let "die1 = $RANDOM % $SPOTS +1" # Roll first one.
+
 beamstartname=""
 
 cat >> ${outfile} <<EOF
@@ -13,15 +16,10 @@ cat >> ${outfile} <<EOF
 #include "geom/vac.fcl"
 #include "geom/inflector.fcl"
 #include "geom/quad.fcl"
-#include "geom/oct.fcl"
 #include "geom/kicker_nokick.fcl"
-#include "geom/fiberHarp.fcl"
-#include "geom/station.fcl"
-#include "geom/calorimeter.fcl"
 #include "geom/collimator.fcl"
 #include "geom/PGA.fcl"
 #include "geom/g2GPS.fcl"
-#include "geom/strawtracker.fcl"
 
 process_name:myProcessName
 
@@ -64,15 +62,10 @@ services: {
       arc:   @local::arc_geom
       vac:   @local::vac_geom
       inflector: @local::inflector_geom
-      quad: @local::quad_geom
-      octupole: @local::oct_geom
+      quad:   @local::quad_geom
       kicker: @local::kicker_geom
-      fiberHarp: @local::fiberHarp_geom
-      station: @local::station_geom
-      calorimeter: @local::calorimeter_geom
       collimator: @local::collimator_geom
       pga: @local::PGA_geom
-      strawtracker: @local::strawtracker_geom
      }
 
      // Global simulation settings
@@ -82,7 +75,7 @@ services: {
 	   edmTrackingEnabled : ${edmtrackingname}
 	   Q : ${charge}
 	   Eta : ${edmval}
-	   Gm2 : -1.0
+	   Gm2 : ${gm2val}
        }
       G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel
 #      G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel_muminus
@@ -129,6 +122,7 @@ services: {
 	Pmean: ${pmean}
 	dPOverP: ${dPoverP}
 	Particle: "${particle}"
+	DecayScaleFactor: 1
 EOF
 
 if [ ${beamstart} == um ]; then
@@ -196,21 +190,17 @@ cat >> ${outfile} <<EOF
     Ring: {}    // This is for the RingHits
     VirtualRingStation: {} // This is for the virtual tracker planes in the vac
     Arc: {}
+    Quad: {}
     VacuumChamber: {}
     Inflector:{}
-    Quad: {}
-    Octupole: {}
     Kicker: {}
-    FiberHarp: {}
-    Station: {}
-    Calorimeter: {}
     Collimator : {}
-    StrawTracker: {}
 
 
     MuonStorageStatusAction: {
       name: "MuonStorageStatusAction"
       turnsForStorage: ${numturns}
+      TrackPositrons: true
 EOF
 
 if [ ${evts} -gt 10 ]; then
@@ -241,7 +231,7 @@ physics: {
      macroPath: ".:./macros:../macros:../../macros"
      visMacro: "vis.mac"
      afterEvent: pause  // (ui, pause, pass)
-     }
+    }
   }
 
 
@@ -260,6 +250,7 @@ cat >> ${outfile} <<EOF
 #
 # Add-ons
 #
+services.user.Geometry.inflector.CryoWallMaterial: Vacuum
 services.user.RunSettings.G2GPS_downstreamInflectorMandrel.particle: muminus
 services.user.Geometry.quad.DoScraping: false
 services.user.Geometry.quad.StoreHV: 24
@@ -297,11 +288,32 @@ cp ${outfile} ${fullDir}/runner.fcl
 
 
 outfile="readRingTrackers.fcl"
+header_outfile="readRingTrackers_header.fcl"
+footer_outfile="readRingTrackers_footer.fcl"
+files_outfile="readRingTrackers_files.fcl"
 if [ -a ${outfile} ]; then
     rm ${outfile}
 fi
+if [ -a ${footer_outfile} ]; then
+    rm ${footer_outfile}
+fi
+if [ -a ${header_outfile} ]; then
+    rm ${header_outfile}
+fi
+if [ -a ${files_outfile} ]; then
+    rm ${files_outfile}
+fi
 
-cat >> ${outfile} <<EOF
+files="${fullDir}/${basename}.root"
+for file in ${fullDir}/*.root; do
+    if [ -a ${file} ]; then
+	if ! [ ${file} == ${fullDir}/${basename}.root ]; then
+	    files="${files}, ${file}"
+	fi
+    fi
+done
+
+cat >> ${header_outfile} <<EOF
 services: {
 
   TFileService: {
@@ -335,7 +347,14 @@ process_name: readRingTrackers
 source: {
    module_type: RootInput
    maxEvents:  -1
-   fileNames: [ "${fullDir}/${basename}.root" ]
+EOF
+
+
+cat >> ${files_outfile} <<EOF
+    fileNames: [ "${fullDir}/${basename}.root" ]
+EOF
+
+cat >> ${footer_outfile} <<EOF
 }
 
 physics: {
@@ -350,6 +369,12 @@ physics: {
       LaunchAngle: ${launch}
       InflectorAngle: ${delta}
       StorageOffset: ${offset}
+      SaveInfHits: false
+      SaveTruthHits: true
+      SaveRingHits: false
+      SaveVRingHits: true
+      SaveVRing1PlaneHits: true
+      debug: false
     }
   }
   path1: [ readRingTrackers ]
@@ -357,5 +382,9 @@ physics: {
 }
 EOF
 
-echo "cp ${outfile} ${fullDir}/reader.fcl"
-cp ${outfile} ${fullDir}/reader.fcl
+echo "cp ${footer_outfile} ${fullDir}/footer_reader.fcl"
+cp ${footer_outfile} ${fullDir}/footer_reader.fcl
+echo "cp ${header_outfile} ${fullDir}/header_reader.fcl"
+cp ${header_outfile} ${fullDir}/header_reader.fcl
+echo "cp ${files_outfile} ${fullDir}/files_reader.fcl"
+cp ${files_outfile} ${fullDir}/files_reader.fcl
