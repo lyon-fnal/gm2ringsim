@@ -19,6 +19,10 @@ inflector_geom : {
   equivalentNbTiWidth : 0.43 //mm
 
 
+  //
+  // Cryostat Wall
+  //
+  CryoWallMaterial: Al
   parWall_X : 0.52 //cm
   parWall_Y : 44.5 //cm
   parWall_Z : 6.9 //cm

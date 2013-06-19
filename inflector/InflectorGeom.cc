@@ -22,6 +22,7 @@ gm2ringsim::InflectorGeom::InflectorGeom(std::string const & detName) :
   equivalentAlWidth( p.get<double>("equivalentAlWidth") * mm),
   equivalentCuWidth( p.get<double>("equivalentCuWidth") * mm),
   equivalentNbTiWidth( p.get<double>("equivalentNbTiWidth") * mm),
+  CryoWallMaterial( p.get<std::string>("CryoWallMaterial")),
   parWall_X( p.get<double>("parWall_X") * cm),
   parWall_Y( p.get<double>("parWall_Y") * cm),
   parWall_Z( p.get<double>("parWall_Z") * cm),
