@@ -11,6 +11,9 @@
 
 // Everything goes in the Art G4 namespace
 namespace gm2ringsim {
+
+  enum { kBirth, kDecay, kStore, kLost};
+
   // Begin struct definition
   struct TrackingActionArtRecord {
   public: 
