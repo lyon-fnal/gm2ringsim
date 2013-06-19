@@ -45,7 +45,7 @@ gm2ringsim::TrackingAction::~TrackingAction()
 void gm2ringsim::TrackingAction::postUserTrackingAction(const G4Track * currentTrack)
 {
   if ( currentTrack->GetTrackID() == 1 ) {   
-    FillTrackingActionArtRecord(currentTrack, 1);
+    FillTrackingActionArtRecord(currentTrack, gm2ringsim::kDecay);
   }
 }
 
@@ -55,8 +55,58 @@ void gm2ringsim::TrackingAction::postUserTrackingAction(const G4Track * currentT
 // add it to our collection
 void gm2ringsim::TrackingAction::preUserTrackingAction(const G4Track * currentTrack)
 {
-  FillTrackingActionArtRecord(currentTrack, 0);
+  FillTrackingActionArtRecord(currentTrack, gm2ringsim::kBirth);
 }
+
+
+// void gm2ringsim::TrackingAction::CheckForStorage(const G4Track * currentTrack)
+// {
+//   if( currentTrack -> GetTrackID() != 1 ) { return; }
+
+//   // MUON STORAGE  
+//   G4String const& currentVolumeName =
+//     currentTrack -> GetVolume() -> GetName();
+
+//   //  if( currentTrack->GetTrackID() == 1 )                                                                          
+//   //G4cout << currentVolumeName << '\n';                                                                         
+  
+//   if( currentVolumeName == "InflectorMandrel" ){
+//     FillTrackingActionArtRecord(currentTrack, 1);
+//     currentTrack -> SetTrackStatus(fStopAndKill);
+//     return;
+//   }
+//   else if( currentVolumeName == "theLaboratory" ){
+//     FillTrackingActionArtRecord(currentTrack, 1);    
+//     currentTrack -> SetTrackStatus(fStopAndKill);
+//     return;
+//   }
+
+//   G4int turn = TurnCounter::getInstance().turns();
+  
+//   if( currentTrack -> GetTrackID() == 1 ) {
+//     if( turn >= turnsForStorage_ ) {
+//       FillTrackingActionArtRecord(currentTrack, 1);    
+//       currentTrack -> SetTrackStatus(fStopAndKill);
+//       return;
+//     }
+//   }
+  
+//   G4ThreeVector const currentPos =
+//     currentStep -> GetPostStepPoint() -> GetPosition();
+//   G4double const posX = currentPos.getX();
+//   G4double const posY = currentPos.getY();
+//   G4double const posZ = currentPos.getZ();
+//   G4double const posR = sqrt(posX*posX + posZ*posZ);
+  
+  
+//   if( currentTrack -> GetTrackID() == 1 ) {
+//     if(posR < stored_rmin_ || posR > stored_rmax_ || std::abs(posY) > stored_y_) {
+//       FillTrackingActionArtRecord(currentTrack, 1);    
+//       currentTrack -> SetTrackStatus(fStopAndKill);
+//       return;
+//     }
+//   }
+// }
 
 
 // Fill ArtRecord

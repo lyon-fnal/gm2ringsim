@@ -12,14 +12,17 @@
 #include "TVector3.h"
 #include "TMath.h"
 #include "Geant4/G4ThreeVector.hh"
+#include "Geant4/G4Track.hh"
 
 #include "Geant4/globals.hh"
 namespace gm2ringsim {
 
   G4double ComputeR(G4ThreeVector *pos);
   G4double ComputeTheta(G4ThreeVector *pos);
+  G4double ComputeRhat(G4Track *track);
   G4double ComputeRhat(G4ThreeVector *pos);
   G4double ComputeRhat(G4double r);
+  G4double ComputeVhat(G4Track *track);
   G4double ComputeVhat(G4ThreeVector *pos);
   G4double ComputeXe(G4double p, G4double n);
   G4double ComputePrhat(G4ThreeVector *pos, G4ThreeVector *mom);
