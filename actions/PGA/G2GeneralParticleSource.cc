@@ -13,6 +13,8 @@
 #include "gm2ringsim/actions/PGA/G2GeneralParticleSource.hh"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+// Note: default value for the parameter (set in header file) is
+// "G2GPSSettings".
 gm2ringsim::G2GeneralParticleSource::G2GeneralParticleSource(std::string set)
   : settings_(set), //This should be in the fcl:
     multiple_vertex(false), 
@@ -349,12 +351,10 @@ void gm2ringsim::G2GeneralParticleSource::GeneratePrimaryVertex(G4Event* evt)
       while ( rndm > sourceProbability[i] ) i++;
       (currentSource = sourceVector[i]);
     }
-    G4cout << "Do I never get here!!!" << G4endl;
     currentSource-> GeneratePrimaryVertex(evt);
   } 
   else {
     for (size_t i = 0; i <  sourceIntensity.size(); i++) {
-      G4cout << "Do I never get here!!!" << G4endl;
       sourceVector[i]->GeneratePrimaryVertex(evt); 
     }
   }
