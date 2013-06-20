@@ -59,6 +59,9 @@ namespace gm2ringsim {
     // Actually add the collection to the Art event.
     virtual void fillEventWithArtStuff(art::Event & e);
 
+    // Actually add the collection to the Art event.
+    virtual void fillRunEndWithArtStuff(art::Run & r);
+
     // Fill ArtRecord
     void FillTrackingActionArtRecord(const G4Track * currentTrack, int status);
 
@@ -67,6 +70,9 @@ namespace gm2ringsim {
     bool OnlyTrackPrimary_;
     bool TrackPrimaryDecay_;
     bool TrackOrphans_;
+
+    int Ndecays_;
+    int Nlost_;
 
     // Our collection of track hits
     std::unique_ptr<TrackingActionArtRecordCollection> myArtHits_;

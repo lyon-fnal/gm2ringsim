@@ -22,6 +22,8 @@ gm2ringsim::TrackingAction::TrackingAction(fhicl::ParameterSet const & p,
     OnlyTrackPrimary_(p.get<bool>("OnlyTrackPrimary", false)),
     TrackPrimaryDecay_(p.get<bool>("TrackPrimaryDecay", true)),
     TrackOrphans_(p.get<bool>("TrackOrphans", true)),
+    Ndecays_(0),
+    Nlost_(0),
     myArtHits_(new TrackingActionArtRecordCollection),
     myMuonCharge_(new int(2)),
     logInfo_("TrackingAction")
@@ -43,9 +45,30 @@ gm2ringsim::TrackingAction::~TrackingAction()
 // Overload the PreUserTrackingAction method to initialize the track and
 // add it to our collection
 void gm2ringsim::TrackingAction::postUserTrackingAction(const G4Track * currentTrack)
-{
-  if ( currentTrack->GetTrackID() == 1 ) {   
-    FillTrackingActionArtRecord(currentTrack, gm2ringsim::kDecay);
+{  
+  if ( currentTrack->GetTrackID() == 1 ) {
+    if ( currentTrack->GetTrackStatus() == fKillTrackAndSecondaries ) {
+//       G4cout << "Muon track is stopped, but alive." << G4endl;
+//       G4cout << "  Rhat = " << ComputeRhat(currentTrack) << "\t" << "Vhat = " << ComputeVhat(currentTrack) << G4endl;
+      Nlost_++;
+      FillTrackingActionArtRecord(currentTrack, gm2ringsim::kLost);
+      // Stored muon
+    }
+    else if ( currentTrack->GetTrackStatus() == fStopAndKill ) {
+//       G4cout << "Muon track is killed." << G4endl;
+//       G4cout << "  Rhat = " << ComputeRhat(currentTrack) << "\t" << "Vhat = " << ComputeVhat(currentTrack) << G4endl;
+//       G4cout << "Muon decay..." << G4endl;
+      Ndecays_++;
+      FillTrackingActionArtRecord(currentTrack, gm2ringsim::kDecay);
+    }
+    else {
+      G4cout << "Track Status = " << currentTrack->GetTrackStatus() << G4endl;
+    }
+  }
+  else {
+    if ( currentTrack->GetTrackStatus() == fKillTrackAndSecondaries ) {
+      FillTrackingActionArtRecord(currentTrack, gm2ringsim::kDecay);
+    }
   }
 }
 
@@ -294,6 +317,16 @@ void gm2ringsim::TrackingAction::fillEventWithArtStuff(art::Event & e)
   // Point to a new valid collection
   myArtHits_.reset( new TrackingActionArtRecordCollection() );
 }
+
+void gm2ringsim::TrackingAction::fillRunEndWithArtStuff(art::Run &r)
+{
+  G4cout << "============== TrackingAction::RunEnd ==============" << G4endl;
+  G4cout << "   RunID              : " << r.id() << G4endl;
+  G4cout << "   Muons decayed      : " << Ndecays_ << G4endl;
+  G4cout << "   Muons lost         : " << Nlost_ << G4endl;
+  G4cout << "====================================================" << G4endl;
+}
+
 
 using gm2ringsim::TrackingAction;
 DEFINE_ART_SERVICE(TrackingAction)
