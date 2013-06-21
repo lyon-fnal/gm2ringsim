@@ -28,19 +28,31 @@
 #include "art/Framework/Principal/Event.h"
 
 // Get the base class
+#include "artg4/actionBase/RunActionBase.hh"
 #include "artg4/actionBase/TrackingActionBase.hh"
 
 // Other includes
 #include "gm2ringsim/actions/track/TrackingActionArtRecord.hh"
 #include "Geant4/G4Track.hh"
+#include "Geant4/G4Run.hh"
 
 namespace gm2ringsim {
 
-  class TrackingAction : public artg4::TrackingActionBase {
+  class TrackingAction : public artg4::TrackingActionBase,
+			 public artg4::RunActionBase
+  {
   public: 
     TrackingAction(fhicl::ParameterSet const&, 
 		       art::ActivityRegistry&);
     virtual ~TrackingAction();
+    
+    /** Resets the muon storage counter and causes begin of run setup to
+	occur in the rootStorageManager and elapsed time counters. */
+    virtual void beginOfRunAction(const G4Run *currentRun) override;
+    
+    /** Calculates capture efficiency and elapsed time, and initiates
+	rootStorageManager end of run activities. */
+    virtual void endOfRunAction(const G4Run *currentRun) override; 
 
     // Overload the PreUserTrackingAction method to initialize the track and
     // add it to our collection
@@ -58,10 +70,7 @@ namespace gm2ringsim {
 
     // Actually add the collection to the Art event.
     virtual void fillEventWithArtStuff(art::Event & e);
-
-    // Actually add the collection to the Art event.
-    virtual void fillRunEndWithArtStuff(art::Run & r);
-
+    
     // Fill ArtRecord
     void FillTrackingActionArtRecord(const G4Track * currentTrack, int status);
 

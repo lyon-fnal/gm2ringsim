@@ -158,6 +158,9 @@ void gm2ringsim::MuonStorageStatusAction::endOfRunAction(const G4Run *currentRun
   G4cout << "============== MuonStorageStatusAction::RunEnd ==============" << G4endl;
   G4cout << "   Muons injected     : " << totalEvents << G4endl;
   G4cout << "   Muons killed       : " << muonKillCounter_[3] << G4endl;
+  G4cout << "      --> Beyond SR   : " << muonKillCounter_[2] << G4endl;
+  G4cout << "      --> In The Lab  : " << muonKillCounter_[0] << G4endl;
+  G4cout << "      --> Inflector   : " << muonKillCounter_[1] << G4endl;
   G4cout << "   Muons stored       : " << muonStorageCounter_ << G4endl;
   G4cout.precision(3);
   G4cout << "   Capture Efficiency : (" 
@@ -203,7 +206,7 @@ void gm2ringsim::MuonStorageStatusAction::userSteppingAction(const G4Step *curre
       if ( id == -11 ) { // positron from mu+ decay
 	if ( ComputeRhat(currentTrack) > 45*mm || ComputeRhat(currentTrack) < -45*mm ) {
 	  //G4cout << "  Outside of storage region: Tag it!" << G4endl;
-	  FillTrackingActionArtRecord(currentTrack, gm2ringsim::kDecay);
+	  //FillTrackingActionArtRecord(currentTrack, gm2ringsim::kDecay);
 	  currentTrack -> SetTrackStatus(fKillTrackAndSecondaries);
 	  return;
 	}
@@ -260,7 +263,7 @@ void gm2ringsim::MuonStorageStatusAction::userSteppingAction(const G4Step *curre
   
   if( currentTrack -> GetTrackID() == 1 ) {
     if(posR < stored_rmin_ || posR > stored_rmax_ || std::abs(posY) > stored_y_) {
-      FillTrackingActionArtRecord(currentTrack, gm2ringsim::kLost);
+      //FillTrackingActionArtRecord(currentTrack, gm2ringsim::kLost);
       unsuccessfulStorage("StorageRegion"); //part of EventAction
       //G4cout << "Muon is beyond storage region." << G4endl;
       currentTrack -> SetTrackStatus(fKillTrackAndSecondaries);

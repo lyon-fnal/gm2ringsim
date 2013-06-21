@@ -18,15 +18,17 @@ using std::string;
 
 gm2ringsim::TrackingAction::TrackingAction(fhicl::ParameterSet const & p, 
 					      art::ActivityRegistry &)
-  : TrackingActionBase(p.get<string>("name","TrackingAction")),
-    OnlyTrackPrimary_(p.get<bool>("OnlyTrackPrimary", false)),
-    TrackPrimaryDecay_(p.get<bool>("TrackPrimaryDecay", true)),
-    TrackOrphans_(p.get<bool>("TrackOrphans", true)),
-    Ndecays_(0),
-    Nlost_(0),
-    myArtHits_(new TrackingActionArtRecordCollection),
-    myMuonCharge_(new int(2)),
-    logInfo_("TrackingAction")
+  : 
+  artg4::TrackingActionBase(p.get<string>("name","TrackingAction")),
+  artg4::RunActionBase(p.get<std::string>("name")),
+  OnlyTrackPrimary_(p.get<bool>("OnlyTrackPrimary", false)),
+  TrackPrimaryDecay_(p.get<bool>("TrackPrimaryDecay", true)),
+  TrackOrphans_(p.get<bool>("TrackOrphans", true)),
+  Ndecays_(0),
+  Nlost_(0),
+  myArtHits_(new TrackingActionArtRecordCollection),
+  myMuonCharge_(new int(2)),
+  logInfo_("TrackingAction")
 {
   G4cout << "================ TrackingAction ================" << G4endl;
   G4cout << "| OnlyTrackPrimary:  " << OnlyTrackPrimary_ << G4endl;
@@ -318,10 +320,17 @@ void gm2ringsim::TrackingAction::fillEventWithArtStuff(art::Event & e)
   myArtHits_.reset( new TrackingActionArtRecordCollection() );
 }
 
-void gm2ringsim::TrackingAction::fillRunEndWithArtStuff(art::Run &r)
-{
+void gm2ringsim::TrackingAction::beginOfRunAction(const G4Run *) {
+  Nlost_ = 0;
+  Ndecays_ = 0;
+}
+
+void gm2ringsim::TrackingAction::endOfRunAction(const G4Run *currentRun) {
+  
+  G4double totalEvents = currentRun -> GetNumberOfEvent();
+
   G4cout << "============== TrackingAction::RunEnd ==============" << G4endl;
-  G4cout << "   RunID              : " << r.id() << G4endl;
+  G4cout << "   Muons injected     : " << totalEvents << G4endl;
   G4cout << "   Muons decayed      : " << Ndecays_ << G4endl;
   G4cout << "   Muons lost         : " << Nlost_ << G4endl;
   G4cout << "====================================================" << G4endl;
