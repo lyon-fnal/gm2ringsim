@@ -93,6 +93,8 @@ void gm2ringsim::physicsList::ConstructProcess(){
     (*b)->ConstructProcess();
     ++b;
   }
+
+  enableStepLimiter();
 }
 
 void gm2ringsim::physicsList::SetCuts(){ 

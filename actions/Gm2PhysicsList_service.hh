@@ -63,8 +63,7 @@ namespace gm2ringsim {
     void unpolDecayChannel();
     void polDecayChannel();
 
-    std::string muonDecayMode_;
-    bool pionDecayEnabled_;
+    std::string DecayMode_;
     G4String physicsListName_;
     int verboseLevel_;
     G4VModularPhysicsList* thePhysicsList_;

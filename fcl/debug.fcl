@@ -82,8 +82,7 @@ services: {
 
     physicalVolumeStore: {}
     Gm2PhysicsList: {
-      muonDecayMode: "iso"
-      pionDecayEnabled: true
+      DecayMode: "sm"
       physicsListName: "FTFP_BERT"
    }
 

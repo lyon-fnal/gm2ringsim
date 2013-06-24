@@ -53,8 +53,7 @@ using namespace std;
 
 gm2ringsim::Gm2PhysicsListService::Gm2PhysicsListService(fhicl::ParameterSet const & p, art::ActivityRegistry &) :
   PhysicsListServiceBase(),
-  muonDecayMode_(p.get<std::string>("muonDecayMode", "")),
-  pionDecayEnabled_(p.get<bool>("pionDecayEnabled", true)),
+  DecayMode_(p.get<std::string>("DecayMode", "sm")),
   physicsListName_(G4String(p.get<std::string>("physicsListName", ""))),
   verboseLevel_(p.get<int>("verboseLevel", 0)),
   thePhysicsList_(0),
@@ -107,25 +106,23 @@ void gm2ringsim::Gm2PhysicsListService::initializePhysicsList() {
     this->verboseLevel( verboseLevel_ );
   }
   
-  // React to muon decay mode
+  // React to decay mode
   
   // If "none" or "disable" then turn off decay
-  if (muonDecayMode_ == "none" || muonDecayMode_ == "disable") {
-    this->disableMuonDecay();
+  if (DecayMode_ == "none" || DecayMode_ == "disable") {
+    this->disableDecay();
   }
   
   // Isotropic decay?
-  else if (muonDecayMode_ == "iso" ) {
+  else if (DecayMode_ == "iso" ) {
     this->enableIsotropicDecay();
   }
   
   // Standard decay
-  else if ( muonDecayMode_ == "sm" || muonDecayMode_ == "standard") {
+  else if ( DecayMode_ == "sm" || DecayMode_ == "standard") {
     this->enableSMDecay();
   }
   
-  // pion decay switch
-  if(!pionDecayEnabled_) this->disablePionDecay();
 }
 
 void gm2ringsim::Gm2PhysicsListService::ConstructAdditionalProcess(){
