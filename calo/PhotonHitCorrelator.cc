@@ -39,15 +39,13 @@ gm2ringsim::PhotonHitCorrelator::reset() {
 
 void
 gm2ringsim::PhotonHitCorrelator::addTrack( int photonTrackId, XtalPhotonHit* hit ) {
-    int veclength = photonTrackToHit_.size();
-    if ( photonTrackId >= veclength ) {
-        photonTrackToHit_.resize( photonTrackId + kSizeIncrement );
-    }
+    increaseListSize(photonTrackId);
     photonTrackToHit_[photonTrackId] = hit;
 }
 
 void
 gm2ringsim::PhotonHitCorrelator::registerPhotodetectorTrack( int photonTrackId, bool photoElectron ) {
+    increaseListSize(photonTrackId);
     if ( photonTrackToHit_[photonTrackId] == 0 ) {
         std::cout << "Warning!  No hit registered with PhotonHitCorrelator for track id " << photonTrackId << std::endl;
         return;
