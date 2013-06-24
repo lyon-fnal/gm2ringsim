@@ -132,8 +132,6 @@ void gm2ringsim::Gm2PhysicsListService::ConstructAdditionalProcess(){
   disableDecay();
   this->pionDecay<G4Decay>();
 
-  decayStatus_ = decay_none;  
-
   // ~~~~~ wsun: add optical photon processes, from ExN06PhysicsList::ConstructOp()
 
   theCerenkovProcess           = new G4Cerenkov("Cerenkov");
