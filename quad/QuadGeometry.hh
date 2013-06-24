@@ -25,6 +25,7 @@ namespace gm2ringsim {
     const double innerOuterThickness;
     const double outerThickness_Q1;
     const double plateSep;
+    const double outerQ1offset;
     const double curlInnerRadius;
     const double curlOuterRadius;
     const double innerCurlMajorRadius;

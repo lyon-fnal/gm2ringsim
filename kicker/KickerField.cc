@@ -19,6 +19,8 @@
 #include <string>
 #include <vector>
 
+#include "TMath.h"
+
 #include <boost/algorithm/string.hpp>
 #include <boost/tokenizer.hpp>
 #include <cstdlib>
@@ -129,9 +131,24 @@ void gm2ringsim::KickField::GetFieldValue(double const Point[4],
   double Kfield[3];
   this->KickFieldValue(Point,Kfield);
   mod_->ModifyKickField(Point,Kfield);
-  for(int i=0; i!=3; ++i)
+  for(int i=0; i!=3; ++i) {
     Bfield[i] += Kfield[i];
-  //  std::cout << Kfield[1] << ' ' << Bfield[1] << '\n';
+  }
+  
+  bool debug = false;
+  if ( debug ) {
+    double r = sqrt(Point[0]*Point[0] + Point[2]*Point[2]) - R_magic();
+    double y = Point[1];
+    std::cout.precision(3);
+    double dB = Bfield[1] - 0.00145;
+    dB = 0.0;
+    if ( Bfield[0] > 0.01 || Bfield[2] > 0.01 || Bfield[0] < -0.01 || Bfield[2] < -0.01 || dB > 0.01 || dB < -0.01 ) {
+      std::cout << "KickField::GetFieldValue(" << r << " , " << y << ") = ["
+		<< Bfield[0] << " , "
+		<< Bfield[1] << " , "
+		<< Bfield[2] << "]" << std::endl;
+    }
+  }
 }
 
 gm2ringsim::LCRKickField::LCRKickField(G4double kickerHV,

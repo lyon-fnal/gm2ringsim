@@ -13,11 +13,10 @@ gm2ringsim::SpinTrackingSettings::SpinTrackingSettings(std::string const & detNa
   eta_(p.get<double>("Eta", -1.0)),
   gm2_(p.get<double>("Gm2", -1.0))
 {
-  double gm2_factor = 0.0;
+  //double gm2_factor = 0.0;
   if ( eta_ <= 0.0 ) { eta_ = 0.0; }
-  if ( gm2_ <= 0.0 ) { gm2_ = 116592080e-11; }
-  //if ( gm2_ <= 0.0 ) { gm2_ = 0.0011659208; }
-  gm2_ *= gm2_factor;
+  if ( gm2_ < 0.0 ) { gm2_ = 116592080e-11; }
+  //gm2_ *= gm2_factor;
   if ( spinTrackingEnabled && edmTrackingEnabled ) { edmTrackingEnabled = false; }
   if ( edmTrackingEnabled == false ) { eta_ = 0.0; }
 

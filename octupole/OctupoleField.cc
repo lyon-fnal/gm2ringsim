@@ -67,5 +67,22 @@ void gm2ringsim::OctupoleField::GetFieldValue( double const Point[4],
   Bfield[0] += Bx_q*x/r;
   Bfield[1] += By_q;
   Bfield[2] += Bx_q*z/r;    
+
+
+  
+  bool debug = false;
+  if ( debug ) {
+    double r = sqrt(Point[0]*Point[0] + Point[2]*Point[2]) - R_magic();
+    double y = Point[1];
+    std::cout.precision(3);
+    double dB = Bfield[1] - 0.00145;
+    dB = 0.0;
+    if ( Bfield[0] > 0.01 || Bfield[2] > 0.01 || Bfield[0] < -0.01 || Bfield[2] < -0.01 || dB > 0.01 || dB < -0.01 || 1 ) {
+      std::cout << "OctupoleField::GetFieldValue(" << r << " , " << y << ") = ["
+		<< Bfield[0] << " , "
+		<< Bfield[1] << " , "
+		<< Bfield[2] << "]" << std::endl;
+    }
+  }
 			     
 }

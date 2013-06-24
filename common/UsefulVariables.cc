@@ -14,6 +14,15 @@
     - Brendan Kiburg   Dec 2012 Moving to ART
 */
 
+G4double gm2ringsim::ComputeRhat(G4Track *track)
+{
+  const G4ThreeVector pos = track->GetPosition();
+
+  G4double r = std::sqrt(pos.x()*pos.x() + pos.z()*pos.z());
+
+  return( ComputeRhat(r) );
+}
+
 G4double gm2ringsim::ComputeR(G4ThreeVector *pos)
 {
   G4double r = std::sqrt(pos->x()*pos->x() + pos->z()*pos->z());
@@ -33,6 +42,14 @@ G4double gm2ringsim::ComputeRhat(G4ThreeVector *pos)
 
   G4double r = ComputeR(pos);
   return( ComputeRhat(r) );
+}
+
+G4double gm2ringsim::ComputeVhat(G4Track *track)
+{
+  const G4ThreeVector pos = track->GetPosition();
+
+  G4double vhat = pos.y();
+  return( vhat );
 }
 
 G4double gm2ringsim::ComputeVhat(G4ThreeVector *pos)

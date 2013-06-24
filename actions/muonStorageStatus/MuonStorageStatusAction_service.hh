@@ -54,6 +54,7 @@
 
 // ART Event output
 #include "gm2ringsim/actions/muonStorageStatus/EventRecord.hh"
+#include "gm2ringsim/actions/track/TrackingActionArtRecord.hh"
 
 #include <tr1/memory>
 
@@ -118,13 +119,13 @@ namespace gm2ringsim
 	@bug ... this function really should be taken over by a class
 	that tracks lots of stuff on a run by run basis. */
     void incrementMuonStorageCounter();
-    void incrementMuonKillCounter();
+    void incrementMuonKillCounter(int reason);
 
 
     //SteppingAction Stuff
     void setStoredMuonTurns(G4int );
 
-
+    void FillTrackingActionArtRecord(G4Track * currentTrack, int status);
     
   private:
     //EventAction Stuff
@@ -134,7 +135,7 @@ namespace gm2ringsim
     
     //RunAction Stuff
     G4int muonStorageCounter_;  
-    G4int muonKillCounter_;  
+    G4int muonKillCounter_[4];  
 
     //SteppingAction Stuff
     float turnsForStorage_; //Double to allow for fractional turns 
@@ -152,9 +153,14 @@ namespace gm2ringsim
     //       vertically from a centered path to still be considered stored.
     //       Default is 0.074 m.
     
+    bool TrackPositron_;
+    
     //ART stuff
     mf::LogInfo logInfo_;
 
+
+    // Our collection of track hits
+    std::unique_ptr<TrackingActionArtRecordCollection> myArtTrackHits_;
     
   }; //end of EventAction class definition 
 } //namespace gm2ringsim

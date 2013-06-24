@@ -22,6 +22,10 @@
 #include "artg4/Core/DetectorBase.hh"
 #include "gm2ringsim/collimator/CollimatorGeometry.hh"
 
+#include "gm2ringsim/common/ring/RingSD.hh"
+#include "gm2ringsim/common/ring/RingArtRecord.hh"
+#include "gm2ringsim/common/ring/RingHit.hh"
+
 // Within a namespace
 namespace gm2ringsim {
   // The class
@@ -38,6 +42,9 @@ namespace gm2ringsim {
     CollimatorGeometry geom_;
     // Private overriden methods
     
+    G4String ringSDname_;
+    RingSD *ringSD_;
+
     // Create the logical volumes
     virtual std::vector<G4LogicalVolume*> doBuildLVs() override;
     

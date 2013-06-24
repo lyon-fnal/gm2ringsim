@@ -28,9 +28,9 @@ gm2ringsim::VacGeometry::VacGeometry(std::string const & detName) :
   ext( p.get<std::vector<double>>("ext") ),
   tracker_sphi( p.get<double>("tracker_sphi") * deg),
   tracker_dphi( p.get<double>("tracker_dphi") * deg),
+  Frequency( p.get<int>("Frequency")),
   turn_sphi( p.get<double>("turn_sphi") * deg),
   turn_dphi( p.get<double>("turn_dphi") * deg),
-
   displayWall( p.get<bool>("displayWall")),
   wallColor( p.get<std::vector<double>>("wallColor")),
   displayVac( p.get<bool>("displayVac")),
@@ -39,7 +39,6 @@ gm2ringsim::VacGeometry::VacGeometry(std::string const & detName) :
   trackerColor( p.get<std::vector<double>>("trackerColor")),
   displayTurnCounter( p.get<bool>("displayTurnCounter")),
   turnCounterColor( p.get<std::vector<double>>("turnCounterColor")),
-
   ZachIsAwesome_Z(topBottomWall-outerWallThickness),
   torus_z( {topBottomWall, topBottomWall - outerWallThickness} )
 {
@@ -137,6 +136,7 @@ void gm2ringsim::VacGeometry::print() const {
   oss << "  ext= "; for (auto entry : ext) { oss << " " << entry; }; oss << "\n";
   oss << "  tracker_sphi=" << tracker_sphi << "\n";
   oss << "  tracker_dphi=" << tracker_dphi << "\n";
+  oss << "  Frequency=" << Frequency << "\n";
   oss << "  turn_sphi=" << turn_sphi << "\n";
   oss << "  turn_dphi=" << turn_dphi << "\n";
   oss << "  wallColor= "; for (auto entry : wallColor) { oss << " " << entry; }; oss << "\n";
