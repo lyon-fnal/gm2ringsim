@@ -213,8 +213,16 @@ void gm2ringsim::MuonStorageStatusAction::userSteppingAction(const G4Step *curre
       }
     }
   }
+
+  //-------------------------
+  //
+  // Only run this for muons
+  //
+  //-------------------------
+  if ( currentTrack->GetParticleDefinition()->GetPDGEncoding() != 13 &&
+       currentTrack->GetParticleDefinition()->GetPDGEncoding() != -13 ) { return; }
   
-  
+
   // MUON STORAGE  
   G4String const& currentVolumeName =
     currentTrack -> GetVolume() -> GetName();
