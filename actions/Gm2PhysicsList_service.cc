@@ -53,7 +53,7 @@ using namespace std;
 
 gm2ringsim::Gm2PhysicsListService::Gm2PhysicsListService(fhicl::ParameterSet const & p, art::ActivityRegistry &) :
   PhysicsListServiceBase(),
-  DecayMode_(p.get<std::string>("DecayMode", "sm")),
+  decayMode_(p.get<std::string>("decayMode", "sm")),
   physicsListName_(G4String(p.get<std::string>("physicsListName", ""))),
   verboseLevel_(p.get<int>("verboseLevel", 0)),
   thePhysicsList_(0),
@@ -65,7 +65,15 @@ gm2ringsim::Gm2PhysicsListService::Gm2PhysicsListService(fhicl::ParameterSet con
   theRayleighScatteringProcess(0),
   theMieHGScatteringProcess(0),
   theBoundaryProcess(0)
-{}
+{
+  // Let's check for the obsolete FHICL parameter muonDecayMode and throw exception if in FHICL file. For that
+  // we use a very special default value that is pretty unlikely someone would use as initializer in the FHICL file
+  G4String MuonDecayMode(p.get<std::string>("muonDecayMode", "TotallyUnlikelySomebodyUsesThis"));
+  if(MuonDecayMode != "TotallyUnlikelySomebodyUsesThis"){
+    throw cet::exception("Gm2PhysicsList_service") << "" <<  "Obsolete FHICL parameter muonDecayMode found. This has been replaced with 'decayMode'.\n" <<
+      " Please see https://muon.npl.washington.edu/elog/g2/Software/63 for explanation of this parameter\n";
+  }
+}
 
 G4VUserPhysicsList* gm2ringsim::Gm2PhysicsListService::makePhysicsList() {
   
@@ -109,17 +117,17 @@ void gm2ringsim::Gm2PhysicsListService::initializePhysicsList() {
   // React to decay mode
   
   // If "none" or "disable" then turn off decay
-  if (DecayMode_ == "none" || DecayMode_ == "disable") {
+  if (decayMode_ == "none" || decayMode_ == "disable") {
     this->disableDecay();
   }
   
   // Isotropic decay?
-  else if (DecayMode_ == "iso" ) {
+  else if (decayMode_ == "iso" ) {
     this->enableIsotropicDecay();
   }
   
   // Standard decay
-  else if ( DecayMode_ == "sm" || DecayMode_ == "standard") {
+  else if ( decayMode_ == "sm" || decayMode_ == "standard") {
     this->enableSMDecay();
   }
   

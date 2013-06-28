@@ -82,7 +82,7 @@ services: {
 
     physicalVolumeStore: {}
     Gm2PhysicsList: {
-      DecayMode: "sm"
+      decayMode: "iso"
       physicsListName: "FTFP_BERT"
    }
 
