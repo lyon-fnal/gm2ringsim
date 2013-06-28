@@ -63,6 +63,7 @@ namespace gm2ringsim {
     std::vector<double> ext;
     const double tracker_sphi;
     const double tracker_dphi;
+    const int Frequency;
     const double turn_sphi;
     const double turn_dphi;
     

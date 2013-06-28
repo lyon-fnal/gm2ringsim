@@ -199,9 +199,30 @@ void gm2ringsim::VacuumChamber::makeVacuumPVs(
 
 void gm2ringsim::VacuumChamber::makeVirtualRingStationPVs(
           std::vector<G4LogicalVolume*>& vacLVs,
-          const VacGeometry& g) {
+          const VacGeometry& g)
+{
+  int freq = g.Frequency;
   
   for(int arc=0; arc!=12; ++arc){
+
+    if ( freq == 12 ) { ; } // Build all
+    else if ( freq == 6 ) { // Build every other one
+      if ( arc % 2 != 0 ) { continue; }
+    }
+    else if ( freq == 4 ) { // Build every third one
+      if ( arc % 3 != 0 ) { continue; }
+    }
+    else if ( freq == 3 ) { // Build every quarter one
+      if ( arc % 4 != 0 ) { continue; }
+    }
+    else if ( freq == 2 ) { // Build every 6th one
+      if ( arc % 6 != 0 ) { continue; }
+    }
+    else if ( freq == 1 ) { // Build every 6th one
+      if ( arc % 12 != 0 ) { continue; }
+    }
+
+
     // In ring, non-physical beam ring stations
     G4Tubs *virtualringstationTubs_S= new G4Tubs("virtualringstationTubs",
                                       g.track_rMin,
@@ -218,6 +239,8 @@ void gm2ringsim::VacuumChamber::makeVirtualRingStationPVs(
                         ttLVName.c_str());
     
     std::string ttPVName = artg4::addNumberToName("VirtualRingStationPV", arc);
+
+    G4cout << "Building " << ttPVName << G4endl;
 
     new G4PVPlacement(new G4RotationMatrix(0,0,0),
                                            G4ThreeVector(0,0,0),

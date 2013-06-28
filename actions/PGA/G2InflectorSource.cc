@@ -61,7 +61,8 @@ gm2ringsim::G2InflectorSource::G2InflectorSource() :
   dPOverP(0.005),
   SigmaT(50),
   Particle_("mu+"),
-  NumParticles_(1)
+  NumParticles_(1),
+  DecayScaleFactor_(1)
 {
   inflectorGun_ = new G4ParticleGun();
   //inflectorGun_->SetVerbosity(true);
@@ -116,7 +117,7 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
     if ( first_event ) {
       G4cout << "Found Particle Info for [" << Particle_ << "]" << G4endl;
       G4cout << " g-2/2 : " << def->CalculateAnomaly() << G4endl;
-      def->SetPDGLifeTime(def->GetPDGLifeTime()/500.0);
+      def->SetPDGLifeTime(def->GetPDGLifeTime()/DecayScaleFactor_);
       def->DumpTable();
     }
     inflectorGun_ ->SetParticleDefinition(def);
@@ -320,19 +321,31 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
   }
   else {
     bool inside = false;
-    while ( inside == false ) {	
-      x0 = (2*G4UniformRand()-1) * std::sqrt( epsilonX*betaX0 );
-      x0Prime = (2*G4UniformRand()-1) * std::sqrt( epsilonX*gammaX0 );
+    if ( epsilonX > 0.0 ) {
+      while ( inside == false ) {	
+	x0 = (2*G4UniformRand()-1) * std::sqrt( epsilonX*betaX0 );
+	x0Prime = (2*G4UniformRand()-1) * std::sqrt( epsilonX*gammaX0 );
 	
-      if ( TMath::Power(x0Prime/TMath::Sqrt(epsilonX*gammaX0), 2) + TMath::Power(x0/TMath::Sqrt(epsilonX*betaX0), 2) < 1 ) { inside = true; }
+	if ( TMath::Power(x0Prime/TMath::Sqrt(epsilonX*gammaX0), 2) + TMath::Power(x0/TMath::Sqrt(epsilonX*betaX0), 2) < 1 ) { inside = true; }
+      }
+    }
+    else {
+      x0 = 0.0;
+      x0Prime = 0.0;
     }
 
     inside = false;
-    while ( inside == false ) {
-      y0 = (2*G4UniformRand()-1) * std::sqrt( epsilonY*betaY0 );
-      y0Prime = (2*G4UniformRand()-1) * std::sqrt( epsilonY*gammaY0 );
-      
-      if ( TMath::Power(y0Prime/TMath::Sqrt(epsilonY*gammaY0), 2) + TMath::Power(y0/TMath::Sqrt(epsilonY*betaY0), 2) < 1 ) { inside = true; }      
+    if ( epsilonY > 0.0 ) {
+      while ( inside == false ) {
+	y0 = (2*G4UniformRand()-1) * std::sqrt( epsilonY*betaY0 );
+	y0Prime = (2*G4UniformRand()-1) * std::sqrt( epsilonY*gammaY0 );
+	
+	if ( TMath::Power(y0Prime/TMath::Sqrt(epsilonY*gammaY0), 2) + TMath::Power(y0/TMath::Sqrt(epsilonY*betaY0), 2) < 1 ) { inside = true; }      
+      }
+    }
+    else {
+      y0 = 0.0;
+      y0Prime = 0.0;
     }
   }
 

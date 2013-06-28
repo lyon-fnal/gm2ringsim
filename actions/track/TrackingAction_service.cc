@@ -18,13 +18,17 @@ using std::string;
 
 gm2ringsim::TrackingAction::TrackingAction(fhicl::ParameterSet const & p, 
 					      art::ActivityRegistry &)
-  : TrackingActionBase(p.get<string>("name","TrackingAction")),
-    OnlyTrackPrimary_(p.get<bool>("OnlyTrackPrimary", false)),
-    TrackPrimaryDecay_(p.get<bool>("TrackPrimaryDecay", true)),
-    TrackOrphans_(p.get<bool>("TrackOrphans", true)),
-    myArtHits_(new TrackingActionArtRecordCollection),
-    myMuonCharge_(new int(2)),
-    logInfo_("TrackingAction")
+  : 
+  artg4::TrackingActionBase(p.get<string>("name","TrackingAction")),
+  artg4::RunActionBase(p.get<std::string>("name")),
+  OnlyTrackPrimary_(p.get<bool>("OnlyTrackPrimary", false)),
+  TrackPrimaryDecay_(p.get<bool>("TrackPrimaryDecay", true)),
+  TrackOrphans_(p.get<bool>("TrackOrphans", true)),
+  Ndecays_(0),
+  Nlost_(0),
+  myArtHits_(new TrackingActionArtRecordCollection),
+  myMuonCharge_(new int(2)),
+  logInfo_("TrackingAction")
 {
   G4cout << "================ TrackingAction ================" << G4endl;
   G4cout << "| OnlyTrackPrimary:  " << OnlyTrackPrimary_ << G4endl;
@@ -38,9 +42,100 @@ gm2ringsim::TrackingAction::~TrackingAction()
 {}
 
 
+
+
+// Overload the PreUserTrackingAction method to initialize the track and
+// add it to our collection
+void gm2ringsim::TrackingAction::postUserTrackingAction(const G4Track * currentTrack)
+{  
+  if ( currentTrack->GetTrackID() == 1 ) {
+    if ( currentTrack->GetTrackStatus() == fKillTrackAndSecondaries ) {
+//       G4cout << "Muon track is stopped, but alive." << G4endl;
+//       G4cout << "  Rhat = " << ComputeRhat(currentTrack) << "\t" << "Vhat = " << ComputeVhat(currentTrack) << G4endl;
+      Nlost_++;
+      FillTrackingActionArtRecord(currentTrack, gm2ringsim::kLost);
+      // Stored muon
+    }
+    else if ( currentTrack->GetTrackStatus() == fStopAndKill ) {
+//       G4cout << "Muon track is killed." << G4endl;
+//       G4cout << "  Rhat = " << ComputeRhat(currentTrack) << "\t" << "Vhat = " << ComputeVhat(currentTrack) << G4endl;
+//       G4cout << "Muon decay..." << G4endl;
+      Ndecays_++;
+      FillTrackingActionArtRecord(currentTrack, gm2ringsim::kDecay);
+    }
+    else {
+      G4cout << "Track Status = " << currentTrack->GetTrackStatus() << G4endl;
+    }
+  }
+  else {
+    if ( currentTrack->GetTrackStatus() == fKillTrackAndSecondaries ) {
+      FillTrackingActionArtRecord(currentTrack, gm2ringsim::kDecay);
+    }
+  }
+}
+
+
+
 // Overload the PreUserTrackingAction method to initialize the track and
 // add it to our collection
 void gm2ringsim::TrackingAction::preUserTrackingAction(const G4Track * currentTrack)
+{
+  FillTrackingActionArtRecord(currentTrack, gm2ringsim::kBirth);
+}
+
+
+// void gm2ringsim::TrackingAction::CheckForStorage(const G4Track * currentTrack)
+// {
+//   if( currentTrack -> GetTrackID() != 1 ) { return; }
+
+//   // MUON STORAGE  
+//   G4String const& currentVolumeName =
+//     currentTrack -> GetVolume() -> GetName();
+
+//   //  if( currentTrack->GetTrackID() == 1 )                                                                          
+//   //G4cout << currentVolumeName << '\n';                                                                         
+  
+//   if( currentVolumeName == "InflectorMandrel" ){
+//     FillTrackingActionArtRecord(currentTrack, 1);
+//     currentTrack -> SetTrackStatus(fStopAndKill);
+//     return;
+//   }
+//   else if( currentVolumeName == "theLaboratory" ){
+//     FillTrackingActionArtRecord(currentTrack, 1);    
+//     currentTrack -> SetTrackStatus(fStopAndKill);
+//     return;
+//   }
+
+//   G4int turn = TurnCounter::getInstance().turns();
+  
+//   if( currentTrack -> GetTrackID() == 1 ) {
+//     if( turn >= turnsForStorage_ ) {
+//       FillTrackingActionArtRecord(currentTrack, 1);    
+//       currentTrack -> SetTrackStatus(fStopAndKill);
+//       return;
+//     }
+//   }
+  
+//   G4ThreeVector const currentPos =
+//     currentStep -> GetPostStepPoint() -> GetPosition();
+//   G4double const posX = currentPos.getX();
+//   G4double const posY = currentPos.getY();
+//   G4double const posZ = currentPos.getZ();
+//   G4double const posR = sqrt(posX*posX + posZ*posZ);
+  
+  
+//   if( currentTrack -> GetTrackID() == 1 ) {
+//     if(posR < stored_rmin_ || posR > stored_rmax_ || std::abs(posY) > stored_y_) {
+//       FillTrackingActionArtRecord(currentTrack, 1);    
+//       currentTrack -> SetTrackStatus(fStopAndKill);
+//       return;
+//     }
+//   }
+// }
+
+
+// Fill ArtRecord
+void gm2ringsim::TrackingAction::FillTrackingActionArtRecord(const G4Track * currentTrack, int status)
 {
   bool debug = false;
   bool keep_track = true;
@@ -114,7 +209,7 @@ void gm2ringsim::TrackingAction::preUserTrackingAction(const G4Track * currentTr
     //G4cout << "TrackOrphans: " << currentTrack->GetTrackID() << " , " << currentTrack->GetParentID() << G4endl;
     if ( currentTrack->GetTrackID() != 1 ) { 
       if ( currentTrack->GetParentID() != 1 ) { 
-	if ( debug || 1 ) { G4cout << "Not storing track [" << currentTrack->GetDefinition()->GetParticleName() << "] because it's not primary decay product." << G4endl; }
+	if ( debug ) { G4cout << "Not storing track [" << currentTrack->GetDefinition()->GetParticleName() << "] because it's not primary decay product." << G4endl; }
 	keep_track = false;
       }
     }
@@ -133,7 +228,6 @@ void gm2ringsim::TrackingAction::preUserTrackingAction(const G4Track * currentTr
   // Don't store unwanted truth particles
   //-------------------------------------
   G4cout.precision(3);
-  if ( debug ) { G4cout << "Found track[" << currentTrack->GetParticleDefinition()->GetParticleName() << "] [t=" << currentTrack->GetGlobalTime() << "] [" << currentTrack->GetParentID() << "] : " << keep_track << G4endl; }
   if ( debug && !keep_track ) { G4cout << "Not storing track [" << currentTrack->GetDefinition()->GetParticleName() << "] for some reason." << G4endl; }
   if ( keep_track == false ) { return; }
   
@@ -153,6 +247,9 @@ void gm2ringsim::TrackingAction::preUserTrackingAction(const G4Track * currentTr
   // Get the volume ID
   art::ServiceHandle<artg4::PhysicalVolumeStoreService> pvs;
   tr.volumeUID = pvs->idGivenPhysicalVolume( currentTrack->GetVolume() );
+
+  // The track status, 0 for pre and 1 for post
+  tr.status = status;
   
   G4ThreeVector pos = currentTrack->GetPosition();
   G4ThreeVector mom = currentTrack->GetMomentum();
@@ -181,6 +278,8 @@ void gm2ringsim::TrackingAction::preUserTrackingAction(const G4Track * currentTr
   tr.pvhat = pvhat;
   tr.e = currentTrack->GetTotalEnergy();
 
+
+  if ( debug ) { G4cout << "Found track[" << currentTrack->GetParticleDefinition()->GetParticleName() << "] [t=" << currentTrack->GetGlobalTime() << "] [" << currentTrack->GetParentID() << "] : " << status << "\t" << keep_track << "\t" << prhat << "\t" << pvhat << G4endl; }
 
 
   //-----------------------
@@ -220,6 +319,23 @@ void gm2ringsim::TrackingAction::fillEventWithArtStuff(art::Event & e)
   // Point to a new valid collection
   myArtHits_.reset( new TrackingActionArtRecordCollection() );
 }
+
+void gm2ringsim::TrackingAction::beginOfRunAction(const G4Run *) {
+  Nlost_ = 0;
+  Ndecays_ = 0;
+}
+
+void gm2ringsim::TrackingAction::endOfRunAction(const G4Run *currentRun) {
+  
+  G4double totalEvents = currentRun -> GetNumberOfEvent();
+
+  G4cout << "============== TrackingAction::RunEnd ==============" << G4endl;
+  G4cout << "   Muons injected     : " << totalEvents << G4endl;
+  G4cout << "   Muons decayed      : " << Ndecays_ << G4endl;
+  G4cout << "   Muons lost         : " << Nlost_ << G4endl;
+  G4cout << "====================================================" << G4endl;
+}
+
 
 using gm2ringsim::TrackingAction;
 DEFINE_ART_SERVICE(TrackingAction)

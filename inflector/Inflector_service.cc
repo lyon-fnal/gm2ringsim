@@ -650,14 +650,24 @@ void gm2ringsim::Inflector::buildInflector( ) {
   
 } //Inflector::buildInflector() 
 
-void gm2ringsim::Inflector::buildCryostatWalls_SandL(){
+void gm2ringsim::Inflector::buildCryostatWalls_SandL()
+{
+
+  G4Material *cryowall_material;
+  if ( infGeom_.CryoWallMaterial == "Al" ) {
+    cryowall_material = artg4Materials::Al();
+  }
+  else {
+    cryowall_material = artg4Materials::Vacuum();
+  }
+
   G4VSolid *parallelCryoWall_S = new G4Box("parallelCryoWall_S",
 					   infGeom_.parWall_X,
 					   infGeom_.parWall_Y,
 					   infGeom_.parWall_Z);
   
   parallelCryoWall_L_ = new G4LogicalVolume(parallelCryoWall_S,
-					    artg4Materials::Al(),
+					    cryowall_material,
 					    "parallelCryoWall_L",
 					    0,
 					    0,
@@ -684,7 +694,7 @@ void gm2ringsim::Inflector::buildCryostatWalls_SandL(){
 						     cryoWindowTransform);
   
   perpCryoWall_L_ = new G4LogicalVolume(perpCryoWall_SS,
-					artg4Materials::Al(),
+					cryowall_material,
 					"perpCryoWall_L",
 					0,
 					0,
@@ -927,11 +937,12 @@ void gm2ringsim::Inflector::rebuildEOM(){
     if ( myedm ) {
       g2EqEMFieldWithEDM *iEquation = new g2EqEMFieldWithEDM(inflectorMagField_);
       iEquation->SetEta(sts_.GetEta());
-      //iEquation->SetAnomaly(sts_.GetGm2());
+      if ( sts_.GetGm2() >= 0 ) { iEquation->SetAnomaly(sts_.GetGm2()); }
       iStepper_ = new G4ClassicalRK4(iEquation, 12);
     }
     else {
       iEquation_ = new G4Mag_SpinEqRhs(inflectorMagField_);
+      G4cout << "WARNING: EDM + spin tracking does not work in the inflector...." << G4endl;
       iStepper_ = new G4ClassicalRK4(iEquation_, 12);
     }
   }

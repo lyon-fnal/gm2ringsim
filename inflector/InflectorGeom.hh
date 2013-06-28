@@ -33,6 +33,7 @@ namespace gm2ringsim {
     const double equivalentNbTiWidth;
 
     // X&Y constants were divided by 2. Hardcoded post-division 11/2012
+    const std::string CryoWallMaterial;
     const double parWall_X;
     const double parWall_Y;
     const double parWall_Z;

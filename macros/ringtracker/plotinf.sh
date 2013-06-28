@@ -1,5 +1,66 @@
 #!/bin/sh
 
+NiceTimestampName()
+{
+    if [ ${1} == "Init_Init" ]; then
+	nicetimestamp="Initial Phase Space"
+    elif [ ${1} == "FinalAvg_Init" ]; then
+	nicetimestamp="Time Averged Phase Space for Last 30 Turns"
+    elif [ ${1} == "Turn" ]; then
+	nicetimestamp="12 Hits/Turn"
+    elif [ ${1} == "OncePerTurn" ]; then
+	nicetimestamp="1 Hit/Turn"
+    else
+	nicetimestamp=${1}
+    fi
+}
+
+EndBeginRow()
+{
+    EndRow
+    BeginRow
+}
+
+BeginRow()
+{
+cat >> ${outputdir}/index.html <<EOF
+      <tr>
+EOF
+
+if ! [ -z "${1}" ]; then
+    NiceTimestampName ${1}
+cat >> ${outputdir}/index.html <<EOF
+        <td><b><i><center>${nicetimestamp}</center></i></b></td>
+EOF
+fi
+    
+}
+
+EndRow()
+{
+cat >> ${outputdir}/index.html <<EOF
+      </tr>
+EOF
+}
+
+BeginTable()
+{
+cat >> ${outputdir}/index.html <<EOF
+    <br>
+    <table cellspacing=1 cellpadding=3>
+EOF
+}
+
+EndTable()
+{
+cat >> ${outputdir}/index.html <<EOF
+    </table>
+    <br>
+    <hr>
+    <br>
+EOF
+}
+
 write()
 {
     outfile=${1}
@@ -18,7 +79,7 @@ cat >> ${outfile} <<EOF
 EOF
     else
 #	echo "[${outputdir}/${filename}] not found."
-	echo "	  <td></td>" >> ${outfile}
+	echo "	  <td>${filename}</td>" >> ${outfile}
     fi
 }
 
@@ -39,584 +100,254 @@ cat >> ${outputdir}/index.html <<EOF
   </head>
 
   <body>
-    <table cellspacing=1 cellpadding=3>
-    <tr>
-      <td><a href="#inflector">Inflector Tracker</a></td>
-      <td><a href="#inflectorhits">Inflector Hits</a></td>
-      <td><a href="#ringhits">Ring Hits</a></td>
-      <td><a href="#systemhits">System Hits</a></td>
-      <td><a href="#tangency">Tangency</a></td>
-    </tr>
-    <tr>
-      <td><a href="#muon">Muon Info</a></td>
-      <td><a href="#time">Tracking Vs Time</a></td>
-      <td><a href="#rhoy">X and Y Distribution</a></td>
-      <td><a href="#stored">Storage Vs Time</a></td>
-      <td><a href="#fft">FFT Info</a></td>
-    </tr>
-    <tr>
-      <td><a href="#kick">Intercept and Kick Required</a></td>
-      <td><a href="#vac">Tracking Per 30 degrees</a></td>
-      <td><a href="#ps">Final 1D Phase Space</a></td>
-    </tr>
-    <tr>
-      <td><a href="#Start">Generated Phase Space</a></td>
-      <td><a href="#10turns">Generated Phase Space (>20 us)</a></td>
-      <td><a href="#50turns">Generated Phase Space (>50 us)</a></td>
-      <td><a href="#FinalAvg">Generated Phase Space (Final)</a></td>
-      <td></td>
-    </tr>
-    </table>
+EOF
 
-    <hr>
-    <a name="inflector"></a>
-    <h2><center>Inflector Tracker Stats</center></h2>
-    <table cellspacing=1 cellpadding=3>
-EOF
-trackers="0 1 2 3 4 5 6 7 8"
-for tracker in ${trackers}; do
+BeginTable
+BeginRow
 cat >> ${outputdir}/index.html <<EOF
-	<tr>
-          <td>${tracker}</td>
+      <td><a href="#RingTracker">Ring Tracker (30 deg)</a></td>
+      <td><a href="#RingTrackerFinalAvg">Ring Tracker <Avg></a></td>
+      <td><a href="#RingTrackerwithTime">Ring Tracker w/ Time</a></td>
 EOF
-histograms="RhoY XprimeX YprimeY RhoY_RingUnit XprimeX_RingUnit YprimeY_RingUnit"
-for histogram in ${histograms}; do
-    write ${outputdir}/index.html InflectorTracker_${tracker}_${histogram}.png
+EndBeginRow
+cat >> ${outputdir}/index.html <<EOF
+      <td><a href="#BirthMuonPS">Birth Muon PS</a></td>
+      <td><a href="#DecayMuonPS">Birth Muon PS</a></td>
+      <td><a href="#BirthElectronPS">Birth Electron PS</a></td>
+      <td><a href="#DecayElectronPS">Decay Electron PS</a></td>
+EOF
+EndBeginRow
+cat >> ${outputdir}/index.html <<EOF
+      <td><a href="#DecayMuonPSwithTime">Birth Muon PS w/ Time</a></td>
+      <td><a href="#BirthElectronPSwithTime">Birth Electron PS w/ Time</a></td>
+      <td><a href="#DecayElectronPSwithTime">Decay Electron PS w/ Time</a></td>
+EOF
+EndRow
+EndTable
+
+
+#############################
+#
+#
+# Ring Trackers (Just Muons)
+#
+#
+#############################
+
+
+timestamps="Turn OncePerTurn"
+BeginTable
+for timestamp in ${timestamps}; do
+    BeginRow ${timestmap}
+
+    histograms="Rhat Y Mom Pol PolY Xe"
+    for histogram in ${histograms}; do
+	write ${outputdir}/index.html Tracker${histogram}${timestamp}.png
+    done
+    
+    EndRow
 done
-cat >> ${outputdir}/index.html <<EOF
-        </tr>
-EOF
-done
+EndTable
+
+
+
+
+#############################
+#
+#
+# Ring Trackers (Just Muons)
+#
+#
+#############################
 
 cat >> ${outputdir}/index.html <<EOF
-    </table>
-    <br>
-    <hr>
-    <br>
-    <a name="infletorhits"></a>
-    <h2><center>Ring Hit Stats In The Inflector System</center></h2>
-    <table cellspacing=1 cellpadding=3>
-EOF
-
-
-
-
-trackers="UpstreamEndFlange UpstreamEquivalentNbTi UpstreamEquivalentAl UpstreamEquivalentCu UpstreamWindow Mandrel DownstreamWindow DownstreamEquivalentAl DownstreamEquivalentCu DownstreamEquivalentNbTi DownstreamEndFlange"
-for tracker in ${trackers}; do
-cat >> ${outputdir}/index.html <<EOF
-	<tr>
-          <td>${tracker} (all)</td>
-EOF
-histograms="Hits_RhoY Hits_XZ Hits_DeltaPx Hits_DeltaPy _Nhits"
-for histogram in ${histograms}; do
-    write ${outputdir}/index.html ${tracker}${histogram}.png
-done
-cat >> ${outputdir}/index.html <<EOF
-        </tr>
-	<tr>
-          <td>${tracker} (stored)</td>
-EOF
-histograms="Hits_Stored_RhoY Hits_Stored_XZ Hits_Stored_DeltaPx Hits_Stored_DeltaPy _Stored_Nhits"
-for histogram in ${histograms}; do
-    write ${outputdir}/index.html ${tracker}${histogram}.png
-done
-cat >> ${outputdir}/index.html <<EOF
-        </tr>
-EOF
-done
-
-
-cat >> ${outputdir}/index.html <<EOF
-    </table>
-    <br>
-    <hr>
-    <br>
-    <a name="ringhits"></a>
-    <h2><center>Ring Hit Stats For Specific Systems</center></h2>
-    <table cellspacing=1 cellpadding=3>
-EOF
-
-
-
-trackers="Quad10 Quad11 Quad20 Quad21 Quad30 Quad31 Quad40 Quad41 Kicker1 Kicker2 Kicker3"
-#trackers=""
-for tracker in ${trackers}; do
-cat >> ${outputdir}/index.html <<EOF
-	<tr>
-          <td>${tracker} (all)</td>
-EOF
-histograms="Hits_RhoY Hits_XZ Hits_DeltaPx Hits_DeltaPy _Nhits"
-for histogram in ${histograms}; do
-    write ${outputdir}/index.html ${tracker}${histogram}.png
-done
-cat >> ${outputdir}/index.html <<EOF
-        </tr>
-	<tr>
-          <td>${tracker} (stored)</td>
-EOF
-histograms="Hits_Stored_RhoY Hits_Stored_XZ Hits_Stored_DeltaPx Hits_Stored_DeltaPy _Stored_Nhits"
-for histogram in ${histograms}; do
-    write ${outputdir}/index.html ${tracker}${histogram}.png
-done
-cat >> ${outputdir}/index.html <<EOF
-        </tr>
-EOF
-done
-
-
-cat >> ${outputdir}/index.html <<EOF
-    </table>
-    <br>
-    <hr>
-    <br>
-    <a name="tangency"></a>
-    <h2><center>Prhat and Pvhat At Inflector/Ring</center></h2>
-    <table cellspacing=1 cellpadding=3>
-    <tr>
-EOF
-
-write ${outputdir}/index.html InflectorTracker_PrhatPvhatEntrance.png
-write ${outputdir}/index.html InflectorTracker_PrhatPvhatExit.png
-write ${outputdir}/index.html RingTracker_PrhatPvhatEntrance.png
-
-
-cat >> ${outputdir}/index.html <<EOF
-      </tr>
-    </table>
-    <br>
-    <hr>
-    <br>
-    <a name="systemhits"></a>
-    <h2><center>Ring Hit Stats For Larger Systems</center></h2>
-    <table cellspacing=1 cellpadding=3 border=1>
-EOF
-
-
-
-trackers="Inflector Cryostat Quad Kicker Collimator" # Vacuum StrawTracker Calo Xtal"
-for tracker in ${trackers}; do
-cat >> ${outputdir}/index.html <<EOF
-	<tr>
-          <td>${tracker} (all)</td>
-EOF
-histograms="Hits_RhoY Hits_XZ Hits_DeltaPx Hits_DeltaPy _Nhits"
-for histogram in ${histograms}; do
-    write ${outputdir}/index.html ${tracker}${histogram}.png
-done
-cat >> ${outputdir}/index.html <<EOF
-        </tr>
-	<tr>
-          <td>${tracker} (stored)</td>
-EOF
-histograms="Hits_Stored_RhoY Hits_Stored_XZ Hits_Stored_DeltaPx Hits_Stored_DeltaPy _Stored_Nhits"
-for histogram in ${histograms}; do
-    write ${outputdir}/index.html ${tracker}${histogram}.png
-done
-cat >> ${outputdir}/index.html <<EOF
-        </tr>
-EOF
-done
-
-cat >> ${outputdir}/index.html <<EOF
-    </table>
-    <br>
-    <hr>
-    <br>
-    <a name="muon"></a>
-    <h2><center>Muon Momentum Stats For Specific Times</center></h2>
-    <table cellspacing=1 cellpadding=3>
-	<tr>
-EOF
-tracker="MuonMomentum"
-histograms="G4 RingEntrance 90degrees"
-for histogram in ${histograms}; do
-    write ${outputdir}/index.html ${tracker}_${histogram}.png
-done
-cat >> ${outputdir}/index.html <<EOF
-	</tr>
-	<tr>
-EOF
-
-
-
-tracker="MuonMomentum"
-histograms="}80degrees 270degrees"
-for histogram in ${histograms}; do
-    write ${outputdir}/index.html ${tracker}_${histogram}.png
-done
-cat >> ${outputdir}/index.html <<EOF
-	</tr>
-    </table>
-
-    <br>
-    <hr>
-    <br>
-    <a name="time"></a>
-    <h2><center>Ring Tracker Stats Vs. Turn</center></h2>
-
-    <table cellspacing=1 cellpadding=3 border=1>
-EOF
-
-
-
-histograms="Turn OncePerTurn Turn_Electron"
-for histogram in ${histograms}; do
-cat >> ${outputdir}/index.html <<EOF
-	<tr>
-EOF
-trackers="Rho Y Prhat Pvhat Mom Pol PolY Xe"
-trackers="Rho Y Mom Pol PolY Xe"
-for tracker in ${trackers}; do
-    write ${outputdir}/index.html Tracker${tracker}${histogram}.png
-done
-cat >> ${outputdir}/index.html <<EOF
-        </tr>
-EOF
-done
-
-cat >> ${outputdir}/index.html <<EOF
-    </table>
-
-    <br>
-    <hr>
-    <br>
-
-    <a name="rhoy"></a>
-    <h2><center>X and Y Distributions</center></h2>
-    <table cellspacing=1 cellpadding=3>
-    <tr>
-EOF
-    write ${outputdir}/index.html TrackerRho.png
-    write ${outputdir}/index.html TrackerY.png
-cat >> ${outputdir}/index.html <<EOF
-	</tr>
-EOF
-
-
-
-
-cat >> ${outputdir}/index.html <<EOF
-    </table>
-
-    <br>
-    <hr>
-    <br>
-
-    <a name="fft"></a>
-    <h2><center>FFT for X vs Turn and Y vs Turn</center></h2>
-
-    <table cellspacing=1 cellpadding=3>
-    <tr>
-EOF
-    write ${outputdir}/index.html WavelengthX.png
-    write ${outputdir}/index.html WavelengthY.png
-cat >> ${outputdir}/index.html <<EOF
-	</tr>
-EOF
-
-
-
-cat >> ${outputdir}/index.html <<EOF
-    </table>
-
-    <br>
-    <hr>
-    <br>
-
-    <a name="stored"></a>
-    <h2><center>Ring Tracker Stats For Stored Muons</center></h2>
-
-    <table cellspacing=1 cellpadding=3>
-    <tr>
-EOF
-
-
-
-
-trackers="0Turn 1Turn 2Turn 5Turn 10Turn 50Turn 100Turn 200Turn 500Turn 1000Turn 2000Turn"
-trackers=""
-for tracker in ${trackers}; do
-cat >> ${outputdir}/index.html <<EOF
-	<tr>
-          <td>${tracker}</td>
-EOF
-histograms="RhoY thetaX thetaY thetaXY Momentum"
-for histogram in ${histograms}; do
-    write ${outputdir}/index.html RingTracker_${tracker}_${histogram}.png
-done
-cat >> ${outputdir}/index.html <<EOF
-        </tr>
-EOF
-done
-
-cat >> ${outputdir}/index.html <<EOF
-    </table>
-
-    <br>
-    <hr>
-    <br>
-
-    <a name="kick"></a>
-    <h2><center>Ring Intercept and Kick Required Stas</center></h2>
-
-    <table cellspacing=1 cellpadding=3>
-    <tr>
-EOF
-
-
-write ${outputdir}/index.html RingTracker_DegreeAtRhat0.png
-write ${outputdir}/index.html RingTracker_KickAtRhat0.png
-write ${outputdir}/index.html RingTracker_DegreeAtRhat0KickAtRhat0.png
-
-cat >> ${outputdir}/index.html <<EOF 
-        </tr>
-	<tr>
-EOF
-
-write ${outputdir}/index.html RingTracker_DegreeAtRhat0_Mom1.png
-write ${outputdir}/index.html RingTracker_KickAtRhat0_Mom1.png
-write ${outputdir}/index.html RingTracker_DegreeAtRhat0KickAtRhat0_Mom1.png
-
-cat >> ${outputdir}/index.html <<EOF 
-        </tr>
-	<tr>
-EOF
-
-write ${outputdir}/index.html RingTracker_DegreeAtRhat0_Mom4.png
-write ${outputdir}/index.html RingTracker_KickAtRhat0_Mom4.png
-write ${outputdir}/index.html RingTracker_DegreeAtRhat0KickAtRhat0_Mom4.png
-
-cat >> ${outputdir}/index.html <<EOF 
-        </tr>
-	<tr>
-EOF
-
-write ${outputdir}/index.html RingTracker_DegreeAtRhat0RhatInit.png
-write ${outputdir}/index.html RingTracker_KickAtRhat0RhatInit.png
-
-cat >> ${outputdir}/index.html <<EOF 
-        </tr>
-    </table>
-    <br>
-    <br>
-EOF
-
-cat >> ${outputdir}/index.html <<EOF
-    <a name="vac"></a>
-    <br>
+    <a name="RingTracker"></a>
     <h2><center>Ring Tracker Stats For Specific Turns</center></h2>
-    <table cellspacing=1 cellpadding=3>
 EOF
 
+BeginTable
 
 trackers="00 01 02 03 04 05 06 07 08"
+histograms="RhatY XprimeX YprimeY Mom Rhat Vhat"
 for tracker in ${trackers}; do
-cat >> ${outputdir}/index.html <<EOF
-	<tr>
-          <td>${tracker}</td>
-EOF
-histograms="RhoY XprimeX YprimeY Mom Rhat Vhat"
-for histogram in ${histograms}; do
-    write ${outputdir}/index.html RingTracker_${tracker}_${histogram}.png
-done
-cat >> ${outputdir}/index.html <<EOF
-        </tr>
-EOF
+    BeginRow ${tracker}
+    
+    for histogram in ${histograms}; do
+	write ${outputdir}/index.html RingTracker_${tracker}_${histogram}.png
+    done
+
+    EndRow
 done
 
-cat >> ${outputdir}/index.html <<EOF 
-        </tr>
-    </table>
-    <br>
-EOF
+EndTable
+
+
+#############################
+#
+#
+# Ring Trackers for Muons That Survive
+#
+#
+#############################
 
 cat >> ${outputdir}/index.html <<EOF
-    </table>
-
-    <br>
-    <hr>
-    <br>
-
-    <a name="Start"></a>
-    <h2><center>Measured (Ring) and Generated (G4) Phase Space for t=0</sub></center></h2>
-
-    <table cellspacing=1 cellpadding=3>
-	<tr>
-EOF
-	write ${outputdir}/index.html RingTracker_Time_Rhat.png
-	write ${outputdir}/index.html RingTracker_Time_Vhat.png
-	write ${outputdir}/index.html RingTracker_Time_Xprime.png
-	write ${outputdir}/index.html RingTracker_Time_Yprime.png
-	write ${outputdir}/index.html RingTracker_Time_Mom.png
-	write ${outputdir}/index.html RingTracker_Time_Pol.png
-	write ${outputdir}/index.html RingTracker_Time_PolX.png
-	write ${outputdir}/index.html RingTracker_Time_PolY.png
-	write ${outputdir}/index.html RingTracker_Time_Xe.png
-cat >> ${outputdir}/index.html <<EOF
-        </tr>
-        <tr>
-EOF
-	write ${outputdir}/index.html G4Track_Time_Rhat.png
-	write ${outputdir}/index.html G4Track_Time_Vhat.png
-	write ${outputdir}/index.html G4Track_Time_Xprime.png
-	write ${outputdir}/index.html G4Track_Time_Yprime.png
-	write ${outputdir}/index.html G4Track_Time_Mom.png
-	write ${outputdir}/index.html G4Track_Time_Pol.png
-	write ${outputdir}/index.html G4Track_Time_PolX.png
-	write ${outputdir}/index.html G4Track_Time_PolY.png
-	write ${outputdir}/index.html G4Track_Time_Xe.png
-cat >> ${outputdir}/index.html <<EOF
-        </tr>
-        <tr>
-EOF
-	write ${outputdir}/index.html G4Track_Time_RhoY.png
-	write ${outputdir}/index.html G4Track_Time_XprimeX.png
-	write ${outputdir}/index.html G4Track_Time_YprimeY.png
-cat >> ${outputdir}/index.html <<EOF
-        </tr>
-    </table>
+    <a name="RingTrackerFinalAvg"></a>
+    <h2><center>Ring Tracker Stats For Last 30 Turns</center></h2>
 EOF
 
+BeginTable
+
+histograms="Rhat Vhat Xprime Yprime Mom Pol"
+timestamps="Init_Init FinalAvg_Init"
+for timestamp in ${timestamps}; do
+    BeginRow ${timestamp}
+    
+    for histogram in ${histograms}; do
+	write ${outputdir}/index.html RingTracker_Time_${histogram}_${timestamp}.png
+    done
+
+    EndRow
+done
+
+EndTable
+
+
+
+
+
+#############################
+#
+#
+# Evolution of Ring Tracker Hits
+#
+#
+#############################
 
 cat >> ${outputdir}/index.html <<EOF
-    <br>
-    <hr>
-    <br>
-
-    <a name="10turns"></a>
-    <h2><center>Measured (Ring) and Fraction of Generated (G4) Phase Space for t>t<sub>10-turns</sub></center></h2>
-
-    <table cellspacing=1 cellpadding=3>
-      <tr>
-EOF
-	write ${outputdir}/index.html RingTracker_Time_Rhat_10turns.png
-	write ${outputdir}/index.html RingTracker_Time_Vhat_10turns.png
-	write ${outputdir}/index.html RingTracker_Time_Xprime_10turns.png
-	write ${outputdir}/index.html RingTracker_Time_Yprime_10turns.png
-	write ${outputdir}/index.html RingTracker_Time_Mom_10turns.png
-	write ${outputdir}/index.html RingTracker_Time_Pol_10turns.png
-	write ${outputdir}/index.html RingTracker_Time_PolX_10turns.png
-	write ${outputdir}/index.html RingTracker_Time_PolY_10turns.png
-	write ${outputdir}/index.html RingTracker_Time_Xe_10turns.png
-cat >> ${outputdir}/index.html <<EOF
-      </tr>
-      <tr>
-EOF
-	write ${outputdir}/index.html G4Track_Time_Rhat_10turns.png
-	write ${outputdir}/index.html G4Track_Time_Vhat_10turns.png
-	write ${outputdir}/index.html G4Track_Time_Xprime_10turns.png
-	write ${outputdir}/index.html G4Track_Time_Yprime_10turns.png
-	write ${outputdir}/index.html G4Track_Time_Mom_10turns.png
-	write ${outputdir}/index.html G4Track_Time_Pol_10turns.png
-	write ${outputdir}/index.html G4Track_Time_PolX_10turns.png
-	write ${outputdir}/index.html G4Track_Time_PolY_10turns.png
-	write ${outputdir}/index.html G4Track_Time_Xe_10turns.png
-cat >> ${outputdir}/index.html <<EOF
-      </tr>
-    </table>
-
-    <br>
-    <hr>
-    <br>
-
-    <a name="50turns"></a>
-    <h2><center>Measured (Ring) and Fraction of Generated (G4) Phase Space for t>t<sub>50-turns</sub></center></h2>
-
-    <table cellspacing=1 cellpadding=3>
-      <tr>
-EOF
-	write ${outputdir}/index.html RingTracker_Time_Rhat_50turns.png
-	write ${outputdir}/index.html RingTracker_Time_Vhat_50turns.png
-	write ${outputdir}/index.html RingTracker_Time_Xprime_50turns.png
-	write ${outputdir}/index.html RingTracker_Time_Yprime_50turns.png
-	write ${outputdir}/index.html RingTracker_Time_Mom_50turns.png
-	write ${outputdir}/index.html RingTracker_Time_Pol_50turns.png
-	write ${outputdir}/index.html RingTracker_Time_PolX_50turns.png
-	write ${outputdir}/index.html RingTracker_Time_PolY_50turns.png
-	write ${outputdir}/index.html RingTracker_Time_Xe_50turns.png
-cat >> ${outputdir}/index.html <<EOF
-      </tr>
-      <tr>
-EOF
-	write ${outputdir}/index.html G4Track_Time_Rhat_50turns.png
-	write ${outputdir}/index.html G4Track_Time_Vhat_50turns.png
-	write ${outputdir}/index.html G4Track_Time_Xprime_50turns.png
-	write ${outputdir}/index.html G4Track_Time_Yprime_50turns.png
-	write ${outputdir}/index.html G4Track_Time_Mom_50turns.png
-	write ${outputdir}/index.html G4Track_Time_Pol_50turns.png
-	write ${outputdir}/index.html G4Track_Time_PolX_50turns.png
-	write ${outputdir}/index.html G4Track_Time_PolY_50turns.png
-	write ${outputdir}/index.html G4Track_Time_Xe_50turns.png
-cat >> ${outputdir}/index.html <<EOF
-      </tr>
-    </table>
+    <a name="RingTrackerwithTime"></a>
+    <h2><center>Ring Tracker Stats For All Turns</center></h2>
 EOF
 
+BeginTable
+
+
+timestamps="Turn OncePerTurn"
+histograms="Rhat Y Prhat Pvhat Pol PolY Xe"
+for timestamp in ${timestamps}; do
+    BeginRow ${timestamp}
+    
+    for histogram in ${histograms}; do
+	write ${outputdir}/index.html Tracker${histogram}_${timestamp}.png
+    done
+
+    EndRow
+done
+
+EndTable
+
+
+
+#############################
+#
+#
+# Generated Phase Space(s)
+#
+#
+#############################
+particles="BirthMuon DecayMuon BirthElectron DecayElectron BirthElectronEgtEth DecayElectronEgtEth"
+timehistograms="Rhat Vhat Xprime Yprime Mom Pol PolX PolY Xe"
+timestamp="Init"
+for particle in ${particles}; do
 cat >> ${outputdir}/index.html <<EOF
-    <br>
-    <hr>
-    <br>
-
-    <a name="Allturns"></a>
-    <h2><center>Measured (Ring) and Fraction of Generated (G4) Phase Space for t>t<sub>max-turns</sub></center></h2>
-
-    <table cellspacing=1 cellpadding=3>
-      <tr>
+    <a name="${particle}PS"></a>
+    <h2><center>Generated (G4) Phase Space for: ${particle}</center></h2>
 EOF
-	write ${outputdir}/index.html RingTracker_Time_Rhat_FinalAvg.png
-	write ${outputdir}/index.html RingTracker_Time_Vhat_FinalAvg.png
-	write ${outputdir}/index.html RingTracker_Time_Xprime_FinalAvg.png
-	write ${outputdir}/index.html RingTracker_Time_Yprime_FinalAvg.png
-	write ${outputdir}/index.html RingTracker_Time_Mom_FinalAvg.png
-	write ${outputdir}/index.html RingTracker_Time_Pol_FinalAvg.png
-	write ${outputdir}/index.html RingTracker_Time_PolX_FinalAvg.png
-	write ${outputdir}/index.html RingTracker_Time_PolY_FinalAvg.png
-	write ${outputdir}/index.html RingTracker_Time_Xe_FinalAvg.png
+
+    if [ ${particle} == "BirthMuon" ] || [ ${particle} == "DecayMuon" ]; then
+	timehistograms="RhatY XprimeX YprimeY Mom Pol PolX PolY Xe"
+    fi
+    if [ ${particle} == "BirthElectron" ] || [ ${particle} == "DecayElectron" ]; then
+	timehistograms="RhatY Xprime Yprime Mom Polarization"
+    fi
+    if [ ${particle} == "BirthElectronEgtEth" ] || [ ${particle} == "DecayElectronEgtEth" ]; then
+	timehistograms="RhatY Xprime Yprime Mom Polarization"
+    fi
+	
+
+    BeginTable
+    BeginRow
+    
+    for histogram in ${timehistograms}; do
+	write ${outputdir}/index.html G4Track_Time_${histogram}_${timestamp}_${particle}.png
+    done
+    
+    EndRow
+    EndTable
+done
+
+
+
+
+
+
+
+
+#############################
+#
+#
+# Evolution of Phase Space(s) with time
+#
+#
+#############################
+particles="DecayMuon BirthElectron DecayElectron BirthElectronEgtEth DecayElectronEgtEth"
+timehistograms="Rhat Vhat Xprime Yprime Mom Pol PolX PolY Xe"
+timestamp="Turn"
+for particle in ${particles}; do
 cat >> ${outputdir}/index.html <<EOF
-      </tr>
-      <tr>
+    <a name="${particle}PSwithTime"></a>
+    <h2><center>Evolution of (G4) Phase Space for: ${particle}</center></h2>
 EOF
-	write ${outputdir}/index.html G4Track_Time_Rhat_FinalAvg.png
-	write ${outputdir}/index.html G4Track_Time_Vhat_FinalAvg.png
-	write ${outputdir}/index.html G4Track_Time_Xprime_FinalAvg.png
-	write ${outputdir}/index.html G4Track_Time_Yprime_FinalAvg.png
-	write ${outputdir}/index.html G4Track_Time_Mom_FinalAvg.png
-	write ${outputdir}/index.html G4Track_Time_Pol_FinalAvg.png
-	write ${outputdir}/index.html G4Track_Time_PolX_FinalAvg.png
-	write ${outputdir}/index.html G4Track_Time_PolY_FinalAvg.png
-	write ${outputdir}/index.html G4Track_Time_Xe_FinalAvg.png
+    
+    BeginTable
+    if [ ${particle} == "DecayMuon" ]; then
+	BeginRow
+	
+	if [ ${particle} == "DecayMuon" ]; then
+	    histograms="Rhat Y Prhat Pvhat Mom"
+	    for histogram in ${histograms}; do
+		write ${outputdir}/index.html G4Track${histogram}_${particle}_${timestamp}.png
+	    done
+	fi
+
+	EndRow
+    fi
+    
+    if [ ${particle} == "BirthElectron" ] || [ ${particle} == "DecayElectron" ] || [ ${particle} == "BirthElectronEgtEth" ] || [ ${particle} == "DecayElectronEgtEth" ]; then
+	BeginRow
+	
+	histograms="NgtEth Yprime Vhat Nud"
+	for histogram in ${histograms}; do
+	    write ${outputdir}/index.html G4Track${histogram}_${particle}_${timestamp}.png
+	done
+	
+	EndBeginRow
+	
+	histograms="NgtEth Yprime Vhat Nud"
+	for histogram in ${histograms}; do
+	    write ${outputdir}/index.html G4Track${histogram}_${particle}_${timestamp}_x_FFT.png
+	done
+		
+	EndRow
+    fi
+
+    EndTable
+done
+
+
 cat >> ${outputdir}/index.html <<EOF
-      </tr>
-    </table>
-
-    <br>
-    <hr>
-    <br>
-
-    <a name="Mu2e"></a>
-    <h2><center>Generated (G4) Phase Space for mu -> e Decay</sub></center></h2>
-
-    <table cellspacing=1 cellpadding=3>
-	<tr>
-EOF
-	write ${outputdir}/index.html G4Track_Time_RhoY_Electron.png
-	write ${outputdir}/index.html G4Track_Time_Rhat_Electron.png
-	write ${outputdir}/index.html G4Track_Time_Vhat_Electron.png
-	write ${outputdir}/index.html G4Track_Time_XprimeX_Electron.png
-	write ${outputdir}/index.html G4Track_Time_YprimeY_Electron.png
-	write ${outputdir}/index.html G4Track_Time_Mom_Electron.png
-	write ${outputdir}/index.html G4Track_Time_dX_Electron.png
-	write ${outputdir}/index.html G4Track_Time_dCosTheta_Electron.png
-	write ${outputdir}/index.html G4Track_Time_dXdCosTheta_Electron.png
-cat >> ${outputdir}/index.html <<EOF
-        </tr>
-    </table>
-    <hr>
     <br>
     <br>
-    <hr>
     <br>
-
     <hr>
     <address><a href="mailto:tgadfort@bnl.gov">Thomas Gadfort</a></address>
 <!-- Created: Mon Nov  1 16:10:08 EDT 2010 -->

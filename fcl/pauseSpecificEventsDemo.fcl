@@ -1,18 +1,31 @@
+# pauseSpecificEventsDemo.fcl
+# Author: Tasha Arvanitis
+# Date: June 2013
+# This configuration file is based on Thomas's infgun.fcl.
+# It is intended to demonstrate the new functionality of pausing the
+# visualization only after specific events. The only relevant information is in
+# the configuration of artg4main, down around line 175.
+
 #include "geom/world.fcl"
 #include "geom/arc.fcl"
 #include "geom/vac.fcl"
 #include "geom/inflector.fcl"
 #include "geom/quad.fcl"
+#include "geom/oct.fcl"
 #include "geom/kicker_nokick.fcl"
+#include "geom/fiberHarp.fcl"
+#include "geom/station.fcl"
+#include "geom/calorimeter.fcl"
 #include "geom/collimator.fcl"
 #include "geom/PGA.fcl"
 #include "geom/g2GPS.fcl"
+#include "geom/strawtracker.fcl"
 
 process_name:myProcessName
 
 source: {
   module_type: EmptyEvent
-  maxEvents:  1000
+  maxEvents: 5
 }
 
 services: {
@@ -28,7 +41,7 @@ services: {
        }
        LogToFile : {
          type : "file"
-         filename : "/gm2/data/users/tgadfort/gm2ringsim/output/ScrapingOFF_NewSupports_100Turns_muplus_EDMTracking_Eta_0_Gm2_0_CentralOrbit_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize0pimmmrad_UniformInflectorGun_PerfectMatch_dP001_CollimatorON_StandardModelMuonDecay/ScrapingOFF_NewSupports_100Turns_muplus_EDMTracking_Eta_0_Gm2_0_CentralOrbit_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize0pimmmrad_UniformInflectorGun_PerfectMatch_dP001_CollimatorON_StandardModelMuonDecay.log"
+         filename : "gm2visdemo.log"
          append : false
          threshold : "ERROR"
        }
@@ -49,23 +62,27 @@ services: {
       arc:   @local::arc_geom
       vac:   @local::vac_geom
       inflector: @local::inflector_geom
-      quad:   @local::quad_geom
+      quad: @local::quad_geom
       kicker: @local::kicker_geom
+      fiberHarp: @local::fiberHarp_geom
+      station: @local::station_geom
+      calorimeter: @local::calorimeter_geom
       collimator: @local::collimator_geom
       pga: @local::PGA_geom
+      strawtracker: @local::strawtracker_geom
      }
 
      // Global simulation settings
      RunSettings : {
        SpinTracking : {
-	   spinTrackingEnabled : false
-	   edmTrackingEnabled : true
-	   Q : 1
-	   Eta : 0
-	   Gm2 : 0
+		   spinTrackingEnabled : true
+		   edmTrackingEnabled : false
+		   Q : 1
+		   Eta : 3e-4
+		   Gm2 : -1.0
        }
       G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel
-#      G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel_muminus
+#     G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel_muminus
     
     }
 
@@ -75,23 +92,23 @@ services: {
       // Action(s) for the simulation
       StackingAction: {  
             name: "stackingAction"
-	    OnlyTrackPrimary: false
-  	    TrackPrimaryDecay: true
+			OnlyTrackPrimary: false
+			TrackPrimaryDecay: true
             TrackOrphans: false
-            minWavelength:250 //nm
-            maxWavelength:950  //nm
+            minWavelength: 250 //nm
+            maxWavelength: 950  //nm
       }
 
     physicalVolumeStore: {}
     Gm2PhysicsList: {
-	muonDecayMode: sm
+		muonDecayMode: sm
     }
 
     TrackingAction : {
-          name : "trackingAction"
-	  OnlyTrackPrimary: false
-	  TrackPrimaryDecay: true
-          TrackOrphans: false
+		name : "trackingAction"
+		OnlyTrackPrimary: false
+		TrackPrimaryDecay: true
+		TrackOrphans: false
     }
 
     ClockAction: {}
@@ -99,24 +116,23 @@ services: {
     InflectorPGA: {
         name: "inflectorgun"
         inflectorVerbosity: true
-	SigmaT: 25
-	EmittanceX: 0
-	EmittanceY: 0
-	BetaX:  7.66477
-	BetaY:  19.0763
-	AlphaX:  0.0
-	AlphaY:  0.0
-	Pmean: -1
-	dPOverP: 0.0001
-	Particle: "mu+"
-	DecayScaleFactor: 1
-	StartUpstream:  false
-	StartUpstreamCryo:  false
-	StartDownstream:  false
-	StartPerfect:  true
-	GenGaussian: false
-	LaunchAngle: 0
-	StorageOffset: -1
+		SigmaT: 25
+		EmittanceX: 0
+		EmittanceY: 0
+		BetaX:  7.66477
+		BetaY:  19.0763
+		AlphaX:  0.0
+		AlphaY:  0.0
+		Pmean: -1
+		dPOverP: 0.0001
+		Particle: "mu+"
+		StartUpstream:  false
+		StartUpstreamCryo:  false
+		StartDownstream:  false
+		StartPerfect:  true
+		GenGaussian: false
+		LaunchAngle: 0
+		StorageOffset: -1
     }
 
 
@@ -125,17 +141,21 @@ services: {
     Ring: {}    // This is for the RingHits
     VirtualRingStation: {} // This is for the virtual tracker planes in the vac
     Arc: {}
-    Quad: {}
     VacuumChamber: {}
     Inflector:{}
+    Quad: {}
     Kicker: {}
+    FiberHarp: {}
+    Station: {}
+    Calorimeter: {}
     Collimator : {}
+    StrawTracker: {}
 
 
     MuonStorageStatusAction: {
       name: "MuonStorageStatusAction"
-      turnsForStorage: 100
-      heartbeatFreq: 100
+      turnsForStorage: 10
+      heartbeatFreq: 250
     }
 
   } //user:
@@ -144,7 +164,7 @@ services: {
 outputs: {
 out1: {
   module_type: RootOutput   
-  fileName: "/gm2/data/users/tgadfort/gm2ringsim/output/ScrapingOFF_NewSupports_100Turns_muplus_EDMTracking_Eta_0_Gm2_0_CentralOrbit_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize0pimmmrad_UniformInflectorGun_PerfectMatch_dP001_CollimatorON_StandardModelMuonDecay/ScrapingOFF_NewSupports_100Turns_muplus_EDMTracking_Eta_0_Gm2_0_CentralOrbit_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize0pimmmrad_UniformInflectorGun_PerfectMatch_dP001_CollimatorON_StandardModelMuonDecay.root"
+  fileName: "gm2visdemo.root"
   }
 }
 
@@ -152,11 +172,15 @@ physics: {
   producers: {
     artg4 : { 
      module_type: artg4Main
-     enableVisualization: false
+     enableVisualization: true
+	// The magic happens here! 
+	// We will pause to view events 1 and 4 and skip the others.
+	 visualizeSpecificEvents: false
+	 eventsToDisplay: [ 1, 4 ]
      macroPath: ".:./macros:../macros:../../macros"
      visMacro: "vis.mac"
      afterEvent: pause  // (ui, pause, pass)
-    }
+     }
   }
 
 

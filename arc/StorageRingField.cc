@@ -59,6 +59,24 @@ gm2ringsim::storageRingField::storageRingField(int Charge) :
 void gm2ringsim::storageRingField::GetFieldValue( const double Point[3],
 				      double *Bfield ) const {
   storageFieldController::getInstance().GetFieldValue(Point, Bfield, Charge_);
+
+
+
+  
+  bool debug = false;
+  if ( debug ) {
+    double r = sqrt(Point[0]*Point[0] + Point[2]*Point[2]) - R_magic();
+    double y = Point[1];
+    std::cout.precision(3);
+    double dB = Bfield[1] - 0.00145;
+    dB = 0.0;
+    if ( Bfield[0] > 0.01 || Bfield[2] > 0.01 || Bfield[0] < -0.01 || Bfield[2] < -0.01 || dB > 0.01 || dB < -0.01 ) {
+      std::cout << "QuadField::GetFieldValue(" << r << " , " << y << ") = ["
+		<< Bfield[0] << " , "
+		<< Bfield[1] << " , "
+		<< Bfield[2] << "]" << std::endl;
+    }
+  }
 }
 
 gm2ringsim::storageRingEMField::storageRingEMField(int Charge) :

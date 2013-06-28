@@ -40,8 +40,9 @@ public:
     G4int DrawLevel() const { return drawLevel; };
     G4int DrawLevel(G4int newLevel);
     
-    void setXtalNum(int n) { nXtals_ = n; };
-    
+    void setTotalXtals(int n) { nXtalsTotal_ = n; };
+    void setXtalsPerCalo(int n) { nXtalsPerCalo_ = n; };
+
 private:
     XtalHitsCollection *thisHC;
     XtalPhotonHitsCollection *thisPhotonHC;
@@ -53,7 +54,8 @@ private:
     G4ThreeVector m_parentPosition;
     int nShowerElectrons_;
     
-    int nXtals_;
+    unsigned int nXtalsTotal_;
+    int nXtalsPerCalo_;
     
     std::vector<int> xtalID_ ;
 };

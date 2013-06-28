@@ -14,6 +14,36 @@
     - Brendan Kiburg   Dec 2012 Moving to ART
 */
 
+G4double gm2ringsim::ComputeZhat(double dt, int turn)
+{
+  // Net angle around the ring (should probably be theta-hat)
+  double omega_T = gm2ringsim::omegaCMagic()*(dt); // omega x (time - t0)
+  G4double zhat = omega_T - turn*TMath::TwoPi(); // subtract off expected zhat for pmagic
+  
+  if ( zhat > TMath::Pi() )  { zhat -= TMath::TwoPi(); }
+  if ( zhat < -TMath::Pi() ) { zhat += TMath::TwoPi(); }
+
+  return( zhat );
+}
+
+G4double gm2ringsim::ComputeRhat(const G4Track *track)
+{
+  const G4ThreeVector pos = track->GetPosition();
+
+  G4double r = std::sqrt(pos.x()*pos.x() + pos.z()*pos.z());
+
+  return( ComputeRhat(r) );
+}
+
+G4double gm2ringsim::ComputeRhat(G4Track *track)
+{
+  const G4ThreeVector pos = track->GetPosition();
+
+  G4double r = std::sqrt(pos.x()*pos.x() + pos.z()*pos.z());
+
+  return( ComputeRhat(r) );
+}
+
 G4double gm2ringsim::ComputeR(G4ThreeVector *pos)
 {
   G4double r = std::sqrt(pos->x()*pos->x() + pos->z()*pos->z());
@@ -33,6 +63,22 @@ G4double gm2ringsim::ComputeRhat(G4ThreeVector *pos)
 
   G4double r = ComputeR(pos);
   return( ComputeRhat(r) );
+}
+
+G4double gm2ringsim::ComputeVhat(const G4Track *track)
+{
+  const G4ThreeVector pos = track->GetPosition();
+
+  G4double vhat = pos.y();
+  return( vhat );
+}
+
+G4double gm2ringsim::ComputeVhat(G4Track *track)
+{
+  const G4ThreeVector pos = track->GetPosition();
+
+  G4double vhat = pos.y();
+  return( vhat );
 }
 
 G4double gm2ringsim::ComputeVhat(G4ThreeVector *pos)

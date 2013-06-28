@@ -286,7 +286,7 @@ void gm2ringsim::Kicker::buildKickerFields(){
 	if ( myedm ) {
 	  iEquation3_[i] = new g2EqEMFieldWithEDM(kickerMagField_[i]);
 	  iEquation3_[i]->SetEta(sts_.GetEta());
-	  //iEquation3_[i]->SetAnomaly(sts_.GetGm2());
+	  if ( sts_.GetGm2() > 0 ) { iEquation3_[i]->SetAnomaly(sts_.GetGm2()); }
 	  iStepper_[i] = new G4ClassicalRK4(iEquation3_[i], 12);
 	}
 	else {
@@ -319,7 +319,7 @@ void gm2ringsim::Kicker::buildKickerFields(){
 	if ( myedm ) {
 	  iEquation3_[i] = new g2EqEMFieldWithEDM(kickerMagField_[i]);
 	  iEquation3_[i]->SetEta(sts_.GetEta());
-	  //iEquation3_[i]->SetAnomaly(sts_.GetGm2());
+	  if ( sts_.GetGm2() > 0 ) { iEquation3_[i]->SetAnomaly(sts_.GetGm2()); }
 	  iStepper_[i] = new G4ClassicalRK4(iEquation3_[i], 12);
 	}
 	else {

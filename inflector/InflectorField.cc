@@ -502,6 +502,24 @@ GetFieldValue( double const * Point, double *Bfield) const {
   if ( Charge_ == 1 ) {
     for ( int i = 0; i < 3; i++ ) { Bfield[i] *= -1; }
   }
+
+
+  
+  
+  bool debug = false;
+  if ( debug ) {
+    double r = sqrt(Point[0]*Point[0] + Point[2]*Point[2]) - R_magic();
+    double y = Point[1];
+    std::cout.precision(3);
+    double dB = Bfield[1] - 0.00145;
+    dB = 0.0;
+    if ( Bfield[0] > 0.01 || Bfield[2] > 0.01 || Bfield[0] < -0.01 || Bfield[2] < -0.01 || dB > 0.01 || dB < -0.01 || 1 ) {
+      std::cout << "InflectorField::GetFieldValue(" << r << " , " << y << ") = ["
+		<< Bfield[0] << " , "
+		<< Bfield[1] << " , "
+		<< Bfield[2] << "]" << std::endl;
+    }
+  }
 }
 
 

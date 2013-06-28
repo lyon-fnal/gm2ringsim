@@ -18,6 +18,7 @@ gm2ringsim::QuadGeometry::QuadGeometry(std::string const & detName) :
   innerOuterThickness( p.get<double>("innerOuterThickness") * cm),
   outerThickness_Q1( p.get<double>("outerThickness_Q1") * cm),
   plateSep( p.get<double>("plateSep") * cm),
+  outerQ1offset( p.get<double>("outerQ1offset") * cm),
   curlInnerRadius( p.get<double>("curlInnerRadius") * cm),
   curlOuterRadius( p.get<double>("curlOuterRadius") * cm),
   innerCurlMajorRadius( p.get<double>("innerCurlMajorRadius") * cm),
@@ -114,6 +115,7 @@ void gm2ringsim::QuadGeometry::print() const {
   oss << "  innerOuterThickness=" << innerOuterThickness << "\n";
   oss << "  outerThickness_Q1=" << outerThickness_Q1 << "\n";
   oss << "  plateSep=" << plateSep << "\n";
+  oss << "  outerQ1offset=" << outerQ1offset << "\n";
   oss << "  curlInnerRadius=" << curlInnerRadius << "\n";
   oss << "  curlOuterRadius=" << curlOuterRadius << "\n";
   oss << "  innerCurlMajorRadius=" << innerCurlMajorRadius << "\n";

@@ -13,7 +13,10 @@ quad_geom : {
           innerOuterWidth : 4.382 //cm
   	  innerOuterThickness : 0.05 //cm
   	  outerThickness_Q1 : 0.01 //cm
+
+	  //This is twice the distance from Rmagic
   	  plateSep : 10.0 //cm
+  	  outerQ1offset : 0.0 //cm
 	  
 	  
 	  curlInnerRadius : 0.107 //cm
@@ -32,10 +35,15 @@ quad_geom : {
 	  support_Dphi : 360. //degree
 
 	  
+	  // Rmagic = 7.112 meters
           // Field Region containing the plates
-          // from vacChamberConstruciton::vacChamberConstruction() pt_c[vacuumRegion]
+          // from vacChamberConstruciton::vacChamberConstruction() pt_c[vacuumRegion]	
+	  // The QFR = quad field region minimum radius
+	  // 276.707 inches -> 7.02836 meters <==> 8.36 cm from Rmagic
 	  QFR_rmin : 276.707 //in
           // from vacChamberConstruction <unnamed>::torus_rmax
+	  // The QFR = quad field region maximum radius
+	  // 276.707 inches -> 7.223 meters <==> 11.1 cm from Rmagic
 	  QFR_rmax : 284.370 //in 
            // from vacChamberConstruction <unnamed>::ZachIsAwesome_Z
 	  QFR_z : 0.069 //m

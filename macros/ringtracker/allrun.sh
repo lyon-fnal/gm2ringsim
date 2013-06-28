@@ -30,8 +30,11 @@ name()
 	elif [ ${spintracking} == "edm" ]; then
 	    extra="${extra}_EDMTracking_Eta_${edmsize}"
 	fi
+	
+	if ! [ -z ${gm2size} ]; then
+	    extra="${extra}_Gm2_${gm2size}"
+	fi
     fi
-
     if [ ${beamstart} == "uc" ] || [ ${beamstart} == "UpstreamCryo" ]; then
 	extra="${extra}_UpstreamCryo"
     elif [ ${beamstart} == "dc" ] || [ ${beamstart} == "DownstreamCryo" ]; then
@@ -287,7 +290,7 @@ export collimator_status=1
 # Muon Decay
 #
 #export muondecay="none"
-export muondecay="iso"
+#export muondecay="iso"
 export muondecay="sm"
 muondecayname="decay ${muondecay}"
 
@@ -303,9 +306,18 @@ export charge=${charge}
 #
 # Spin Tracking
 #
+export gm2val=-1
+export edmval=0
+gm2size=""
 spintracking="edm"
-edmsize="3em4"
+spintracking="spin"
+spintracking=""
+edmsize="0"
 edmsizename="edmsize ${edmsize}"
+if ! [ -z ${gm2size} ]; then
+    edmsizename="${edmsizename} gm2size ${gm2size}"
+fi
+
 export spintracking=${spintracking}
 
 
@@ -691,7 +703,6 @@ beamstarts="CentralOrbit DownstreamMandrel UpstreamCryo"
 beamstarts="CentralOrbit"
 #beamstarts="DownstreamMandrel"
 
-cleanval="clean"
 fields="0 1"
 fields="0"
 
@@ -716,8 +727,9 @@ if [ ${beamstarts} == "CentralOrbit" ]; then
     moms="PerfectMatch_dP0001 PerfectMatch_dP001 PerfectMatch_dP0025 PerfectMatch_dP005 PerfectMatch_dP0075 PerfectMatch PerfectMatch_dP025 PerfectMatch_dP05 PerfectMatch_dP075 PerfectMatch_dP1 PerfectMatch_dP2 PerfectMatch_dP5 PerfectMatch_dP10"
     moms="${moms} E821Match_dP0001 E821Match_dP001 E821Match_dP0025 E821Match_dP005 E821Match_dP0075 E821Match E821Match_dP025 E821Match_dP05 E821Match_dP075 E821Match_dP1 E821Match_dP2 E821Match_dP5 E821Match_dP10"
 #    moms="E821Match_dP05 PerfectMatch_dP05 E821Match_dP005 PerfectMatch_dP005 E821Match_dP0001 PerfectMatch_dP0001"
-    moms="PerfectMatch_dP001"
-#    moms="PerfectMatch_dP05"
+    moms="PerfectMatch_dP0001"
+# PerfectMatch"
+    moms="PerfectMatch_dP2"
     core=0
 #    fields="0 1"
     fields="0"
@@ -794,14 +806,20 @@ if [ ${setbetax} == 1 ]; then
     betaxname="BetaX ${betaX}"
 fi
 
+#
+#
+# General Run Information
+#
+#
+numevts=50
 
 scrapings="OFF"
 beamtypes="Gaussian Uniform"
 beamtypes="Uniform"
 #beamtypes="Gaussian"
-numturns=5
-#numturns=51
+numturns=2
 #numturns=101
+#numturns=500
 
 beamsizes="10 20 30 40 50 60"
 #beamsizes="40 1 20"
@@ -810,7 +828,7 @@ beamsizes="10 20 30 40 50 60"
 beamsizes="40 0 20"
 #beamsizes="40"
 beamsizes="40 0"
-beamsizes="0"
+beamsizes="1000"
 #beamsizes="40 20 1"
 
 
@@ -819,6 +837,11 @@ beamsizes="0"
 #extraname="tmp"
 #extraname="_dPoP"
 
+
+cleanval="clean"
+cleanval=""
+submitname="local"
+#submitname="submit"
 subjob=0
 clearnotinqueue=0
 suball=0
@@ -837,6 +860,8 @@ else
 	suball=1
 	clearnotinqueue=0
 	cleanval=""
+    elif [ ${1} == "local" ]; then
+	submitname="local"
     else
 	subjob=0
     fi
@@ -854,7 +879,6 @@ test=0
 
 sleepnum=0
 
-numevts=100
 export sigmat=50
 sigmats="25"
 # 50"
@@ -867,8 +891,9 @@ fi
 
 export submittingjob=1
 
-submitname="local"
-#submitname="submit"
+if [ ${submitname} == "local" ]; then
+    cleanval=""
+fi
 
 
 njobsmax=25000
@@ -969,13 +994,13 @@ if [ ${runit} == 1 ]; then
 
 			    if [ ${beamstart} == "DownstreamMandrel" ]; then
 				if [ ${core} == 3 ];then
-				    numevts=1000
+				    numevts=100
 				fi
 			    fi
 
-			    if [ ${beamstart} == "CentralOrbit" ]; then
-				numevts=2500
-			    fi
+#			    if [ ${beamstart} == "CentralOrbit" ]; then
+#				numevts=10
+#			    fi
 			    
 			    echo "      Beamstart [${beamstart} / (${beamstarts})]"		    
 			    
@@ -1109,7 +1134,7 @@ if [ ${runit} == 1 ]; then
 							    echo "No dir [${outname}]"
 							else
 							    if [ ${suball} == 1 ]; then
-								echo "Found dir, but rerunning."
+								echo "Found dir [${outname}], but rerunning."
 								rootfile="${outname}.root"
 							    fi
 							fi
