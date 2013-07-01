@@ -54,7 +54,7 @@ using namespace std;
 gm2ringsim::Gm2PhysicsListService::Gm2PhysicsListService(fhicl::ParameterSet const & p, art::ActivityRegistry &) :
   PhysicsListServiceBase(),
   decayMode_(p.get<std::string>("decayMode", "sm")),
-  physicsListName_(G4String(p.get<std::string>("physicsListName", ""))),
+  physicsListName_(G4String(p.get<std::string>("physicsListName", "FTFP_BERT"))),
   verboseLevel_(p.get<int>("verboseLevel", 0)),
   thePhysicsList_(0),
   theParticleIterator_(G4ParticleTable::GetParticleTable()->GetIterator()),
