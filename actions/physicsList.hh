@@ -47,48 +47,14 @@ namespace gm2ringsim
     void SetCuts();
     
     
-    /** Completely disables muon decay and pion decays */
-    void disableDecay();
-    /** Enables isotropic muon and pion decays. */
-    void enableIsotropicDecay();
-    /** Enables full standard model, spin dependent muon and pion decays */
-    void enableSMDecay();
-    /** Returns a status string containing the sping decay type. */
-    G4String currentDecay();
-    
-    /** Gets the output verbosity that propogates to each contained
-	physics process. */
-    G4int verboseLevel() const { return verboseLevel_; }
-    /** Sets the output verbosity that propogates to each contained
-	physics process. */
-    G4int verboseLevel(G4int level);
-    
   private:
     void enableStepLimiter();
     
-    // working code
-    template<class T> void pionDecay();
-    template<class T> void muonDecay();
-    void unpolDecayChannel();
-    void polDecayChannel();
-    
     typedef std::vector<G4VPhysicsConstructor*>  PhysicsListVector;
-    
-    G4int verboseLevel_;
-    
-    enum decayStatus { decay_init, decay_none, decay_isotropic, decay_standard };
-    decayStatus decayStatus_;
     
     G4VPhysicsConstructor*  decayPhysicsList_;
     
     PhysicsListVector* physics_;
-    
-    // From N06 example
-    G4Cerenkov*          theCerenkovProcess;
-    G4Scintillation*     theScintillationProcess;
-    G4OpAbsorption*      theAbsorptionProcess;
-    G4OpRayleigh*        theRayleighScatteringProcess;
-    G4OpMieHG*           theMieHGScatteringProcess;    G4OpBoundaryProcess* theBoundaryProcess;
   };//class physicsList
   
 } //namespace physicsList

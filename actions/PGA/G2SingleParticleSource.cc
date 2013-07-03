@@ -256,7 +256,7 @@ void gm2ringsim::G2SingleParticleSource::UseInternallyGenerateParticles(G4Event 
 			      particle_polarization.y(),
 			      particle_polarization.z());
     
-    if(verbosityLevel > 1)
+   if(verbosityLevel > 1)
       G4cout << " Polarization: " << particle->GetPolarization() << G4endl;
 
     vertex->SetPrimary( particle );

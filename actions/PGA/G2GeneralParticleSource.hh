@@ -71,6 +71,8 @@ namespace gm2ringsim {
     
     // G2GeneralParticleSourceMessengerSettings
     void implementSettings();
+
+    void checkForConsistency();
   
     void setParticleDefinition(std::string newValues);
     void setPosType(std::string newValues);
@@ -103,7 +105,7 @@ namespace gm2ringsim {
     void setTimeMono(double tMono);
     void setTimeSigma(double tSigma);
     
-    
+    void setPolarization(std::vector<double> pol);
     // Set the verbosity level.
     void SetVerbosity(G4int i) {currentSource->SetVerbosity(i);} ;
     
@@ -175,7 +177,7 @@ namespace gm2ringsim {
     std::vector <G2SingleParticleSource*> sourceVector;
     std::vector <G4double> sourceIntensity;
     std::vector <G4double>sourceProbability;
-    
+    bool consistencyChecked;
     
   };
   
