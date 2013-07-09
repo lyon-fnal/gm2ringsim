@@ -17,6 +17,7 @@ name()
 	particlename="piplus"
     elif [ ${particle} == "pi-" ]; then
 	particlename="piminus"
+
     else
 	particlename="${particle}"
     fi
@@ -311,7 +312,7 @@ export edmval=0
 gm2size=""
 spintracking="edm"
 spintracking="spin"
-spintracking=""
+#spintracking=""
 edmsize="0"
 edmsizename="edmsize ${edmsize}"
 if ! [ -z ${gm2size} ]; then
@@ -729,7 +730,10 @@ if [ ${beamstarts} == "CentralOrbit" ]; then
 #    moms="E821Match_dP05 PerfectMatch_dP05 E821Match_dP005 PerfectMatch_dP005 E821Match_dP0001 PerfectMatch_dP0001"
     moms="PerfectMatch_dP0001"
 # PerfectMatch"
-    moms="PerfectMatch_dP2"
+#    moms="PerfectMatch"
+    moms="PerfectMatch_dP05"
+# PerfectMatch_dP05 PerfectMatch_dP001"
+#    moms="PerfectMatch_dP5"
     core=0
 #    fields="0 1"
     fields="0"
@@ -811,15 +815,15 @@ fi
 # General Run Information
 #
 #
-numevts=50
+numevts=2500
 
 scrapings="OFF"
 beamtypes="Gaussian Uniform"
 beamtypes="Uniform"
 #beamtypes="Gaussian"
-numturns=2
+numturns=1
 #numturns=101
-#numturns=500
+#numturns=300
 
 beamsizes="10 20 30 40 50 60"
 #beamsizes="40 1 20"
@@ -828,9 +832,22 @@ beamsizes="10 20 30 40 50 60"
 beamsizes="40 0 20"
 #beamsizes="40"
 beamsizes="40 0"
-beamsizes="1000"
+beamsizes="40"
 #beamsizes="40 20 1"
 
+
+#####
+#
+# For x-ray pictures
+#
+#####
+xray=0
+if [ ${xray} == 1 ]; then
+    beamsizes="600"
+    numturns=1
+    moms="PerfectMatch_dP0001"
+    numevts=25000
+fi
 
 #beamsizes="0"
 #extraname="_${beamsizes}"
@@ -842,6 +859,9 @@ cleanval="clean"
 cleanval=""
 submitname="local"
 #submitname="submit"
+if [ ${xray} == 1 ]; then
+    submitname="local"
+fi
 subjob=0
 clearnotinqueue=0
 suball=0
@@ -879,9 +899,10 @@ test=0
 
 sleepnum=0
 
-export sigmat=50
-sigmats="25"
-# 50"
+sigmats="1 50"
+sigmats="50"
+#sigmats="100"
+
 
 if [ -z ${1} ]; then
     infstart=1
@@ -904,7 +925,6 @@ runit=1
 if [ ${runit} == 1 ]; then    
        
     runall=0
-    sigmats="25"
     nrun=0
     njob=0
     infstart=1

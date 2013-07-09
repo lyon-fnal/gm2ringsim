@@ -19,10 +19,7 @@ checktest()
 
 checkgun()
 {
-    if [ ${infgun} == 1 ]; then
-	sigmat="25"
-	export sigmat=${sigmat}
-    fi
+    echo ""
 }
 
 bestkicks()
@@ -630,7 +627,7 @@ setbetax=0
 
 
 until [ -z ${1} ]; do
-    echo "Arg = ${1}"
+#    echo "Arg = ${1}"
     if [ ${1} == "local" ]; then
 	submit=0
 	shift 1
@@ -752,7 +749,7 @@ until [ -z ${1} ]; do
 	    sleep 10000000000
 	fi
 	export edmval="${edmval}"
-	echo "EDM = ${edmval}"
+#	echo "EDM = ${edmval}"
 	shift 1
 	continue
     elif [ ${1} == "gm2size" ]; then
@@ -1206,6 +1203,10 @@ until [ -z ${1} ]; do
 	export sigmat=50
 	shift 1
 	continue
+    elif [ ${1} == "tSigma100" ]; then
+	export sigmat=100
+	shift 1
+	continue
     elif [ ${1} == "tSigma1" ]; then
 	export sigmat=1
 	shift 1
@@ -1247,14 +1248,14 @@ until [ -z ${1} ]; do
     elif [ ${1} == "BeamSize" ] || [ ${1} == "beamsize" ] || [ ${1} == "beam" ]; then
 	shift 1
 	export beamsize=${1}
-	echo "Arg BeamSize=${1} mm*mrad"
+#	echo "Arg BeamSize=${1} mm*mrad"
 	beamsize="${1}"
 	shift 1
 	continue
     elif [ ${1} == "kick" ] || [ ${1} == "k" ] || [ ${1} == "lcr" ]; then
 	shift 1
 	export kickhv=${1}
-	echo "Arg kick=${kickhv} kV"
+#	echo "Arg kick=${kickhv} kV"
 	kicks="${1}"
 	shift 1
 	continue
@@ -1272,7 +1273,7 @@ until [ -z ${1} ]; do
 	shift 1
 	export offset=${1}
 	offsets="${offset}"
-	echo "Arg offset=${offset}"
+#	echo "Arg offset=${offset}"
 	shift 1
 	continue
     elif [ ${1} == "delta" ] || [ ${1} == "d" ]; then
@@ -1287,7 +1288,7 @@ until [ -z ${1} ]; do
 	else
 	    export delta=${dname}
 	fi
-	echo "Arg delta=${delta}"
+#	echo "Arg delta=${delta}"
 	deltas="${delta}"
 	shift 1
 	continue
@@ -1315,7 +1316,7 @@ until [ -z ${1} ]; do
 	    export launch=${lname}
 #	    echo "Setting launch to [${launch}]"
 	fi
-	echo "Arg launch=${launch}"
+#	echo "Arg launch=${launch}"
 	launches="${launch}"
 	shift 1
 	continue
@@ -1454,7 +1455,7 @@ for o in ${offsets}; do
 			done
 		    fi
 		    
-		    njobs="10"
+		    njobs="40"
 		    if [ ${submit} == 1 ]; then
 			echo "jobsub -g --opportunistic -dMYDIR ${fullDir} sub2.sh"
 #			echo "jobsub -e fullDir -e basename -e MYREL -N ${njobs} -g condor2.sh"
@@ -1485,11 +1486,13 @@ for o in ${offsets}; do
 			    echo ${fullDir}/runner.fcl
 			    if [ ${test} == 1 ]; then
 				rm dump
-				gm2 -c ${fullDir}/runner.fcl | tee dump
+				gm2 -c ${fullDir}/runner.fcl -o output_0.root | tee dump
+				mv output_0.root ${fullDir}/
 			    else
 				touch ${fullDir}/START
 #				echo ${fullDir}/runner.fcl}
-				gm2 -c ${fullDir}/runner.fcl | tee ${fullDir}/output.dat
+				gm2 -c ${fullDir}/runner.fcl -o output_0.root  | tee ${fullDir}/output.dat
+				mv output_0.root ${fullDir}/
 				rm ${fullDir}/START
 				touch ${fullDir}/DONE
 #				mv ${extra}*.root ${fullDir}/
