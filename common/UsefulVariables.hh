@@ -18,16 +18,25 @@
 namespace gm2ringsim {
   
   G4double ComputeZhat(double dt, int turn);
-  G4double ComputeR(G4ThreeVector *pos);
+
+  G4double ComputeRho(G4ThreeVector *pos);
+  G4double ComputeRho(const G4ThreeVector *pos);
+
   G4double ComputeTheta(G4ThreeVector *pos);
+
   G4double ComputeRhat(const G4Track *track);
   G4double ComputeRhat(G4Track *track);
-  G4double ComputeRhat(G4ThreeVector *pos);
+  G4double ComputeRhat(G4ThreeVector *pos);  
+  G4double ComputeRhat(const G4ThreeVector *pos);  
   G4double ComputeRhat(G4double r);
+
   G4double ComputeVhat(G4Track *track);
   G4double ComputeVhat(const G4Track *track);
   G4double ComputeVhat(G4ThreeVector *pos);
+  G4double ComputeVhat(const G4ThreeVector *pos);
+
   G4double ComputeXe(G4double p, G4double n);
+
   G4double ComputePrhat(G4ThreeVector *pos, G4ThreeVector *mom);
   G4double ComputePvhat(G4ThreeVector *pos, G4ThreeVector *mom);
 

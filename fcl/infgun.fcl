@@ -12,7 +12,7 @@ process_name:myProcessName
 
 source: {
   module_type: EmptyEvent
-  maxEvents:  1000
+  maxEvents:  2500
 }
 
 services: {
@@ -28,7 +28,7 @@ services: {
        }
        LogToFile : {
          type : "file"
-         filename : "/gm2/data/users/tgadfort/gm2ringsim/output/ScrapingOFF_NewSupports_100Turns_muplus_EDMTracking_Eta_0_Gm2_0_CentralOrbit_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize0pimmmrad_UniformInflectorGun_PerfectMatch_dP001_CollimatorON_StandardModelMuonDecay/ScrapingOFF_NewSupports_100Turns_muplus_EDMTracking_Eta_0_Gm2_0_CentralOrbit_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize0pimmmrad_UniformInflectorGun_PerfectMatch_dP001_CollimatorON_StandardModelMuonDecay.log"
+         filename : "/gm2/data/users/tgadfort/gm2ringsim/output/ScrapingOFF_NewSupports_1Turns_muplus_SpinTracking_CentralOrbit_tSigma50_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize40pimmmrad_UniformInflectorGun_PerfectMatch_dP05_CollimatorON_StandardModelMuonDecay/ScrapingOFF_NewSupports_1Turns_muplus_SpinTracking_CentralOrbit_tSigma50_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize40pimmmrad_UniformInflectorGun_PerfectMatch_dP05_CollimatorON_StandardModelMuonDecay.log"
          append : false
          threshold : "ERROR"
        }
@@ -58,11 +58,11 @@ services: {
      // Global simulation settings
      RunSettings : {
        SpinTracking : {
-	   spinTrackingEnabled : false
-	   edmTrackingEnabled : true
+	   spinTrackingEnabled : true
+	   edmTrackingEnabled : false
 	   Q : 1
 	   Eta : 0
-	   Gm2 : 0
+	   Gm2 : -1
        }
       G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel
 #      G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel_muminus
@@ -99,17 +99,18 @@ services: {
     InflectorPGA: {
         name: "inflectorgun"
         inflectorVerbosity: true
-	SigmaT: 25
-	EmittanceX: 0
-	EmittanceY: 0
+	SigmaT: 50
+	EmittanceX: 40
+	EmittanceY: 40
 	BetaX:  7.66477
 	BetaY:  19.0763
 	AlphaX:  0.0
 	AlphaY:  0.0
 	Pmean: -1
-	dPOverP: 0.0001
+	dPOverP: 0.005
 	Particle: "mu+"
 	DecayScaleFactor: 1
+	Polarization: E821
 	StartUpstream:  false
 	StartUpstreamCryo:  false
 	StartDownstream:  false
@@ -131,11 +132,20 @@ services: {
     Kicker: {}
     Collimator : {}
 
+    LostMuonAction: {
+      name: "LostMuonAction"
+      stored_rmin: -50.0
+      stored_rmax: 50.0
+      stored_y: 50.0
+    }
 
     MuonStorageStatusAction: {
       name: "MuonStorageStatusAction"
-      turnsForStorage: 100
-      heartbeatFreq: 100
+      turnsForStorage: 1
+      TrackPositrons: true
+      stored_rmin: 7.035
+      stored_rmax: 7.215
+      heartbeatFreq: 250
     }
 
   } //user:
@@ -144,7 +154,7 @@ services: {
 outputs: {
 out1: {
   module_type: RootOutput   
-  fileName: "/gm2/data/users/tgadfort/gm2ringsim/output/ScrapingOFF_NewSupports_100Turns_muplus_EDMTracking_Eta_0_Gm2_0_CentralOrbit_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize0pimmmrad_UniformInflectorGun_PerfectMatch_dP001_CollimatorON_StandardModelMuonDecay/ScrapingOFF_NewSupports_100Turns_muplus_EDMTracking_Eta_0_Gm2_0_CentralOrbit_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize0pimmmrad_UniformInflectorGun_PerfectMatch_dP001_CollimatorON_StandardModelMuonDecay.root"
+  fileName: "/gm2/data/users/tgadfort/gm2ringsim/output/ScrapingOFF_NewSupports_1Turns_muplus_SpinTracking_CentralOrbit_tSigma50_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize40pimmmrad_UniformInflectorGun_PerfectMatch_dP05_CollimatorON_StandardModelMuonDecay/ScrapingOFF_NewSupports_1Turns_muplus_SpinTracking_CentralOrbit_tSigma50_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize40pimmmrad_UniformInflectorGun_PerfectMatch_dP05_CollimatorON_StandardModelMuonDecay.root"
   }
 }
 
@@ -172,12 +182,14 @@ physics: {
 #
 # Add-ons
 #
+services.user.Geometry.inflector.CryoWallMaterial: Vacuum
 services.user.RunSettings.G2GPS_downstreamInflectorMandrel.particle: muminus
 services.user.Geometry.quad.DoScraping: false
 services.user.Geometry.quad.StoreHV: 24
 services.user.Geometry.quad.ScrapeHV: 17
 services.user.Geometry.quad.SupportMaterial: Macor
 services.user.Geometry.quad.PlateMaterial: None
+#services.user.Geometry.vac.Frequency: 1
 services.user.Geometry.kicker.TypeOfKick: LCR
 services.user.Geometry.kicker.kPlate1HV : 0 //kilovolt 
 services.user.Geometry.kicker.kPlate2HV : 0 //kilovolt 

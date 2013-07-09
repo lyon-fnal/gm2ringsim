@@ -112,7 +112,7 @@ services: {
     InflectorPGA: {
         name: "inflectorgun"
         inflectorVerbosity: true
-	SigmaT: 25
+	SigmaT: ${sigmat}
 	EmittanceX: ${beamsize}
 	EmittanceY: ${beamsize}
 	BetaX:  ${betaX}
@@ -123,6 +123,7 @@ services: {
 	dPOverP: ${dPoverP}
 	Particle: "${particle}"
 	DecayScaleFactor: 1
+	Polarization: E821
 EOF
 
 if [ ${beamstart} == um ]; then
@@ -196,11 +197,19 @@ cat >> ${outfile} <<EOF
     Kicker: {}
     Collimator : {}
 
+    LostMuonAction: {
+      name: "LostMuonAction"
+      stored_rmin: -50.0
+      stored_rmax: 50.0
+      stored_y: 50.0
+    }
 
     MuonStorageStatusAction: {
       name: "MuonStorageStatusAction"
       turnsForStorage: ${numturns}
       TrackPositrons: true
+      stored_rmin: 7.035
+      stored_rmax: 7.215
 EOF
 
 if [ ${evts} -gt 10 ]; then
@@ -257,6 +266,7 @@ services.user.Geometry.quad.StoreHV: 24
 services.user.Geometry.quad.ScrapeHV: 17
 services.user.Geometry.quad.SupportMaterial: Macor
 services.user.Geometry.quad.PlateMaterial: None
+#services.user.Geometry.vac.Frequency: 1
 EOF
 echo "kickhv=${kickhv}"
 echo "kicksk=${kicksk}"
@@ -372,8 +382,8 @@ physics: {
       SaveInfHits: false
       SaveTruthHits: true
       SaveRingHits: false
-      SaveVRingHits: true
-      SaveVRing1PlaneHits: true
+      SaveVRingHits: false
+      SaveVRing1PlaneHits: false
       debug: false
     }
   }

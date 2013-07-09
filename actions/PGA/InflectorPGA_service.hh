@@ -60,6 +60,7 @@ namespace gm2ringsim
     std::string Particle_;
     int NumParticles_;
     int DecayScaleFactor_;
+    std::string Polarization_;
 
    
 

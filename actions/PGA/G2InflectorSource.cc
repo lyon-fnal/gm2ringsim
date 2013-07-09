@@ -62,11 +62,17 @@ gm2ringsim::G2InflectorSource::G2InflectorSource() :
   SigmaT(50),
   Particle_("mu+"),
   NumParticles_(1),
-  DecayScaleFactor_(1)
+  DecayScaleFactor_(1),
+  Polarization_("E821")
 {
   inflectorGun_ = new G4ParticleGun();
   //inflectorGun_->SetVerbosity(true);
   g2GPS_ = new G2GeneralParticleSource();
+
+  gRandom_ = new TRandom3();
+
+  fsz   = new TF1("fsz", "-(3.68923)+(1.48959*x)", 3.06, 3.13);
+  fsphi = new TF1("fsphi", "(((1788.72-(196.394*cos(x)))-(321.191*cos(2*x)))+(68.1887*cos(3*x)))+(((587.76*cos(4*x))-(94.1914*cos(5*x)))-(106.777*cos(6*x)))", -3.14159, 3.14159);
 }
 
 gm2ringsim::G2InflectorSource::~G2InflectorSource() 
@@ -473,9 +479,39 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
 
   //  Assume the spin polarization vector is perfectly aligned with the momentum vector at injection.
   G4ThreeVector s = mom_start/mom_start.mag();
+  G4double mom_GeV =  mom_start.mag()/(GeV/MeV);
 
-    
+  
+  if ( GetPolarization() == "E821" ) {
+    //G4double sr = -0.9237 * (mom_start.mag()*GeV/MeV) + 2.8275;
+    mom_GeV = TMath::Min(mom_GeV, 3.13);
+    mom_GeV = TMath::Max(mom_GeV, 3.06);
+    G4double sz_mean = fsz->Eval(mom_GeV);
+    G4double sz = gRandom_->Gaus(sz_mean, 0.017);
+    sz = TMath::Min(sz, 1.0);
+    G4double st = TMath::Sqrt(1 - sz*sz);;
+    G4double sphi = fsphi->GetRandom();
+    G4double sr = st*TMath::Cos(sphi);
+    G4double sv = st*TMath::Sin(sphi);
 
+    s.setX(sr);
+    s.setY(sv);
+    s.setZ(sz);
+    s = s.unit();
+  }
+  else if (  GetPolarization() == "100%" ) {
+    s = mom_start.unit();
+  }
+  else {
+    s.setX(gRandom_->Uniform());
+    s.setY(gRandom_->Uniform());
+    s.setZ(gRandom_->Uniform());
+    s = s.unit();
+  }
+
+  if ( 0 ) {
+    G4cout << "|p| = " << mom_start << "\ts-dot-r = " << s << "  \t" << p.mag() << "\t" << mom_GeV << "\t" << s.z() << G4endl;
+  }
 
   G4double randT;
   do{
@@ -601,6 +637,17 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
     G4cout << "dP/P      = " << dP_over_P << G4endl;
     G4cout << "s-dot-p   = " << s.x() << " , " << s.y() << " , " << s.z() << endl;
     G4cout << "Particle  = " << Particle_ << G4endl;
+
+    if ( GetPolarization() == "E821" ) {
+      G4cout << "Using E821 Hughon Polarization Fits." << G4endl;
+    }
+    else if ( GetPolarization() == "100%" ) {
+      G4cout << "Assuming 100 polarization (s-dot-p=1)." << G4endl;
+    }
+    else {
+      G4cout << "Random Polarization." << G4endl;
+    }
+    
 
     G4cout << "Inflector Coordinates:" << G4endl;
     G4cout << "  xAxis.SetXYZ(" << xAxis.x() << " , " << xAxis.y() << " , " << xAxis.z() << ");" << G4endl;

@@ -66,7 +66,8 @@ gm2ringsim::InflectorPGA::InflectorPGA(fhicl::ParameterSet const& p, art::Activi
   SigmaT_(p.get<double>("SigmaT", -9999.9)),
   Particle_(p.get<std::string>("Particle", "mu+")),
   NumParticles_(p.get<int>("NumParticles", 1)),
-  DecayScaleFactor_(p.get<int>("DecayScaleFactor", 1))
+  DecayScaleFactor_(p.get<int>("DecayScaleFactor", 1)),
+  Polarization_(p.get<std::string>("Polarization", "E821"))
 {
   if ( EmittanceX_ <= 0.0 ) { EmittanceX_ = 0.0; }
   if ( EmittanceY_ <= 0.0 ) { EmittanceY_ = 0.0; }
@@ -92,7 +93,8 @@ gm2ringsim::InflectorPGA::InflectorPGA(fhicl::ParameterSet const& p, art::Activi
     G4cout << "  SigmaT              " << SigmaT_ << G4endl;
     G4cout << "  Particle            " << Particle_ << G4endl;
     G4cout << "  NumParticles        " << NumParticles_ << G4endl;    
-    G4cout << "  DecayScaleFactor    " << DecayScaleFactor_ << G4endl;    
+    G4cout << "  DecayScaleFactor    " << DecayScaleFactor_ << G4endl;   
+    G4cout << "  Polarization        " << Polarization_ << G4endl;    
   }
 }
 
@@ -128,6 +130,7 @@ void gm2ringsim::InflectorPGA::initialize() {
   gps_ -> SetParticle(Particle_);
   gps_ -> SetNumParticles(NumParticles_);
   gps_ -> SetDecayScaleFactor(DecayScaleFactor_);
+  gps_ -> SetPolarization(Polarization_);
   //G4cout << "Done calling InflectorPGA::initialize()" << G4endl;
   //////////////////////////////////
 }
