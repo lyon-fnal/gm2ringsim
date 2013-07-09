@@ -31,6 +31,8 @@ public:
     // flag the cerenkov photon as transmitted and its detection status
     void registerPhotodetectorTrack( int photonTrackId, bool photoElectron );
     
+    void increaseListSize( int photonTrackId );
+    
 private:
     PhotonHitCorrelator(); // only public access via getInstance()
     ~PhotonHitCorrelator();

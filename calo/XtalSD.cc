@@ -179,7 +179,6 @@ G4bool gm2ringsim::XtalSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){
             // 	      << " pdg " << track->GetDefinition()->GetPDGEncoding()
             // 	      << " edep " << xHit->energyDep
             // 	      << " length " << xHit->trackLength << std::endl ;
-            
         }
         // else if ( pdg == 0 ) {
             // std::cout << "Track id " << thisID << " for optical photon entering new volume" << std::endl;

@@ -14,11 +14,16 @@ calorimeter_geom : {
   sideWrapping:  "Black"
   frontWrapping: "Black"
   backWrapping:  "Black"
+  frontWrappingHole: false
+  frontWrappingHoleSize: 1.25 // cm
   // photodetector parameters
   photodetectorShape: "Square"
   photodetectorSize:    1.2  // cm
   photodetectorDepth:   0.05 // cm
   opticalCouplingDepth: 0.05 // cm
+  // diffuser
+  diffuser: false
+  diffuserDepth: 0.0 // cm
   // visualization options
   displayCalorimeterBox:  true
   displayWrappingVolumes: true
@@ -27,6 +32,7 @@ calorimeter_geom : {
   xtalColor :            [0.0,  1.0,  0.0,  1.0] // green
   photodetectorColor :   [0.0,  0.0,  1.0,  1.0] // blue
   opticalCouplingColor : [1.0,  0.0,  0.0,  1.0] // red
+  diffuserColor :        [0.0,  0.0,  1.0,  1.0] // blue  
   wrappingColor :        [1.0,  0.5,  0.0,  1.0] // orange
   killShowers : true
 
