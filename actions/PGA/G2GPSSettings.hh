@@ -42,7 +42,8 @@ namespace gm2ringsim {
     std::string tType;
     const double tMono;
     const double tSigma;    
-    
+    std::vector<double> polarization;
+   
   private:
     std::vector<std::string> parSetKeys_;
     
