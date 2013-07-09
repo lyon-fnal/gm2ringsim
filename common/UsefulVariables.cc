@@ -44,11 +44,18 @@ G4double gm2ringsim::ComputeRhat(G4Track *track)
   return( ComputeRhat(r) );
 }
 
-G4double gm2ringsim::ComputeR(G4ThreeVector *pos)
+G4double gm2ringsim::ComputeRho(G4ThreeVector *pos)
 {
-  G4double r = std::sqrt(pos->x()*pos->x() + pos->z()*pos->z());
+  G4double rho = std::sqrt(pos->x()*pos->x() + pos->z()*pos->z());
 
-  return( r );
+  return( rho );
+}
+
+G4double gm2ringsim::ComputeRho(const G4ThreeVector *pos)
+{
+  G4double rho = std::sqrt(pos->x()*pos->x() + pos->z()*pos->z());
+
+  return( rho );
 }
 
 G4double gm2ringsim::ComputeRhat(G4double r)
@@ -61,8 +68,16 @@ G4double gm2ringsim::ComputeRhat(G4ThreeVector *pos)
 {
   if ( pos == NULL ) { return( -1.0 ); }
 
-  G4double r = ComputeR(pos);
-  return( ComputeRhat(r) );
+  G4double rho = ComputeRho(pos);
+  return( ComputeRhat(rho) );
+}
+
+G4double gm2ringsim::ComputeRhat(const G4ThreeVector *pos)
+{
+  if ( pos == NULL ) { return( -1.0 ); }
+
+  G4double rho = ComputeRho(pos);
+  return( ComputeRhat(rho) );
 }
 
 G4double gm2ringsim::ComputeVhat(const G4Track *track)
@@ -89,6 +104,14 @@ G4double gm2ringsim::ComputeVhat(G4ThreeVector *pos)
   return( vhat );
 }
 
+G4double gm2ringsim::ComputeVhat(const G4ThreeVector *pos)
+{
+  if ( pos == NULL ) { return( -1.0 ); }
+
+  G4double vhat = pos->y();
+  return( vhat );
+}
+
 G4double gm2ringsim::ComputeTheta(G4ThreeVector *pos)
 {
   if ( pos == NULL ) { return( -1.0 ); }
@@ -107,14 +130,14 @@ G4double gm2ringsim::ComputePrhat(G4ThreeVector *pos, G4ThreeVector *mom)
 {
   if ( pos == NULL || mom == NULL ) { return( -1.0 ); }
 
-  G4double r = ComputeR(pos);
+  G4double rho = ComputeRho(pos);
   G4double pmag = mom->mag();
   
   //-----------------
   // prhat = mom.dot(pos)/(|mom|*|pos|)
   //-----------------
   G4double prhat = (mom->x()*pos->x() + mom->z()*pos->z());
-  prhat /= (r*pmag);
+  prhat /= (rho*pmag);
 
   return( prhat );
 }
