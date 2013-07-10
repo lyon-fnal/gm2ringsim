@@ -1,5 +1,9 @@
 <!--  art::Wrapper lines need only top level data product objects  -->
 
+<!-- NOTE: THIS FILE WAS COPY-PASTED FROM THE TRACKING ANALYSIS PROJECT, AS AN -->
+<!-- INTERIM SOLUTION UNTIL g-2 HAS A DATA PRODUCTS PACKAGE! IF YOU CHANGE ONE -->
+<!-- FILE, YOU BETTER CHANGE THE OTHER!!! -->
+
 <lcgdict>
     <!-- For WireID - note that using the typedef will not work here-->
     <class name="gm2strawtracking::WireID"/>
