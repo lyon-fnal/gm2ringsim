@@ -48,6 +48,17 @@ services: {
           default : { limit : 0 }
         }
        }
+       LogToStrawLocationDatabase:{
+        type: "file"
+        filename: "strawlocationdatabase.csv"
+        append : false
+        treshold: "DEBUG"
+        categories : {
+          StrawLocationDatabase : { limit : 1000000 }
+          default : {limit : 0 }
+        
+        }
+       }
 
      }
   }
@@ -166,7 +177,7 @@ services: {
 outputs: {
 out1: {
   module_type: RootOutput   
-  fileName: "gm2ringsimout-leahtest-1evt.root"
+  fileName: "gm2ringsimout-leahtest-5000evt-seed10-Vacuum.root"
   }
 }
 
@@ -174,10 +185,12 @@ physics: {
   producers: {
     artg4 : { 
      module_type: artg4Main
-     enableVisualization: false
+     enableVisualization: true
      macroPath: ".:./macros:../macros:../../macros"
      visMacro: "vis.mac"
-     afterEvent: pause  // (ui, pause, pass)
+     afterEvent: pause
+       // (ui, pause, pass)
+     seed: 10
      }
   }
 
