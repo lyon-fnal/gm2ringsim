@@ -3,7 +3,7 @@
 #ifndef KICKERGEOMETRY_HH
 #define KICKERGEOMETRY_HH
 
-#include "artg4/Core/GeometryBase.hh"
+#include "gm2geom/Core/GeometryBase.hh"
 
 #include "Geant4/globals.hh"
 #include "gm2ringsim/common/conversions.hh"
@@ -16,7 +16,7 @@
 
 namespace gm2ringsim {
   
-  struct KickerGeometry : public artg4::GeometryBase {
+  struct KickerGeometry : public gm2geom::GeometryBase {
     KickerGeometry(std::string const &);
 
     std::string TypeOfKick;

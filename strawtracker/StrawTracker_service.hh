@@ -18,7 +18,7 @@
 #include "Geant4/G4UnionSolid.hh"
 #include "gm2ringsim/strawtracker/StrawSD.hh"
 
-#include "gm2ringsim/strawtracker/StrawTrackerGeometry.hh"
+#include "gm2geom/strawtracker/StrawTrackerGeometry.hh"
 #include "gm2ringsim/vac/VacGeometry.hh"
 
 #include <vector>
@@ -41,7 +41,7 @@ namespace gm2ringsim {
         virtual ~StrawTracker() {};
 
     private:
-        StrawTrackerGeometry geom_;
+        gm2geom::StrawTrackerGeometry geom_;
      
         // Private overriden methods
 
