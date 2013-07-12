@@ -9,15 +9,11 @@ strawtracker_geom : {
   whichScallopLocations: [12]
   //Station distance from calo edge
   strawStationLocation: [756, 671, 586, 501, 416, 331, 246, 161, 61]
-  strawStationSize: [128.8, 128.8, 128.8, 128.8, 172.8, 172.8, 172.8, 172.8, 172.8]
-  strawStationOffset: [0,20,30, 40, 0, 10, 15, 20, 20]
-  
-  
-  //with extra 21mm for wire/gas pipe
-  //strawStationSize: [147.38, 147.38, 147.38, 186.21, 186.21, 186.21, 186.21, 186.21, 186.21]
-  //strawStationOffset: [0,0,0,0,0,0,0,0,0]
-  
-  strawStationType: [16, 16, 16, 16, 24, 24, 24, 24, 24]
+  strawStationSize: [85.0, 85.0, 85.0, 85.0, 85.0, 128.8, 128.8, 128.8, 128.8]
+
+  strawStationPiping: 57.3
+  strawStationOffset: [0,5,13,20,23,0,0,0,0]
+  strawStationType: [8,8,8,8,8,16,16,16,16]
   strawView: 2
   strawLayers: 2
   strawStationHeight: 148.5

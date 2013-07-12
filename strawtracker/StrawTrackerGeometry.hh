@@ -24,6 +24,7 @@ namespace gm2ringsim {
     std::vector<int> whichScallopLocations;
     std::vector<double> strawStationLocation;
     std::vector<double> strawStationSize;
+    double strawStationPiping;
     std::vector<double> strawStationOffset;
     std::vector<int> strawStationType;
     int strawView;

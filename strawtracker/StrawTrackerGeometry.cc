@@ -12,7 +12,8 @@ gm2ringsim::StrawTrackerGeometry::StrawTrackerGeometry(std::string const & detNa
   whichScallopLocations( p.get<std::vector<int>>("whichScallopLocations")),
   strawStationLocation( p.get<std::vector<double>>("strawStationLocation")),
   strawStationSize( p.get<std::vector<double>>("strawStationSize")),
-  strawStationOffset( p.get<std::vector<double>>("strawStationOffset")),  
+  strawStationPiping( p.get<double>("strawStationPiping")),
+  strawStationOffset( p.get<std::vector<double>>("strawStationOffset")),
   strawStationType( p.get<std::vector<int>>("strawStationType")),
   strawView( p.get<double>("strawView")),
   strawLayers( p.get<double>("strawLayers")),
@@ -45,7 +46,7 @@ gm2ringsim::StrawTrackerGeometry::StrawTrackerGeometry(std::string const & detNa
   
   for (unsigned int i = 0 ; i < strawStationSize.size() ; i ++){
 
-    straw_station_center_from_edge.push_back(strawStationSizeHalf[i] + strawStationOffset[i]);
+    straw_station_center_from_edge.push_back(strawStationSizeHalf[i] + strawStationOffset[i] + strawStationPiping);
   }
   
   lengthOfTheStraw = heightOfTheStraw/cos(layer_angle);
