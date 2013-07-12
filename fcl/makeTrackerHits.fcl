@@ -38,7 +38,7 @@ services: {
 outputs: {
   out1: {
     module_type: RootOutput   
-    fileName: "gm2trackerhits0710.root"
+    fileName: "gm2trackerhits0711.root"
     // The output commands are followed in order: the first is used unless the
     // second applies. So we first drop everything, then keep the tracker hits
     // we care about. 
