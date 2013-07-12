@@ -7,15 +7,23 @@ strawtracker_geom : {
     
 
   whichScallopLocations: [12]
-  strawStationLocation: [540.0, 625, 710 , 795, 880, 965, 1050, 1135, 1220, 1305, 1390 ]
-  strawStationSize: [122.0, 122.0, 122.0, 122.0, 122.0, 170.0, 170, 170, 170, 170, 170]
-  strawStationOffset: [0,10,20,30,40, 0, 5, 10, 15, 20, 18]
-  strawStationType: [16,16, 16, 16, 16, 24, 24, 24, 24, 24, 24] 
+  //Station distance from calo edge
+  strawStationLocation: [756, 671, 586, 501, 416, 331, 246, 161, 61]
+  strawStationSize: [128.8, 128.8, 128.8, 128.8, 172.8, 172.8, 172.8, 172.8, 172.8]
+  strawStationOffset: [0,20,30, 40, 0, 10, 15, 20, 20]
+  
+  
+  //with extra 21mm for wire/gas pipe
+  //strawStationSize: [147.38, 147.38, 147.38, 186.21, 186.21, 186.21, 186.21, 186.21, 186.21]
+  //strawStationOffset: [0,0,0,0,0,0,0,0,0]
+  
+  strawStationType: [16, 16, 16, 16, 24, 24, 24, 24, 24]
   strawView: 2
   strawLayers: 2
-  strawStationHeight: 141
-  strawStationWidth: 76.5
+  strawStationHeight: 148.5
   
+  //include overhang for last station!
+  strawStationWidth: [78,78,78,78,78,78,78,78,105.04]
   innerRadiusOfTheStraw:  0 //mm
   outerRadiusOfTheStraw: 2.55 //mm
   heightOfTheStraw: 9.1 //cm
@@ -23,11 +31,10 @@ strawtracker_geom : {
   spanningAngleOfTheStraw:  360. //deg
 
   dist_btwn_wires: 5.55 //mm
-  straw_diameter: 5.1 //mm
   layer_angle: 7.5 //deg
   
-  x_position_straw0: [18.98, 16.21, 28.19, 30.96]
-  y_position: [37.86, 42.62, 59.46, 64.22]
+  x_position_straw0: [27.19, 29.96, 17.98, 15.21]
+  y_position: [39.36, 44.12, 60.91, 65.68]
   
   displayStation: true
   stationColor: [0.2, 0.6, 1.0, 1.0] //blue

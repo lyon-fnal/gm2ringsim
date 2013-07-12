@@ -61,7 +61,7 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
   for (unsigned int tb = 0; tb<geom_.whichScallopLocations.size() ;tb++){
     for (unsigned int sc =0 ; sc<geom_.strawStationLocation.size(); sc++){
       
-      G4VSolid *strawStation = new G4Box("strawSystem", geom_.strawStationSizeHalf[sc], geom_.strawStationWidthHalf, geom_.strawStationHeightHalf);
+      G4VSolid *strawStation = new G4Box("strawSystem", geom_.strawStationSizeHalf[sc], geom_.strawStationWidthHalf[sc], geom_.strawStationHeightHalf);
       
       std::string strawStationLVName = artg4::addNumberToName("StationChamberLV", sc+tb);
       
@@ -87,7 +87,7 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
       
     }
   }
-
+  
   return stations;
   
 }
@@ -100,14 +100,15 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::StrawTracker::doPlaceToPVs( std::ve
   const VacGeometry vacg("vac");
   int i = 0;
   int strawTrackerIndex, strawTrackerNumber;
-  int numberOfStations = lvs().size();
-  int numberOfStationsPerTracker = numberOfStations/geom_.whichScallopLocations.size();
+  //int numberOfStations = lvs().size();
+  int numberOfStationsPerTracker = geom_.strawStationSize.size();
   int stationIndex;
   //loop over the logical volumes
   for ( auto aStrawStationLV : lvs() ) {
     // We to name the station including its station number
     // g2migtrace used sprintf. Let's use boost::format instead
     // (see http://www.boost.org/doc/libs/1_52_0/libs/format/doc/format.html )
+    
     strawTrackerIndex = i/numberOfStationsPerTracker;
     strawTrackerNumber = geom_.whichScallopLocations[strawTrackerIndex];
     stationIndex = i%numberOfStationsPerTracker;
@@ -127,6 +128,9 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::StrawTracker::doPlaceToPVs( std::ve
     deltaX = ds*sin(vacg.phi_a);
     double deltaX_c = deltaX - geom_.straw_station_center_from_edge[stationIndex]*cos(vacg.phi_a);
     x = x - deltaX_c;
+    //x = x + geom_.straw_station_center_from_edge[stationIndex];
+
+    //if(stationIndex ==0) y = 0;
     y = sqrt(ds*ds - deltaX*deltaX) + geom_.straw_station_center_from_edge[stationIndex]*sin(vacg.phi_a) ;
     
     G4TwoVector fixup(x,y);

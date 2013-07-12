@@ -65,17 +65,17 @@ std::vector<G4LogicalVolume *> gm2ringsim::Straws::doBuildLVs() {
       
             int stationNumber = sc + tb*geom_.strawStationLocation.size();
           
-            std::string strawLVName( boost::str( boost::format("SingleStrawLV-strawInRow%d-view%d-layer%d-stationNumber%d") %st
-                                                                                                                            %view
-                                                                                                                            %layer
-                                                                                                                            %stationNumber));
+            std::string strawLVName( boost::str( boost::format("SingleStrawLV-strawInRow%d-view%d-layer%d-stationNumber%d")
+                                                                %st
+                                                                %view
+                                                                %layer
+                                                                %stationNumber));
 
-            G4LogicalVolume* strawLV = new G4LogicalVolume(
-                                                       tracker_tube,
-                                                       artg4Materials::Vacuum(),
-                                                       strawLVName,
-                                                       0,
-                                                       0);
+            G4LogicalVolume* strawLV = new G4LogicalVolume(tracker_tube,
+                                                           artg4Materials::Vacuum(),
+                                                           strawLVName,
+                                                           0,
+                                                           0);
       
             artg4::setVisAtts( strawLV, geom_.displayStraw, geom_.strawColor,
                     [] (G4VisAttributes* att) {
@@ -211,7 +211,6 @@ void gm2ringsim::Straws::doFillEventWithArtHits(G4HCofThisEvent * hc) {
       
       //std::cout<<"Straw Number is: "<<e->straw<<std::endl;
       myArtHits->emplace_back( e->global_position.x(),e->global_position.y(),e->global_position.z(),e->global_position.r(),
-                              
                               e->momentum.x(),e->momentum.y(),e->momentum.z(),
                               e->local_position.x(),e->local_position.y(), e->local_position.z(),
                               e->local_momentum.x(),e->local_momentum.y(), e->local_momentum.z(),

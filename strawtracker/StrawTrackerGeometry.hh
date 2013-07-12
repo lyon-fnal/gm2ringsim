@@ -11,16 +11,6 @@
 #include <iostream>
 
 namespace gm2ringsim {
-
-  /*struct strawKey{
-    
-  }
-  
-  struct Plane{
-    int view;
-    int layer;
-    int station;
-  }*/
   
   struct StrawTrackerGeometry : public artg4::GeometryBase {
     StrawTrackerGeometry(std::string const & detName="strawtracker");
@@ -41,8 +31,9 @@ namespace gm2ringsim {
     std::vector<double> strawStationSizeHalf;
     const double strawStationHeight;
     double strawStationHeightHalf;
-    double strawStationWidth;
-    double strawStationWidthHalf;
+    
+    std::vector<double> strawStationWidth;
+    std::vector<double> strawStationWidthHalf;
     
     double innerRadiusOfTheStraw;
     double outerRadiusOfTheStraw;
@@ -54,7 +45,6 @@ namespace gm2ringsim {
     double spanningAngleOfTheStraw;
 
     double dist_btwn_wires;
-    double straw_diameter;
     double layer_angle;
     double delta_x;
     
