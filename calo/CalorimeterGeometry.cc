@@ -20,35 +20,39 @@
   
 gm2ringsim::CalorimeterGeometry::CalorimeterGeometry(std::string const & detName) :
   GeometryBase(detName),
-  nCalorimeters(          p.get<int>("nCalorimeters", 24)),
-  nXtalRows(             p.get<int>("nXtalRows")                    ),
-  nXtalCols(             p.get<int>("nXtalCols")                    ),
-  wrappingGap(           p.get<double>("wrappingGap")          * cm ),
-  crystalCaloBuffer(     p.get<double>("crystalCaloBuffer")    * cm ),
-  xtalWidth(             p.get<double>("xtalWidth")            * cm ),
-  xtalHeight(            p.get<double>("xtalHeight")           * cm ),
-  xtalDepth(             p.get<double>("xtalDepth")            * cm ),
-  sideWrapping(          p.get<std::string>("sideWrapping")              ),
-  frontWrapping(         p.get<std::string>("frontWrapping")             ),
-  backWrapping(          p.get<std::string>("backWrapping")              ),
-  frontWrappingHole(     p.get<bool>("frontWrappingHole")           ),
-  frontWrappingHoleSize( p.get<double>("frontWrappingHoleSize")* cm ),
-  photodetectorShape(    p.get<std::string>("photodetectorShape")   ),
-  photodetectorSize(     p.get<double>("photodetectorSize")    * cm ),
-  photodetectorDepth(    p.get<double>("photodetectorDepth")   * cm ),
-  opticalCouplingDepth(  p.get<double>("opticalCouplingDepth") * cm ),
-  diffuser(              p.get<bool>("diffuser")                    ),
-  diffuserDepth(         p.get<double>("diffuserDepth")        * cm ),
-  displayCalorimeterBox( p.get<bool>("displayCalorimeterBox")       ),
-  displayWrappingVolumes(p.get<bool>("displayWrappingVolumes")      ),
-  displayCrystalArray(   p.get<bool>("displayCrystalArray")      ),
-  calorimeterColor(      p.get<std::vector<double>>("calorimeterColor")    ),
-  xtalColor(             p.get<std::vector<double>>("xtalColor")           ),
-  photodetectorColor(    p.get<std::vector<double>>("photodetectorColor")  ),
-  opticalCouplingColor(  p.get<std::vector<double>>("opticalCouplingColor")),
-  diffuserColor(         p.get<std::vector<double>>("diffuserColor")       ),
-  wrappingColor(         p.get<std::vector<double>>("wrappingColor")       ),
-  killShowers(           p.get<bool>("killShowers")                 ),
+  nCalorimeters(         p.get<int>("nCalorimeters", 24)                    ),
+  nXtalRows(             p.get<int>("nXtalRows")                            ),
+  nXtalCols(             p.get<int>("nXtalCols")                            ),
+  wrappingGap(           p.get<double>("wrappingGap")          * cm         ),
+  crystalCaloBuffer(     p.get<double>("crystalCaloBuffer")    * cm         ),
+  xtalWidth(             p.get<double>("xtalWidth")            * cm         ),
+  xtalHeight(            p.get<double>("xtalHeight")           * cm         ),
+  xtalDepth(             p.get<double>("xtalDepth")            * cm         ),
+  sideWrapping(          p.get<std::string>("sideWrapping")                 ),
+  frontWrapping(         p.get<std::string>("frontWrapping")                ),
+  backWrapping(          p.get<std::string>("backWrapping")                 ),
+  frontWrappingHole(     p.get<bool>("frontWrappingHole")                   ),
+  frontWrappingHoleSize( p.get<double>("frontWrappingHoleSize")* cm         ),
+  photodetectorShape(    p.get<std::string>("photodetectorShape")           ),
+  photodetectorSize(     p.get<double>("photodetectorSize")    * cm         ),
+  photodetectorDepth(    p.get<double>("photodetectorDepth")   * cm         ),
+  opticalCouplingDepth(  p.get<double>("opticalCouplingDepth") * cm         ),
+  diffuser(              p.get<bool>("diffuser")                            ),
+  diffuserDepth(         p.get<double>("diffuserDepth")        * cm         ),
+  displayCalorimeterBox( p.get<bool>("displayCalorimeterBox")               ),
+  displayWrappingVolumes(p.get<bool>("displayWrappingVolumes")              ),
+  displayCrystalArray(   p.get<bool>("displayCrystalArray")                 ),
+  calorimeterColor(      p.get<std::vector<double>>("calorimeterColor")     ),
+  xtalColor(             p.get<std::vector<double>>("xtalColor")            ),
+  photodetectorColor(    p.get<std::vector<double>>("photodetectorColor")   ),
+  opticalCouplingColor(  p.get<std::vector<double>>("opticalCouplingColor") ),
+  diffuserColor(         p.get<std::vector<double>>("diffuserColor")        ),
+  wrappingColor(         p.get<std::vector<double>>("wrappingColor")        ),
+  killShowers(           p.get<bool>("killShowers")                         ),
+  placeInStation(        p.get<bool>("placeInStation")                      ),
+  positionOffsetX(       p.get<double>("positionOffsetX") * cm              ),
+  positionOffsetY(       p.get<double>("positionOffsetY") * cm              ),
+  positionOffsetZ(       p.get<double>("positionOffsetZ") * cm              ),
   radial(0),
   vertical(0),
   thickness(0)
@@ -109,6 +113,12 @@ void gm2ringsim::CalorimeterGeometry::print() {
     oss << "  wrappingColor:        "; for (auto entry : wrappingColor) { oss << " " << entry; }; oss << "\n";
     
     oss << "  killShowers = " << killShowers << "\n";
+    
+    oss << "  placeInStation =   " << placeInStation << "\n";
+    oss << "  positionOffsetX =  " << positionOffsetX << "\n";
+    oss << "  positionOffsetY =  " << positionOffsetY << "\n";
+    oss << "  positionOffsetZ =  " << positionOffsetZ << "\n";
+
 	
     mf::LogInfo("CALORIMETERGEOMETRY") << oss.str();
     

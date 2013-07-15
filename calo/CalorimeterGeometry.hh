@@ -75,6 +75,15 @@ namespace gm2ringsim{
         //       and interact with the PbF2 crystals
         const bool killShowers;
         
+        // placement inside mother volume
+        const bool placeInStation;
+        // ----> if true, reads in station geometry and does position adjustment
+        //                to be at front edge of station
+        // ----> if false (e.g., for test beam), placement is at center of mother volume
+        const double positionOffsetX; // manually adjust the calo volume placement
+        const double positionOffsetY; //    (use mother volume coordinate system)
+        const double positionOffsetZ;
+        
         // The following constants are derived
 
         // parameters of bounding calorimeter box.  Unlike in g2migtrace, we
