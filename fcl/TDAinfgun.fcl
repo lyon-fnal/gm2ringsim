@@ -13,7 +13,6 @@
 #include "geom/g2GPS.fcl"
 #include "geom/strawtracker.fcl"
 
-
 process_name:myProcessName
 
 source: {
@@ -157,7 +156,7 @@ services: {
 outputs: {
 out1: {
   module_type: RootOutput   
-  fileName: "gm2infgun0712.root"
+  fileName: "gm2infgun0715.root"
   }
 }
 
