@@ -1,5 +1,6 @@
 # Build the libraries
-art_make( LIBRARIES "artg4_util" "gm2ringsim_vac" "gm2ringsim_strawtracker"  "artg4_material")
+art_make( LIBRARIES "artg4_util" "gm2ringsim_vac" "gm2ringsim_strawtracker"
+    "artg4_material" "gm2geom_strawtracker" "gm2geom_Core_NewGeometry_service")
 
 # Copy the headers
 install_headers()
