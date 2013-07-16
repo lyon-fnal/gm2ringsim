@@ -8,18 +8,10 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 
-#include "art/Framework/Core/EDProducer.h"
-
 #include "messagefacility/MessageLogger/MessageLogger.h"
-
-#include "Geant4/G4HCofThisEvent.hh"
-#include "Geant4/G4LogicalVolume.hh"
-#include "Geant4/G4VPhysicalVolume.hh"
-#include "Geant4/G4UnionSolid.hh"
 #include "gm2ringsim/strawtracker/StrawSD.hh"
 
 #include "gm2ringsim/strawtracker/StrawTrackerGeometry.hh"
-#include "gm2ringsim/vac/VacGeometry.hh"
 
 #include <vector>
 

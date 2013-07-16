@@ -11,16 +11,6 @@
 #include "Geant4/G4Transform3D.hh"
 #include "Geant4/G4RotationMatrix.hh"
 #include "Geant4/G4VisAttributes.hh"
-#include "Geant4/G4RunManager.hh"
-#include "Geant4/G4UnitsTable.hh"
-#include "Geant4/G4ClassicalRK4.hh"
-#include "Geant4/G4Mag_UsualEqRhs.hh"
-#include "Geant4/G4Mag_SpinEqRhs.hh"
-#include "Geant4/G4UnitsTable.hh"
-#include "Geant4/G4UserLimits.hh"
-#include "Geant4/G4UImanager.hh"
-#include "Geant4/G4UniformMagField.hh"
-#include "Geant4/G4SDManager.hh"
 
 #include "gm2ringsim/strawtracker/StrawTrackerGeometry.hh"
 #include "gm2ringsim/strawtracker/StrawSD.hh"
@@ -38,9 +28,9 @@ gm2ringsim::Straws::Straws(fhicl::ParameterSet const & p, art::ActivityRegistry 
                    p.get<std::string>("category", "straws"),
                    p.get<std::string>("mother_category", "strawtracker")),
     strawSDname_("strawSD"),
-    strawSD_(0)
+    strawSD_(artg4::getSensitiveDetector<StrawSD>(strawSDname_))
 {
-  strawSD_ = artg4::getSensitiveDetector<StrawSD>(strawSDname_);
+  //strawSD_ = artg4::getSensitiveDetector<StrawSD>(strawSDname_);
 }
 
 // Build the logical volumes
