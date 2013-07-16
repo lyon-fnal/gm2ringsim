@@ -35,6 +35,8 @@ G4Allocator<XtalPhotonHit> XtalPhotonHitAllocator;
 gm2ringsim::XtalPhotonHit::XtalPhotonHit(G4Step *step) :
 global_pos(step->GetPreStepPoint()->GetPosition()),
 trackID(step->GetTrack()->GetTrackID()),
+caloNum( -1 ),
+xtalNum( -1 ),
 energy( step->GetPreStepPoint()->GetTotalEnergy() ),
 transmitted(false),
 detected(false)
@@ -82,17 +84,6 @@ detected(false)
     // now store the direction information
     cosTheta = local_mom.cosTheta();
     phi      = local_mom.phi();
-    
-    // get xtal and calo number...
-    /** @bug This is much nastier than it should be. */
-    std::string name = step->GetPreStepPoint()->GetPhysicalVolume()->GetName();
-    int left = name.find('[');
-    std::string num(name, left+1, left+2);
-    std::istringstream iss(num);
-    iss >> caloNum;
-    
-    xtalNum = step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo() ;
-    
 }
 
 

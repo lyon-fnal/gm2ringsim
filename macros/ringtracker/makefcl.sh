@@ -5,6 +5,9 @@ if [ -a ${outfile} ]; then
     rm ${outfile}
 fi
 
+SPOTS=10000
+let "die1 = $RANDOM % $SPOTS +1" # Roll first one.
+
 beamstartname=""
 
 cat >> ${outfile} <<EOF
@@ -13,15 +16,10 @@ cat >> ${outfile} <<EOF
 #include "geom/vac.fcl"
 #include "geom/inflector.fcl"
 #include "geom/quad.fcl"
-#include "geom/oct.fcl"
 #include "geom/kicker_nokick.fcl"
-#include "geom/fiberHarp.fcl"
-#include "geom/station.fcl"
-#include "geom/calorimeter.fcl"
 #include "geom/collimator.fcl"
 #include "geom/PGA.fcl"
 #include "geom/g2GPS.fcl"
-#include "geom/strawtracker.fcl"
 
 process_name:myProcessName
 
@@ -64,23 +62,23 @@ services: {
       arc:   @local::arc_geom
       vac:   @local::vac_geom
       inflector: @local::inflector_geom
-      quad: @local::quad_geom
-      octupole: @local::oct_geom
+      quad:   @local::quad_geom
       kicker: @local::kicker_geom
-      fiberHarp: @local::fiberHarp_geom
-      station: @local::station_geom
-      calorimeter: @local::calorimeter_geom
       collimator: @local::collimator_geom
       pga: @local::PGA_geom
-      strawtracker: @local::strawtracker_geom
      }
 
      // Global simulation settings
      RunSettings : {
        SpinTracking : {
-        spinTrackingEnabled : true
+	   spinTrackingEnabled : ${spintrackingname}
+	   edmTrackingEnabled : ${edmtrackingname}
+	   Q : ${charge}
+	   Eta : ${edmval}
+	   Gm2 : ${gm2val}
        }
       G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel
+#      G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel_muminus
     
     }
 
@@ -90,41 +88,42 @@ services: {
       // Action(s) for the simulation
       StackingAction: {  
             name: "stackingAction"
-	    OnlyTrackMuons: true
+	    OnlyTrackPrimary: false
+  	    TrackPrimaryDecay: true
+            TrackOrphans: false
             minWavelength:250 //nm
             maxWavelength:950  //nm
       }
 
     physicalVolumeStore: {}
-    Gm2PhysicsList: {}
+    Gm2PhysicsList: {
+	muonDecayMode: ${muondecay}
+    }
 
     TrackingAction : {
           name : "trackingAction"
-	  OnlyTrackMuons: true
+	  OnlyTrackPrimary: false
+	  TrackPrimaryDecay: true
+          TrackOrphans: false
     }
 
     ClockAction: {}
 
-//    G2PGA: {
-//	      name: "primary"
-//    }
-
-//    MuonGasPGA: {
-//        name: "muongas"
-//        muonGasVerbosity: false
-//    }
-
     InflectorPGA: {
         name: "inflectorgun"
         inflectorVerbosity: true
-	SigmaT: 25
-	Emittance: ${beamsize}
+	SigmaT: ${sigmat}
+	EmittanceX: ${beamsize}
+	EmittanceY: ${beamsize}
 	BetaX:  ${betaX}
 	BetaY:  ${betaY}
 	AlphaX:  ${alphaX}
 	AlphaY:  ${alphaY}
 	Pmean: ${pmean}
 	dPOverP: ${dPoverP}
+	Particle: "${particle}"
+	DecayScaleFactor: 1
+	Polarization: E821
 EOF
 
 if [ ${beamstart} == um ]; then
@@ -190,23 +189,27 @@ cat >> ${outfile} <<EOF
     // Detectors
     World: {}	
     Ring: {}    // This is for the RingHits
-    Tracker: {} // This is for the virtual tracker planes in the vac
+    VirtualRingStation: {} // This is for the virtual tracker planes in the vac
     Arc: {}
+    Quad: {}
     VacuumChamber: {}
     Inflector:{}
-    Quad: {}
-    Octupole: {}
     Kicker: {}
-    FiberHarp: {}
-    Station: {}
-    Calorimeter: {}
     Collimator : {}
-    StrawTracker: {}
 
+    LostMuonAction: {
+      name: "LostMuonAction"
+      stored_rmin: -50.0
+      stored_rmax: 50.0
+      stored_y: 50.0
+    }
 
     MuonStorageStatusAction: {
       name: "MuonStorageStatusAction"
       turnsForStorage: ${numturns}
+      TrackPositrons: true
+      stored_rmin: 7.035
+      stored_rmax: 7.215
 EOF
 
 if [ ${evts} -gt 10 ]; then
@@ -237,7 +240,7 @@ physics: {
      macroPath: ".:./macros:../macros:../../macros"
      visMacro: "vis.mac"
      afterEvent: pause  // (ui, pause, pass)
-     }
+    }
   }
 
 
@@ -252,16 +255,75 @@ physics: {
 }
 EOF
 
+cat >> ${outfile} <<EOF
+#
+# Add-ons
+#
+services.user.Geometry.inflector.CryoWallMaterial: Vacuum
+services.user.RunSettings.G2GPS_downstreamInflectorMandrel.particle: muminus
+services.user.Geometry.quad.DoScraping: false
+services.user.Geometry.quad.StoreHV: 24
+services.user.Geometry.quad.ScrapeHV: 17
+services.user.Geometry.quad.SupportMaterial: Macor
+services.user.Geometry.quad.PlateMaterial: None
+#services.user.Geometry.vac.Frequency: 1
+EOF
+echo "kickhv=${kickhv}"
+echo "kicksk=${kicksk}"
+
+if [ ${kickhv} -ge 0 ]; then
+cat >> ${outfile} <<EOF
+services.user.Geometry.kicker.TypeOfKick: LCR
+services.user.Geometry.kicker.kPlate1HV : ${kickhv} //kilovolt 
+services.user.Geometry.kicker.kPlate2HV : ${kickhv} //kilovolt 
+services.user.Geometry.kicker.kPlate3HV : ${kickhv} //kilovolt 
+services.user.Geometry.kicker.kickerHV : [${kickhv} , ${kickhv} , ${kickhv} ] //kilovolt
+EOF
+fi
+if [ ${kicksk} -ge 0 ]; then
+cat >> ${outfile} <<EOF
+services.user.Geometry.kicker.TypeOfKick: SQUARE
+services.user.Geometry.kicker.squareMag : [${kicksk} , ${kicksk} , ${kicksk} ] //gauss
+EOF
+fi
+
+#cat >> ${outfile} <<EOF
+#services.user.Geometry.kicker.TypeOfKick: SQUARE
+#services.user.Geometry.kicker.squareMag : [0.0 , 0.0 , 0.0 ] //gauss
+#EOF
+#fi
+
 echo "cp ${outfile} ${fullDir}/runner.fcl"
 cp ${outfile} ${fullDir}/runner.fcl
 
 
 outfile="readRingTrackers.fcl"
+header_outfile="readRingTrackers_header.fcl"
+footer_outfile="readRingTrackers_footer.fcl"
+files_outfile="readRingTrackers_files.fcl"
 if [ -a ${outfile} ]; then
     rm ${outfile}
 fi
+if [ -a ${footer_outfile} ]; then
+    rm ${footer_outfile}
+fi
+if [ -a ${header_outfile} ]; then
+    rm ${header_outfile}
+fi
+if [ -a ${files_outfile} ]; then
+    rm ${files_outfile}
+fi
 
-cat >> ${outfile} <<EOF
+files="${fullDir}/${basename}.root"
+for file in ${fullDir}/*.root; do
+    if [ -a ${file} ]; then
+	if ! [ ${file} == ${fullDir}/${basename}.root ]; then
+	    files="${files}, ${file}"
+	fi
+    fi
+done
+
+cat >> ${header_outfile} <<EOF
 services: {
 
   TFileService: {
@@ -295,7 +357,14 @@ process_name: readRingTrackers
 source: {
    module_type: RootInput
    maxEvents:  -1
-   fileNames: [ "${fullDir}/${basename}.root" ]
+EOF
+
+
+cat >> ${files_outfile} <<EOF
+    fileNames: [ "${fullDir}/${basename}.root" ]
+EOF
+
+cat >> ${footer_outfile} <<EOF
 }
 
 physics: {
@@ -310,6 +379,12 @@ physics: {
       LaunchAngle: ${launch}
       InflectorAngle: ${delta}
       StorageOffset: ${offset}
+      SaveInfHits: false
+      SaveTruthHits: true
+      SaveRingHits: false
+      SaveVRingHits: false
+      SaveVRing1PlaneHits: false
+      debug: false
     }
   }
   path1: [ readRingTrackers ]
@@ -317,5 +392,9 @@ physics: {
 }
 EOF
 
-echo "cp ${outfile} ${fullDir}/reader.fcl"
-cp ${outfile} ${fullDir}/reader.fcl
+echo "cp ${footer_outfile} ${fullDir}/footer_reader.fcl"
+cp ${footer_outfile} ${fullDir}/footer_reader.fcl
+echo "cp ${header_outfile} ${fullDir}/header_reader.fcl"
+cp ${header_outfile} ${fullDir}/header_reader.fcl
+echo "cp ${files_outfile} ${fullDir}/files_reader.fcl"
+cp ${files_outfile} ${fullDir}/files_reader.fcl

@@ -73,10 +73,10 @@ services: {
     ClockAction: {}
 
     SimpleParticleSource: {
-      particleType: "e+"
-      energy: 3.0
-      direction: [1.0, 0.0, 0.0]
-      position: [-200.0, 0.0, 0.0]
+      particleType: "e-"
+      energy: 2.0
+      direction: [0.0, 0.0, 1.0]
+      position: [0.0, 12.55, -200.0]
     }
 
     // Detectors
@@ -98,7 +98,7 @@ physics: {
   producers: {
     artg4 : { 
      module_type: artg4Main
-     enableVisualization: true
+     enableVisualization: false
      macroPath: ".:./macros:../macros:../../macros"
      visMacro: "vis.mac"
      afterEvent: pass  // (ui, pause, pass)
@@ -119,4 +119,5 @@ services.user.Geometry.world.world_z: 300
 services.user.Calorimeter.mother_category : world
 services.user.Calorimeter.stationGeomName : station
 services.user.Geometry.calorimeter.nCalorimeters : 1
-
+services.user.Geometry.calorimeter.placeInStation : false
+services.user.Geometry.calorimeter.killShowers : false

@@ -5,14 +5,14 @@
 #ifndef INFLECTOR_GEOM_HH
 #define INFLECTOR_GEOM_HH
 
-#include "artg4/Core/GeometryBase.hh"
+#include "gm2geom/Core/GeometryBase.hh"
 
 #include "gm2ringsim/inflector/inflectorGeometry.hh"
 #include <iostream>
 
 namespace gm2ringsim {
   
-  struct InflectorGeom : public artg4::GeometryBase {
+  struct InflectorGeom : public gm2geom::GeometryBase {
     InflectorGeom(std::string const & detName="inflector");
     void print() const;
     
@@ -33,6 +33,7 @@ namespace gm2ringsim {
     const double equivalentNbTiWidth;
 
     // X&Y constants were divided by 2. Hardcoded post-division 11/2012
+    const std::string CryoWallMaterial;
     const double parWall_X;
     const double parWall_Y;
     const double parWall_Z;

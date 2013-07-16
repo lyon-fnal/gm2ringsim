@@ -19,10 +19,7 @@ checktest()
 
 checkgun()
 {
-    if [ ${infgun} == 1 ]; then
-	sigmat="25"
-	export sigmat=${sigmat}
-    fi
+    echo ""
 }
 
 bestkicks()
@@ -186,6 +183,37 @@ bestlaunches()
 name()
 {
     extra="Scraping${scraping}${quadname}${numturns}Turns"    
+ 
+    if [ ${particle} == "e+" ]; then
+	particlename="eplus"
+    elif [ ${particle} == "e-" ]; then
+	particlename="eminus"
+    elif [ ${particle} == "mu+" ]; then
+	particlename="muplus"
+    elif [ ${particle} == "mu-" ]; then
+	particlename="muminus"
+    elif [ ${particle} == "pi+" ]; then
+	particlename="piplus"
+    elif [ ${particle} == "pi-" ]; then
+	particlename="piminus"
+    else
+	particlename="${particle}"
+    fi
+    extra="${extra}_${particlename}"
+
+    if [ -z ${spintracking} ]; then
+	extra="${extra}_NoSpinTracking"
+    else
+	if [ ${spintracking} == "spin" ]; then
+	    extra="${extra}_SpinTracking"
+	elif [ ${spintracking} == "edm" ]; then
+	    extra="${extra}_EDMTracking_Eta_${edmsize}"
+	fi
+	
+	if ! [ -z ${gm2size} ]; then
+	    extra="${extra}_Gm2_${gm2size}"
+	fi
+    fi
 
     if [ ${beamstart} == "uc" ] || [ ${beamstart} == "UpstreamCryo" ]; then
 	extra="${extra}_UpstreamCryo"
@@ -430,7 +458,13 @@ name()
     fi
     
     if [ ${muondecay} == "standard" ]; then
-	extra="${extra}_MuonDecayON"
+	extra="${extra}_StandardMuonDecay"
+    elif [ ${muondecay} == "sm" ]; then
+	extra="${extra}_StandardModelMuonDecay"
+    elif [ ${muondecay} == "iso" ]; then
+	extra="${extra}_IsotropicMuonDecay"
+    elif [ ${muondecay} == "none" ]; then
+	extra="${extra}_NoMuonDecay"
     fi
 }
 
@@ -538,7 +572,7 @@ export evts=10000
 #
 #
 export numturns=101
-export muondecay="none"
+#export muondecay="none"
 #export muondecay="standard"
 
 #
@@ -549,6 +583,14 @@ export keepringhits="on"
 # Collimator Status
 #
 export collimator_status=1
+
+#
+# Spin Tracking
+#
+export spintrackingname=false
+export edmtrackingname=false
+export gm2val=-1
+export edmval=0
 
 if [ ${sub} == 0 ]; then
     if [ ${infstart} == 1 ]; then
@@ -585,7 +627,7 @@ setbetax=0
 
 
 until [ -z ${1} ]; do
-    echo "Arg = ${1}"
+#    echo "Arg = ${1}"
     if [ ${1} == "local" ]; then
 	submit=0
 	shift 1
@@ -663,10 +705,96 @@ until [ -z ${1} ]; do
 	clean=1
 	shift 1
 	continue
+    elif [ ${1} == "decay" ]; then
+	shift 1
+	muondecay=${1}
+	export muondecay=${1}
+	shift 1
+	continue
+    elif [ ${1} == "spin" ]; then
+	spintracking="spin"
+	export spintrackingname=true	
+	shift 1
+	continue
+    elif [ ${1} == "edm" ]; then
+	spintracking="edm"
+	export edmtrackingname=true
+	shift 1
+	continue
+    elif [ ${1} == "edmsize" ]; then
+	shift 1
+	edmsize=${1}
+	edmval=0.0
+	if [ ${edmsize} == "0" ] || [ ${edmsize} == "0.0" ]; then
+	    edmval=0
+	    foundit=true
+	else
+	    mags="1 2 3 4 5 6 7 8 9"
+	    nums="1 2 3 4 5 6 7 8 9"
+	    foundit=false;
+	    for mag in ${mags}; do
+		if ! [ ${edmsize/"m${mag}"/} == ${edmsize} ]; then
+		    for num in ${nums}; do
+			if ! [ ${edmsize/"${num}em"/} == ${edmsize} ]; then
+			    edmval="${num}e-${mag}"
+			    foundit=true
+			fi
+		    done
+		fi
+	    done
+	fi
+
+	if [ ${foundit} == false ]; then
+	    echo "Did not find EDM size you gave [${edmsize}]"
+	    sleep 10000000000
+	fi
+	export edmval="${edmval}"
+#	echo "EDM = ${edmval}"
+	shift 1
+	continue
+    elif [ ${1} == "gm2size" ]; then
+	shift 1
+	gm2size=${1}
+	gm2val=-1.0
+	if [ ${gm2size} == "0" ] || [ ${gm2size} == "0.0" ]; then
+	    gm2val=0
+	    foundit=true
+	else
+	    mags="1 2 3 4 5 6 7 8 9 10 11 12"
+	    nums="1 2 3 4 5 6 7 8 9"
+	    foundit=false;
+	    for mag in ${mags}; do
+		if ! [ ${gm2size/"m${mag}"/} == ${gm2size} ]; then
+		    for num in ${nums}; do
+			if ! [ ${gm2size/"${num}em"/} == ${gm2size} ]; then
+			    gm2val="${num}e-${mag}"
+			foundit=true
+		    fi
+		    done
+		fi
+	    done
+	fi
+	
+	if [ ${foundit} == false ]; then
+	    echo "Did not find g-2 size you gave [${gm2size}]"
+	    sleep 10000000000
+	fi
+	export gm2val="${gm2val}"
+	echo "a_{mu} = ${gm2val}"
+	shift 1
+	continue
     elif [ ${1} == "numturns" ]; then
 	shift 1
 	numturns=${1}
 	export numturns=${1}
+	continue
+    elif [ ${1} == "Particle" ]; then
+	shift 1
+	particle=${1}
+	export particle=${1}
+	shift 1
+	charge=${1}
+	export charge=${1}
 	continue
     elif [ ${1} == "scraping" ]; then
 	shift 1
@@ -1075,6 +1203,10 @@ until [ -z ${1} ]; do
 	export sigmat=50
 	shift 1
 	continue
+    elif [ ${1} == "tSigma100" ]; then
+	export sigmat=100
+	shift 1
+	continue
     elif [ ${1} == "tSigma1" ]; then
 	export sigmat=1
 	shift 1
@@ -1116,14 +1248,14 @@ until [ -z ${1} ]; do
     elif [ ${1} == "BeamSize" ] || [ ${1} == "beamsize" ] || [ ${1} == "beam" ]; then
 	shift 1
 	export beamsize=${1}
-	echo "Arg BeamSize=${1} mm*mrad"
+#	echo "Arg BeamSize=${1} mm*mrad"
 	beamsize="${1}"
 	shift 1
 	continue
     elif [ ${1} == "kick" ] || [ ${1} == "k" ] || [ ${1} == "lcr" ]; then
 	shift 1
 	export kickhv=${1}
-	echo "Arg kick=${kickhv} kV"
+#	echo "Arg kick=${kickhv} kV"
 	kicks="${1}"
 	shift 1
 	continue
@@ -1141,7 +1273,7 @@ until [ -z ${1} ]; do
 	shift 1
 	export offset=${1}
 	offsets="${offset}"
-	echo "Arg offset=${offset}"
+#	echo "Arg offset=${offset}"
 	shift 1
 	continue
     elif [ ${1} == "delta" ] || [ ${1} == "d" ]; then
@@ -1156,7 +1288,7 @@ until [ -z ${1} ]; do
 	else
 	    export delta=${dname}
 	fi
-	echo "Arg delta=${delta}"
+#	echo "Arg delta=${delta}"
 	deltas="${delta}"
 	shift 1
 	continue
@@ -1184,7 +1316,7 @@ until [ -z ${1} ]; do
 	    export launch=${lname}
 #	    echo "Setting launch to [${launch}]"
 	fi
-	echo "Arg launch=${launch}"
+#	echo "Arg launch=${launch}"
 	launches="${launch}"
 	shift 1
 	continue
@@ -1305,14 +1437,28 @@ for o in ${offsets}; do
 		    fi
 		    export fullDir=${outDir}/${subDir}
 		    if [ ${clean} == 1 ]; then
+			echo "Calling rm -fr ${fullDir}"
 			rm -fr ${fullDir}
 		    fi
 		    mkdir -p ${fullDir}
 		    chmod g+rw ${fullDir}
+
+		    if [ -a ${fullDir}/${extra}.root ]; then
+			c=1
+			while [ ${c} -gt 0 ]; do
+			    if ! [ -a ${fullDir}/${extra}_v${c}.root ]; then
+				echo "Moving output to v${c}"
+				mv ${fullDir}/${extra}.root ${fullDir}/${extra}_v${c}.root
+				break;
+			    fi
+			    ((c++))
+			done
+		    fi
 		    
-		    njobs="1"
+		    njobs="40"
 		    if [ ${submit} == 1 ]; then
-			echo "jobsub -e fullDir -e basename -e MYREL -N ${njobs} -g condor.sh"
+			echo "jobsub -g --opportunistic -dMYDIR ${fullDir} sub2.sh"
+#			echo "jobsub -e fullDir -e basename -e MYREL -N ${njobs} -g condor2.sh"
 		    fi
 		    
 		    ./makefcl.sh "inflector" 
@@ -1321,20 +1467,34 @@ for o in ${offsets}; do
 			    rm cmd.sh
 			fi
 			echo "Output Directory [${fullDir}]"
-			echo "jobsub -e fullDir -e basename -e MYREL -N ${njobs} -g condor.sh" > cmd.sh
-			chmod 777 cmd.sh
-			sleep 1
-			source cmd.sh
-			rm cmd.sh
-			sleep 1
+			MYDIR=${fullDir}
+#			echo "jobsub -g --opportunistic -d ${MYDIR} -e MYREL -e fullDir -N ${njobs} -g condor2.sh" > cmd.sh
+#			echo "jobsub -g --opportunistic -e fullDir -e basename -e MYREL -N ${njobs} -g condor2.sh" > cmd.sh
+#			echo "jobsub -e fullDir -e basename -e MYREL -N ${njobs} -g condor2.sh" > cmd.sh
+	
+		
+			jobsub -g --opportunistic -e fullDir -dMYDIR ${fullDir} -N ${njobs} sub2.sh
+
+
+#			chmod 777 cmd.sh
+#			sleep 1
+#			source cmd.sh
+#			rm cmd.sh
+#			sleep 1
 		    else			
 			if [ -a ${fullDir}/runner.fcl ]; then
 			    echo ${fullDir}/runner.fcl
 			    if [ ${test} == 1 ]; then
 				rm dump
-				gm2 -c ${fullDir}/runner.fcl | tee dump
+				gm2 -c ${fullDir}/runner.fcl -o output_0.root | tee dump
+				mv output_0.root ${fullDir}/
 			    else
-				gm2 -c ${fullDir}/runner.fcl | tee ${fullDir}/output.dat
+				touch ${fullDir}/START
+#				echo ${fullDir}/runner.fcl}
+				gm2 -c ${fullDir}/runner.fcl -o output_0.root  | tee ${fullDir}/output.dat
+				mv output_0.root ${fullDir}/
+				rm ${fullDir}/START
+				touch ${fullDir}/DONE
 #				mv ${extra}*.root ${fullDir}/
 				echo ""
 				echo "./run.sh ${subDir}"

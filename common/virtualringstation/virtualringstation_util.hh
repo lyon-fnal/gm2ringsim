@@ -5,6 +5,8 @@
 #include "gm2ringsim/common/virtualringstation/VirtualRingStationHit.hh"
 
 #include "gm2ringsim/common/g2PreciseValues.hh"
+#include "gm2ringsim/common/UsefulVariables.hh"
+
 
 //helper function
 namespace gm2ringsim {
@@ -13,40 +15,50 @@ namespace gm2ringsim {
     //G4cout << "convert: virtualringstationHit -> virtualringstationRecord\n";
     VirtualRingStationArtRecord ts;
 
-    G4ThreeVector const& pos = pth->position;
-    G4ThreeVector const& mom = pth->momentum;
-    G4ThreeVector const& pol = pth->polarization;
+    G4ThreeVector pos = pth->position;
+    G4ThreeVector mom = pth->momentum;
+    G4ThreeVector pol = pth->polarization;
     
-    ts.rhat = std::sqrt(pos.x()*pos.x() + pos.z()*pos.z()) - R_magic();
-    ts.vhat = pos.y();
-    ts.theta = std::atan2(pos.z(),pos.x());
-    if( ts.theta < 0 )
-      ts.theta+= 2.*M_PI;
-
-    ts.time = pth->time;
-
-    /*
-      \vec{proj p->rhat} = \frac{\vec{rhat}\dot\vec{p}}{rhat^2}
-      \vec{rhat} 
-     */
-
-    ts.p = mom.mag();
-    // a dot product to get the sign right...
-    double r = std::sqrt(pos.x()*pos.x()+pos.z()*pos.z());
-    ts.prhat = 
-      ((mom.x()*pos.x() + mom.z()*pos.z())/r)/ts.p;
-    ts.pvhat = mom.y()/ts.p;
-    
-    //    G4cout << ts.p << ' ' << ts.prhat << ' ' << ts.pvhat << '\n';
-
+    //---------------------
+    // Basics
+    //---------------------
     ts.turn = pth->turnNum;
-
     ts.volumeUID = pth->volumeUID;
     ts.trackID = pth->trackID;
+    ts.time = pth->time;
+    ts.pdgid = pth->PDGID;
 
+
+    //-------------------
+    // Position variables
+    //-------------------
+    G4double rhat = ComputeRhat(&pos);
+    G4double vhat = ComputeVhat(&pos);
+    G4double theta = ComputeTheta(&pos);
+    ts.rhat = rhat;
+    ts.vhat = vhat;
+    ts.theta = theta;
+    
+    
+    //-------------------
+    // Momentum variables
+    //-------------------
+    G4double prhat = ComputePrhat(&pos, &mom);
+    G4double pvhat = ComputePvhat(&pos, &mom);
+    ts.p = mom.mag();
+    ts.prhat = prhat;
+    ts.pvhat = pvhat;
+    
+    
+    //-----------------------
+    // Polarization variables
+    //-----------------------
     ts.polx = pol.x();
     ts.poly = pol.y();
     ts.polz = pol.z();
+
+    
+
 
     return ts;    
   } // convert VirtualRingStationHit*

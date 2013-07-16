@@ -14,6 +14,9 @@
 // Get the PGA header
 #include "gm2ringsim/actions/PGA/InflectorPGA_service.hh"
 
+// Random numbers
+#include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 
 // ART includes
 #include "art/Framework/Services/Registry/ServiceMacros.h"
@@ -60,8 +63,15 @@ gm2ringsim::InflectorPGA::InflectorPGA(fhicl::ParameterSet const& p, art::Activi
   AlphaY_(p.get<double>("AlphaY", -9999.9)),
   Pmean_(p.get<double>("Pmean", -9999.9)),
   dPOverP_(p.get<double>("dPOverP", -9999.9)),
-  SigmaT_(p.get<double>("SigmaT", -9999.9)) 
+  SigmaT_(p.get<double>("SigmaT", -9999.9)),
+  Particle_(p.get<std::string>("Particle", "mu+")),
+  NumParticles_(p.get<int>("NumParticles", 1)),
+  DecayScaleFactor_(p.get<int>("DecayScaleFactor", 1)),
+  Polarization_(p.get<std::string>("Polarization", "E821"))
 {
+  if ( EmittanceX_ <= 0.0 ) { EmittanceX_ = 0.0; }
+  if ( EmittanceY_ <= 0.0 ) { EmittanceY_ = 0.0; }
+
   if ( inflectorVerbosity_ > 0 ) {
     G4cout << "================== InflectorPGA ==================" << G4endl;
     G4cout << "  inflectorVerbosity  " << inflectorVerbosity_ << G4endl;
@@ -81,6 +91,10 @@ gm2ringsim::InflectorPGA::InflectorPGA(fhicl::ParameterSet const& p, art::Activi
     G4cout << "  dPOverP             " << dPOverP_ << G4endl;
     G4cout << "  Pmean               " << Pmean_ << G4endl;
     G4cout << "  SigmaT              " << SigmaT_ << G4endl;
+    G4cout << "  Particle            " << Particle_ << G4endl;
+    G4cout << "  NumParticles        " << NumParticles_ << G4endl;    
+    G4cout << "  DecayScaleFactor    " << DecayScaleFactor_ << G4endl;   
+    G4cout << "  Polarization        " << Polarization_ << G4endl;    
   }
 }
 
@@ -113,7 +127,11 @@ void gm2ringsim::InflectorPGA::initialize() {
   gps_ -> SetdPOverP(dPOverP_);
   gps_ -> SetPmean(Pmean_);
   gps_ -> SetSigmaT(SigmaT_);
-  G4cout << "Done calling InflectorPGA::initialize()" << G4endl;
+  gps_ -> SetParticle(Particle_);
+  gps_ -> SetNumParticles(NumParticles_);
+  gps_ -> SetDecayScaleFactor(DecayScaleFactor_);
+  gps_ -> SetPolarization(Polarization_);
+  //G4cout << "Done calling InflectorPGA::initialize()" << G4endl;
   //////////////////////////////////
 }
 

@@ -39,6 +39,8 @@ time(step->GetPreStepPoint()->GetGlobalTime()),
 turnNum(TurnCounter::getInstance().turns()),
 trackID(step->GetTrack()->GetTrackID()),
 parentID(trackInitiatingShower),
+caloNum( -1 ),
+xtalNum( -1 ),
 energy( step->GetPreStepPoint()->GetTotalEnergy() ),
 energyDep( 0. ),
 trackLength( 0. ),
@@ -60,17 +62,6 @@ ephoton( 0. )
     local_mom.transform(*rot); // in crystal coordinates
     G4RotationMatrix l2mrot(navHistory->GetTopVolume()->GetObjectRotationValue());
     local_mom.transform(l2mrot); // now in calorimeter coordinates
-
-    // get xtal number...
-    
-    /** @bug This is much nastier than it should be. */
-    std::string name = step->GetPreStepPoint()->GetPhysicalVolume()->GetName();
-    int left = name.find('[');
-    std::string num(name, left+1, left+2);
-    std::istringstream iss(num);
-    iss >> caloNum;
-    
-    xtalNum = step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo() ;
 }
 
 

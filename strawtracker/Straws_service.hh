@@ -12,7 +12,7 @@
 
 // Get the base class for the service
 #include "artg4/Core/DetectorBase.hh"
-#include "gm2ringsim/strawtracker/StrawTrackerGeometry.hh"
+#include "gm2geom/strawtracker/StrawTrackerGeometry.hh"
 #include "gm2ringsim/strawtracker/StrawSD.hh"
 
 // Within a namespace
@@ -30,7 +30,7 @@ namespace gm2ringsim {
         virtual ~Straws() {};
 
     private:
-        StrawTrackerGeometry geom_;
+        gm2strawtracker::StrawTrackerGeometry geom_;
         G4String strawSDname_;
         StrawSD *strawSD_;
 

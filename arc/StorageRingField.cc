@@ -23,6 +23,8 @@
 #include "gm2ringsim/common/g2PreciseValues.hh"
 
 #include "Geant4/G4PhysicalConstants.hh"
+#include "Geant4/G4ThreeVector.hh"
+
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
@@ -30,21 +32,73 @@
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 
-void gm2ringsim::storageRingField::GetFieldValue( const double Point[3],
-				      double *Bfield ) const {
-  storageFieldController::getInstance().GetFieldValue(Point, Bfield);
+gm2ringsim::storageRingField::storageRingField(int Charge) :
+  Charge_(Charge)
+{
+  G4cout << "============= storageRingField =============" << G4endl;
+  G4cout << "| Beam Charge   = " << Charge_ << G4endl;
+  G4ThreeVector pnt(gm2ringsim::R_magic(), 0, 0);
+  G4ThreeVector v(0, 0, 1);
+  double Bfield[3];
+  double Point[3];
+  Point[0] = pnt.x();
+  Point[1] = pnt.y();
+  Point[2] = pnt.z();
+  storageFieldController::getInstance().GetFieldValue(Point, Bfield, Charge_);
+  G4ThreeVector B(Bfield[0], Bfield[1], Bfield[2]);
+  G4cout << "| v(R,0,0)      = " << v << G4endl;
+  G4cout << "| B(R,0,0)      = " << B << G4endl;
+  G4ThreeVector F = v.cross(B)/(v.mag()*B.mag());
+  G4cout << "| q(v x B)      = " << Charge_ * F << G4endl;
+  if ( Charge_ * F.x() < 0 ) { G4cout << "| Force is toward to the center." << G4endl; }
+  else { G4cout << "| Force is outward." << G4endl; }
+
+  G4cout << "===========================================" << G4endl;
 }
 
-// void gm2ringsim::storageRingEMField::GetFieldValue( const double Point[3],
-// 				      double *Bfield ) const {
-//   storageFieldController::getInstance().GetFieldValue(Point, Bfield);
-//   Bfield[3] = 0.0;
-//   Bfield[4] = 0.0;
-//   Bfield[5] = 0.0;
-//   for ( int i = 0; i < 6; i++ ) {
-//     G4cout << "EMField:Bfield[" << i << "] = " << Bfield[i] << G4endl;
-//   }
-// }
+void gm2ringsim::storageRingField::GetFieldValue( const double Point[3],
+				      double *Bfield ) const {
+  storageFieldController::getInstance().GetFieldValue(Point, Bfield, Charge_);
+
+
+
+  
+  bool debug = false;
+  if ( debug ) {
+    double r = sqrt(Point[0]*Point[0] + Point[2]*Point[2]) - R_magic();
+    double y = Point[1];
+    std::cout.precision(3);
+    double dB = Bfield[1] - 0.00145;
+    dB = 0.0;
+    if ( Bfield[0] > 0.01 || Bfield[2] > 0.01 || Bfield[0] < -0.01 || Bfield[2] < -0.01 || dB > 0.01 || dB < -0.01 ) {
+      std::cout << "QuadField::GetFieldValue(" << r << " , " << y << ") = ["
+		<< Bfield[0] << " , "
+		<< Bfield[1] << " , "
+		<< Bfield[2] << "]" << std::endl;
+    }
+  }
+}
+
+gm2ringsim::storageRingEMField::storageRingEMField(int Charge) :
+  Charge_(Charge)
+{}
+
+void gm2ringsim::storageRingEMField::GetFieldValue( const double Point[3],
+				      double *field ) const {
+  storageFieldController::getInstance().GetFieldValue(Point, field, Charge_);
+  
+  //-------------------------------
+  // Set E-field to zero. (For EDM)
+  //-------------------------------
+  field[3] = 0.0;
+  field[4] = 0.0;
+  field[5] = 0.0;
+  if ( 0 ) {
+    for ( int i = 0; i < 6; i++ ) {
+      G4cout << "EMField:field[" << i << "] = " << field[i] << G4endl;
+    }
+  }
+}
 
 
 ////////////////////////////////////////////////
@@ -68,7 +122,8 @@ gm2ringsim::storageFieldController const& gm2ringsim::storageFieldController::ge
 
 /** @bug Fix the hard coded constants in this member. */
 void gm2ringsim::storageFieldController::GetFieldValue( const double Point[3],
-					    double *Bfield ) const {
+							double *Bfield,
+							int Charge) const {
 
   double const xc = sqrt(Point[0]*Point[0]+Point[2]*Point[2])-gm2ringsim::R_magic();
   double const rc = std::sqrt(Point[1]*Point[1] + xc*xc);
@@ -82,10 +137,12 @@ void gm2ringsim::storageFieldController::GetFieldValue( const double Point[3],
     fringeimpl_->GetFieldValue(Point,Bfield);
   }
 
-//   G4cout << "storageFieldController::GetFieldValue()" << G4endl;
-//   for ( int i = 0; i < 6; i++ ) {
-//     G4cout << "  Bfield[" << i << "] = " << Bfield[i] << G4endl;
-//   }
+  //-----------------------------------------
+  // Assumes negative field. Fix for positive
+  //-----------------------------------------
+  if ( Charge == 1 ) {
+    for ( int i = 0; i < 3; i++ ) { Bfield[i] *= -1; }
+  }
 }
 
 /** @bug There's some missing implementation in this member. */

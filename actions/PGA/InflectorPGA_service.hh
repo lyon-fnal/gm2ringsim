@@ -57,7 +57,13 @@ namespace gm2ringsim
     double Pmean_;
     double dPOverP_;
     double SigmaT_;
-    
+    std::string Particle_;
+    int NumParticles_;
+    int DecayScaleFactor_;
+    std::string Polarization_;
+
+   
+
   }; // End InflectorPGA class 
 }
 #endif // INFLECTORPGA_SERVICE_HH

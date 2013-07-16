@@ -55,6 +55,9 @@
 #include "gm2ringsim/common/g2PreciseValues.hh"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+#include "gm2ringsim/fields/g2EqEMFieldWithSpin.hh"
+#include "gm2ringsim/fields/g2EqEMFieldWithEDM.hh"
+
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -118,29 +121,59 @@ gm2ringsim::Inflector::Inflector(fhicl::ParameterSet const & p, art::ActivityReg
   conductorCurrent_(infGeom_.conductorCurrent),
   fieldNormConst_(infGeom_.fieldNormConst),
   currentToMagFieldConversion_(infGeom_.currentToMagFieldConversion),
+  nospin_tracking_(true),
   spin_tracking_(sts_.spinTrackingEnabled),
+  edm_tracking_(sts_.edmTrackingEnabled),
   inflectorSDname_("InflectorSD"),
   ringSDname_("RingSD"),
   inflectorSD_(0), // will set below
   ringSD_(0)
 {
-  printf("In the Inflector service constructor\n");
+  if ( spin_tracking_ || edm_tracking_ ) { nospin_tracking_ = false; }
+
+
+  G4cout << "=========== Inflector ===========" << G4endl;
+  G4cout << "| Beam Charge      = " << sts_.GetCharge() << G4endl;
+  G4cout << "| Spin Tracking    = " << spin_tracking_ << G4endl;
+  G4cout << "| EDM Tracking     = " << edm_tracking_ << G4endl;
+
+  G4cout << "| Downstream End   = ";
+  if(useDownstreamWindow_ && useDownstreamConductor_ && useDownstreamEndFlange_) 
+    G4cout << "COMPLETELY CLOSED\n";
+  else if(!useDownstreamWindow_ && !useDownstreamConductor_ && !useDownstreamEndFlange_) 
+    G4cout << "COMPLETELY OPEN\n";
+  else
+    G4cout << "PARTIALLY CLOSED\n";
+
+  G4cout << "| Upstream End     = ";
+  if(useUpstreamWindow_ && useUpstreamConductor_ && useUpstreamEndFlange_) 
+    G4cout << "COMPLETELY CLOSED\n";
+  else if(!useUpstreamWindow_ && !useUpstreamConductor_ && !useUpstreamEndFlange_) 
+    G4cout << "COMPLETELY OPEN\n";
+  else
+    G4cout << "PARTIALLY CLOSED\n";
+
+  G4cout << "| Inflector Field  = ";
+  switch( mag_field_type_ ){
+  case VANISHING_FIELD:
+    G4cout << "Vanishing\n";
+    break;
+  case SIMPLE_FIELD:
+    G4cout << "Simple\n";
+    break;
+  case MAPPED_FIELD:
+    G4cout << "Mapped\n";
+    break;
+  default:
+    G4cout << "failure!!!!\n";
+  }
+  G4cout << "=================================" << G4endl;
   
   // Let's prepare the sensitive detector, no registration with G4SDManager necessary as 
   // this is done in FiberHarpSD constructor
 
   inflectorSD_ = artg4::getSensitiveDetector<InflectorSD>(inflectorSDname_);
   ringSD_ = artg4::getSensitiveDetector<RingSD>(ringSDname_);
-
-  //FIXME: No need for this binding. We can just grab spintracking from
-  //      the master fcl and set the spintracking variable accordingly,once.
-  /*  std::tr1::function<void(bool)> f =
-    std::tr1::bind(&Inflector::enable_spintracking, this,
-                   std::tr1::placeholders::_1);
-  
-  conn_ =
-    spinController::getInstance().connect(e_arc_is_parent, f);
-  */
 }
 
 gm2ringsim::Inflector::~Inflector(){
@@ -176,6 +209,7 @@ std::vector<G4LogicalVolume *> gm2ringsim::Inflector::doBuildLVs() {
   infGeom_.print();
   getInflectorInfo();
   mf::LogInfo("Inflector_Service") <<"spin tracking enabled is :"<<spin_tracking_;
+  mf::LogInfo("Inflector_Service") <<"edm tracking enabled is :"<<edm_tracking_;
 
   //FIXME: Is this really what we want to do??
   std::vector<G4LogicalVolume *> l_inflector;
@@ -616,14 +650,24 @@ void gm2ringsim::Inflector::buildInflector( ) {
   
 } //Inflector::buildInflector() 
 
-void gm2ringsim::Inflector::buildCryostatWalls_SandL(){
+void gm2ringsim::Inflector::buildCryostatWalls_SandL()
+{
+
+  G4Material *cryowall_material;
+  if ( infGeom_.CryoWallMaterial == "Al" ) {
+    cryowall_material = artg4Materials::Al();
+  }
+  else {
+    cryowall_material = artg4Materials::Vacuum();
+  }
+
   G4VSolid *parallelCryoWall_S = new G4Box("parallelCryoWall_S",
 					   infGeom_.parWall_X,
 					   infGeom_.parWall_Y,
 					   infGeom_.parWall_Z);
   
   parallelCryoWall_L_ = new G4LogicalVolume(parallelCryoWall_S,
-					    artg4Materials::Al(),
+					    cryowall_material,
 					    "parallelCryoWall_L",
 					    0,
 					    0,
@@ -650,7 +694,7 @@ void gm2ringsim::Inflector::buildCryostatWalls_SandL(){
 						     cryoWindowTransform);
   
   perpCryoWall_L_ = new G4LogicalVolume(perpCryoWall_SS,
-					artg4Materials::Al(),
+					cryowall_material,
 					"perpCryoWall_L",
 					0,
 					0,
@@ -848,10 +892,10 @@ void gm2ringsim::Inflector::rebuildFieldImpl(){
     inflectorMagField_ = new VanishingInflectorField;
     break;
   case SIMPLE_FIELD:
-    inflectorMagField_ = new SimpleInflectorField(fieldNormConst_);
+    inflectorMagField_ = new SimpleInflectorField(fieldNormConst_, sts_.GetCharge());
     break;
   case MAPPED_FIELD:
-    inflectorMagField_ = new MappedInflectorField();
+    inflectorMagField_ = new MappedInflectorField(sts_.GetCharge());
     break;
   default:
     G4cout << "An improper Inflector Field was set in Inflector::rebuildFieldImpl()!!\n";
@@ -864,6 +908,9 @@ void gm2ringsim::Inflector::rebuildFieldImpl(){
 //        avoid all of these rebuilds...
 void gm2ringsim::Inflector::rebuildEOM(){
 
+  bool myspin = false;
+  bool myedm = false;
+
   if( iEquation_ )
     delete iEquation_;
   if( iStepper_ )
@@ -872,12 +919,32 @@ void gm2ringsim::Inflector::rebuildEOM(){
     delete iChordFinder_;
   
   // Create the equations of motion                                             
-  if( !spin_tracking_ ){
+  if( nospin_tracking_ ){
     iEquation_ = new G4Mag_UsualEqRhs(inflectorMagField_);
     iStepper_ = new G4ClassicalRK4(iEquation_);
-  } else {
-    iEquation_ = new G4Mag_SpinEqRhs(inflectorMagField_);
-    iStepper_ = new G4ClassicalRK4(iEquation_, 12);
+  }
+  else if ( spin_tracking_ ) {
+    if ( myspin ) {
+      g2EqEMFieldWithSpin *iEquation = new g2EqEMFieldWithSpin(inflectorMagField_);
+      iStepper_ = new G4ClassicalRK4(iEquation, 12);
+    }
+    else {
+      iEquation_ = new G4Mag_SpinEqRhs(inflectorMagField_);
+      iStepper_ = new G4ClassicalRK4(iEquation_, 12);
+    }
+  }
+  else if ( edm_tracking_ ) {
+    if ( myedm ) {
+      g2EqEMFieldWithEDM *iEquation = new g2EqEMFieldWithEDM(inflectorMagField_);
+      iEquation->SetEta(sts_.GetEta());
+      if ( sts_.GetGm2() >= 0 ) { iEquation->SetAnomaly(sts_.GetGm2()); }
+      iStepper_ = new G4ClassicalRK4(iEquation, 12);
+    }
+    else {
+      iEquation_ = new G4Mag_SpinEqRhs(inflectorMagField_);
+      G4cout << "WARNING: EDM + spin tracking does not work in the inflector...." << G4endl;
+      iStepper_ = new G4ClassicalRK4(iEquation_, 12);
+    }
   }
   // Create the chord finder that calculates curved trajectories                
   iChordFinder_ = new G4ChordFinder(inflectorMagField_,

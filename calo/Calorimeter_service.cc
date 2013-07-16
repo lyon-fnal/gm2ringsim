@@ -50,7 +50,7 @@ gm2ringsim::Calorimeter::Calorimeter(fhicl::ParameterSet const & p, art::Activit
              p.get<std::string>("name", "calorimeter"),
              p.get<std::string>("category", "calorimeter"),
              p.get<std::string>("mother_category", "station")),
-    stationGeomName_(p.get<std::string>("stationGeomName", "")), // Use if the mother category isn't a station (e.g. test beam)
+    stationGeomName_(p.get<std::string>("stationGeomName", "")), // For calo placement, use a geometry different from the mother category
     caloSD_(0),
     xtalSD_(0),
     photodetectorSD_(0)
@@ -73,9 +73,14 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
     std::string photodetectorShape   = caloGeom.photodetectorShape ;
     double photodetectorSize         = caloGeom.photodetectorSize ;
     double photodetectorDepth        = caloGeom.photodetectorDepth ;
-    G4String frontOpticalMaterial = caloGeom.frontWrapping ;
-    G4String sideOpticalMaterial  = caloGeom.sideWrapping ;
-    G4String backOpticalMaterial  = caloGeom.backWrapping ;
+    bool diffuser                    = caloGeom.diffuser ;
+    double diffuserDepth             = caloGeom.diffuserDepth ;
+    G4String frontOpticalMaterial    = caloGeom.frontWrapping ;
+    G4String sideOpticalMaterial     = caloGeom.sideWrapping ;
+    G4String backOpticalMaterial     = caloGeom.backWrapping ;
+    bool frontWrappingHole           = caloGeom.frontWrappingHole ;
+    double frontWrappingHoleSize     = caloGeom.frontWrappingHoleSize ;
+    
     
     // --- Dimensions of all the stuff that goes inside the calorimeter volume
     G4double const r_2               = caloGeom.radial/2. ;
@@ -145,10 +150,12 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
 
     
     // Calculate the locations of sub-volumes inside the caloBound volume.
-    // The order is: front wrapping, PbF2, optical coupling / backwrapping, photodetector
+    // The order is: gap, diffuser, front wrapping, PbF2, optical coupling / backwrapping, photodetector
         
     // --- distance from caloBound center to the center of each volume
-    double wrappingDepthCenter = t_2 - wrappingGap / 2. ;
+    double diffuserDepthCenter = t_2 - wrappingGap - diffuserDepth / 2. ;
+    double wrappingDepthCenter = diffuserDepthCenter -
+                                ( diffuserDepth + wrappingGap ) / 2. ;
     double xtalDepthCenter = wrappingDepthCenter -
                                 ( wrappingGap + xtalDepth ) / 2.;
     double opticalCouplingDepthCenter = xtalDepthCenter -
@@ -157,20 +164,20 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
                                 (opticalCouplingDepth + photodetectorDepth ) / 2.;
     
     // --- vector for placing each volume inside caloBound
+    G4ThreeVector diffuserOrigin( 0., 0., -diffuserDepthCenter );
     G4ThreeVector wrappingOrigin( 0., 0., -wrappingDepthCenter );
     G4ThreeVector xtalOrigin( 0., 0., -xtalDepthCenter ) ;
     G4ThreeVector opticalCouplingOrigin( 0., 0., -opticalCouplingDepthCenter ) ;
     G4ThreeVector photodetectorOrigin( 0., 0., -photodetectorDepthCenter ) ;
     
-
     // Make the front wrapping volume: a thin box filled with our "optical vacuum"
     // that allows us to specify the front wrapping material for the crystals.
-    // The front wrapping volume covers the entire front edge of the caloBound
-    // volume and is wrappingGap deep
+    // The front wrapping volume covers the entire front edge of the crystal
+    // array and is wrappingGap deep
     
     // The "optical vacuum" is just vacuum with an index of refraction defined
     // Optical boundary processes don't work correctly unless both materials
-    // invol
+    // involved have indices of refraction
     
     // --- front wrapping shape
     G4Box* frontWrapping_S = new G4Box("frontWrapping_S",
@@ -178,22 +185,79 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
                                        v_2,
                                        wrappingGap/2);
     // --- front wrapping logical volume
-    G4LogicalVolume* frontWrapping_L =  
-        new G4LogicalVolume( frontWrapping_S,
-                             artg4Materials::Vacuum1(),
-                             "frontWrapping_L" );
+    G4LogicalVolume* frontWrapping_L =
+    new G4LogicalVolume( frontWrapping_S,
+                        artg4Materials::Vacuum1(),
+                        "frontWrapping_L" );
     // --- front wrapping visual attributes
     artg4::setVisAtts(frontWrapping_L, caloGeom.displayWrappingVolumes, caloGeom.wrappingColor);
     
-    // --- place front wrapping volume inside caloBound volume.  
+    // --- place front wrapping volume inside caloBound volume.
     G4PVPlacement* frontWrapping_P =
+    new G4PVPlacement( 0,
+                      wrappingOrigin,
+                      frontWrapping_L,
+                      "frontWrapping_P",
+                      caloBound_L,
+                      false,
+                      0);
+    
+    if (diffuser){
+        // Make the diffuser volume: unpolished silica diffuser sheet in front of
+        // the crystal array -- proposed component of laser calibration system.
+        // Separated from the PbF2 crystals by a small gap (the front wrapping
+        // volume accomplishes this).
+        
+        // --- diffuser shape
+        G4Box* diffuser_S = new G4Box("diffuser_S",
+                                      r_2,
+                                      v_2,
+                                      diffuserDepth/2);
+        // --- diffuser logical volume
+        G4LogicalVolume* diffuser_L =
+        new G4LogicalVolume( diffuser_S,
+                            artg4Materials::Quartz(),
+                            "diffuser_L");
+        // --- diffuser visual attributes
+        artg4::setVisAtts(diffuser_L, caloGeom.displayWrappingVolumes, caloGeom.diffuserColor);
+        
+        // --- place diffuser volume inside caloBound volume
+        G4PVPlacement* diffuser_P =
         new G4PVPlacement( 0,
-                           wrappingOrigin,
-                           frontWrapping_L,
-                           "frontWrapping_P",
-                           caloBound_L,
-                           false,
-                           0);
+                          diffuserOrigin,
+                          diffuser_L,
+                          "diffuser_P",
+                          caloBound_L,
+                          false,
+                          0);
+
+        // Define optical surfaces for the diffuser
+        //     polished side facing away from crystals (front surface)
+        //     ground side facing toward crystals (back surface)
+        
+        // --- Diffuser front (smooth)
+        G4OpticalSurface* frontDiffuserSurface =
+        artg4Materials::findOpticalByName("EtchedGlass");
+        new G4LogicalBorderSurface( "SurfaceExitingDiffuserFront",
+                                   diffuser_P,
+                                   caloBound_P,
+                                   frontDiffuserSurface);
+        new G4LogicalBorderSurface( "SurfaceEnteringDiffuserFront",
+                                   caloBound_P,
+                                   diffuser_P,
+                                   frontDiffuserSurface);
+        // -- Diffuse back (rough)
+        G4OpticalSurface* backDiffuserSurface =
+        artg4Materials::findOpticalByName("GroundGlass");
+        new G4LogicalBorderSurface( "SurfaceExitingDiffuserBack",
+                                   diffuser_P,
+                                   frontWrapping_P,
+                                   backDiffuserSurface);
+        new G4LogicalBorderSurface( "SurfaceEnteringDiffuserBack",
+                                   frontWrapping_P,
+                                   diffuser_P,
+                                   backDiffuserSurface);
+    }
 
     // Make the back wrapping volume: a thin box filled with the optical vacuum
     // that allows us to specify the back wrapping material for the crystals.
@@ -232,6 +296,7 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
     int xtalCount = 0 ;
     int nXtalRows = caloGeom.nXtalRows;
     int nXtalCols = caloGeom.nXtalCols;
+    int nXtalsPerCalo = nXtalRows * nXtalCols;
     
     // --- loop over rows, starting with bottom (smallest y coordinate)
     for( int irow = 0 ; irow < nXtalRows ; ++irow )
@@ -249,6 +314,7 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
         G4ThreeVector xtalPos = xtalOrigin + offset ;
         G4ThreeVector opticalCouplingPos = offset ; // only the offset, since it goes into the backwrapping volume
         G4ThreeVector photodetectorPos = photodetectorOrigin + offset ;
+        G4ThreeVector frontWrappingHolePos = wrappingGap/4.*zhat + offset ;
         
         // --- loop over columns, starting with radial inside (smallest x coord)
         for( int icol = 0 ; icol < nXtalCols; ++icol, ++xtalCount )
@@ -281,10 +347,55 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
                                   xtalName.str(),
                                   caloBound_L,
                                   false,
-                                  xtalCount ) ;
+                                  (calorimeterNumber * nXtalsPerCalo) + xtalCount ) ;
             
-
-            // --- declare optical coupling and photodetector logical volumes outside if statemnt
+            if (frontWrappingHole){
+                // Create a square hole in the wrapping in front of each crystal.
+                //    This volume is thinner than the front wrapping volume and
+                //    is flush with the xtal, to allow us to define a different
+                //    optical surface at its interface with the xtal volume
+                
+                // --- front wrapping hole shape
+                G4Box* frontWrappingHole_S = new G4Box("frontWrappingHole_S",
+                                                       frontWrappingHoleSize / 2.,
+                                                       frontWrappingHoleSize / 2.,
+                                                       wrappingGap / 4.) ; // half the thickness of front wrapping
+                
+                // --- front wrapping hole logical volume
+                G4LogicalVolume* frontWrappingHole_L =
+                new G4LogicalVolume( frontWrappingHole_S,
+                                    artg4Materials::Vacuum1(),
+                                    "frontWrappingHole_L" );
+                
+                // --- front wrapping hole visual attributes (same as front wrapping)
+                artg4::setVisAtts(frontWrappingHole_L, caloGeom.displayWrappingVolumes, caloGeom.wrappingColor);
+                
+                // -- place front wrapping hole volume inside front wrapping volume
+                G4PVPlacement* frontWrappingHole_P =
+                new G4PVPlacement( 0,
+                                  frontWrappingHolePos,
+                                  frontWrappingHole_L,
+                                  "frontWrappingHole_P",
+                                  frontWrapping_L,
+                                  false,
+                                  0);
+                
+                // --- optical surface for xtal-hole interface
+                G4OpticalSurface* wrappingHoleSurface =
+                artg4Materials::findOpticalByName("Open");
+                //G4LogicalBorderSurface* xtaltoFrontHoleSurface_P =
+                new G4LogicalBorderSurface( "PbF2ToFrontHole",
+                                           xtal_P,
+                                           frontWrappingHole_P,
+                                           wrappingHoleSurface);
+                //G4LogicalBorderSurface* frontHoletoXtalSurface_P =
+                new G4LogicalBorderSurface( "FrontHoleToPbF2",
+                                           frontWrappingHole_P,
+                                           xtal_P,
+                                           wrappingHoleSurface);
+            }
+            
+            // --- declare optical coupling and photodetector logical volumes outside if statement
             G4LogicalVolume* opticalCoupling_L ;
             G4LogicalVolume* photodetector_L ;
 
@@ -338,6 +449,9 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
             // --- optical coupling visual attributes
             artg4::setVisAtts(opticalCoupling_L, caloGeom.displayCrystalArray, caloGeom.opticalCouplingColor);
             
+            // -- include optical coupling volume with xtalSD
+            opticalCoupling_L->SetSensitiveDetector(xtalSD_);
+            
             // --- photodetector visual attributes
             artg4::setVisAtts(photodetector_L, caloGeom.displayCrystalArray, caloGeom.photodetectorColor);
             
@@ -355,7 +469,7 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
                                   ocName.str(),
                                   backWrapping_L,
                                   false,
-                                  xtalCount ) ;
+                                  (calorimeterNumber * nXtalsPerCalo) + xtalCount ) ;
 
             // --- place photodetector volume inside caloBound volume
             std::ostringstream pdName;
@@ -368,31 +482,53 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
                               pdName.str(),
                               caloBound_L,
                               false,
-                              xtalCount ) ;
+                              (calorimeterNumber * nXtalsPerCalo) + xtalCount ) ;
             
-            // --- Define the optical surface for the long side
+            // Define optical surfaces for crystal
+            
+            // --- Define the optical surface for the long side of crystals
                 G4OpticalSurface* sideXtalSurface =
                    artg4Materials::findOpticalByName(sideOpticalMaterial);
-                new G4LogicalBorderSurface( "PbF2SideSurface",
+                new G4LogicalBorderSurface( "PbF2ExitingSideSurface",
                                            xtal_P,
                                            caloBound_P,
                                            sideXtalSurface);
+                G4OpticalSurface* sideXtalReverseSurface =
+                artg4Materials::findOpticalByName(sideOpticalMaterial+"Reverse");
+                new G4LogicalBorderSurface( "PbF2EnteringSideSurface",
+                                           caloBound_P,
+                                           xtal_P,
+                                           sideXtalReverseSurface);
+
             
             // --- Define the optical surface for the front wrapping
                 G4OpticalSurface* frontXtalSurface =
                     artg4Materials::findOpticalByName(frontOpticalMaterial);
-                new G4LogicalBorderSurface( "PbF2FrontSurface",
+                new G4LogicalBorderSurface( "PbF2ExitingFrontSurface",
                                            xtal_P,
                                            frontWrapping_P,
                                            frontXtalSurface);
+                G4OpticalSurface* frontXtalReverseSurface =
+                artg4Materials::findOpticalByName(frontOpticalMaterial+"Reverse");
+                new G4LogicalBorderSurface( "PbF2EnteringFrontSurface",
+                                           frontWrapping_P,
+                                           xtal_P,
+                                           frontXtalReverseSurface);
             
             // --- Define the optical surface for the back wrapping
                 G4OpticalSurface* backXtalSurface = 
                     artg4Materials::findOpticalByName(backOpticalMaterial);
-                new G4LogicalBorderSurface( "PbF2BackSurface",
+                new G4LogicalBorderSurface( "PbF2ExitingBackSurface",
                                            xtal_P,
                                            backWrapping_P,
                                            backXtalSurface);
+                G4OpticalSurface* backXtalReverseSurface =
+                artg4Materials::findOpticalByName(backOpticalMaterial+"Reverse");
+                new G4LogicalBorderSurface( "PbF2EnteringBackSurface",
+                                           backWrapping_P,
+                                           xtal_P,
+                                           backXtalReverseSurface);
+            
             
             // --- Ensure faceted surface between xtal and optical coupling...
             G4OpticalSurface* xtalOpticalCouplingSurface =
@@ -404,16 +540,17 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
                                            xtalOpticalCouplingSurface);
             // --- ...and between optical coupling and xtal
             //G4LogicalBorderSurface* opticalCouplingtoXtalSurface_P =
-                new G4LogicalBorderSurface( "PbF2ToGrease2",
+                new G4LogicalBorderSurface( "OpticalCouplingToPbF2",
                                            opticalCoupling_P,
                                            xtal_P,
                                            xtalOpticalCouplingSurface);
             
             
             // --- Increment positions to the next column
-            xtalPos            += (xtalWidth + wrappingGap) * xhat ;
-            opticalCouplingPos += (xtalWidth + wrappingGap) * xhat ;
-            photodetectorPos   += (xtalWidth + wrappingGap) * xhat ;
+            xtalPos              += (xtalWidth + wrappingGap) * xhat ;
+            opticalCouplingPos   += (xtalWidth + wrappingGap) * xhat ;
+            photodetectorPos     += (xtalWidth + wrappingGap) * xhat ;
+            frontWrappingHolePos += (xtalWidth + wrappingGap) * xhat ;
             
         } // end of loop over column
     } // end of loop over rows
@@ -440,9 +577,12 @@ std::vector<G4LogicalVolume *> gm2ringsim::Calorimeter::doBuildLVs() {
     
     // make sure sensitive detectors have the right number of xtals/photodetectors
     int nCalo = caloGeom.nCalorimeters;
-    int nXtals = nCalo * caloGeom.nXtalRows * caloGeom.nXtalCols;
-    xtalSD_->setXtalNum(nXtals);
-    photodetectorSD_->setPhotodetectorNum(nXtals);
+    int nXtalsPerCalo = caloGeom.nXtalRows * caloGeom.nXtalCols;
+    int nXtalsTotal = nCalo * nXtalsPerCalo;
+    xtalSD_->setTotalXtals(nXtalsTotal);
+    photodetectorSD_->setTotalPhotodetectors(nXtalsTotal);
+    xtalSD_->setXtalsPerCalo(nXtalsPerCalo);
+    photodetectorSD_->setPhotodetectorsPerCalo(nXtalsPerCalo);
 
     // Create the vector of logical volumes
     std::vector<G4LogicalVolume*> calorimeterLVs;
@@ -460,6 +600,12 @@ std::vector<G4LogicalVolume *> gm2ringsim::Calorimeter::doBuildLVs() {
 // Build the physical volumes
 std::vector<G4VPhysicalVolume *> gm2ringsim::Calorimeter::doPlaceToPVs( std::vector<G4LogicalVolume*> stations) {
     
+    CalorimeterGeometry caloGeom; // "calorimeter" is the default parameter
+    
+    std::vector<G4VPhysicalVolume*> calorimeterPVs;
+    calorimeterPVs.resize(lvs().size());
+
+    
     // Calorimeter coordinates:
     //      +x radial out
     //      +y vertical up
@@ -470,31 +616,29 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Calorimeter::doPlaceToPVs( std::vec
     //      +y downstream into calorimeter
     //      +z vertical down
     
-    StationGeometry stationGeom(stationGeomName_);
-    CalorimeterGeometry caloGeom; // "calorimeter" is the default parameter
-    
-/*    if ( stations.size() != lvs().size() ) {
-        throw cet::exception("# of Calorimeter logical volumes (")
-           << lvs().size()
-           << ") differs from # of stations (" << stations.size() << ")";
-    }
- */
-    
-    std::vector<G4VPhysicalVolume*> calorimeterPVs;
-    calorimeterPVs.resize(lvs().size());
-    
-
-    
-    // find the location of the center of the calorimeter volume along the station's thickness
-    // (depth) dimension
-    G4double centerLocation = (caloGeom.thickness + 2*caloGeom.crystalCaloBuffer - stationGeom.t) / 2;
-    G4ThreeVector pos( 0, centerLocation, 0 );
-    
-    // create the rotation matrix that we need for placing the calo LV's into the stations
+    // position and rotation of calo volume inside mother volume
+    G4ThreeVector pos(0.0, 0.0, 0.0);
     G4RotationMatrix* caloRot = new G4RotationMatrix;
-    caloRot->rotateX(M_PI/2*rad); //Rotates by pi/2 radians around x-axis
+    
+    if (caloGeom.placeInStation)
+    {
+        StationGeometry stationGeom(stationGeomName_);
+        
+        // find the location of the center of the calorimeter volume along the station's thickness
+        // (depth) dimension so that front of calo volume is flush with front of station
+        G4double centerLocation = (caloGeom.thickness + 2*caloGeom.crystalCaloBuffer - stationGeom.t) / 2;
+        pos.setY(centerLocation);
+        
+        // create the rotation matrix that we need for placing the calo LV's into the stations
+        caloRot->rotateX(M_PI/2*rad); // Rotates by pi/2 radians around x-axis
+    }
+    
+    // manual position offset from fcl parameters
+    pos.setX( pos.x() + caloGeom.positionOffsetX );
+    pos.setY( pos.y() + caloGeom.positionOffsetY );
+    pos.setZ( pos.z() + caloGeom.positionOffsetZ );    
 
-    //loop over the logical volumes
+    // loop over the logical volumes
     unsigned int calorimeterNum = 0;
     for ( auto aCalorimeterLV : lvs() ) {
         
@@ -508,7 +652,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Calorimeter::doPlaceToPVs( std::vec
                                                     calorimeterLabel,
                                                     stations[ calorimeterNum ],
                                                     false,
-                                                    0 ) );
+                                                    calorimeterNum ) );
         
         
         calorimeterNum++;
@@ -656,8 +800,8 @@ void gm2ringsim::Calorimeter::doFillEventWithXtalPhotonHits(G4HCofThisEvent * hc
                                     e->xtalNum,
                                     e->trackID,
                                     e->local_pos.x(), // radial coordinate
-                                    e->local_pos.z(), // thickness coordinate
                                     e->local_pos.y(), // vertical coordinate
+                                    e->local_pos.z(), // thickness coordinate
                                     e->cosTheta,
                                     e->phi,
                                     e->energy,

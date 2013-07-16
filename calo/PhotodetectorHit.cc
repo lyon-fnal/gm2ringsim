@@ -38,6 +38,8 @@ global_pos(step->GetPreStepPoint()->GetPosition()),
 time(step->GetPreStepPoint()->GetGlobalTime()),
 turnNum(TurnCounter::getInstance().turns()),
 trackID(step->GetTrack()->GetTrackID()),
+caloNum( -1 ),
+photodetectorNum( -1 ),
 nphoton( 0 ),
 energy( 0. )
 {
@@ -45,17 +47,6 @@ energy( 0. )
     local_pos =
     touchy->GetHistory()->GetTopTransform().TransformPoint(global_pos);
     // local coords are: radial is x, vertical is y, thickness is z
-    
-    // get photodetector number...
-    
-    /** @bug This is much nastier than it should be. */
-    std::string name = step->GetPreStepPoint()->GetPhysicalVolume()->GetName();
-    int left = name.find('[');
-    std::string num(name, left+1, left+2);
-    std::istringstream iss(num);
-    iss >> caloNum;
-    
-    photodetectorNum = step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo() ;
 }
 
 

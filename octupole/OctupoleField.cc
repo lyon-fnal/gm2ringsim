@@ -18,11 +18,12 @@
 
 #include <cmath>
 
-gm2ringsim::OctupoleField::OctupoleField() : 
+gm2ringsim::OctupoleField::OctupoleField(int Charge) : 
   octGeom_("octupole"),
   period_(octGeom_.period),
   offset_(octGeom_.offset),
-  gradient_(octGeom_.gradient)
+  gradient_(octGeom_.gradient),
+  Charge_(Charge)
 {}
 
 void gm2ringsim::OctupoleField::GetFieldValue( double const Point[4], 
@@ -31,7 +32,7 @@ void gm2ringsim::OctupoleField::GetFieldValue( double const Point[4],
   // see comments in quadField.cc::GetFieldValue for coordinate system
   // conversions
 
-  storageFieldController::getInstance().GetFieldValue(Point, Bfield);
+  storageFieldController::getInstance().GetFieldValue(Point, Bfield, Charge_);
 
   G4double const& time = Point[3];
 
@@ -52,11 +53,36 @@ void gm2ringsim::OctupoleField::GetFieldValue( double const Point[4],
   
   double const scale = gradient_*std::sin(time - 100*ns);
   
-  double const Bx_q = scale*(y_q2*y_q - 3.*x_q2*y_q);
-  double const By_q = scale*(x_q2*x_q - 3.*y_q2*x_q);
+  double Bx_q = scale*(y_q2*y_q - 3.*x_q2*y_q);
+  double By_q = scale*(x_q2*x_q - 3.*y_q2*x_q);
+
+  //--------------------------
+  // Assumes negative beam
+  //--------------------------
+  if ( Charge_ == 1 ) { 
+    Bx_q *= -1;
+    By_q *= -1;
+  }
   
   Bfield[0] += Bx_q*x/r;
   Bfield[1] += By_q;
   Bfield[2] += Bx_q*z/r;    
+
+
+  
+  bool debug = false;
+  if ( debug ) {
+    double r = sqrt(Point[0]*Point[0] + Point[2]*Point[2]) - R_magic();
+    double y = Point[1];
+    std::cout.precision(3);
+    double dB = Bfield[1] - 0.00145;
+    dB = 0.0;
+    if ( Bfield[0] > 0.01 || Bfield[2] > 0.01 || Bfield[0] < -0.01 || Bfield[2] < -0.01 || dB > 0.01 || dB < -0.01 || 1 ) {
+      std::cout << "OctupoleField::GetFieldValue(" << r << " , " << y << ") = ["
+		<< Bfield[0] << " , "
+		<< Bfield[1] << " , "
+		<< Bfield[2] << "]" << std::endl;
+    }
+  }
 			     
 }

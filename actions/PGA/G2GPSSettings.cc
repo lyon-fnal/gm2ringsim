@@ -35,8 +35,13 @@ gm2ringsim::G2GPSSettings::G2GPSSettings(std::string const & detName) :
   tType( p.get<std::string>("tType","default")),
   tMono( p.get<double>("tMono",0.0) * ns),
   tSigma( p.get<double>("tSigma",0.0) * ns),
+  polarization( p.get<std::vector<double>>("polarization", {0,0,0} ) ),
   parSetKeys_(p.get_keys())
 {
+  G4cout << "================ G2GPSSettings ===============" << G4endl;
+  G4cout << "| Particle = " << particle << G4endl;
+  G4cout << "==============================================" << G4endl;
+
   // radians??
   //FIXME: Need to check angular units
   // for (auto& entry : pos_rot1 ) { entry *= ; }
@@ -50,33 +55,34 @@ void gm2ringsim::G2GPSSettings::print() const {
   
   // Use the MessageLogger (see https://cdcvs.fnal.gov/redmine/projects/novaart/wiki/Using_the_Framework#MessageLogger )
   //  mf::LogInfo("G2GPSSettings") << "G2GPS settings are:"
-std::ostringstream oss;
-oss << "  particle=" << particle << "\n";
-oss << "  pos_type=" << pos_type << "\n";
-oss << "  pos_rot1= "; for (auto entry : pos_rot1) { oss << " " << entry; }; oss << "\n";
-oss << "  pos_rot2= "; for (auto entry : pos_rot2) { oss << " " << entry; }; oss << "\n";
-oss << "  pos_shape=" << pos_shape << "\n";
-oss << "  pos_centre= "; for (auto entry : pos_centre) { oss << " " << entry; }; oss << "\n";
-oss << "  pos_halfx=" << pos_halfx << "\n";
-oss << "  pos_halfy=" << pos_halfy << "\n";
-oss << "  pos_sigma_x=" << pos_sigma_x << "\n";
-oss << "  pos_sigma_y=" << pos_sigma_y << "\n";
- oss << " pos_radius=" <<pos_radius<<"\n";
- oss << " pos_sigmar_r=" <<pos_sigma_r<<"\n";
-oss << "  ang_rot1= "; for (auto entry : ang_rot1) { oss << " " << entry; }; oss << "\n";
-oss << "  ang_rot2= "; for (auto entry : ang_rot2) { oss << " " << entry; }; oss << "\n";
-oss << "  ang_type=" << ang_type << "\n";
-oss << "  ang_sigma_x=" << ang_sigma_x << "\n";
-oss << "  ang_sigma_y=" << ang_sigma_y << "\n";
-oss << "  ang_sigma_r=" << ang_sigma_r << "\n";
-
-oss << "  ene_type=" << ene_type << "\n";
-oss << "  ene_mono=" << ene_mono << "\n";
-oss << "  ene_sigma=" << ene_sigma << "\n";
-oss << "  tType=" << tType << "\n";
-oss << "  tMono=" << tMono << "\n";
-oss << "  tSigma=" << tSigma << "\n";
-mf::LogInfo("G2GPSSettings") << oss.str();
+  std::ostringstream oss;
+  oss << "  particle=" << particle << "\n";
+  oss << "  pos_type=" << pos_type << "\n";
+  oss << "  pos_rot1= "; for (auto entry : pos_rot1) { oss << " " << entry; }; oss << "\n";
+  oss << "  pos_rot2= "; for (auto entry : pos_rot2) { oss << " " << entry; }; oss << "\n";
+  oss << "  pos_shape=" << pos_shape << "\n";
+  oss << "  pos_centre= "; for (auto entry : pos_centre) { oss << " " << entry; }; oss << "\n";
+  oss << "  pos_halfx=" << pos_halfx << "\n";
+  oss << "  pos_halfy=" << pos_halfy << "\n";
+  oss << "  pos_sigma_x=" << pos_sigma_x << "\n";
+  oss << "  pos_sigma_y=" << pos_sigma_y << "\n";
+  oss << " pos_radius=" <<pos_radius<<"\n";
+  oss << " pos_sigmar_r=" <<pos_sigma_r<<"\n";
+  oss << "  ang_rot1= "; for (auto entry : ang_rot1) { oss << " " << entry; }; oss << "\n";
+  oss << "  ang_rot2= "; for (auto entry : ang_rot2) { oss << " " << entry; }; oss << "\n";
+  oss << "  ang_type=" << ang_type << "\n";
+  oss << "  ang_sigma_x=" << ang_sigma_x << "\n";
+  oss << "  ang_sigma_y=" << ang_sigma_y << "\n";
+  oss << "  ang_sigma_r=" << ang_sigma_r << "\n";
+  
+  oss << "  ene_type=" << ene_type << "\n";
+  oss << "  ene_mono=" << ene_mono << "\n";
+  oss << "  ene_sigma=" << ene_sigma << "\n";
+  oss << "  tType=" << tType << "\n";
+  oss << "  tMono=" << tMono << "\n";
+  oss << "  tSigma=" << tSigma << "\n";
+  oss << "  polarization= "; for (auto entry : polarization) { oss << " " << entry; }; oss << "\n";
+  mf::LogInfo("G2GPSSettings") << oss.str();
 }
 
 

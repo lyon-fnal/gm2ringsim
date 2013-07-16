@@ -1,14 +1,14 @@
 #ifndef STATIONGEOMETRY_HH
 #define STATIONGEOMETRY_HH
 
-#include "artg4/Core/GeometryBase.hh"
+#include "gm2geom/Core/GeometryBase.hh"
 
 #include "Geant4/globals.hh"
 #include "gm2ringsim/common/conversions.hh"
 #include <iostream>
 
 namespace gm2ringsim{
-  struct StationGeometry : public artg4::GeometryBase {
+  struct StationGeometry : public gm2geom::GeometryBase {
     StationGeometry(std::string const &);
     void print();
 

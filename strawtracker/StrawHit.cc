@@ -18,7 +18,7 @@
 #include "Geant4/G4LogicalVolumeStore.hh"
 #include "Geant4/G4TransportationManager.hh"
 #include "Geant4/G4Navigator.hh"
-#include "gm2ringsim/strawtracker/StrawTrackerGeometry.hh"
+#include "gm2geom/strawtracker/StrawTrackerGeometry.hh"
 
 #include "gm2ringsim/strawtracker/StrawHit.hh"
 //FIXME: do i need this?#include "g2UniqueObjectManager.rhh"
@@ -93,7 +93,7 @@ gm2ringsim::StrawHit::StrawHit(G4Step* step) :
     station_position = history->GetTransform(depth-1).TransformPoint(worldPosition);
 
   }
-  StrawTrackerGeometry g;
+  gm2strawtracker::StrawTrackerGeometry g;
   scallop_position.set(station_position.x() + g.straw_station_center_from_edge[stationNumber],
                          station_position.y() + g.strawStationLocation[stationNumber],
                          station_position.z());

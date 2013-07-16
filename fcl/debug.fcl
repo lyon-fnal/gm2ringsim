@@ -17,7 +17,7 @@ process_name: myProcessName
 
 source: {
   module_type: EmptyEvent
-  maxEvents:  100
+  maxEvents:  10
 }
 
 services: {
@@ -81,7 +81,10 @@ services: {
     }
 
     physicalVolumeStore: {}
-    Gm2PhysicsList: {}
+    Gm2PhysicsList: {
+      decayMode: "iso"
+      physicsListName: "FTFP_BERT"
+   }
 
     TrackingAction : {
           name : "trackingAction"

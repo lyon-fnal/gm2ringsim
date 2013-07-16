@@ -35,6 +35,8 @@
 #include "Geant4/G4ChordFinder.hh"
 
 #include "gm2ringsim/fields/g2FieldEqRhs.hh"
+#include "gm2ringsim/fields/g2EqEMFieldWithSpin.hh"
+#include "gm2ringsim/fields/g2EqEMFieldWithEDM.hh"
 #include "artg4/util/array_macros.hh"
 #include "artg4/material/Materials.hh"
 #include "gm2ringsim/common/g2PreciseValues.hh"
@@ -58,13 +60,24 @@ gm2ringsim::Octupole::Octupole(fhicl::ParameterSet const & p, art::ActivityRegis
 	       p.get<std::string>("mother_category", "vac")) ,
   //FIXME: check that vac is the mother
   sts_("SpinTracking"),
+  nospin_tracking_(true),
   spin_tracking_(sts_.spinTrackingEnabled),
+  edm_tracking_(sts_.edmTrackingEnabled),
   og_(myName()), //OctupoleGeometry 
   withSpin_(0),
   withoutSpin_(0),
+  withEDM_(0),
   fieldRegion_L_(0),
   fieldRegion_P_(0)
 {
+  if ( spin_tracking_ || edm_tracking_ ) { nospin_tracking_ = false; }
+
+  G4cout << "=========== Octupole ===========" << G4endl;
+  G4cout << "| Beam Charge      = " << sts_.GetCharge() << G4endl;
+  G4cout << "| Spin Tracking    = " << spin_tracking_ << G4endl;
+  G4cout << "| EDM Tracking     = " << edm_tracking_ << G4endl;
+  G4cout << "=================================" << G4endl;
+
   for( std::size_t i=0; i!=tubes_L_.size(); ++i){
     tubes_L_[i] = water_L_[i] = 0;
     tubes_P_[i] = water_P_[i] = 0;
@@ -173,29 +186,63 @@ void gm2ringsim::Octupole::buildLogicals(){
 }
 
 void gm2ringsim::Octupole::buildFieldManagers(){
-  OctupoleField *field = new OctupoleField();
+  OctupoleField *field = new OctupoleField(sts_.GetCharge());
   G4Mag_EqRhs *equation;
   G4MagIntegratorStepper *stepper;
   G4ChordFinder *chord;
+
+  bool myspin = false;
+  bool myedm = false;
   
   // spin free
-  equation = new g2TimeDepMagField_EqRhs(field);
-  stepper = new G4ClassicalRK4(equation, 8);
-  chord = new G4ChordFinder(field, .01*mm, stepper);
-  withoutSpin_ = new G4FieldManager(field, chord);
+  if ( nospin_tracking_ ) {
+    equation = new g2TimeDepMagField_EqRhs(field);
+    stepper = new G4ClassicalRK4(equation, 8);
+    chord = new G4ChordFinder(field, .01*mm, stepper);
+    withoutSpin_ = new G4FieldManager(field, chord);
+  }
 
   // with spin
-  equation = new g2TimeDepMagField_SpinEqRhs(field);
-  stepper = new G4ClassicalRK4(equation, 12);
-  chord = new G4ChordFinder(field, .01*mm, stepper);
-  withSpin_ = new G4FieldManager(field, chord);
+  if ( spin_tracking_ ) {
+    if ( myspin ) {
+      g2EqEMFieldWithSpin *equation2 = new g2EqEMFieldWithSpin(field);
+      stepper = new G4ClassicalRK4(equation2, 12);
+    }
+    else {
+      equation = new g2TimeDepMagField_SpinEqRhs(field);
+      stepper = new G4ClassicalRK4(equation, 12);
+    }
+    chord = new G4ChordFinder(field, .01*mm, stepper);
+    withSpin_ = new G4FieldManager(field, chord);
+  }
+
+  // with edm
+  if ( edm_tracking_ ) {
+    if ( myedm ) {
+      g2EqEMFieldWithEDM *equation2 = new g2EqEMFieldWithEDM(field);
+      equation2->SetEta(sts_.GetEta());
+      if ( sts_.GetGm2() >= 0 ) { equation2->SetAnomaly(sts_.GetGm2()); }
+      stepper = new G4ClassicalRK4(equation2, 12);
+    }
+    else {
+      equation = new g2TimeDepMagField_SpinEqRhs(field);
+      stepper = new G4ClassicalRK4(equation, 12);
+    }
+    chord = new G4ChordFinder(field, .01*mm, stepper);
+    withEDM_ = new G4FieldManager(field, chord);
+  }
 }
 
 void gm2ringsim::Octupole::do_enable_spintracking(){
-  if( spin_tracking_ )
+  if( nospin_tracking_ ) {
     fieldRegion_L_->SetFieldManager(withSpin_, true);
-  else
+  }
+  else if ( spin_tracking_ ) {
     fieldRegion_L_->SetFieldManager(withoutSpin_, true);
+  }
+  else if ( edm_tracking_ ) {
+    fieldRegion_L_->SetFieldManager(withEDM_, true);
+  }
 }
 
 void gm2ringsim::Octupole::buildPhysicals(std::vector<G4LogicalVolume*> motherLVs){

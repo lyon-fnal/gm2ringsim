@@ -5,6 +5,7 @@
 
 #include "artg4/material/Materials.hh"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
+
 #include "artg4/util/util.hh" 
 
 #include "Geant4/G4Tubs.hh"
@@ -20,9 +21,11 @@ gm2ringsim::Collimator::Collimator(fhicl::ParameterSet const & p, art::ActivityR
 	       p.get<std::string>("name", "collimator"),
 	       p.get<std::string>("category", "collimator"),
 	       p.get<std::string>("mother_category", "vac")),
-  geom_(myName())
+  geom_(myName()),
+  ringSDname_("RingSD")
 {
   geom_.print();
+  ringSD_ = artg4::getSensitiveDetector<RingSD>(ringSDname_);
 }
 
 // Build the logical volumes
@@ -50,6 +53,8 @@ std::vector<G4LogicalVolume *> gm2ringsim::Collimator::doBuildLVs() {
 
     // Set the visualization attributes
     artg4::setVisAtts(collimator_L, geom_.display, geom_.collimatorColor);
+  
+    collimator_L->SetSensitiveDetector(ringSD_);    
   }
   
   

@@ -122,7 +122,9 @@ namespace gm2ringsim {
     QuadGeometry qg_;
     QuadFieldFactory qff_;
     
+    bool nospin_tracking_;
     const bool spin_tracking_;
+    const bool edm_tracking_;
 
     double ScrapeHV, StoreHV_;
 

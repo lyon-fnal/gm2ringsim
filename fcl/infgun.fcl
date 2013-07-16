@@ -3,21 +3,16 @@
 #include "geom/vac.fcl"
 #include "geom/inflector.fcl"
 #include "geom/quad.fcl"
-#include "geom/oct.fcl"
 #include "geom/kicker_nokick.fcl"
-#include "geom/fiberHarp.fcl"
-#include "geom/station.fcl"
-#include "geom/calorimeter.fcl"
 #include "geom/collimator.fcl"
 #include "geom/PGA.fcl"
 #include "geom/g2GPS.fcl"
-#include "geom/strawtracker.fcl"
 
 process_name:myProcessName
 
 source: {
   module_type: EmptyEvent
-  maxEvents:  25
+  maxEvents:  2500
 }
 
 services: {
@@ -33,7 +28,7 @@ services: {
        }
        LogToFile : {
          type : "file"
-         filename : "/gm2/data/users/tgadfort/gm2ringsim/output/ScrapingOFF_NewSupports_101Turns_CentralOrbit_Offset20_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize40pimmmrad_UniformInflectorGun_PerfectMatch_dP0001_CollimatorON/ScrapingOFF_NewSupports_101Turns_CentralOrbit_Offset20_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize40pimmmrad_UniformInflectorGun_PerfectMatch_dP0001_CollimatorON.log"
+         filename : "/gm2/data/users/tgadfort/gm2ringsim/output/ScrapingOFF_NewSupports_1Turns_muplus_SpinTracking_CentralOrbit_tSigma50_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize40pimmmrad_UniformInflectorGun_PerfectMatch_dP05_CollimatorON_StandardModelMuonDecay/ScrapingOFF_NewSupports_1Turns_muplus_SpinTracking_CentralOrbit_tSigma50_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize40pimmmrad_UniformInflectorGun_PerfectMatch_dP05_CollimatorON_StandardModelMuonDecay.log"
          append : false
          threshold : "ERROR"
        }
@@ -54,23 +49,23 @@ services: {
       arc:   @local::arc_geom
       vac:   @local::vac_geom
       inflector: @local::inflector_geom
-      quad: @local::quad_geom
-      octupole: @local::oct_geom
+      quad:   @local::quad_geom
       kicker: @local::kicker_geom
-      fiberHarp: @local::fiberHarp_geom
-      station: @local::station_geom
-      calorimeter: @local::calorimeter_geom
       collimator: @local::collimator_geom
       pga: @local::PGA_geom
-      strawtracker: @local::strawtracker_geom
      }
 
      // Global simulation settings
      RunSettings : {
        SpinTracking : {
-        spinTrackingEnabled : true
+	   spinTrackingEnabled : true
+	   edmTrackingEnabled : false
+	   Q : 1
+	   Eta : 0
+	   Gm2 : -1
        }
       G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel
+#      G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel_muminus
     
     }
 
@@ -80,34 +75,31 @@ services: {
       // Action(s) for the simulation
       StackingAction: {  
             name: "stackingAction"
-	    OnlyTrackMuons: true
+	    OnlyTrackPrimary: false
+  	    TrackPrimaryDecay: true
+            TrackOrphans: false
             minWavelength:250 //nm
             maxWavelength:950  //nm
       }
 
     physicalVolumeStore: {}
-    Gm2PhysicsList: {}
+    Gm2PhysicsList: {
+	muonDecayMode: sm
+    }
 
     TrackingAction : {
           name : "trackingAction"
-	  OnlyTrackMuons: true
+	  OnlyTrackPrimary: false
+	  TrackPrimaryDecay: true
+          TrackOrphans: false
     }
 
     ClockAction: {}
 
-//    G2PGA: {
-//	      name: "primary"
-//    }
-
-//    MuonGasPGA: {
-//        name: "muongas"
-//        muonGasVerbosity: false
-//    }
-
     InflectorPGA: {
         name: "inflectorgun"
         inflectorVerbosity: true
-	SigmaT: 25
+	SigmaT: 50
 	EmittanceX: 40
 	EmittanceY: 40
 	BetaX:  7.66477
@@ -115,14 +107,17 @@ services: {
 	AlphaX:  0.0
 	AlphaY:  0.0
 	Pmean: -1
-	dPOverP: 0.0001
+	dPOverP: 0.005
+	Particle: "mu+"
+	DecayScaleFactor: 1
+	Polarization: E821
 	StartUpstream:  false
 	StartUpstreamCryo:  false
 	StartDownstream:  false
 	StartPerfect:  true
 	GenGaussian: false
 	LaunchAngle: 0
-	StorageOffset: 20
+	StorageOffset: -1
     }
 
 
@@ -131,23 +126,29 @@ services: {
     Ring: {}    // This is for the RingHits
     VirtualRingStation: {} // This is for the virtual tracker planes in the vac
     Arc: {}
+    Quad: {}
     VacuumChamber: {}
     Inflector:{}
-    Quad: {}
-    Octupole: {}
     Kicker: {}
-    FiberHarp: {}
-    Station: {}
-    Calorimeter: {}
     Collimator : {}
     StrawTracker: {}
     Straws:{}
 
 
+    LostMuonAction: {
+      name: "LostMuonAction"
+      stored_rmin: -50.0
+      stored_rmax: 50.0
+      stored_y: 50.0
+    }
+
     MuonStorageStatusAction: {
       name: "MuonStorageStatusAction"
-      turnsForStorage: 101
-      heartbeatFreq: 2
+      turnsForStorage: 1
+      TrackPositrons: true
+      stored_rmin: 7.035
+      stored_rmax: 7.215
+      heartbeatFreq: 250
     }
 
   } //user:
@@ -156,7 +157,7 @@ services: {
 outputs: {
 out1: {
   module_type: RootOutput   
-  fileName: "/gm2/data/users/tgadfort/gm2ringsim/output/ScrapingOFF_NewSupports_101Turns_CentralOrbit_Offset20_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize40pimmmrad_UniformInflectorGun_PerfectMatch_dP0001_CollimatorON/ScrapingOFF_NewSupports_101Turns_CentralOrbit_Offset20_tSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize40pimmmrad_UniformInflectorGun_PerfectMatch_dP0001_CollimatorON.root"
+  fileName: "/gm2/data/users/tgadfort/gm2ringsim/output/ScrapingOFF_NewSupports_1Turns_muplus_SpinTracking_CentralOrbit_tSigma50_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize40pimmmrad_UniformInflectorGun_PerfectMatch_dP05_CollimatorON_StandardModelMuonDecay/ScrapingOFF_NewSupports_1Turns_muplus_SpinTracking_CentralOrbit_tSigma50_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize40pimmmrad_UniformInflectorGun_PerfectMatch_dP05_CollimatorON_StandardModelMuonDecay.root"
   }
 }
 
@@ -168,7 +169,7 @@ physics: {
      macroPath: ".:./macros:../macros:../../macros"
      visMacro: "vis.mac"
      afterEvent: pause  // (ui, pause, pass)
-     }
+    }
   }
 
 
@@ -184,15 +185,18 @@ physics: {
 #
 # Add-ons
 #
-services.user.Quad.DoScraping: false
-services.user.Quad.StoreHV: 24
-services.user.Quad.ScrapeHV: 17
-services.user.Quad.SupportMaterial: Macor
-services.user.Quad.PlateMaterial: Al
-services.user.Kicker.TypeOfKick: LCR
-services.user.Kicker.kPlate1HV : 0 //kilovolt 
-services.user.Kicker.kPlate2HV : 0 //kilovolt 
-services.user.Kicker.kPlate3HV : 0 //kilovolt 
-services.user.Kicker.kickerHV : [0 , 0 , 0 ] //kilovolt
-services.user.Kicker.TypeOfKick: SQUARE
-services.user.Kicker.squareMag : [0 , 0 , 0 ] //gauss
+services.user.Geometry.inflector.CryoWallMaterial: Vacuum
+services.user.RunSettings.G2GPS_downstreamInflectorMandrel.particle: muminus
+services.user.Geometry.quad.DoScraping: false
+services.user.Geometry.quad.StoreHV: 24
+services.user.Geometry.quad.ScrapeHV: 17
+services.user.Geometry.quad.SupportMaterial: Macor
+services.user.Geometry.quad.PlateMaterial: None
+#services.user.Geometry.vac.Frequency: 1
+services.user.Geometry.kicker.TypeOfKick: LCR
+services.user.Geometry.kicker.kPlate1HV : 0 //kilovolt 
+services.user.Geometry.kicker.kPlate2HV : 0 //kilovolt 
+services.user.Geometry.kicker.kPlate3HV : 0 //kilovolt 
+services.user.Geometry.kicker.kickerHV : [0 , 0 , 0 ] //kilovolt
+services.user.Geometry.kicker.TypeOfKick: SQUARE
+services.user.Geometry.kicker.squareMag : [0 , 0 , 0 ] //gauss

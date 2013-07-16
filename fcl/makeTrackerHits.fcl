@@ -1,0 +1,73 @@
+// This FHiCL file will read in a root file (name specified in source) and
+// produce a new root file containing the Tracker Hits that are the first step
+// for the track fitting analysis.
+
+process_name: makeTrackerHits
+
+// This source takes a root file (specified by fileNames) as input.
+source: {
+  module_type: RootInput
+  fileNames: [ "gm2infgun0710.root" ]
+  maxEvents: -1
+}
+
+// Define the services art should use for this job; in this case, just the
+// message manager
+services: {
+  message : {
+     debugModules : ["*"]
+     suppressInfo : []
+     
+     destinations : {
+       LogToConsole : {
+         type : "cout"
+         threshold : "ERROR"
+       }
+       LogToFile : {
+         type : "file"
+         filename : "gm2infgun.log"
+         append : false
+         threshold : "ERROR"
+       }
+     }
+  }
+} //services:
+
+// Define the output. In this case, we output a ROOT file. We only care about
+// the tracker hits, so we exclude everything else.
+outputs: {
+  out1: {
+    module_type: RootOutput   
+    fileName: "gm2trackerhits0711.root"
+    // The output commands are followed in order: the first is used unless the
+    // second applies. So we first drop everything, then keep the tracker hits
+    // we care about. 
+    outputCommands :   [ "drop *_*_*_*",
+                           "keep gm2strawtracking::TrackerHitArtRecords_*_*_*"]
+  }
+}
+
+// The modules to be run per event are listed in the physics section.
+physics: {
+    // Producers add things to the art event.
+  producers: {
+      makeTrackerHits: {
+        module_type: makeAnalysisHits
+        hitModuleLabel: artg4
+        instanceName: "straws"
+      }
+  }
+
+
+
+  // Define the paths to use
+  path1: [ makeTrackerHits ]
+  readPath: [ ]
+  stream1:  [ out1 ]
+
+  // These keywords describe the paths to run on each event and then at the end
+  // of the job.
+  trigger_paths: [ path1 ]
+  end_paths: [ readPath, stream1 ]
+
+}

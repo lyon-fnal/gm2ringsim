@@ -9,12 +9,12 @@
     @date 2012
 */
 
-#include "artg4/Core/GeometryBase.hh"
+#include "gm2geom/Core/GeometryBase.hh"
 
 #include <string>
 
 namespace gm2ringsim{
-  struct CollimatorGeometry : public artg4::GeometryBase {
+  struct CollimatorGeometry : public gm2geom::GeometryBase {
     
     CollimatorGeometry(std::string);
 

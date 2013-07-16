@@ -35,6 +35,7 @@ vac_geom : {
   // Tracker ---
   tracker_sphi:  0.1 // deg
   tracker_dphi: 0.01 // deg
+  Frequency: 1 // 12 = all, 6 = half, etc... 1 = 1
 
   // Turn counter ---
   turn_sphi: 24   // deg

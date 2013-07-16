@@ -26,6 +26,9 @@
 #include "Geant4/G4RotationMatrix.hh"
 //#include "Geant4/G4VPrimaryVertex.hh"
 
+#include "TF1.h"
+#include "TRandom3.h"
+
 // Inflector
 #include "gm2ringsim/inflector/InflectorGeom.hh"
 
@@ -95,6 +98,19 @@ namespace gm2ringsim
     
     void SetSigmaT( double aDouble ){ SigmaT=aDouble; }
     double GetSigmaT( ){ return SigmaT; }
+    
+    void SetParticle( std::string aString ){ Particle_=aString; }
+    std::string GetParticle(){ return Particle_; }
+ 
+    void SetNumParticles( int aInt ){ NumParticles_=aInt; }
+    int GetNumParticles( ){ return NumParticles_; }
+ 
+    void SetDecayScaleFactor( int aInt ){ DecayScaleFactor_=aInt; }
+    int GetDecayScaleFactor( ){ return DecayScaleFactor_; }
+    
+    void SetPolarization( std::string aString ){ Polarization_=aString; }
+    std::string GetPolarization( ){ return Polarization_; }
+    
 
 
   private:
@@ -124,7 +140,14 @@ namespace gm2ringsim
     double Pmean;
     double dPOverP;
     double SigmaT;
+    std::string Particle_;
+    int NumParticles_;
+    int DecayScaleFactor_;
+    std::string Polarization_;
 
+    TF1 *fsz;
+    TF1 *fsphi;
+    TRandom3 *gRandom_;
     
   }; // End G2InflectorSource class
 } //namespace gm2ringsim

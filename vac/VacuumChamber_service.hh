@@ -48,6 +48,7 @@ namespace gm2ringsim {
     G4String virtualringstationSDName_;
     TurnCounterSD *turnSD_;
     VirtualRingStationSD *virtualringstationSD_;
+
     
     // We need to hang onto the wallLVs for placement later
     std::vector<G4LogicalVolume*> wallLVs_;

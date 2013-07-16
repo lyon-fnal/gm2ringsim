@@ -11,6 +11,9 @@
 
 // Everything goes in the Art G4 namespace
 namespace gm2ringsim {
+
+  enum { kBirth, kDecay, kStore, kLost, kNeutrino};
+
   // Begin struct definition
   struct TrackingActionArtRecord {
   public: 
@@ -21,6 +24,7 @@ namespace gm2ringsim {
       parentTrackID(0),
       turn(0),
       volumeUID(0),
+      status(-1),
       rhat(0),
       vhat(0),
       theta(0),
@@ -51,6 +55,9 @@ namespace gm2ringsim {
     // The physical volume UID the track was born in
     int volumeUID;
 
+    // Flag to tell the user if the track was born or killed
+    int status;
+
     // Radial offset from idealized storage orbit at particle birth
     double rhat;
 
@@ -72,6 +79,8 @@ namespace gm2ringsim {
 
     // Fraction of the particle's momentum oriented vertically at birth
     double pvhat;
+
+    double e;
 
     double polx, poly, polz;
   };

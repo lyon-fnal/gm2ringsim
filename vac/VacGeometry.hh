@@ -3,7 +3,7 @@
 #ifndef VACGEOMETRY_HH
 #define VACGEOMETRY_HH
 
-#include "artg4/Core/GeometryBase.hh"
+#include "gm2geom/Core/GeometryBase.hh"
 
 #include "Geant4/globals.hh"
 #include "gm2ringsim/common/conversions.hh"
@@ -34,7 +34,7 @@
 
 namespace gm2ringsim {
   
-  struct VacGeometry : public artg4::GeometryBase {
+  struct VacGeometry : public gm2geom::GeometryBase {
     VacGeometry(std::string const &);
     
     double inflectorExtension(unsigned int) const;
@@ -63,6 +63,7 @@ namespace gm2ringsim {
     std::vector<double> ext;
     const double tracker_sphi;
     const double tracker_dphi;
+    const int Frequency;
     const double turn_sphi;
     const double turn_dphi;
     

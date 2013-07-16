@@ -15,6 +15,8 @@
 
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "gm2ringsim/actions/muonStorageStatus/MuonStorageStatusAction_service.hh"
+#include "artg4/pluginActions/physicalVolumeStore/physicalVolumeStore_service.hh"
+#include "gm2ringsim/common/UsefulVariables.hh"
 
 namespace gm2ringsim {
 G4Allocator<VirtualRingStationHit> VirtualRingStationHitAllocator;
@@ -25,28 +27,13 @@ gm2ringsim::VirtualRingStationHit::VirtualRingStationHit(G4Step* step) :
   polarization(step->GetPreStepPoint()->GetPolarization()),
   time(step->GetPreStepPoint()->GetGlobalTime()),
   turnNum(TurnCounter::getInstance().turns()),
-  //turnNum(0), // FIXME: If i initialize with zero, update below
-  trackID(step->GetTrack()->GetTrackID()),
-  volumeUID(0)
+  PDGID((int)step->GetTrack()->GetParticleDefinition()->GetPDGEncoding()),
+  trackID(step->GetTrack()->GetTrackID())
 {
-
-  //art::ServiceHandle <artg4::MuonStorageStatusAction> mss;
-  
-
-
-  // FIXME: ART
-  // Need to grab the TurnCounter from the muonStorageStatus service to
-  // determine what turn we are on
-  
-  
-  /*
-  G4cout << "Pre: "
-	 << step->GetPreStepPoint()->GetPhysicalVolume()->GetName() 
-	 << '\n';
-  G4cout << "Post: "
-	 << step->GetPostStepPoint()->GetPhysicalVolume()->GetName() 
-	 << '\n';
-  */
+  art::ServiceHandle<artg4::PhysicalVolumeStoreService> pvs;
+  volumeUID = pvs->idGivenPhysicalVolume( step->GetPreStepPoint()->GetPhysicalVolume() );
+  //  G4cout << "VolID: " << volumeUID << "\t" << pvs->stringGivenID(volumeUID) << G4endl;
+  //Print();
 }
 
 
@@ -69,9 +56,27 @@ void gm2ringsim::VirtualRingStationHit::Draw(){
 }
 
 void gm2ringsim::VirtualRingStationHit::Print(){
-  G4cout << " VirtualRingStationHit::Print() --- turnNum: " << turnNum
-	 << " time: " << time
-	 << " polarization: " << polarization
-	 << " position: " << position
-	 << "\n";
+  G4cout.precision(3);
+  if ( trackID == 1 || 1 ) {
+    //-------------------
+    // Position variables
+  //-------------------
+    G4double rhat = ComputeRhat(&position);
+    G4double vhat = ComputeVhat(&position);
+    G4double theta = ComputeTheta(&position);
+    //-------------------
+    // Momentum variables
+    //-------------------
+    G4double prhat = ComputePrhat(&position, &momentum);
+    G4double pvhat = ComputePvhat(&position, &momentum);
+    G4cout << " VirtualRingStationHit::Print() --- ";
+    G4cout << "  Particle: " << PDGID
+	   << "  turnNum: " << turnNum
+	   << "  theta: " << theta
+	   << "  rhat: " << rhat
+	   << "  vhat: " << vhat
+	   << "  prhat: " << prhat
+	   << "  pvhat: " << pvhat
+	   << "\n";
+  }
 }

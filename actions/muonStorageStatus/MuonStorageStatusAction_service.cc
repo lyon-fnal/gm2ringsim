@@ -9,6 +9,10 @@
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+#include "gm2ringsim/common/g2PreciseValues.hh"
+#include "gm2ringsim/common/UsefulVariables.hh"
+#include "artg4/pluginActions/physicalVolumeStore/physicalVolumeStore_service.hh"
+
 #include "Geant4/globals.hh"
 
 #include "Geant4/G4Event.hh"
@@ -53,11 +57,24 @@ gm2ringsim::MuonStorageStatusAction::MuonStorageStatusAction(fhicl::ParameterSet
   stored_rmin_(p.get<double>("stored_rmin", 7.0) * m), //g2migtrace defaults
   stored_rmax_(p.get<double>("stored_rmax",8.0) * m),
   stored_y_(p.get<double>("stored_y",0.074) * m),
-  logInfo_("MuonStorageStatusAction")
-{}
+  TrackPositron_(p.get<bool>("TrackPositrons",false)),
+  logInfo_("MuonStorageStatusAction"),
+  myArtTrackHits_(new TrackingActionArtRecordCollection)
+{
+  
+  G4cout << "================ MuonStorageStatusAction ================" << G4endl;
+  G4cout << "| Turns For Storage:  " << turnsForStorage_ << G4endl;
+  G4cout << "| Rmin,Rmax:          " << stored_rmin_ << " , " << stored_rmax_ << " mm." << G4endl;
+  G4cout << "| |Y|max:             " << stored_y_ << " mm." << G4endl;
+  G4cout << "| Track Positron:     " << TrackPositron_ << G4endl;
+  G4cout << "=========================================================" << G4endl;
+
+}
   
 //beginOfMuonStorageStatusAction
 void gm2ringsim::MuonStorageStatusAction::beginOfEventAction (const G4Event* pevent){
+  //G4cout << "gm2ringsim::MuonStorageStatusAction::beginOfEventAction()" << G4endl;
+
   // Initialization per event
   muonStorageStatus_ = muonTrackingStatus::trackingMuon;
 
@@ -78,6 +95,7 @@ void gm2ringsim::MuonStorageStatusAction::beginOfEventAction (const G4Event* pev
     hbLength_ = s.size();
   }
 
+  //G4cout << "gm2ringsim::MuonStorageStatusAction::beginOfEventAction() - Done" << G4endl;
 }  //beginOfEventAction
 
 void gm2ringsim::MuonStorageStatusAction::endOfEventAction(const G4Event* ){//evt) {
@@ -113,6 +131,8 @@ void gm2ringsim::MuonStorageStatusAction::endOfEventAction(const G4Event* ){//ev
 void gm2ringsim::MuonStorageStatusAction::beginOfRunAction(const G4Run *currentRun) {
   // Initialization per run
   muonStorageCounter_ = 0;
+  for ( int i = 0; i < 4; i++ ) { muonKillCounter_[i] = 0; }
+
   //FIXME:TEMP to use currentRun
   mf::LogDebug("MuonStorageAction_service")<<"currentRunID is "<<currentRun->GetRunID()<<std::endl;
   
@@ -134,23 +154,19 @@ void gm2ringsim::MuonStorageStatusAction::endOfRunAction(const G4Run *currentRun
   G4double captureEfficiency = (muonStorageCounter_*100.) / totalEvents;
   G4double dcE = std::sqrt(muonStorageCounter_)*100/totalEvents;
   
-  G4cout << "\n  Muons injected : "
-	 << totalEvents << "\n"
-	 << "  Muons stored : "
-	 << muonStorageCounter_ << "\n"
-	 <<"  Capture Efficiency : (" 
+  G4cout << G4endl;
+  G4cout << "============== MuonStorageStatusAction::RunEnd ==============" << G4endl;
+  G4cout << "   Muons injected     : " << totalEvents << G4endl;
+  G4cout << "   Muons killed       : " << muonKillCounter_[3] << G4endl;
+  G4cout << "      --> Beyond SR   : " << muonKillCounter_[2] << G4endl;
+  G4cout << "      --> In The Lab  : " << muonKillCounter_[0] << G4endl;
+  G4cout << "      --> Inflector   : " << muonKillCounter_[1] << G4endl;
+  G4cout << "   Muons stored       : " << muonStorageCounter_ << G4endl;
+  G4cout.precision(3);
+  G4cout << "   Capture Efficiency : (" 
 	 << captureEfficiency << " +/- "
-	 << dcE << ")%\n\n";
-  
-  //FIXME: ARTIFY
-  // If we need to do anything in Geant
-  // No unique object manager or rootstoragemanager yet
-
-  /*G4cout << "Unique Objects in Manager: "
-	 << rsm.getUOM().count() << '\n';
-  
-  rsm.EndOfRun();
-  */
+	 << dcE << ")%" << G4endl;
+  G4cout << "=============================================================" << G4endl;
   
 } //RunAction::endOfRunAction(const G4Run*)
 
@@ -164,6 +180,9 @@ void gm2ringsim::MuonStorageStatusAction::endOfRunAction(const G4Run *currentRun
 */  
 
 void gm2ringsim::MuonStorageStatusAction::userSteppingAction(const G4Step *currentStep) {
+
+  //G4cout << "gm2ringsim::MuonStorageStatusAction::userSteppingAction()" << G4endl;
+
  // currentStep, currentTrack, and currentEvent are the three
   // sources of relevant information, and therefore, access is
   // needed to their respective pointers.  While the G4Step pointer
@@ -171,35 +190,75 @@ void gm2ringsim::MuonStorageStatusAction::userSteppingAction(const G4Step *curre
   // pointers must be obtained manually
   
   G4Track *currentTrack = currentStep -> GetTrack();
+
+
+  //--------------------------
+  //
+  // An aside for positrons leaving the storage region
+  //
+  //--------------------------
+  if ( TrackPositron_ ) {
+    int parentid = currentTrack->GetParentID();
+    if ( parentid == 1 ) {
+      G4ParticleDefinition *def = currentTrack->GetDefinition();
+      int id = def->GetPDGEncoding();
+      //G4cout << "Muon decay particle -> " << def->GetParticleName() << G4endl;
+      if ( id == -11 ) { // positron from mu+ decay
+	if ( ComputeRhat(currentTrack) > 45*mm || ComputeRhat(currentTrack) < -45*mm ) {
+	  //G4cout << "  Outside of storage region: Tag it!" << G4endl;
+	  //FillTrackingActionArtRecord(currentTrack, gm2ringsim::kDecay);
+	  currentTrack -> SetTrackStatus(fKillTrackAndSecondaries);
+	  return;
+	}
+      }
+    }
+  }
+
+  //-------------------------
+  //
+  // Only run this for muons
+  //
+  //-------------------------
+  if ( currentTrack->GetParticleDefinition()->GetPDGEncoding() != 13 &&
+       currentTrack->GetParticleDefinition()->GetPDGEncoding() != -13 ) { return; }
   
+
   // MUON STORAGE  
   G4String const& currentVolumeName =
     currentTrack -> GetVolume() -> GetName();
 
   //  if( currentTrack->GetTrackID() == 1 )                                                                          
-  //    G4cout << currentVolumeName << '\n';                                                                         
+  //G4cout << currentVolumeName << '\n';                                                                         
   
   if( currentVolumeName == "InflectorMandrel" ){
     if( currentTrack -> GetTrackID() == 1 ) {
       unsuccessfulStorage("Inflector"); //Part of EventAction
+      //FillTrackingActionArtRecord(currentTrack, gm2ringsim::kLost);
+      currentTrack -> SetTrackStatus(fKillTrackAndSecondaries);
+      //G4cout << "Muon is in the inflector." << G4endl;
+      return;
     }
-    currentTrack -> SetTrackStatus(fStopAndKill);
-  } else if( currentVolumeName == "theLaboratory" ){
+  }
+  else if( currentVolumeName == "theLaboratory" ) {
     if( currentTrack -> GetTrackID() == 1 ) {
-      unsuccessfulStorage("Lab"); //Part of EventAction
+      unsuccessfulStorage("Lab"); //Part of EventAction      
+      //FillTrackingActionArtRecord(currentTrack, gm2ringsim::kLost);
+      currentTrack -> SetTrackStatus(fKillTrackAndSecondaries);
+      //G4cout << "Muon is in the lab." << G4endl;
+      return;
     }
-    currentTrack -> SetTrackStatus(fStopAndKill);
   }
 
   G4int turn = TurnCounter::getInstance().turns();
   
   if( currentTrack -> GetTrackID() == 1 ) {
-    if( turn >= turnsForStorage_ )
-      //  if( trackLength > minStoredTrackLength)                                                                    
-      {
-        successfulStorage(); //Part of EventAction
-	currentTrack -> SetTrackStatus(fStopAndKill);
-      }
+    if( turn >= turnsForStorage_ ) {
+      successfulStorage(); //Part of EventAction
+      //FillTrackingActionArtRecord(currentTrack, gm2ringsim::kStore);
+      currentTrack -> SetTrackStatus(fStopButAlive);
+      //G4cout << "Stored Muon!" << G4endl;
+      return;
+    }
   }
   
   G4ThreeVector const currentPos =
@@ -211,10 +270,13 @@ void gm2ringsim::MuonStorageStatusAction::userSteppingAction(const G4Step *curre
   
   
   if( currentTrack -> GetTrackID() == 1 ) {
-    if(posR < stored_rmin_ || posR > stored_rmax_ || std::abs(posY) > stored_y_)
-      {
-        unsuccessfulStorage("StorageRegion"); //part of EventAction
-      }
+    if(posR < stored_rmin_ || posR > stored_rmax_ || std::abs(posY) > stored_y_) {
+      //FillTrackingActionArtRecord(currentTrack, gm2ringsim::kLost);
+      unsuccessfulStorage("StorageRegion"); //part of EventAction
+      //G4cout << "Muon is beyond storage region." << G4endl;
+      currentTrack -> SetTrackStatus(fKillTrackAndSecondaries);
+      return;
+    }
   }
 
 } //MuonStoragestatusAction::userSteppAction
@@ -224,9 +286,14 @@ void gm2ringsim::MuonStorageStatusAction::incrementMuonStorageCounter()
 {++muonStorageCounter_;} 
 
 
+void gm2ringsim::MuonStorageStatusAction::incrementMuonKillCounter(int reason)
+{++muonKillCounter_[reason];}
+
+
 void gm2ringsim::MuonStorageStatusAction::callArtProduces(art::EDProducer *producer){
   //FIXME: Need to figure out the right name with multiple base classes
   producer->produces<EventRecordCollection>("MuonStorageStatusAction");
+  producer->produces<TrackingActionArtRecordCollection>("FinishedTracks");
 }
 
 void gm2ringsim::MuonStorageStatusAction::fillEventWithArtStuff(art::Event &e) {
@@ -237,6 +304,19 @@ void gm2ringsim::MuonStorageStatusAction::fillEventWithArtStuff(art::Event &e) {
   // Move this to endOfEventAction(G4Event*)
   myArtHits->emplace_back( true,10,1);
   e.put(std::move(myArtHits),"MuonStorageStatusAction");
+
+
+
+  // Make a unique pointer for the tracking object
+  e.put(std::move(myArtTrackHits_), "FinishedTracks");
+
+  // myArtHits should now be invalid and set to nullptr. But in fact
+  // due to https://cdcvs.fnal.gov/redmine/issues/3601 this does not happen.
+  // So need to do a release to avoid a segfault
+  myArtTrackHits_.release();
+  
+  // Point to a new valid collection
+  myArtTrackHits_.reset( new TrackingActionArtRecordCollection() );
 }
 
 
@@ -253,16 +333,96 @@ void gm2ringsim::MuonStorageStatusAction::unsuccessfulStorage(){
 }
 
 void gm2ringsim::MuonStorageStatusAction::unsuccessfulStorage(G4String reason){
+  //G4cout << "gm2ringsim::MuonStorageStatusAction::unsuccessfulStorage(" << reason << ")" << G4endl;
   muonStorageStatus_ = muonTrackingStatus::lostMuon;
-  if ( reason == "Lab" ) { setEventStatus(kHitLab); }
-  if ( reason == "Inflector" ) { setEventStatus(kHitInflector); }
-  if ( reason == "StorageRegion" ) { setEventStatus(kBeyondStorageRegion);
-  }
+  incrementMuonKillCounter(3);
+  if ( reason == "Lab" ) { setEventStatus(kHitLab); incrementMuonKillCounter(0); }
+  if ( reason == "Inflector" ) { setEventStatus(kHitInflector); incrementMuonKillCounter(1); }
+  if ( reason == "StorageRegion" ) { setEventStatus(kBeyondStorageRegion); incrementMuonKillCounter(2); }
 }
 
 void gm2ringsim::MuonStorageStatusAction::setStoredMuonTurns(G4int numberOfTurns ) {
-  turnsForStorage_ = numberOfTurns;
+  turnsForStorage_ = numberOfTurns;  
+}
+
+
+// Fill ArtRecord
+void gm2ringsim::MuonStorageStatusAction::FillTrackingActionArtRecord(G4Track * currentTrack, int status)
+{
+  //if ( currentTrack->GetTrackID() != 1 ) { return; }
   
+  bool debug = false;
+  bool keep_track = true;
+
+
+  //-------------------------------------
+  // Don't store unwanted truth particles
+  //-------------------------------------
+  G4cout.precision(3);
+  if ( debug && !keep_track ) { G4cout << "Not storing track [" << currentTrack->GetDefinition()->GetParticleName() << "] for some reason." << G4endl; }
+  if ( keep_track == false ) { return; }
+  
+
+  // Create a hit
+  TrackingActionArtRecord tr;
+  
+  // Fill it based on the track.
+  tr.trackType = std::string(currentTrack->GetDefinition()->GetParticleName());
+  tr.trackID = currentTrack->GetTrackID();
+  tr.parentTrackID = currentTrack->GetParentID();
+
+  //TODO
+  // Omit turns for now
+  //  tr.turn = turnCounter::getInstance().turns();
+
+  // Get the volume ID
+  art::ServiceHandle<artg4::PhysicalVolumeStoreService> pvs;
+  tr.volumeUID = pvs->idGivenPhysicalVolume( currentTrack->GetVolume() );
+
+  // The track status, 0 for pre and 1 for post
+  tr.status = status;
+  
+  G4ThreeVector pos = currentTrack->GetPosition();
+  G4ThreeVector mom = currentTrack->GetMomentum();
+  G4ThreeVector pol = currentTrack->GetPolarization();
+
+  //-------------------
+  // Position variables
+  //-------------------
+  G4double rhat = ComputeRhat(&pos);
+  G4double vhat = ComputeVhat(&pos);
+  G4double theta = ComputeTheta(&pos);
+  tr.rhat = rhat;
+  tr.vhat = vhat;
+  tr.theta = theta;
+  tr.time = currentTrack->GetGlobalTime();
+
+
+  //-------------------
+  // Momentum variables
+  //-------------------
+
+  G4double prhat = ComputePrhat(&pos, &mom);
+  G4double pvhat = ComputePvhat(&pos, &mom);
+  tr.p = mom.mag();
+  tr.prhat = prhat;
+  tr.pvhat = pvhat;
+  tr.e = currentTrack->GetTotalEnergy();
+
+
+  if ( debug ) { G4cout << "Found track[" << currentTrack->GetParticleDefinition()->GetParticleName() << "] [t=" << currentTrack->GetGlobalTime() << "] [" << currentTrack->GetParentID() << "] : " << status << "\t" << keep_track << "\t" << prhat << "\t" << pvhat << G4endl; }
+
+
+  //-----------------------
+  // Polarization variables
+  //-----------------------
+  tr.polx = pol.x();
+  tr.poly = pol.y();
+  tr.polz = pol.z();
+  //G4cout << tr.trackType << "\tPol[x,z] = " << pol.x() << "\t" << pol.z() << G4endl;
+  
+  // Add the hit to our collection
+  myArtTrackHits_->push_back(tr);
 }
 
 using gm2ringsim::MuonStorageStatusAction;

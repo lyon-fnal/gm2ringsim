@@ -23,6 +23,7 @@ namespace gm2ringsim{
     // must be in volume (right?) 
     G4double time;
     G4int turnNum; // obtained from turn counter
+    G4int PDGID;
     G4int trackID;
     G4int volumeUID; // get from prestep
     

@@ -59,6 +59,9 @@
 #include "Geant4/G4ClassicalRK4.hh"
 #include "Geant4/G4UserLimits.hh"
 
+#include "gm2ringsim/fields/g2EqEMFieldWithSpin.hh"
+#include "gm2ringsim/fields/g2EqEMFieldWithEDM.hh"
+
 #include <sstream>
 
 // Constructor for the service 
@@ -69,12 +72,14 @@ gm2ringsim::Quad::Quad(fhicl::ParameterSet const & p, art::ActivityRegistry & ) 
 	       p.get<std::string>("mother_category", "vac")),
   sts_("SpinTracking"),
   qg_(myName()), //QuadGeometry
-  qff_(qg_.DoScraping, qg_.ScrapeHV, qg_.StoreHV),
-  spin_tracking_(sts_.spinTrackingEnabled)
+  qff_(qg_.DoScraping, qg_.ScrapeHV, qg_.StoreHV, sts_.GetCharge()),
+  nospin_tracking_(true),
+  spin_tracking_(sts_.spinTrackingEnabled),
+  edm_tracking_(sts_.edmTrackingEnabled)
   // The rest of the internal variables are things like pointers
   // and structures that get created/assigned below
 {
-
+  if ( spin_tracking_ || edm_tracking_ ) { nospin_tracking_ = false; }
 
   if ( qg_.SupportMaterial == "Macor" || qg_.SupportMaterial == "MACOR" || qg_.SupportMaterial == "MacorCeramic" ) {
     support_material = artg4Materials::MacorCeramic();
@@ -93,9 +98,13 @@ gm2ringsim::Quad::Quad(fhicl::ParameterSet const & p, art::ActivityRegistry & ) 
   }
 
   G4cout << "=========== Quad ===========" << G4endl;
+  G4cout << "| Beam Charge      = " << sts_.GetCharge() << G4endl;
   G4cout << "| DoScraping       = " << qg_.DoScraping << G4endl;
+  G4cout << "| Spin Tracking    = " << spin_tracking_ << G4endl;
+  G4cout << "| EDM Tracking     = " << edm_tracking_ << G4endl;
   G4cout << "| Support Material = " << qg_.SupportMaterial << G4endl;
   G4cout << "| Plate Material   = " << qg_.PlateMaterial << G4endl;
+  G4cout << "| Q1 offset        = " << qg_.outerQ1offset << G4endl;
   if ( qg_.StoreHV == 40*kilovolt ) {
     G4cout << "| Running w/ HV    =  40 kV" << G4endl;
     G4cout << "| Running w/ HV    =  34 (scraping) kV" << G4endl;
@@ -488,19 +497,26 @@ void gm2ringsim::Quad::buildTopBottomSupports(G4int /*quadRegion*/, G4int /*sect
 
 void gm2ringsim::Quad::assignFieldManagers(){
 
-  for( int i=0; i!=qg_.numQuadRegions; ++i)
-    for( int j=0; j!=qg_.numQuadSections; ++j)
-      if( !spin_tracking_ ){
-        genericQuadRegion_L_[i][j]->
-          SetFieldManager(withoutSpin_[i][j], true);
-      } else {
-        genericQuadRegion_L_[i][j]->
-          SetFieldManager(withSpin_[i][j], true);
+  for( int i=0; i!=qg_.numQuadRegions; ++i) {
+    for( int j=0; j!=qg_.numQuadSections; ++j) {
+      if( nospin_tracking_ ){
+        genericQuadRegion_L_[i][j]->SetFieldManager(withoutSpin_[i][j], true);
       }
+      else if ( spin_tracking_ ) {
+	genericQuadRegion_L_[i][j]->SetFieldManager(withSpin_[i][j], true);
+      }
+      else if ( edm_tracking_ ) {
+	genericQuadRegion_L_[i][j]->SetFieldManager(withEDM_[i][j], true);
+      }
+    }
+  }
 }
 
 void gm2ringsim::Quad::buildFieldManagers(G4int quadRegion, G4int sectionType) {
   
+  bool myspin = false;
+  bool myedm = false;
+
   //G4cout << "buildFieldManagers: " << quadRegion << ' ' << sectionType << '\n';
   
   G4ElectroMagneticField *field;
@@ -516,23 +532,51 @@ void gm2ringsim::Quad::buildFieldManagers(G4int quadRegion, G4int sectionType) {
 
 
 
-  // not shared ... spin free
-  equation = new G4EqMagElectricField(field);
-  stepper = new G4ClassicalRK4(equation, 8); // modifies energy, so 8
-  driver = new G4MagInt_Driver(0.01*mm, stepper, stepper->GetNumberOfVariables());
-  chord = new G4ChordFinder(driver);
-  withoutSpin_[quadRegion][sectionType] = 
-    new G4FieldManager(field,chord,true);
+  //----------------------------------------
+  // build the spin ignoring field equations
+  //----------------------------------------
+  if ( nospin_tracking_ ) {
+    equation = new G4EqMagElectricField(field);
+    stepper = new G4ClassicalRK4(equation, 8); // modifies energy, so 8
+    driver = new G4MagInt_Driver(0.01*mm, stepper, stepper->GetNumberOfVariables());
+    chord = new G4ChordFinder(driver);
+    withoutSpin_[quadRegion][sectionType] = new G4FieldManager(field,chord,true);
+  }
+
+  //----------------------------------------
+  // build the spin evolving field equations
+  //----------------------------------------
+  if ( spin_tracking_ ) {
+    if ( myspin ) {
+      equation = new g2EqEMFieldWithSpin(field);
+    }
+    else {
+      equation = new G4EqEMFieldWithSpin(field);
+    }
+    stepper = new G4ClassicalRK4(equation, 12); // modifies spin, so 12
+    driver = new G4MagInt_Driver(0.01*mm, stepper, stepper->GetNumberOfVariables());
+    chord = new G4ChordFinder(driver);
+    withSpin_[quadRegion][sectionType] = new G4FieldManager(field,chord,true);
+  }
+ 
+  if ( edm_tracking_ ) {
+    if ( myedm ) {
+      g2EqEMFieldWithEDM *equation2 = new g2EqEMFieldWithEDM(field);
+      equation2->SetEta(sts_.GetEta());
+      if ( sts_.GetGm2() >= 0 ) { equation2->SetAnomaly(sts_.GetGm2()); }
+      stepper = new G4ClassicalRK4(equation2,12);
+    }
+    else {
+      G4EqEMFieldWithEDM *equation2 = new G4EqEMFieldWithEDM(field);
+      equation2->SetEta(sts_.GetEta());
+      if ( sts_.GetGm2() >= 0 ) { equation2->SetAnomaly(sts_.GetGm2()); }
+      stepper = new G4ClassicalRK4(equation2,12);
+    }
+    G4MagInt_Driver *driver = new G4MagInt_Driver(0.01*mm, stepper, stepper->GetNumberOfVariables());
+    chord = new G4ChordFinder(driver);
+    withEDM_[quadRegion][sectionType] = new G4FieldManager(field, chord, true);
+  }
   
-  // not shared ... spin 
-  equation = new G4EqEMFieldWithSpin(field);
-  //G4EqEMFieldWithEDM *equation2 = new G4EqEMFieldWithEDM(field);
-  //equation2->SetEta(1e-19);
-  stepper = new G4ClassicalRK4(equation, 12); // modifies spin, so 12
-  driver = new G4MagInt_Driver(0.01*mm, stepper, stepper->GetNumberOfVariables());
-  chord = new G4ChordFinder(driver);
-  withSpin_[quadRegion][sectionType] = 
-    new G4FieldManager(field,chord,true);
 }
 
 // CHANGE_ME: You can delete the below if this detector creates no data
@@ -608,25 +652,37 @@ void gm2ringsim::Quad::init_curl_params(){
 void gm2ringsim::Quad::init_plate_params(){
   G4int idx;
   for( int i=0; i!=qg_.numQuadSections; ++i ){
+
+    //-------------
     // INNERPLATE
+    //-------------
     idx = get_index(i, INNERPLATE);
     plate_map_[idx] = 
       plate_params(R_magic()-qg_.plateSep/2.-qg_.innerOuterThickness, R_magic()-qg_.plateSep/2., 
 		   qg_.innerOuterWidth/2., qg_.quad_Sphi[i], qg_.quad_Dphi[i],
 		   0. );
+
+    //-------------
     // OUTERPLATE
+    //-------------
     idx = get_index(i, OUTERPLATE);
     plate_map_[idx] = 
       plate_params(R_magic()+qg_.plateSep/2., R_magic()+qg_.plateSep/2.+qg_.innerOuterThickness,
 		   qg_.innerOuterWidth/2., qg_.quad_Sphi[i], qg_.quad_Dphi[i],
 		   0.);
+
+    //-------------
     // TOPPLATE
+    //-------------
     idx = get_index(i, TOPPLATE);
     plate_map_[idx] = 
       plate_params(R_magic()-qg_.topBottomWidth/2., R_magic()+qg_.topBottomWidth/2.,
 		   qg_.topBottomThickness/2., qg_.quad_Sphi[i], qg_.quad_Dphi[i],
 		   qg_.plateSep/2.+qg_.topBottomThickness/2.);
+
+    //-------------
     // BOTTOMPLATE
+    //-------------
     idx = get_index(i, BOTTOMPLATE);
     plate_map_[idx] =
       plate_params(R_magic()-qg_.topBottomWidth/2., R_magic()+qg_.topBottomWidth/2.,
@@ -634,16 +690,20 @@ void gm2ringsim::Quad::init_plate_params(){
 		   -qg_.plateSep/2.-qg_.topBottomThickness/2.);
 
   }
+
+  
+  //--------------------------------------
   // We have to fix up the Q1 OUTER plates
+  //--------------------------------------
   int quadRegion, sectionType;
   idx = get_index(quadRegion=0, sectionType=SECTION13, OUTERPLATE);
   plate_map_[idx] = 
-    plate_params(R_magic()+qg_.plateSep/2., R_magic()+qg_.plateSep/2.+qg_.outerThickness_Q1,
+    plate_params(R_magic() + qg_.plateSep/2.0 + qg_.outerQ1offset, R_magic() + qg_.plateSep/2.0 + qg_.outerThickness_Q1 + qg_.outerQ1offset,
 		 qg_.innerOuterWidth/2., qg_.quad_Sphi[SECTION13], qg_.quad_Dphi[SECTION13],
 		 0.);
   idx = get_index(quadRegion=0, sectionType=SECTION26, OUTERPLATE);
   plate_map_[idx] = 
-    plate_params(R_magic()+qg_.plateSep/2., R_magic()+qg_.plateSep/2.+qg_.outerThickness_Q1,
+    plate_params(R_magic() + qg_.plateSep/2.0 + qg_.outerQ1offset, R_magic() + qg_.plateSep/2.0 + qg_.outerThickness_Q1 + qg_.outerQ1offset,
 		 qg_.innerOuterWidth/2., qg_.quad_Sphi[SECTION26], qg_.quad_Dphi[SECTION26],
 		 0.);
 

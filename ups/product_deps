@@ -21,6 +21,10 @@ product          version
 artg4            v0_0_1
 art              v1_02_04
 g4emlow          v6_23
+g4photon         v2_2
+g4neutron        v4_0
+g4neutronxs      v1_1
+
 
 only_for_build  cetbuildtools v2_03_03
 only_for_build  gm2softwaretools v201211
@@ -28,8 +32,8 @@ only_for_build  gm2softwaretools v201211
 # We now define allowed qualifiers and the corresponding qualifiers for the depdencies.
 # Make a table by adding columns before "notes". 
 #
-qualifier        artg4       art       g4emlow  notes
-e2:debug         e2:debug    e2:debug   -nq- 
-e2:opt           e2:opt      e2:opt     -nq-
-e2:prof          e2:prof     e2:prof    -nq-
+qualifier        artg4       art       g4emlow  g4photon g4neutron g4neutronxs notes
+e2:debug         e2:debug    e2:debug   -nq-     -nq-      -nq-      -nq-  
+e2:opt           e2:opt      e2:opt     -nq-     -nq-      -nq-      -nq-
+e2:prof          e2:prof     e2:prof    -nq-     -nq-      -nq-      -nq-
 
