@@ -5,13 +5,13 @@
 #ifndef OCT_GEOM_HH
 #define OCT_GEOM_HH
 
-#include "artg4/Core/GeometryBase.hh"
+#include "gm2geom/Core/GeometryBase.hh"
 
 #include <iostream>
 
 namespace gm2ringsim {
   
-  struct OctGeometry : public artg4::GeometryBase {
+  struct OctGeometry : public gm2geom::GeometryBase {
     OctGeometry(std::string const &);
     void print() const;
     //octupole field

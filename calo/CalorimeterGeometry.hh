@@ -13,12 +13,12 @@
 #include <string>
 
 // art + artG4 includes
-#include "artg4/Core/GeometryBase.hh"
+#include "gm2geom/Core/GeometryBase.hh"
 
 
 namespace gm2ringsim{
     
-    struct CalorimeterGeometry : public artg4::GeometryBase {
+    struct CalorimeterGeometry : public gm2geom::GeometryBase {
 
       CalorimeterGeometry(std::string const & detName="calorimeter");
       void print();

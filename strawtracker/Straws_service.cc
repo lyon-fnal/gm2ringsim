@@ -22,7 +22,7 @@
 #include "Geant4/G4UniformMagField.hh"
 #include "Geant4/G4SDManager.hh"
 
-#include "gm2ringsim/strawtracker/StrawTrackerGeometry.hh"
+#include "gm2geom/strawtracker/StrawTrackerGeometry.hh"
 #include "gm2ringsim/strawtracker/StrawSD.hh"
 #include "gm2ringsim/strawtracker/StrawArtRecord.hh"
 #include "gm2ringsim/strawtracker/StrawHit.hh"

@@ -9,13 +9,13 @@
 #ifndef LABGEOMETRY_HH
 #define LABGEOMETRY_HH
 
-#include "artg4/Core/GeometryBase.hh"
+#include "gm2geom/Core/GeometryBase.hh"
 
 #include <iostream>
 
 namespace gm2ringsim {
   
-  struct WorldGeometry : public artg4::GeometryBase {
+  struct WorldGeometry : public gm2geom::GeometryBase {
     WorldGeometry(std::string const &);
     void print() const;
     

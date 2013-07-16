@@ -3,13 +3,13 @@
 #ifndef ARCGEOMETRY_HH
 #define ARCGEOMETRY_HH
 
-#include "artg4/Core/GeometryBase.hh"
+#include "gm2geom/Core/GeometryBase.hh"
 
 #include <iostream>
 
 namespace gm2ringsim {
   
-  struct ArcGeometry : public artg4::GeometryBase {
+  struct ArcGeometry : public gm2geom::GeometryBase {
     ArcGeometry(std::string const &);
     void print() const;
     

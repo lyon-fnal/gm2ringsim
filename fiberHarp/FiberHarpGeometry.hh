@@ -9,12 +9,12 @@
     @date 2012
 */
 
-#include "artg4/Core/GeometryBase.hh"
+#include "gm2geom/Core/GeometryBase.hh"
 
 #include <string>
 
 namespace gm2ringsim{
-  struct FiberHarpGeometry : public artg4::GeometryBase {
+  struct FiberHarpGeometry : public gm2geom::GeometryBase {
     
     FiberHarpGeometry(std::string);
 
