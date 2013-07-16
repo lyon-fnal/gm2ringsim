@@ -43,17 +43,6 @@ namespace gm2ringsim {
         // Create the physical volumes
         virtual std::vector<G4VPhysicalVolume*> doPlaceToPVs( std::vector<G4LogicalVolume*>) override;
 
-        // CHANGE_ME: Delete the next two functions if no hits
-
-        // Tell Art what we'll produce
-        //virtual void doCallArtProduces(art::EDProducer * producer) override;
-
-        // Actually add the data to the event
-        //virtual void doFillEventWithArtHits(G4HCofThisEvent * hc) override;
-      
-      // Convenience functions
-        //G4UnionSolid* buildScallopSolid();
-
     };
 }
 
