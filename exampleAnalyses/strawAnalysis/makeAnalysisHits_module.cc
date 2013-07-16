@@ -15,19 +15,19 @@
 #include <iostream>
 
 // Data product includes
-#include "gm2strawtracking/dataProducts/TrackerHitArtRecord.hh"
-#include "gm2strawtracking/dataProducts/WireID.hh"
+#include "gm2dataproducts/strawtracker/TrackerHitArtRecord.hh"
+#include "gm2dataproducts/strawtracker/WireID.hh"
 #include "gm2ringsim/strawtracker/StrawArtRecord.hh"
 
 using std::cout;
 using std::endl;
 
 // Do all this in the *tracking analysis* namespace
-namespace gm2strawtracking {
+namespace gm2strawtracker {
   class makeAnalysisHits;
 }
 
-class gm2strawtracking::makeAnalysisHits : public art::EDProducer {
+class gm2strawtracker::makeAnalysisHits : public art::EDProducer {
 public:
   explicit makeAnalysisHits(fhicl::ParameterSet const & p);
   virtual ~makeAnalysisHits();
@@ -53,7 +53,7 @@ private:
 };
 
 // Constructor gets parameters from the FHiCL configuration file
-gm2strawtracking::makeAnalysisHits::makeAnalysisHits(fhicl::ParameterSet const & p)
+gm2strawtracker::makeAnalysisHits::makeAnalysisHits(fhicl::ParameterSet const & p)
  :  hitModuleLabel_ ( p.get<std::string>("hitModuleLabel",  "artg4"   ) ),
     instanceName_   ( p.get<std::string>("instanceName", "Straws")),
     indexMap_ ()
@@ -63,14 +63,14 @@ gm2strawtracking::makeAnalysisHits::makeAnalysisHits(fhicl::ParameterSet const &
 }
 
 // Destructor; nothing much to do here
-gm2strawtracking::makeAnalysisHits::~makeAnalysisHits()
+gm2strawtracker::makeAnalysisHits::~makeAnalysisHits()
 {
     // Clean up dynamic memory and other resources here.
 }
 
 // produce(...) is called once for each event, and it adds a hit collection to
 // the art event.
-void gm2strawtracking::makeAnalysisHits::produce(art::Event & e)
+void gm2strawtracker::makeAnalysisHits::produce(art::Event & e)
 {
     // Get hits and such, from the virtual ring station.
     art::Handle<gm2ringsim::StrawArtRecordCollection> hitDataHandle;
@@ -130,7 +130,7 @@ void gm2strawtracking::makeAnalysisHits::produce(art::Event & e)
     e.put(std::move(toAddToEvent));
 }
 
-gm2strawtracking::WireID gm2strawtracking::makeAnalysisHits::makeWireID(gm2ringsim::StrawArtRecord const hdata) {
+gm2strawtracker::WireID gm2strawtracker::makeAnalysisHits::makeWireID(gm2ringsim::StrawArtRecord const hdata) {
     WireID currID;
 
     currID.setTrackerNumber(0);
@@ -159,4 +159,4 @@ gm2strawtracking::WireID gm2strawtracking::makeAnalysisHits::makeWireID(gm2rings
     return currID;
 }
 
-DEFINE_ART_MODULE(gm2strawtracking::makeAnalysisHits)
+DEFINE_ART_MODULE(gm2strawtracker::makeAnalysisHits)

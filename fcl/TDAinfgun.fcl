@@ -50,7 +50,7 @@ services: {
     RandomNumberGenerator: {}
 
     // Geometry
-    NewGeometry: {
+    Geometry: {
       world: @local::world_geom
       arc:   @local::arc_geom
       vac:   @local::vac_geom
@@ -185,15 +185,15 @@ physics: {
 # Add-ons
 #
 services.user.RunSettings.G2GPS_downstreamInflectorMandrel.particle: muminus
-services.user.NewGeometry.quad.DoScraping: false
-services.user.NewGeometry.quad.StoreHV: 24
-services.user.NewGeometry.quad.ScrapeHV: 17
-services.user.NewGeometry.quad.SupportMaterial: Macor
-services.user.NewGeometry.quad.PlateMaterial: None
-services.user.NewGeometry.kicker.TypeOfKick: LCR
-services.user.NewGeometry.kicker.kPlate1HV : 0 //kilovolt 
-services.user.NewGeometry.kicker.kPlate2HV : 0 //kilovolt 
-services.user.NewGeometry.kicker.kPlate3HV : 0 //kilovolt 
-services.user.NewGeometry.kicker.kickerHV : [0 , 0 , 0 ] //kilovolt
-services.user.NewGeometry.kicker.TypeOfKick: SQUARE
-services.user.NewGeometry.kicker.squareMag : [0 , 0 , 0 ] //gauss
+services.user.Geometry.quad.DoScraping: false
+services.user.Geometry.quad.StoreHV: 24
+services.user.Geometry.quad.ScrapeHV: 17
+services.user.Geometry.quad.SupportMaterial: Macor
+services.user.Geometry.quad.PlateMaterial: None
+services.user.Geometry.kicker.TypeOfKick: LCR
+services.user.Geometry.kicker.kPlate1HV : 0 //kilovolt 
+services.user.Geometry.kicker.kPlate2HV : 0 //kilovolt 
+services.user.Geometry.kicker.kPlate3HV : 0 //kilovolt 
+services.user.Geometry.kicker.kickerHV : [0 , 0 , 0 ] //kilovolt
+services.user.Geometry.kicker.TypeOfKick: SQUARE
+services.user.Geometry.kicker.squareMag : [0 , 0 , 0 ] //gauss
