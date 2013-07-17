@@ -34,7 +34,7 @@ namespace gm2ringsim {
         virtual ~StrawTracker() {};
 
     private:
-        gm2strawtracker::StrawTrackerGeometry geom_;
+        gm2geom::StrawTrackerGeometry geom_;
      
         // Private overriden methods
 

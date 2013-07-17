@@ -30,7 +30,7 @@ namespace gm2ringsim {
         virtual ~Straws() {};
 
     private:
-        gm2strawtracker::StrawTrackerGeometry geom_;
+        gm2geom::StrawTrackerGeometry geom_;
         G4String strawSDname_;
         StrawSD *strawSD_;
 
