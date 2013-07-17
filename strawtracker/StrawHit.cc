@@ -93,7 +93,7 @@ gm2ringsim::StrawHit::StrawHit(G4Step* step) :
     station_position = history->GetTransform(depth-1).TransformPoint(worldPosition);
 
   }
-  gm2strawtracker::StrawTrackerGeometry g;
+  gm2geom::StrawTrackerGeometry g;
   scallop_position.set(station_position.x() + g.straw_station_center_from_edge[stationNumber],
                          station_position.y() + g.strawStationLocation[stationNumber],
                          station_position.z());
