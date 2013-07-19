@@ -21,8 +21,13 @@
 
 #include "boost/format.hpp"
 
+
+#include "CLHEP/Vector/ThreeVector.h"
+
 using gm2strawtracker::WireID;
 using gm2strawtracker::StrawView;
+using CLHEP::Hep3Vector;
+
 //#include CHANGE_ME: Add include for header for Art hit class
 
 // Constructor for the service 
@@ -116,7 +121,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Straws::doPlaceToPVs( std::vector<G
   int stationNumber;
   
   std::ostringstream oss;
-  oss << "strawInRow, " << "layer, " << "view, " <<"station, "<< "x, "<<"y, "<<"xStation, "<<"yStation, " <<"yRot "<< "\n" ;
+  oss << "strawInRow, " << "layer, " << "view, " <<"station, "<< "x, "<<"y, "<<"xTracker, " <<"zTrackerB, "<<"yRot "<< "\n" ;
 
   for ( auto aStrawLV : lvs() ) {
     
@@ -136,6 +141,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Straws::doPlaceToPVs( std::vector<G
     
         
     int stationIndex = stationNumber % geom_.strawStationSize.size();
+    
     WireID wire;
     wire.setStation(stationIndex);
     wire.setView(StrawView(view));
@@ -153,10 +159,9 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Straws::doPlaceToPVs( std::vector<G
     yRot -> rotateY(rot);
     G4ThreeVector placement(x, y, 0);
     
-    double wire_distance_from_edge = geom_.straw_station_center_from_edge[stationNumber] + x;
-    double wire_distance_from_scallop = geom_.strawStationLocation[stationNumber] + y;
-    
-    oss << strawInRow <<", " <<layer<<", "<<view<<", "<<stationNumber<<", "<<x<<", "<<y<<", "<<wire_distance_from_edge<<", "<<wire_distance_from_scallop<<", "<<rot<< "\n";
+    Hep3Vector trackerLocation = geom_.trackerPosition(wire);
+  
+    oss << strawInRow <<", " <<layer<<", "<<view<<", "<<stationNumber<<", "<<x<<", "<<y<<", "<<", "<<trackerLocation.getX()<<", "<<", "<<trackerLocation.getZ()<<", "<<rot<< "\n";
     
     strawPVs.push_back(new G4PVPlacement(G4Transform3D(*yRot, placement),
                                          aStrawLV,
