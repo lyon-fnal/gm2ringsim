@@ -140,10 +140,10 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Straws::doPlaceToPVs( std::vector<G
     wire.setStation(stationIndex);
     wire.setView(StrawView(view));
     wire.setLayer(layer);
-    int plane = geom_.Plane(wire);
+    wire.setWire(strawInRow);
     
-    x = geom_.wirePosition(plane, strawInRow, view) - geom_.strawStationSizeHalf[stationIndex];
-    y = geom_.yPosition(plane);
+    x = geom_.wirePosition(wire) - geom_.strawStationSizeHalf[stationIndex];
+    y = geom_.yPosition(wire);
     
         
     G4RotationMatrix* yRot = new G4RotationMatrix;
