@@ -17,8 +17,12 @@
 #include "gm2ringsim/strawtracker/StrawArtRecord.hh"
 #include "gm2ringsim/strawtracker/StrawHit.hh"
 
+#include "gm2dataproducts/strawtracker/WireID.hh"
+
 #include "boost/format.hpp"
 
+using gm2strawtracker::WireID;
+using gm2strawtracker::StrawView;
 //#include CHANGE_ME: Add include for header for Art hit class
 
 // Constructor for the service 
@@ -56,13 +60,13 @@ std::vector<G4LogicalVolume *> gm2ringsim::Straws::doBuildLVs() {
             int stationNumber = sc + tb*geom_.strawStationLocation.size();
           
             std::string strawLVName( boost::str( boost::format("SingleStrawLV-strawInRow%d-view%d-layer%d-stationNumber%d")
+                                              
                                                                 %st
                                                                 %view
                                                                 %layer
                                                                 %stationNumber));
-
             G4LogicalVolume* strawLV = new G4LogicalVolume(tracker_tube,
-                                                           artg4Materials::Vacuum(),
+                                                           artg4Materials::ArCO2(),
                                                            strawLVName,
                                                            0,
                                                            0);
@@ -132,8 +136,11 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Straws::doPlaceToPVs( std::vector<G
     
         
     int stationIndex = stationNumber % geom_.strawStationSize.size();
-    
-    int plane = geom_.Plane(stationIndex, view, layer);
+    WireID wire;
+    wire.setStation(stationIndex);
+    wire.setView(StrawView(view));
+    wire.setLayer(layer);
+    int plane = geom_.Plane(wire);
     
     x = geom_.wirePosition(plane, strawInRow, view) - geom_.strawStationSizeHalf[stationIndex];
     y = geom_.yPosition(plane);
@@ -149,7 +156,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Straws::doPlaceToPVs( std::vector<G
     double wire_distance_from_edge = geom_.straw_station_center_from_edge[stationNumber] + x;
     double wire_distance_from_scallop = geom_.strawStationLocation[stationNumber] + y;
     
-    oss << strawInRow <<", " <<layer<<", "<<view<<", "<<stationNumber<<", "<<wire_distance_from_edge<<", "<<wire_distance_from_scallop<<", "<<x<<", "<<y<<", "<<rot<< "\n";
+    oss << strawInRow <<", " <<layer<<", "<<view<<", "<<stationNumber<<", "<<x<<", "<<y<<", "<<wire_distance_from_edge<<", "<<wire_distance_from_scallop<<", "<<rot<< "\n";
     
     strawPVs.push_back(new G4PVPlacement(G4Transform3D(*yRot, placement),
                                          aStrawLV,
@@ -194,9 +201,7 @@ void gm2ringsim::Straws::doFillEventWithArtHits(G4HCofThisEvent * hc) {
     std::vector<StrawHit*> geantHits = *(myCollection->GetVector());
     // Copy this hit into the Art hit
     for ( auto e : geantHits ) {
-      
-      e->Print();
-      
+            
       // Copy this hit into the Art hit
       
       //std::cout<<"Straw Number is: "<<e->straw<<std::endl;
