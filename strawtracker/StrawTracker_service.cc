@@ -108,10 +108,10 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::StrawTracker::doPlaceToPVs( std::ve
     
     deltaX = ds*sin(vacg.phi_a);
     
-    double deltaX_c = deltaX - geom_.straw_station_center_from_edge[stationIndex]*cos(vacg.phi_a);
+    double deltaX_c = deltaX - geom_.strawStationCenterFromEdge[stationIndex]*cos(vacg.phi_a);
     x = x - deltaX_c;
 
-    y = sqrt(ds*ds - deltaX*deltaX) + geom_.straw_station_center_from_edge[stationIndex]*sin(vacg.phi_a) ;
+    y = sqrt(ds*ds - deltaX*deltaX) + geom_.strawStationCenterFromEdge[stationIndex]*sin(vacg.phi_a) ;
     
     G4TwoVector fixup(x,y);
         
