@@ -1,5 +1,5 @@
 # Build libraries
-art_make( LIBRARIES "gm2ringsim_world" "artg4_util" "artg4_material" "${XERCESCLIB}" "${allG4Libs}")
+art_make( LIBRARIES "artg4_util" "artg4_material" "${XERCESCLIB}" "${allG4Libs}")
 
 # Copy headers
 install_headers()
