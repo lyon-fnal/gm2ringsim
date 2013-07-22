@@ -1,5 +1,9 @@
 process_name: analyzeTracks
-
+services : {
+  TFileService: {
+    fileName: "data_out-leahtest.root"
+  }
+}
 source: {
    module_type: RootInput
    maxEvents:  -1

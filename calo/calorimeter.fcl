@@ -35,6 +35,11 @@ calorimeter_geom : {
   diffuserColor :        [0.0,  0.0,  1.0,  1.0] // blue  
   wrappingColor :        [1.0,  0.5,  0.0,  1.0] // orange
   killShowers : true
+  // placement inside mother volume
+  placeInStation : true
+  positionOffsetX : 0.0 // cm
+  positionOffsetY : 0.0 // cm
+  positionOffsetZ : 0.0 // cm
 
 }
 END_PROLOG

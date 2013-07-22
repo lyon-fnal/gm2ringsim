@@ -18,6 +18,7 @@ process_name:myProcessName
 source: {
   module_type: EmptyEvent
   maxEvents: 1
+
 }
 
 services: {
@@ -37,6 +38,28 @@ services: {
          append : false
          threshold : "ERROR"
        }
+       LogToTrackerFile:{
+        type: "file"
+        filename: "strawtrackergeometry.csv"
+        append : false
+        theshold : "DEBUG"
+        categories : {
+          StrawGeometryPlacementDetails : { limit : 1000000 }
+          default : { limit : 0 }
+        }
+       }
+       LogToStrawLocationDatabase:{
+        type: "file"
+        filename: "strawlocationdatabase.csv"
+        append : false
+        treshold: "DEBUG"
+        categories : {
+          StrawLocationDatabase : { limit : 1000000 }
+          default : {limit : 0 }
+        
+        }
+       }
+
      }
   }
 
@@ -107,7 +130,8 @@ services: {
         name: "inflectorgun"
         inflectorVerbosity: true
 	SigmaT: 25
-	Emittance: 1.0
+	EmittanceX: 1.0
+  EmittanceY: 1.0
 	BetaX:  7.66477
 	BetaY:  19.0763
 	AlphaX:  0.0
@@ -153,7 +177,7 @@ services: {
 outputs: {
 out1: {
   module_type: RootOutput   
-  fileName: "gm2ringsimout-leahtest.root"
+  fileName: "gm2ringsimout-leahtest-5000evt-seed10-Vacuum.root"
   }
 }
 
@@ -164,7 +188,9 @@ physics: {
      enableVisualization: true
      macroPath: ".:./macros:../macros:../../macros"
      visMacro: "vis.mac"
-     afterEvent: pause  // (ui, pause, pass)
+     afterEvent: pause
+       // (ui, pause, pass)
+     seed: 10
      }
   }
 

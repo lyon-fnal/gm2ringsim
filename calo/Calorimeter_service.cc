@@ -50,7 +50,7 @@ gm2ringsim::Calorimeter::Calorimeter(fhicl::ParameterSet const & p, art::Activit
              p.get<std::string>("name", "calorimeter"),
              p.get<std::string>("category", "calorimeter"),
              p.get<std::string>("mother_category", "station")),
-    stationGeomName_(p.get<std::string>("stationGeomName", "")), // Use if the mother category isn't a station (e.g. test beam)
+    stationGeomName_(p.get<std::string>("stationGeomName", "")), // For calo placement, use a geometry different from the mother category
     caloSD_(0),
     xtalSD_(0),
     photodetectorSD_(0)
@@ -600,6 +600,12 @@ std::vector<G4LogicalVolume *> gm2ringsim::Calorimeter::doBuildLVs() {
 // Build the physical volumes
 std::vector<G4VPhysicalVolume *> gm2ringsim::Calorimeter::doPlaceToPVs( std::vector<G4LogicalVolume*> stations) {
     
+    CalorimeterGeometry caloGeom; // "calorimeter" is the default parameter
+    
+    std::vector<G4VPhysicalVolume*> calorimeterPVs;
+    calorimeterPVs.resize(lvs().size());
+
+    
     // Calorimeter coordinates:
     //      +x radial out
     //      +y vertical up
@@ -610,31 +616,29 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Calorimeter::doPlaceToPVs( std::vec
     //      +y downstream into calorimeter
     //      +z vertical down
     
-    StationGeometry stationGeom(stationGeomName_);
-    CalorimeterGeometry caloGeom; // "calorimeter" is the default parameter
-    
-/*    if ( stations.size() != lvs().size() ) {
-        throw cet::exception("# of Calorimeter logical volumes (")
-           << lvs().size()
-           << ") differs from # of stations (" << stations.size() << ")";
-    }
- */
-    
-    std::vector<G4VPhysicalVolume*> calorimeterPVs;
-    calorimeterPVs.resize(lvs().size());
-    
-
-    
-    // find the location of the center of the calorimeter volume along the station's thickness
-    // (depth) dimension
-    G4double centerLocation = (caloGeom.thickness + 2*caloGeom.crystalCaloBuffer - stationGeom.t) / 2;
-    G4ThreeVector pos( 0, centerLocation, 0 );
-    
-    // create the rotation matrix that we need for placing the calo LV's into the stations
+    // position and rotation of calo volume inside mother volume
+    G4ThreeVector pos(0.0, 0.0, 0.0);
     G4RotationMatrix* caloRot = new G4RotationMatrix;
-    caloRot->rotateX(M_PI/2*rad); //Rotates by pi/2 radians around x-axis
+    
+    if (caloGeom.placeInStation)
+    {
+        StationGeometry stationGeom(stationGeomName_);
+        
+        // find the location of the center of the calorimeter volume along the station's thickness
+        // (depth) dimension so that front of calo volume is flush with front of station
+        G4double centerLocation = (caloGeom.thickness + 2*caloGeom.crystalCaloBuffer - stationGeom.t) / 2;
+        pos.setY(centerLocation);
+        
+        // create the rotation matrix that we need for placing the calo LV's into the stations
+        caloRot->rotateX(M_PI/2*rad); // Rotates by pi/2 radians around x-axis
+    }
+    
+    // manual position offset from fcl parameters
+    pos.setX( pos.x() + caloGeom.positionOffsetX );
+    pos.setY( pos.y() + caloGeom.positionOffsetY );
+    pos.setZ( pos.z() + caloGeom.positionOffsetZ );    
 
-    //loop over the logical volumes
+    // loop over the logical volumes
     unsigned int calorimeterNum = 0;
     for ( auto aCalorimeterLV : lvs() ) {
         
