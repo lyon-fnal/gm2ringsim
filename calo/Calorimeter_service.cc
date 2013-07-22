@@ -30,7 +30,7 @@
 #include "Calorimeter_service.hh"
 
 #include "gm2ringsim/calo/CalorimeterGeometry.hh"
-#include "gm2ringsim/station/StationGeometry.hh"
+#include "gm2geom/station/StationGeometry.hh"
 
 #include "gm2ringsim/calo/CaloHit.hh"
 #include "gm2ringsim/calo/XtalHit.hh"
@@ -622,7 +622,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Calorimeter::doPlaceToPVs( std::vec
     
     if (caloGeom.placeInStation)
     {
-        StationGeometry stationGeom(stationGeomName_);
+        gm2geom::StationGeometry stationGeom(stationGeomName_);
         
         // find the location of the center of the calorimeter volume along the station's thickness
         // (depth) dimension so that front of calo volume is flush with front of station

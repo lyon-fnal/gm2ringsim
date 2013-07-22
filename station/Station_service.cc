@@ -14,7 +14,7 @@
 
 #include "boost/format.hpp"
 
-//#include CHANGE_ME: Add include for header for Art hit class
+using gm2geom::StationGeometry;
 
 // Constructor for the service 
 gm2ringsim::Station::Station(fhicl::ParameterSet const & p, art::ActivityRegistry & ) :

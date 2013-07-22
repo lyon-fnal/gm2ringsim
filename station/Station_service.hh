@@ -21,11 +21,10 @@
 // Get the base class for the service
 #include "artg4/Core/DetectorBase.hh"
 
-#include "gm2ringsim/station/StationGeometry.hh"
+#include "gm2geom/station/StationGeometry.hh"
 
 // Within a namespace
 namespace gm2ringsim {
-    class StationGeometry;
 
     // The class
     class Station : public artg4::DetectorBase {
@@ -50,13 +49,7 @@ namespace gm2ringsim {
 
         // CHANGE_ME: Delete the next two functions if no hits
         // Convenience functions
-        G4LogicalVolume* makeStationLV(StationGeometry const &);
-
-        // Tell Art what we'll produce
-        //virtual void doCallArtProduces(art::EDProducer * producer) override;
-
-        // Actually add the data to the event
-        //virtual void doFillEventWithArtHits(G4HCofThisEvent * hc) override;
+        G4LogicalVolume* makeStationLV(gm2geom::StationGeometry const &);
 
     };
 }
