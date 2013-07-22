@@ -23,7 +23,7 @@
 #include "gm2ringsim/strawtracker/StrawArtRecord.hh"
 #include "gm2ringsim/strawtracker/StrawHit.hh"
 
-#include "gm2ringsim/vac/VacGeometry.hh"
+#include "gm2geom/vac/VacGeometry.hh"
 
 #include "boost/format.hpp"
 
@@ -78,7 +78,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::StrawTracker::doPlaceToPVs( std::ve
   
   std::vector<G4VPhysicalVolume*> strawStationPVs;
   
-  const VacGeometry vacg("vac");
+  const gm2geom::VacGeometry vacg("vac");
   int i = 0;
   int strawTrackerIndex, strawTrackerNumber;
   int numberOfStationsPerTracker = geom_.strawStationSize.size();

@@ -16,6 +16,14 @@
 #include "Geant4/G4UserLimits.hh"
 #include "Geant4/G4SDManager.hh"
 
+#include "CLHEP/Vector/TwoVector.h"
+using CLHEP::Hep2Vector;
+
+
+// VacGeometry now in gm2geom, let's not add the namespace specifier every time
+// we use it.
+using gm2geom::VacGeometry;
+
 // Constructor for the service 
 gm2ringsim::VacuumChamber::VacuumChamber(fhicl::ParameterSet const & p, art::ActivityRegistry & ) :
   DetectorBase(p,
@@ -62,7 +70,7 @@ G4UnionSolid* gm2ringsim::VacuumChamber::buildUnionSolid(const VacGeometry& g, V
   dx = -dz*std::tan( (g.phi_b-g.phi_a)/2. ) + g.xS[which]/2.;
   
   // The little rotation is in the coordinates of the trapezoid,
-  G4TwoVector fixup(dz,dx);
+  Hep2Vector fixup(dz,dx);
   fixup.rotate( -g.phi_a );
   // flip to the coordinate system of the arcSection
   fixup.setX(-fixup.x());
@@ -93,10 +101,10 @@ G4UnionSolid* gm2ringsim::VacuumChamber::buildUnionSolid(const VacGeometry& g, V
   
   dz = g.zz[which]/2.;
   dx = -g.xI[which]/2.-g.zz[which]/2.*std::tan(g.phi_q/2.);
-  fixup = G4TwoVector(dz, dx);
+  fixup = Hep2Vector(dz, dx);
   fixup.rotate( g.phi_q );
-  //    fixup += G4TwoVector( 277.*in, 0 );
-  fixup+= G4TwoVector(g.pt_p[which].r(),0);
+  //    fixup += Hep2Vector( 277.*in, 0 );
+  fixup+= Hep2Vector(g.pt_p[which].r(),0);
   fixup.rotate( g.pt_p[which].phi() );
   
   G4Transform3D

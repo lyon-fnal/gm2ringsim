@@ -12,7 +12,7 @@
 #include "gm2ringsim/strawtracker/StrawSD.hh"
 
 #include "gm2geom/strawtracker/StrawTrackerGeometry.hh"
-#include "gm2ringsim/vac/VacGeometry.hh"
+#include "gm2geom/vac/VacGeometry.hh"
 
 #include <vector>
 

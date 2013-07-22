@@ -24,7 +24,7 @@ g4emlow          v6_23
 g4photon         v2_2
 g4neutron        v4_0
 g4neutronxs      v1_1
-
+gm2geom          v0_0_1
 
 only_for_build  cetbuildtools v2_03_03
 only_for_build  gm2softwaretools v201211
