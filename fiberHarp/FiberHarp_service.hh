@@ -9,7 +9,7 @@
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Core/EDProducer.h"
 
-#include "gm2ringsim/fiberHarp/FiberHarpGeometry.hh"
+#include "gm2geom/fiberHarp/FiberHarpGeometry.hh"
 #include "gm2ringsim/fiberHarp/FiberHarpSD.hh"
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -37,7 +37,7 @@ namespace gm2ringsim {
     virtual ~FiberHarp() {};
     
   private:
-    FiberHarpGeometry geom_;
+    gm2geom::FiberHarpGeometry geom_;
     G4String harpSDname_;
     FiberHarpSD *harpSD_;
 
