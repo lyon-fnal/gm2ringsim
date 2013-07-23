@@ -24,7 +24,7 @@
 #include "artg4/material/Materials.hh" 
 #include "gm2ringsim/common/spin/SpinController.hh"
 #include "gm2ringsim/quad/QuadField.hh"
-#include "gm2ringsim/quad/QuadGeometry.hh"
+#include "gm2geom/quad/QuadGeometry.hh"
 #include "gm2ringsim/actions/SpinTrackingSettings.hh"
 #include "gm2ringsim/common/ring/RingSD.hh"
 
@@ -119,7 +119,7 @@ namespace gm2ringsim {
       enum plate_section {SECTION13, SECTION26, plate_section_end};
 
     SpinTrackingSettings sts_;
-    QuadGeometry qg_;
+    gm2geom::QuadGeometry qg_;
     QuadFieldFactory qff_;
     
     bool nospin_tracking_;

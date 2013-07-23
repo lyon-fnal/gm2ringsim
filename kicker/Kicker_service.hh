@@ -32,7 +32,7 @@
 
 // Get the base class for the service
 #include "artg4/Core/DetectorBase.hh"
-#include "gm2ringsim/kicker/KickerGeometry.hh"
+#include "gm2geom/kicker/KickerGeometry.hh"
 
 // Within a namespace
 namespace gm2ringsim {
@@ -56,7 +56,7 @@ namespace gm2ringsim {
       bool nospin_tracking_;
       const bool spin_tracking_; //set it and forget it
       const bool edm_tracking_; //set it and forget it
-      KickerGeometry kg_;
+      gm2geom::KickerGeometry kg_;
       enum {KICKER1 = 0, KICKER2 = 1, KICKER3 = 2};
       G4int const numKickers_;
       G4int const numKickerObjects_;
