@@ -41,7 +41,7 @@
 // Get the base class for the service
 #include "artg4/Core/DetectorBase.hh"
 
-#include "gm2ringsim/inflector/InflectorGeom.hh"
+#include "gm2geom/inflector/InflectorGeom.hh"
 #include "gm2ringsim/inflector/InflectorSD.hh"
 #include "gm2ringsim/common/ring/RingSD.hh"
 #include "gm2ringsim/actions/SpinTrackingSettings.hh"
@@ -114,7 +114,7 @@ namespace gm2ringsim {
 
     private:
       SpinTrackingSettings sts_;
-      InflectorGeom infGeom_;
+      gm2geom::InflectorGeom infGeom_;
       G4int num_trackers_;
       G4MagneticField *inflectorMagField_;
       G4Mag_EqRhs *iEquation_;

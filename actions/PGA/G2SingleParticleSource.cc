@@ -20,7 +20,7 @@
 
 #include "gm2ringsim/actions/PGA/G2SingleParticleSource.hh"
 //#include "inflectorConstruction.hh"
-#include "gm2ringsim/inflector/inflectorGeometry.hh"
+#include "gm2geom/inflector/inflectorGeometry.hh"
 
 gm2ringsim::G2SingleParticleSource::G2SingleParticleSource()
 {
@@ -113,7 +113,8 @@ void gm2ringsim::G2SingleParticleSource::UseImportedParticles(G4Event *evt)
   // ** replaced by 'zeta'.  This needs to be fixed!!
   // ** ZSH - 08 SEP 08
 
-  inflectorGeometry& ig = inflectorGeometry::getInstance();
+    // Using a somewhat deprecated method to 
+    gm2geom::inflectorGeometry& ig = gm2geom::inflectorGeometry::getInstance();
   G4double delta = ig.delta();
   G4double gamma = ig.gamma();
   G4double L = ig.half_length();

@@ -223,7 +223,7 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
   // CALCULATE THE DOWNSTREAM MANDREL VERTEX POSITION
     
 
-  inflectorGeometry const& ig = infGeom_.ig ;//inflectorGeometry::getInstance();
+  gm2geom::inflectorGeometry const& ig = infGeom_.ig ;//inflectorGeometry::getInstance();
   G4ThreeVector downstream(R_magic()+ig.aperture_off(), 0., 0.);
   downstream.rotateY(ig.delta());
     

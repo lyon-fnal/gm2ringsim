@@ -19,7 +19,8 @@
 #include <boost/tokenizer.hpp>
 #include <cstdlib>
 
-#include "gm2ringsim/inflector/inflectorGeometry.hh"
+#include "gm2geom/inflector/inflectorGeometry.hh"
+using gm2geom::inflectorGeometry;
 #include "gm2ringsim/common/g2PreciseValues.hh"
 
 #include "Geant4/G4PhysicalConstants.hh"

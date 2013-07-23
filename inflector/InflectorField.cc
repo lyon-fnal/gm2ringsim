@@ -22,7 +22,8 @@
 #include <cmath>
 
 #include "gm2ringsim/common/g2PreciseValues.hh"
-#include "gm2ringsim/inflector/inflectorGeometry.hh"
+#include "gm2geom/inflector/inflectorGeometry.hh"
+using gm2geom::inflectorGeometry;
 #include "gm2ringsim/inflector/InflectorField.hh"
 #include "gm2ringsim/arc/StorageRingField.hh"
 
