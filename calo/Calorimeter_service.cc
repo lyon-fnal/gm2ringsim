@@ -29,7 +29,8 @@
 
 #include "Calorimeter_service.hh"
 
-#include "gm2ringsim/calo/CalorimeterGeometry.hh"
+#include "gm2geom/calo/CalorimeterGeometry.hh"
+using gm2geom::CalorimeterGeometry;
 #include "gm2geom/station/StationGeometry.hh"
 
 #include "gm2ringsim/calo/CaloHit.hh"
