@@ -19,18 +19,23 @@
 #include "TVector3.h"
 
 namespace gm2ringsim {
-  class GoodStrawHits;
   struct Track;
+  //struct Hit;
+  class GoodStrawHits;
 }
 
 
+/*struct gm2ringsim::Hit{
+  int strawNumber;
+  int layerNumber;
+  int viewNumber;
+  int strawInLayer;
+  int stationNumber;
+  TVector3 position;
+};*/
+
 struct gm2ringsim::Track{
   std::vector<int> strawsHit;
-  std::vector<int> rowsHit;
-  std::vector<int> strawInRowHit;
-  std::vector<int> stationsHit;
-  std::vector<int> trackID;
-  std::vector<TVector3> position;
   std::vector<std::string> particle_name;
   std::vector<int> parentID;
 };
@@ -85,16 +90,9 @@ bool gm2ringsim::GoodStrawHits::filter(art::Event & e)
   Track track_info;;
 
   for ( auto hdata : hits) {
-    TVector3 the_position(hdata.x_global, hdata.z_global, hdata.y_global);
     track_info.strawsHit.push_back(hdata.strawNumber);
-    track_info.strawInRowHit.push_back(hdata.strawInRow);
-    track_info.rowsHit.push_back(hdata.rowNumber);
-    track_info.stationsHit.push_back(hdata.stationNumber);
-    track_info.position.push_back(the_position);
-    track_info.trackID.push_back(hdata.trackID);
     track_info.particle_name.push_back(hdata.particle_name);
     track_info.parentID.push_back(hdata.parent_ID);
-    
     
   }
   
@@ -121,7 +119,10 @@ bool gm2ringsim::GoodStrawHits::filter(art::Event & e)
   if (track_info.particle_name.size() == 1 && track_info.particle_name[0] == "e-") is_all_electrons = true;
   if (track_info.parentID.size() == 1 && track_info.parentID[0] == 1) is_muon_parent = true;
   
-  if(is_all_electrons && is_muon_parent && is_in_order) return true;
+  if(is_all_electrons && is_muon_parent && is_in_order){
+    std::cout<<"The event was good"<<std::endl;
+    return true;
+  }
   else return false;
 
   

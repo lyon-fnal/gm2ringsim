@@ -43,7 +43,8 @@ namespace gm2ringsim {
     // Local transformation coordinates
     float x_local,  y_local,  z_local;
     float px_local, py_local, pz_local;
-    
+    float x_station, y_station, z_station;
+    float x_scallop, y_scallop, z_scallop;
     /** Global time for this tracking record. */
     float time;
     /** Track ID for this hit. */
@@ -52,7 +53,8 @@ namespace gm2ringsim {
     int volumeUID;
     
     int strawInRow;
-    int rowNumber;
+    int layerNumber;
+    int viewNumber;
     int stationNumber;
     int strawNumber;
 
@@ -64,26 +66,37 @@ namespace gm2ringsim {
     px_global(0.0),py_global(0.0),pz_global(0.0),
     x_local(0.0),y_local(0.0),z_local(0.0),
     px_local(0.0),py_local(0.0),pz_local(0.0),
-    time(0.0), trackID(0),volumeUID(0), strawNumber(0), particle_name(), parent_ID(0) {}
+    x_station(0.0), y_station(0.0), z_station(0.0),
+    x_scallop(0.0), y_scallop(0.0), z_scallop(0.0),
+    time(0.0), trackID(0),volumeUID(0), strawInRow(0), layerNumber(0), viewNumber(0), stationNumber(0), strawNumber(0), particle_name(), parent_ID(0) {}
     virtual ~StrawArtRecord() {}
     
     
     //Root Shouldn't know about this
 #ifndef __GCCXML__
-    StrawArtRecord(float xglobal, float yglobal, float zglobal, float rglobal, float pxglobal, float pyglobal,
-                   float pzglobal, float xLoc, float yLoc, float zLoc, float pxLoc,
-                   float pyLoc, float pzLoc, float time_input, int trackID_input,
-                   int volumeUID_input, int straw_in_row, int row_number, int station_number, int straw_number,
+    StrawArtRecord(float xglobal, float yglobal, float zglobal, float rglobal,
+                   float pxglobal, float pyglobal,float pzglobal,
+                   float xLoc, float yLoc, float zLoc,
+                   float pxLoc, float pyLoc, float pzLoc,
+                   float xStation, float yStation, float zStation,
+                   float xScallop, float yScallop, float zScallop,
+                   float time_input, int trackID_input,
+                   int volumeUID_input,
+                   int straw_in_row, int layer_number, int view_number, int station_number, int straw_number,
                    std::string particleName, int parentID ) :
+    
     x_global(xglobal), y_global(yglobal), z_global(zglobal), r_global(rglobal),
     px_global(pxglobal),py_global(pyglobal),pz_global(pzglobal),
     x_local(xLoc),y_local(yLoc),z_local(zLoc),
     px_local(pxLoc),py_local(pyLoc),pz_local(pzLoc),
+    x_station(xStation), y_station(yStation), z_station(zStation),
+    x_scallop(xScallop), y_scallop(yScallop), z_scallop(zScallop),
     time(time_input),
     trackID(trackID_input),
     volumeUID(volumeUID_input),
     strawInRow(straw_in_row),
-    rowNumber(row_number),
+    layerNumber(layer_number),
+    viewNumber(view_number),
     stationNumber(station_number),
     strawNumber(straw_number),
     particle_name(particleName),

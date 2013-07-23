@@ -21,7 +21,7 @@
 #include "gm2ringsim/common/virtualringstation/VirtualRingStationSD.hh"
 #include "gm2ringsim/common/virtualringstation/virtualringstation_util.hh"
 
-#include "gm2ringsim/vac/VacGeometry.hh"
+#include "gm2geom/vac/VacGeometry.hh"
 
 #include <vector>
 
@@ -64,15 +64,15 @@ namespace gm2ringsim {
     
     
     // Some internal methods
-    G4UnionSolid* buildUnionSolid(const VacGeometry&, VacGeometry::typeToBuild, unsigned int);
+    G4UnionSolid* buildUnionSolid(const gm2geom::VacGeometry&, gm2geom::VacGeometry::typeToBuild, unsigned int);
     
-    void makeWallLVs(const VacGeometry&);
+    void makeWallLVs(const gm2geom::VacGeometry&);
     
-    void makeVacuumLVs(std::vector<G4LogicalVolume*>&, const VacGeometry&);
+    void makeVacuumLVs(std::vector<G4LogicalVolume*>&, const gm2geom::VacGeometry&);
     
     void makeVacuumPVs(std::vector<G4LogicalVolume*>&);
     
-    void makeVirtualRingStationPVs(std::vector<G4LogicalVolume*>&, const VacGeometry&);
+    void makeVirtualRingStationPVs(std::vector<G4LogicalVolume*>&, const gm2geom::VacGeometry&);
     
     };
 }

@@ -47,7 +47,7 @@
 #include "Geant4/G4SDManager.hh"
 
 #include "gm2ringsim/inflector/InflectorField.hh"
-#include "gm2ringsim/inflector/inflectorGeometry.hh"
+#include "gm2geom/inflector/inflectorGeometry.hh"
 #include "gm2ringsim/inflector/InflectorSD.hh"
 #include "gm2ringsim/inflector/InflectorArtRecord.hh"
 #include "gm2ringsim/inflector/InflectorHit.hh"
@@ -1043,7 +1043,7 @@ void gm2ringsim::Inflector::getInflectorInfo(){
     
   G4cout << "\n";
 
-  inflectorGeometry const& ig = infGeom_.ig ;//inflectorGeometry::getInstance();
+  gm2geom::inflectorGeometry const& ig = infGeom_.ig ;//inflectorGeometry::getInstance();
 
   G4cout << std::setw(40) << "Azimuthal Aperture Position:"
 	 << std::setw(15) << G4BestUnit(ig.delta(),"Angle");
@@ -1173,8 +1173,8 @@ namespace gm2ringsim {
   // inflectorRecord convert (InflectorHit* pih)
   InflectorArtRecord convert(InflectorHit* e){
     InflectorArtRecord ir;
-    InflectorGeom infGeom("inflector");
-    inflectorGeometry const& ig = infGeom.ig;
+    gm2geom::InflectorGeom infGeom("inflector");
+    gm2geom::inflectorGeometry const& ig = infGeom.ig;
     
     ir.time = e->time;
     ir.trackID = e->trackID;
@@ -1250,8 +1250,7 @@ G4ThreeVector gm2ringsim::Inflector::calc_position() const  {
   // that the aperture ends up in it's original and correct
   // location!   
 
-  // g2MIGTRACE:  inflectorGeometry const& ig = inflectorGeometry::getInstance();
-  inflectorGeometry const& ig = infGeom_.ig;
+    gm2geom::inflectorGeometry const& ig = infGeom_.ig;
   G4double const bco = infGeom_.beamChannel_offset - infGeom_.beamChannel1_Z;  
   G4double const apRad = (R_magic() + ig.aperture_off()) + bco;
   
@@ -1321,22 +1320,6 @@ G4ThreeVector gm2ringsim::Inflector::calc_position() const  {
   return center;
 } // Inflector::calc_postiion()
  
-/*
-void gm2ringsim::Inflector::GetXYZ_zetaFree(G4double &posX, G4double &posY, G4double &posZ)  {
- inflectorGeometry const& ig = infGeom_.ig;
- G4double const bco = infGeom_.beamChannel_offset - infGeom_.beamChannel1_Z;
- G4double const apRad = (R_magic() + ig.aperture_off()) + bco;
-  
-  posX =  apRad*cos(epsilon_ - ig.delta()) + 
-    ig.mandrel_half_length()*sin(epsilon_ - ig.delta() - ig.gamma());
-  
-  posY = apRad*sin(epsilon_ - ig.delta()) -
-    ig.mandrel_half_length()*cos(epsilon_ - ig.delta() - ig.gamma());
-  
-  posZ = 0.;
-}
-*/
-
 
 
 #include <utility>
@@ -1357,7 +1340,7 @@ G4RotationMatrix* gm2ringsim::Inflector::calc_rotation() {
   
   // g2MIGTRACE:  inflectorGeometry const& ig = inflectorGeometry::getInstance();
   // ART : 
-  inflectorGeometry const& ig = infGeom_.ig;
+    gm2geom::inflectorGeometry const& ig = infGeom_.ig;
   
   G4double theta1 = (90*degree + epsilon_) - ig.delta() - ig.gamma();
   G4double phi = -90*degree;

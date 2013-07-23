@@ -1,5 +1,5 @@
 # Build the libraries
-art_make( LIBRARIES "gm2ringsim_vac" "artg4_material" "artg4_util" "gm2ringsim_actions_muonStorageStatus" "gm2ringsim_common_virtualringstation" "${XERCESCLIB}" "${allG4Libs}")
+art_make( LIBRARIES "artg4_material" "artg4_util" "gm2ringsim_actions_muonStorageStatus" "gm2ringsim_common_virtualringstation" "gm2geom_vac" "${XERCESCLIB}" "${allG4Libs}")
 
 # Copy the headers
 install_headers()

@@ -21,6 +21,7 @@
 #include "gm2ringsim/calo/CaloSD.hh"
 #include "gm2ringsim/calo/XtalSD.hh"
 #include "gm2ringsim/calo/PhotodetectorSD.hh"
+#include "gm2geom/calo/CalorimeterGeometry.hh"
 
 // Art Includes
 #include "fhiclcpp/ParameterSet.h"
@@ -40,7 +41,6 @@
 
 // Within a namespace
 namespace gm2ringsim {
-    class CalorimeterGeometry;
     
     // The class
     class Calorimeter : public artg4::DetectorBase {
@@ -78,7 +78,7 @@ namespace gm2ringsim {
         virtual std::vector<G4VPhysicalVolume*> doPlaceToPVs( std::vector<G4LogicalVolume*>) override;
         
         // Convenience functions
-        G4LogicalVolume* makeCalorimeterLV(CalorimeterGeometry const &caloGeom, int calorimeterNumber);
+        G4LogicalVolume* makeCalorimeterLV(gm2geom::CalorimeterGeometry const &caloGeom, int calorimeterNumber);
         
 
         // Tell Art what we'll produce

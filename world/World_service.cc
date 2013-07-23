@@ -1,7 +1,7 @@
 // Implementation of World
 
 #include "gm2ringsim/world/World_service.hh"
-#include "gm2ringsim/world/WorldGeometry.hh"
+#include "gm2geom/world/WorldGeometry.hh"
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 
@@ -13,7 +13,9 @@
 #include "Geant4/G4Colour.hh"
 #include "Geant4/G4PVPlacement.hh"
 
-
+// The world geometry is in the geometry namespace; let's use it without the
+// namespace identifier
+using gm2geom::WorldGeometry;
 
 // Constructor for the service 
 gm2ringsim::World::World(fhicl::ParameterSet const & p, art::ActivityRegistry & ) :

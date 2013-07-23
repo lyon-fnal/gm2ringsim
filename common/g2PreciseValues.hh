@@ -9,13 +9,12 @@
     - Nathan Froemming 2012
  */
 
-#include "Geant4/globals.hh"
 namespace gm2ringsim {
   /** Updated muon mass */
-  G4double mMuon();
+  double mMuon();
 
   /** Updated muon anomalous magnetic moment */
-  G4double  aMuon();
+  double  aMuon();
 
 
   /** The magic magnetic field strength. */
@@ -23,60 +22,38 @@ namespace gm2ringsim {
       parameter, not a "magic" parameter.  All "magic" parameters depend on (1) the value of 
       the muon's anomalous magnetic moment, and (2) the strength of the magnetic field used 
       in the experiment. */
-  G4double B_magic();
+  double B_magic();
 
   /** Magic momentum */
-  G4double  pMagic();
-  G4double  P_magic();
+  double  pMagic();
+  double  P_magic();
 
   /** Magic radius */
-  G4double  R_magic();
+  double  R_magic();
 
   /** Magic gamma */
-  G4double gammaMagic();
+  double gammaMagic();
 
   /** Magic beta */
-  G4double betaMagic();
+  double betaMagic();
 
   /** Magic energy */
-  G4double EMagic();
+  double EMagic();
 
   /** Magic kinetic energy */
-  G4double KEMagic();
+  double KEMagic();
 
   /** Magic cyclotron angular frequency */
-  G4double omegaCMagic();
+  double omegaCMagic();
 
   /** Magic anomalous precession angular frequency */
-  G4double omegaAMagic();
+  double omegaAMagic();
 
   /** Magic spin angular frequency */
-  G4double omegaSMagic();
+  double omegaSMagic();
 
 }//namespace gm2ringsim
 
-//FIXME : Need to Figure out role of Messenger here
-#include "Geant4/G4UImessenger.hh"
-#include "Geant4/G4UIdirectory.hh"
-#include "Geant4/G4UIcmdWithoutParameter.hh"
-
-namespace gm2ringsim{
-  /** A G4UImessenger that allows read access to the precision values. */
-  class g2PreciseMessenger : public G4UImessenger {
-  public:
-    g2PreciseMessenger();
-    ~g2PreciseMessenger();
-    
-    void SetNewValue(G4UIcommand *, G4String);
-    
-  private:
-    
-    G4UIdirectory *preciseDirectory;
-    
-    G4UIcmdWithoutParameter *preciseInfoCmd;
-  }; //class g2PreciseMessenger
-
-}//namespace gm2ringsim
 
 #endif //g2PreciseValues_hh
 

@@ -30,7 +30,7 @@
 #include "TRandom3.h"
 
 // Inflector
-#include "gm2ringsim/inflector/InflectorGeom.hh"
+#include "gm2geom/inflector/InflectorGeom.hh"
 
 #include "gm2ringsim/actions/PGA/G2GeneralParticleSource.hh"
 // Get the helper files
@@ -116,7 +116,7 @@ namespace gm2ringsim
   private:
     G4ParticleGun* inflectorGun_;
     G2GeneralParticleSource* g2GPS_;
-    InflectorGeom infGeom_;
+    gm2geom::InflectorGeom infGeom_;
     bool Verbosity_;
     bool first_event;
 

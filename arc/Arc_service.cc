@@ -10,7 +10,7 @@
 
 #include "gm2ringsim/common/g2PreciseValues.hh"
 
-#include "gm2ringsim/arc/ArcGeometry.hh"
+#include "gm2geom/arc/ArcGeometry.hh"
 
 #include "boost/format.hpp"
 
@@ -129,7 +129,7 @@ void gm2ringsim::Arc::initialize() {
 
 }
 
-G4LogicalVolume* gm2ringsim::Arc::makeAnArcLV(gm2ringsim::ArcGeometry const & g, unsigned int arcNum)
+G4LogicalVolume* gm2ringsim::Arc::makeAnArcLV(gm2geom::ArcGeometry const & g, unsigned int arcNum)
 {
   
 
@@ -176,7 +176,7 @@ G4LogicalVolume* gm2ringsim::Arc::makeAnArcLV(gm2ringsim::ArcGeometry const & g,
 std::vector<G4LogicalVolume *> gm2ringsim::Arc::doBuildLVs() {
   
   // Get the geometry
-  ArcGeometry g(myName());
+    gm2geom::ArcGeometry g(myName());
   
   g.print();
   

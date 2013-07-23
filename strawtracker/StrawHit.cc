@@ -18,6 +18,7 @@
 #include "Geant4/G4LogicalVolumeStore.hh"
 #include "Geant4/G4TransportationManager.hh"
 #include "Geant4/G4Navigator.hh"
+#include "gm2geom/strawtracker/StrawTrackerGeometry.hh"
 
 #include "gm2ringsim/strawtracker/StrawHit.hh"
 //FIXME: do i need this?#include "g2UniqueObjectManager.rhh"
@@ -44,7 +45,7 @@ G4int gm2ringsim::StrawHit::extractValueFromName(std::string indicator, std::str
 }
 
 gm2ringsim::StrawHit::StrawHit(G4Step* step) :
-    position(step->GetPreStepPoint()->GetPosition()),
+    global_position(step->GetPreStepPoint()->GetPosition()),
     momentum(step->GetPreStepPoint()->GetMomentum()),
     time(step->GetPreStepPoint()->GetGlobalTime()),
     trackID(step->GetTrack()->GetTrackID()) //,
@@ -54,21 +55,20 @@ gm2ringsim::StrawHit::StrawHit(G4Step* step) :
   std::string name = step->GetPreStepPoint()->GetPhysicalVolume()->GetName();
   
   // get straw number
-  
-  strawInRow = extractValueFromName("strawInRow", step->GetPreStepPoint()->GetPhysicalVolume()->GetName());
-  rowNumber = extractValueFromName("rowNumber", step->GetPreStepPoint()->GetPhysicalVolume()->GetName());
-  stationNumber = extractValueFromName("stationNumber", step->GetPreStepPoint()->GetPhysicalVolume()->GetName());
-  strawNumber = extractValueFromName("strawNumber", step->GetPreStepPoint()->GetPhysicalVolume()->GetName());
+  G4StepPoint* preStepPoint  = step->GetPreStepPoint();
+
+  strawInRow = extractValueFromName("strawInRow", preStepPoint->GetPhysicalVolume()->GetName());
+  layerNumber = extractValueFromName("layer", preStepPoint->GetPhysicalVolume()->GetName());
+  viewNumber = extractValueFromName("view", preStepPoint->GetPhysicalVolume()->GetName());
+  stationNumber = extractValueFromName("stationNumber", preStepPoint->GetPhysicalVolume()->GetName());
+  strawNumber = extractValueFromName("strawNumber", preStepPoint->GetPhysicalVolume()->GetName());
   
   particle_name = step->GetTrack()->GetParticleDefinition()->GetParticleName();
   parent_ID = step->GetTrack()->GetParentID();
-  
-  G4StepPoint* preStepPoint  = step->GetPreStepPoint();
-  //G4StepPoint* postStepPoint = step->GetPostStepPoint();
-  
+    
   G4TouchableHandle theTouchable = preStepPoint->GetTouchableHandle();
+  
   //position in world coordinates
-
   G4ThreeVector worldPosition = preStepPoint->GetPosition();
   const G4NavigationHistory *history =  theTouchable->GetHistory();
   //momentum in world coordinates
@@ -76,14 +76,27 @@ gm2ringsim::StrawHit::StrawHit(G4Step* step) :
   G4ThreeVector world_momentum = preStepPoint->GetMomentum();
   
   G4int depth = history->GetDepth();
-  G4VPhysicalVolume *vol = history->GetVolume(depth);
-  if ( vol ) {
+  G4VPhysicalVolume *straw_vol = history->GetVolume(depth);
+  if ( straw_vol ) {
     G4RotationMatrix rotInv = history->GetTransform(depth).NetRotation().inverse();
     //momentum in detector coordinates
     local_momentum = world_momentum.transform(rotInv);
     //position in detector coordinates
     local_position = history->GetTransform(depth).TransformPoint(worldPosition);
   }
+  
+  G4VPhysicalVolume *station_vol = history->GetVolume(depth-1);
+  
+  if (station_vol){
+    G4RotationMatrix rotInv = history->GetTransform(depth-1).NetRotation().inverse();
+    //position in detector coordinates
+    station_position = history->GetTransform(depth-1).TransformPoint(worldPosition);
+
+  }
+  gm2geom::StrawTrackerGeometry g;
+  scallop_position.set(station_position.x() + g.strawStationCenterFromEdge[stationNumber],
+                         station_position.y() + g.strawStationLocation[stationNumber],
+                         station_position.z());
   
 }
 
@@ -94,7 +107,7 @@ void gm2ringsim::StrawHit::Draw(){
     if(!pVVisManager)
         return;
     
-    G4Circle circle(position);
+    G4Circle circle(global_position);
     circle.SetScreenSize(10);
     circle.SetFillStyle(G4Circle::filled);
     G4Colour colour(0.,1.,0.);
@@ -110,8 +123,16 @@ void gm2ringsim::StrawHit::Print(){
   G4cout << "StrawHit::Print()" <<
   " \n\tvolumeUID: " << volumeUID
   << " \n\t time: " << time
-  << " \n\t position: " << position
+  << " \n\t global position: " << global_position
+  << " \n\t local position: " << local_position
+  << " \n\t station position: "<< station_position
   << " \n\t particle: " << particle_name
   << " \n\t parentID: " << parent_ID
+  <<"\n\n\t strawInRow: " << strawInRow
+  <<" layerNumber: " <<layerNumber
+  <<" viewNumber: "<<viewNumber
+  <<" stationNumber: " <<stationNumber
+  <<" strawNumber: " << strawNumber
+
   << "\n";
 }
