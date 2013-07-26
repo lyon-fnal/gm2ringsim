@@ -42,8 +42,6 @@ namespace gm2ringsim {
         // Create the physical volumes
         virtual std::vector<G4VPhysicalVolume*> doPlaceToPVs( std::vector<G4LogicalVolume*>) override;
 
-        int extractValueFromName(std::string indicator, std::string name);
-
         // Tell Art what we'll produce
         virtual void doCallArtProduces(art::EDProducer * producer) override;
 

@@ -41,7 +41,6 @@ namespace gm2ringsim {
     
     inline void* operator new(size_t);
     inline void operator delete(void*);
-    G4int extractValueFromName(std::string indicator, std::string name);
     
     void Draw();
     void Print();
