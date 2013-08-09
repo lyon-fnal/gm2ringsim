@@ -83,6 +83,9 @@ int number_start_in_ring = 1;
 TH2F *HitsXZ[21];
 TH2F *HitsRhatY[21];
 
+enum {kGeneratedDist, kRemainingDist};
+enum {kBegin, kFinal};
+
 double GetLineWidth(TString name)
 {
   double size = 4;
@@ -123,23 +126,22 @@ void GetXminmax(TH2F *hist, double *xmin, double *xmax, double *ymin, double *ym
 
   //cout << "2D: " << name << "\t" << hist->GetNbinsX() << endl;
   
-  if ( name.Contains("_Turn") ) { isTurn = true; }
-  if ( name.Contains("_OncePerTurn") ) { isTurn = true; }
-  if ( name.Contains("_Time") ) { isTurn = true; }
-  if ( name.Contains("G4Track_Time") ) { isTurn = false; }
-  if ( name.Contains("_TimeOncePerTurn") ) { isTurn = true; }
+  if ( name.Contains("_vs_Turn") ) { isTurn = true; }
+  if ( name.Contains("_vs_OncePerTurn") ) { isTurn = true; }
+  if ( name.Contains("_vs_Time") ) { isTurn = true; }
+  if ( name.Contains("_vs_TimeOncePerTurn") ) { isTurn = true; }
   if ( isTurn ) {
-    if ( name.Contains("TrackR") || name.Contains("TrackerR") ) { isR = true; }
-    if ( name.Contains("TrackRhat") || name.Contains("TrackerRhat") ) { isRhat = true; isR = false; }
-    if ( name.Contains("TrackY") || name.Contains("TrackerY") ) { isVhat = true; }
-    if ( name.Contains("TrackVhat") || name.Contains("TrackerVhat") ) { isVhat = true; }
-    if ( name.Contains("TrackMom") || name.Contains("TrackerMom") ) { isMom = true; }
-    if ( name.Contains("TrackPrhat") || name.Contains("TrackerPrhat") ) { isXprime = true; }
-    if ( name.Contains("TrackPvhat") || name.Contains("TrackerPvhat") ) { isYprime = true; }
-    if ( name.Contains("TrackXe") || name.Contains("TrackerXe") ) { isXe = true; }
-    if ( name.Contains("TrackPol") || name.Contains("TrackerPol") ) { isPol = true; }
-    if ( name.Contains("TrackZhat") || name.Contains("TrackerZhat") ) { isZhat = true; }
-    if ( name.Contains("TrackNumCounter") || name.Contains("TrackerNumCounter") ) { isNum = true; }
+    if ( name.Contains("Track_R") || name.Contains("Tracker_R") ) { isR = true; }
+    if ( name.Contains("Track_Rhat") || name.Contains("Tracker_Rhat") ) { isRhat = true; isR = false; }
+    if ( name.Contains("Track_Y") || name.Contains("Tracker_Y") ) { isVhat = true; }
+    if ( name.Contains("Track_Vhat") || name.Contains("Tracker_Vhat") ) { isVhat = true; }
+    if ( name.Contains("Track_Mom") || name.Contains("Tracker_Mom") ) { isMom = true; }
+    if ( name.Contains("Track_Prhat") || name.Contains("Tracker_Prhat") ) { isXprime = true; }
+    if ( name.Contains("Track_Pvhat") || name.Contains("Tracker_Pvhat") ) { isYprime = true; }
+    if ( name.Contains("Track_Xe") || name.Contains("Tracker_Xe") ) { isXe = true; }
+    if ( name.Contains("Track_Pol") || name.Contains("Tracker_Pol") ) { isPol = true; }
+    if ( name.Contains("Track_Zhat") || name.Contains("Tracker_Zhat") ) { isZhat = true; }
+    if ( name.Contains("Track_NumCounter") || name.Contains("Tracker_NumCounter") ) { isNum = true; }
   }
   else {
     if ( name.Contains("PolXY") ) { isPol = true; }
@@ -156,6 +158,12 @@ void GetXminmax(TH2F *hist, double *xmin, double *xmax, double *ymin, double *ym
 
     if ( maxturns_for_plot > 0 ) { 
       *xmax = maxturns_for_plot;
+      // since I scale by 1.25 down the road I need to by 1.25 now to undo that.
+      //*xmax /= 1.25;
+    }
+
+    if ( minturns_for_plot > 0 ) { 
+      *xmin = minturns_for_plot;
       // since I scale by 1.25 down the road I need to by 1.25 now to undo that.
       //*xmax /= 1.25;
     }
@@ -203,7 +211,7 @@ void GetXminmax(TH2F *hist, double *xmin, double *xmax, double *ymin, double *ym
 	*ymin = 0.0; *ymax = 1.0;
       }
       else {
-	if ( name.Contains("BirthMuon") || name.Contains("DecayMuon") || name.Contains("StoredMuon") || name.Contains("RingTracker") || name.Contains("TrackerMom") ) {
+	if ( name.Contains("BirthMuon") || name.Contains("DecayMuon") || name.Contains("StoredMuon") || name.Contains("RingTracker") || name.Contains("Tracker_Mom") ) {
 	  *ymin = 1.0*(1-3*dPoverP);
 	  *ymax = 1.0*(1+3*dPoverP);
 	}
@@ -328,7 +336,7 @@ void RebinHist(TH1F *hist1d)
 	if ( !hname.Contains("OncePerTurn") ) { hist1d->Rebin(12); }
       }
       
-      cout << "NAME: " << hname << "\t" << hist1d->Integral() << endl;
+      //cout << "NAME: " << hname << "\t" << hist1d->Integral() << endl;
       
       if ( maxturnsreal % 6 == 0 ) {
 	if ( hist1d->Integral() < 200 ) {  nturns_per_bin = 6; }
@@ -346,6 +354,24 @@ void RebinHist(TH1F *hist1d)
       }
       
       hist1d->Rebin(nturns_per_bin);
+
+      // Count # of empty bins
+      int nempty = 0;
+      int nbins = hist1d->GetNbinsX();
+      for ( int i = 1; i <= hist1d->GetNbinsX(); i++ ) {
+	if ( hist1d->GetBinContent(i) <= 0.0 ) { nempty++; }
+      }
+      cout << "EMPTY = " << nempty << " / " << nbins << endl;
+      while ( (double)nempty/nbins > 0.025 && (double)nempty/nbins < 0.75 ) {
+	hist1d->Rebin(2);
+	nempty = 0;
+	nbins = hist1d->GetNbinsX();
+	for ( int i = 1; i <= hist1d->GetNbinsX(); i++ ) {
+	  if ( hist1d->GetBinContent(i) <= 0.0 ) { nempty++; }
+	}
+	cout << "EMPTY = " << nempty << " / " << nbins << endl;
+	if ( (double)nempty/nbins < 0.025 ) { break; }
+      }
     }
   }
 }
@@ -353,6 +379,7 @@ void RebinHist(TH1F *hist1d)
 void GetXminmax(TH1F *hist, double *xmin, double *xmax, double *ymin, double *ymax, double histxmin, double histxmax, double histymin, double histymax, bool dolog)
 {
   bool isTurn = false;
+  bool isTime = false;
   bool isRhat = false;
   bool isVhat = false;
   bool isXprime = false;
@@ -365,27 +392,28 @@ void GetXminmax(TH1F *hist, double *xmin, double *xmax, double *ymin, double *ym
   bool isFFT = false;
   bool isZhat = false;
   bool isR = false;
+  bool ist0 = false;
 
   TString name = hist->GetName();
 
-  if ( name.Contains("Turn") ) { isTurn = true; }
-  if ( name.Contains("_R") ) { isR = true; }
-  if ( name.Contains("_Rhat") ) { isRhat = true; isR = false; }
-  if ( name.Contains("_Vhat") ) { isRhat = true; }
-  if ( name.Contains("_Xprime") ) { isXprime = true; }
-  if ( name.Contains("_Yprime") ) { isYprime = true; }
-  if ( name.Contains("NgtEth") ) { isN = true; }
-  if ( name.Contains("NwghtE") ) { isN = true; }
-  if ( name.Contains("Nud") ) { isNavg = true; }
-  if ( name.Contains("Num") ) { isN = true; }
-  if ( name.Contains("TrackVhat") ) { isNavg = true; }
-  if ( name.Contains("TrackYprime") ) { isNavg = true; }
-  if ( name.Contains("Nud") ) { isNavg = true; }
-  if ( name.Contains("_Pol") ) { isPol = true; }
-  if ( name.Contains("_Mom") ) { isMom = true; }
-  if ( name.Contains("_Xe") ) { isXe = true; }
+  if ( name.Contains("_vs_Turn") ) { isTurn = true; }
+  if ( name.Contains("_vs_Time") ) { isTime = true; }
+  if ( name.Contains("_Vhat_") ) { isRhat = true; }
+  if ( name.Contains("_Xprime_") ) { isXprime = true; }
+  if ( name.Contains("_Yprime_") ) { isYprime = true; }
+  if ( name.Contains("_Num_") ) { isN = true; }
+  if ( name.Contains("_Nud_") ) { isNavg = true; }
+  if ( name.Contains("_Pol_") ) { isPol = true; }
+  if ( name.Contains("_Mom_") ) { isMom = true; }
+  if ( name.Contains("_Xe_") ) { isXe = true; }
   if ( name.Contains("FFT") ) { isFFT = true; }
-  if ( name.Contains("Zhat") ) { isZhat = true; }
+  if ( name.Contains("_Zhat_") ) { isZhat = true; }
+  if ( name.Contains("_R_") ) { isR = true; }
+  if ( name.Contains("_t0_") ) { ist0 = true; }
+  if ( name.Contains("_Time_") ) { ist0 = true; }
+  if ( name.Contains("_Rhat_") ) { isRhat = true; }
+
+  bool debug = true;
   
   *xmin = histxmin;
   *xmax = histxmax;
@@ -414,21 +442,29 @@ void GetXminmax(TH1F *hist, double *xmin, double *xmax, double *ymin, double *ym
 
     return;
   }
-    
 
-  if ( isRhat || isVhat ) {
-    *xmax = 300; *xmin = -300;
-    for ( int mm = 300; mm > 0; mm -= 50 ) {
-      if ( histxmax < mm && histxmin > -mm ) { *xmax = mm; *xmin = -mm; }
-    }
-    for ( int mm = 50; mm >= 10; mm -= 5 ) {
-      if ( histxmax < mm && histxmin > -mm ) { *xmax = mm; *xmin = -mm; }
-    }
-    return;
+
+  // If vs time plot
+  if ( isTurn || isTime ) {
+    *xmin = minturns_for_plot;
+    *xmax = maxturns_for_plot;
   }
-    
-
+  else
+    if ( isRhat || isVhat ) {
+      if ( debug ) { cout << "GetXminmax: IsRhat or IsVhat" << endl; }
+      *xmax = 300; *xmin = -300;
+      for ( int mm = 300; mm > 0; mm -= 50 ) {
+	if ( histxmax < mm && histxmin > -mm ) { *xmax = mm; *xmin = -mm; }
+      }
+      for ( int mm = 50; mm >= 10; mm -= 5 ) {
+	if ( histxmax < mm && histxmin > -mm ) { *xmax = mm; *xmin = -mm; }
+      }
+      return;
+    }
+  
+  
   if ( isR ) {
+    if ( debug ) { cout << "GetXminmax: IsR" << endl; }
     *xmax = 300; *xmin = 0;
     for ( int mm = 300; mm > 0; mm -= 50 ) {
       if ( histxmax < mm ) { *xmax = mm; }
@@ -441,6 +477,7 @@ void GetXminmax(TH1F *hist, double *xmin, double *xmax, double *ymin, double *ym
 
 
   if ( isZhat ) {
+    if ( debug ) { cout << "GetXminmax: IsZhat" << endl; }
     *xmax = TMath::Pi(); *xmin = -TMath::Pi();
     for ( double mm = TMath::Pi(); mm >= 0.1; mm -= TMath::Pi()/8.0 ) {
       if ( histxmax < mm && histxmin > -mm ) { *xmax = mm; *xmin = -mm; }
@@ -449,6 +486,7 @@ void GetXminmax(TH1F *hist, double *xmin, double *xmax, double *ymin, double *ym
   }
   
   if ( isPol ) {
+    if ( debug ) { cout << "GetXminmax: IsPol" << endl; }
     *xmax = 1; *xmin = -1;
     for ( int mm = 1; mm >= 0.1; mm -= 0.1 ) {
       if ( histxmax < mm && histxmin > -mm ) { *xmax = mm; *xmin = -mm; }
@@ -457,6 +495,7 @@ void GetXminmax(TH1F *hist, double *xmin, double *xmax, double *ymin, double *ym
   }
 
   if ( isXe ) {
+    if ( debug ) { cout << "GetXminmax: IsXe" << endl; }
     *xmax = 50; *xmin = -50;
     for ( int mm = 50; mm >= 10; mm -= 5 ) {
       if ( histxmax < mm && histxmin > -mm ) { *xmax = mm; *xmin = -mm; }
@@ -464,7 +503,20 @@ void GetXminmax(TH1F *hist, double *xmin, double *xmax, double *ymin, double *ym
     return;
   }
 
+  if ( ist0 ) {
+    if ( debug ) { cout << "GetXminmax: Ist0" << endl; }
+    //*xmax = histxmax * 1.25; *xmin = histxmin * 0.75 ;
+    return;
+    //HERE
+  }
+
+  if ( isN ) {
+    *ymax = histymax; *ymin = histymin;
+    return;
+  }
+
   if ( isNavg ) {
+    if ( debug ) { cout << "GetXminmax: IsNavg" << endl; }
     double sum_num = 0;
     double sum_den = 0;
     for ( int i = 1; i < hist->GetNbinsX(); i++ ) {
@@ -490,15 +542,8 @@ void GetXminmax(TH1F *hist, double *xmin, double *xmax, double *ymin, double *ym
     return;
   }
 
-  if ( isN ) {   
-    *xmin = 0.0;
-    if ( minturns_for_plot > 0 ) { *xmin = minturns_for_plot; }
-    if ( maxturns_for_plot > 0 ) { *xmax = maxturns_for_plot; }
-    cout << "Ymin = " << *ymin << endl;
-    return;
-  }
-  
   if ( isXprime || isYprime ) {
+    if ( debug ) { cout << "GetXminmax: IsX' or IsY'" << endl; }
     *xmax = 100; *xmin = -100;
     for ( int mm = 100; mm >= 20; mm -= 20 ) {
       if ( histxmax < mm && histxmin > -mm ) { *xmax = mm; *xmin = -mm; }
@@ -510,6 +555,7 @@ void GetXminmax(TH1F *hist, double *xmin, double *xmax, double *ymin, double *ym
   }  
 
   if ( isMom ) {
+    if ( debug ) { cout << "GetXminmax: IsMom" << endl; }
     *xmax = 2; *xmin = 0;
     if ( name.Contains("Electron") ) {
       *xmin = 0.0; *xmax = 1.0;
@@ -663,6 +709,7 @@ void ComputeFFT(TH1F *hist1d, string FFTname)
   cout << "=====================================" << endl;
   cout << "Running FFT for " << hist1d->GetName() << endl;
   cout << "=====================================" << endl;
+  return;
 
   double int_prev;
   double int_curr;
@@ -903,16 +950,16 @@ void MakePlot(TH2F *hist, int r, int i, double *int_prev, double *int_curr, doub
 
   TString hname = hist->GetName();
   if ( hname.Contains("G4") == false ) {
-    if ( hname.Contains("TrackerRhatTime") ||
-	 hname.Contains("TrackerYTime")  ||
-	 hname.Contains("TrackerPrhatTime") ||
-	 hname.Contains("TrackerPvhatTime")  ||
-	 hname.Contains("TrackerMomTime") ||
-	 hname.Contains("TrackerRhatTurn") ||
-	 hname.Contains("TrackerYTurn")  ||
-	 hname.Contains("TrackerPrhatTurn") ||
-	 hname.Contains("TrackerPvhatTurn")  ||
-	 hname.Contains("TrackerMomTurn") ) {
+    if ( hname.Contains("Tracker_Rhat_vs_Time") ||
+	 hname.Contains("Tracker_Y_vs_Time")  ||
+	 hname.Contains("Tracker_Prhat_vs_Time") ||
+	 hname.Contains("Tracker_Pvhat_vs_Time")  ||
+	 hname.Contains("Tracker_Mom_vs_Time") ||
+	 hname.Contains("Tracker_Rhat_vs_Turn") ||
+	 hname.Contains("Tracker_Y_vs_Turn")  ||
+	 hname.Contains("Tracker_Prhat_vs_Turn") ||
+	 hname.Contains("Tracker_Pvhat_vs_Turn")  ||
+	 hname.Contains("Tracker_Mom_vs_Turn") ) {
       TH1D *xdist = (TH1D*)hist->ProjectionX();
       int bin0, bin05, bin1, bin5, bin10, bin50, bin100, bin200, bin500, bin1000;
       if ( hname.Contains("Turn") ) {
@@ -1096,7 +1143,7 @@ void MakePlot(TH2F *hist, int r, int i, double *int_prev, double *int_curr, doub
 	ss_storage << " ](%)";
 	if ( (ss_eff_turn.str()).size() == 0 ) {
 	  ss_eff_turn << ss_storage.str();
-	  cout << "INFLECTOR!!! : " << number_start_in_inflector << "\t" << number_start_in_ring << endl;
+	  //cout << "INFLECTOR!!! : " << number_start_in_inflector << "\t" << number_start_in_ring << endl;
 	  if ( number_start_in_inflector > 1 &&
 	       number_start_in_ring > 1 ) {
 	    double abs_eff_inf = (double)number_start_in_ring / number_start_in_inflector;
@@ -1353,7 +1400,7 @@ void MakePlot1D(TH1F *hist1d, int r, int i, double *int_prev, double *int_curr, 
   RebinHist(hist1d);
   if ( hname.Contains("Num") && hname.Contains("LostMuon") ) { dolog = true; }
   if ( hname.Contains("FFT") ) { dofft = true; }
-
+  
   //
   // Get HistXmin/max
   //
@@ -1366,6 +1413,7 @@ void MakePlot1D(TH1F *hist1d, int r, int i, double *int_prev, double *int_curr, 
     if ( hist1d->GetBinContent(bin) > 0 ) { histxmax = hist1d->GetBinLowEdge(bin+1); break; }
   }  
 
+  cout << "             " << hname << "\t\t" << histxmin <<"  / " << histxmax << "\t\t" << histymin << " / " << histymax << endl; 
   if ( ( maxturns_for_plot > 0 || minturns_for_plot > 0) && dofft == false ) {
     histymax = 0.0;
     histymin = 0.0;
@@ -1377,14 +1425,14 @@ void MakePlot1D(TH1F *hist1d, int r, int i, double *int_prev, double *int_curr, 
   }
 
 
-  if ( hname.Contains("Num") == false ) {
+  if ( hname.Contains("_Num_") == false ) {
     histxmax *= 1.25;
     histxmin *= 1.25;
   }
     
   GetXminmax(hist1d, &xmin, &xmax, &ymin, &ymax, histxmin, histxmax, histymin, histymax, dolog);
 
-  
+    
   
   TString xtitle = hist1d->GetXaxis()->GetTitle();
   TString ytitle = hist1d->GetYaxis()->GetTitle();
@@ -1451,7 +1499,10 @@ void MakePlot1D(TH1F *hist1d, int r, int i, double *int_prev, double *int_curr, 
 	    hname.Contains("Nud") ||
 	    hname.Contains("Nup") ||
 	    hname.Contains("Ndown") ||
-	    hname.Contains("Num") ) { yt << " Turns"; }
+	    hname.Contains("Num") ) { 
+    if ( hname.Contains("_vs_Time") ) { yt << " #mus"; }
+    else { yt << " Turns"; }
+  }
   else if ( hname.Contains("TrackVhat") ) { yt << " mm"; }
   else if ( hname.Contains("TrackYprime") ) { yt << " mrad"; }
   else if ( hname.Contains("Turn") ) { yt << " 30 degrees"; }
@@ -2206,12 +2257,21 @@ void plotinflector()
 
   int Nparticles = 0;
   string truth_particle_names[8];
-  truth_particle_names[Nparticles++] = "BirthMuon";
-  truth_particle_names[Nparticles++] = "DecayMuon";
-  truth_particle_names[Nparticles++] = "StoredMuon";
-  truth_particle_names[Nparticles++] = "LostMuon";
-  truth_particle_names[Nparticles++] = "BirthElectron";
-  truth_particle_names[Nparticles++] = "BirthElectronEgtEth";
+  if ( dir.find("NoMuonDecay") != string::npos ) {
+    Nparticles = 0;
+    truth_particle_names[Nparticles++] = "BirthMuon";
+    truth_particle_names[Nparticles++] = "LostMuon";
+    truth_particle_names[Nparticles++] = "StoredMuon";
+  }
+  else {
+    Nparticles = 0;
+    truth_particle_names[Nparticles++] = "BirthMuon";
+    truth_particle_names[Nparticles++] = "DecayMuon";
+    truth_particle_names[Nparticles++] = "LostMuon";
+    truth_particle_names[Nparticles++] = "StoredMuon";
+    truth_particle_names[Nparticles++] = "BirthElectron";
+    truth_particle_names[Nparticles++] = "BirthElectronEgtEth";
+  }
 
 
   double int_prev = -1.0;
@@ -2222,28 +2282,54 @@ void plotinflector()
 
   int maxringtracks = 9;
   int maxsyshits = 5;
-  int maxtimes = 3;
   bool plotinfstart = false;
   bool plotdiagnostic = true;
 
 
   bool plot_inflector = true;
+
   bool plot_ringtrackers = true;
+  bool plot_ringtrackers_phasespace = true;
+  bool plot_ringtrackers_evolution = true;
+
   bool plot_kickerquads = true;
+
   bool plot_detectors = true;
-  bool plot_phasespace = true;
+
+  bool plot_truth_phasespace = true;
   bool plot_truth = true;
-  bool plot_evolution = true;
+  bool plot_truth_evolution = true;
 
 
-  //plot_inflector = false;
-  plot_ringtrackers = false;
+  plot_inflector = false;
+
+//   plot_ringtrackers = false;
+//   plot_ringtrackers_phasespace = false;
+//   plot_ringtrackers_evolution = false;
+
   plot_kickerquads = false;
-  //plot_detectors = false;
-  //plot_phasespace = false;
-  //plot_truth = false;
-  //plot_evolution = false;
   
+  plot_detectors = false;
+
+  //plot_truth_phasespace = false;
+  //plot_truth = false;
+  //plot_truth_evolution = false;
+  if ( dir.find("NoMuonDecay") != string::npos ) {
+    plot_truth_evolution = false;
+    plot_truth = true;
+    plot_truth_evolution = true;
+    plot_ringtrackers = true;
+    plot_ringtrackers_phasespace = true;
+    plot_ringtrackers_evolution = true;
+  }
+  else {
+    plot_truth_evolution = true;
+    plot_truth = true;
+    plot_truth_evolution = true;
+  }
+  
+
+  //plot_truth = false;
 
   bool runFFT = false;
   if ( dir.find("CentralOrbit") != string::npos &&
@@ -2260,18 +2346,23 @@ void plotinflector()
 
   //return;
 
-  int Ntimestamps = 2;
-  string timestamps[4];
-  //timestamps[0] = "Turn";
-  //timestamps[1] = "OncePerTurn";
-  timestamps[0] = "Time";
-  timestamps[1] = "TimeOncePerTurn";
-
-
+  int Nringtrackertimes = kFinal + 1;
+  int Ntruthtimes = kFinal + 1;
   string times[3];
-  times[0] = "Init";
-  times[1] = "FinalAvg"; 
-  maxtimes = 2;
+  times[kBegin] = "Begin";
+  times[kFinal] = "Final"; 
+  int Ntimes = 2;
+
+  string timevals[2];
+  int Ntimevals = kRemainingDist + 1;
+  timevals[kGeneratedDist] = "GeneratedDist";
+  timevals[kRemainingDist] = "RemainingDist";
+
+
+  int Ntimestamps = 0;
+  string timestamps[4];
+  timestamps[Ntimestamps++] = "Time";
+  timestamps[Ntimestamps++] = "TimeOncePerTurn";
 
 
   //
@@ -2327,7 +2418,7 @@ void plotinflector()
   // Evolution of Phase Space (Ring)
   //
   //------------------------------------
-  if ( plot_evolution && plot_ringtrackers ) {
+  if ( plot_ringtrackers_evolution && plot_ringtrackers ) {
 
     int NRing2Dhists = 0;
     string Ring2Dhists[20];
@@ -2336,14 +2427,18 @@ void plotinflector()
     Ring2Dhists[NRing2Dhists++] = "Prhat";
     Ring2Dhists[NRing2Dhists++] = "Pvhat";
     Ring2Dhists[NRing2Dhists++] = "Mom";
-    Ring2Dhists[NRing2Dhists++] = "Pol";
-    Ring2Dhists[NRing2Dhists++] = "PolX";
-    Ring2Dhists[NRing2Dhists++] = "PolY";
+//     Ring2Dhists[NRing2Dhists++] = "Pol";
+//     Ring2Dhists[NRing2Dhists++] = "PolX";
+//     Ring2Dhists[NRing2Dhists++] = "PolY";
     Ring2Dhists[NRing2Dhists++] = "Xe";
     Ring2Dhists[NRing2Dhists++] = "Zhat";
 
+    int NRing1Dhists = 0;
+    string Ring1Dhists[20];
+    Ring1Dhists[NRing1Dhists++] = "Num";
 
-    string Ringbase = "Tracker";
+
+    string Ringbase = "Tracker_";
     for ( int t = 0; t < Ntimestamps; t++ ) {
       string timestamp = timestamps[t];
       if ( timestamp == "OncePerTurn" ) { continue; }
@@ -2353,26 +2448,88 @@ void plotinflector()
 	  
 	string histname = Ring2Dhists[n];
 
-	hname << Ringbase << histname << "_" << timestamp;
+	hname << Ringbase << histname << "_vs_" << timestamp;
 
 	TH2F *hist = GetHistogram(file, hname.str(), &int_prev, &int_curr, &int_start);
+	if ( !hist ) { hname.str(""); continue; }
 
-	if ( histname == "Rhat" || histname == "Y" || histname == "Mom") {
-	  if ( timestamp == "Turns" ) {
-	    maxturns_for_plot = 25;
-	    hname << "_" << maxturns_for_plot << "Turns";
-	  }
-	  if ( timestamp == "Time" ) {
-	    maxturns_for_plot = 10;
-	    hname << "_" << maxturns_for_plot << "ns";
-	  }
-	  TH2F *hist_maxturns = (TH2F*)hist->Clone(hname.str().c_str());
-	  MakePlot(hist_maxturns, -1, -1, &int_prev, &int_curr, &int_start);
-	  hname.str("");
-	}	
-	maxturns_for_plot = -1.0;
+	if ( 1 ) {
+	  if ( histname == "Rhat" || histname == "Y" || histname == "Mom" ) {
+	    for ( int np = 0; np < 3; np++ ) {
+	      if ( timestamp == "Time" ) {
+		if ( np == 0 ) {
+		  minturns_for_plot = 0;
+		  maxturns_for_plot = 5;
+		}
+		if ( np == 1 ) {
+		  minturns_for_plot = 25;
+		  maxturns_for_plot = 30;
+		}
+		if ( np == 2 ) {
+		  minturns_for_plot = 12;
+		  maxturns_for_plot = 17;
+		}
+		hname.str("");
+		hname << Ringbase << histname << "_vs_" << timestamp;
+		hname << "_" << minturns_for_plot << "_" << maxturns_for_plot << "us";
+
+		TH2F *hist_maxturns = (TH2F*)hist->Clone(hname.str().c_str());
+		MakePlot(hist_maxturns, -1, -1, &int_prev, &int_curr, &int_start);
+		hname.str("");
+	      }
+	    }
+	  }	
+	  minturns_for_plot = -1.0;
+	  maxturns_for_plot = -1.0;
+	}
 
 	MakePlot(hist, -1, -1, &int_prev, &int_curr, &int_start);
+	hname.str("");
+
+      }
+
+
+
+      for ( int n = 0; n < NRing1Dhists; n++ ) {
+	  
+	string histname = Ring1Dhists[n];
+
+	hname << Ringbase << histname << "_vs_" << timestamp;
+
+	TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
+	if ( !hist1d ) { hname.str(""); continue; }
+
+	if ( 1 ) {
+	  if ( histname == "Num" ) {
+	    for ( int np = 0; np < 3; np++ ) {
+	      if ( timestamp == "Time" ) {
+		if ( np == 0 ) {
+		  minturns_for_plot = 0;
+		  maxturns_for_plot = 5;
+		}
+		if ( np == 1 ) {
+		  minturns_for_plot = 25;
+		  maxturns_for_plot = 30;
+		}
+		if ( np == 2 ) {
+		  minturns_for_plot = 12;
+		  maxturns_for_plot = 17;
+		}
+		hname.str("");
+		hname << Ringbase << histname << "_vs_" << timestamp;
+		hname << "_" << minturns_for_plot << "_" << maxturns_for_plot << "us";
+		
+		TH1F *hist1d_maxturns = (TH1F*)hist1d->Clone(hname.str().c_str());
+		MakePlot1D(hist1d_maxturns, -1, -1, &int_prev, &int_curr, &int_start);
+		hname.str("");
+	      }	
+	    }
+	  }
+	  minturns_for_plot = -1.0;
+	  maxturns_for_plot = -1.0;
+	}
+
+	MakePlot1D(hist1d, -1, -1, &int_prev, &int_curr, &int_start);
 	hname.str("");
 
       }
@@ -2392,7 +2549,7 @@ void plotinflector()
   // Generated Phase Space (Ring)
   //
   //------------------------------------
-  if ( plot_phasespace && plot_ringtrackers ) {
+  if ( plot_ringtrackers_phasespace && plot_ringtrackers ) {
 
     int NRinghists = 0;
     string Ringhists[20];
@@ -2413,15 +2570,24 @@ void plotinflector()
     Ring2Dhists[NRing2Dhists++] = "XprimeX";
     Ring2Dhists[NRing2Dhists++] = "YprimeY";
 
-    string Ringbase = "RingTracker_Time";
+    string Ringbase = "RingTracker_";
 
 
-    for ( int t = 0; t < maxtimes; t++ ) {
+    for ( int t = 0; t < Nringtrackertimes; t++ ) {
       string time = times[t];      
       for ( int n = 0; n < NRinghists; n++ ) {
 	string histname = Ringhists[n];
-	  
-	hname << Ringbase << "_" << histname << "_" << time << "_Init";
+
+	string timeval  = timevals[kGeneratedDist];
+	
+	hname << Ringbase << histname << "_" << time << "_" << timeval;
+	TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
+	MakePlot1D(hist1d, -1, -1, &int_prev, &int_curr, &int_start);    
+	hname.str("");
+
+	timeval  = timevals[kRemainingDist];
+	
+	hname << Ringbase << histname << "_" << time << "_" << timeval;
 	TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
 	MakePlot1D(hist1d, -1, -1, &int_prev, &int_curr, &int_start);    
 	hname.str("");
@@ -2442,7 +2608,7 @@ void plotinflector()
   // Generated Phase Space (G4)
   //
   //------------------------------------
-  if ( plot_phasespace && plot_truth ) {
+  if ( plot_truth_phasespace && plot_truth ) {
 
     int NG4hists = 0;
     string G4hists[20];
@@ -2456,6 +2622,8 @@ void plotinflector()
     G4hists[NG4hists++] = "Pol";
     G4hists[NG4hists++] = "PolX";
     G4hists[NG4hists++] = "PolY";
+    G4hists[NG4hists++] = "t0";
+    G4hists[NG4hists++] = "Time";
 
     int NG42Dhists = 0;
     string G42Dhists[20];
@@ -2465,17 +2633,18 @@ void plotinflector()
     G42Dhists[NG42Dhists++] = "XprimeX";
     G42Dhists[NG42Dhists++] = "YprimeY";
 
-    string G4base = "G4Track_Time";
+    string G4base = "G4Track_";
 
     for ( int p = 0; p < Nparticles; p++ ) {
       string truth_part_name = truth_particle_names[p];
 
       if ( plot_Nud == false && truth_part_name.find("DecayElectron") != string::npos ) { continue; }
       
-      for ( int t = 0; t < maxtimes; t++ ) {
-	string time = times[t];
+      for ( int t = 0; t < Ntimevals; t++ ) {
+	string timeval = timevals[t];
+	if ( timeval.find("Remaining") != string::npos ) { continue; }
 
-	if ( truth_part_name.find("LostMuon") != string::npos && time.find("Final") != string::npos ) { continue; }
+	if ( truth_part_name.find("LostMuon") != string::npos && timeval.find("Remaining") != string::npos ) { continue; }
 	
 	for ( int n = 0; n < NG4hists; n++ ) {
 
@@ -2486,8 +2655,8 @@ void plotinflector()
 	    if ( histname.find("Xprime") != string::npos ) { continue; }
 	    if ( histname.find("Yprime") != string::npos ) { continue; }
 	  }
-
-	  hname << G4base << "_" << histname << "_" + time + "_" + truth_part_name;
+	  
+	  hname << G4base << histname << "_" << truth_part_name << "_" + timeval;
 	  TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
 	  MakePlot1D(hist1d, -1, -1, &int_prev, &int_curr, &int_start);    
 	  hname.str("");
@@ -2503,7 +2672,7 @@ void plotinflector()
 	    if ( histname.find("YprimeY") != string::npos ) { continue; }
 	  }
 
-	  hname << G4base << "_" << histname << "_" + time + "_" + truth_part_name;
+	  hname << G4base << histname << "_" << truth_part_name << "_" << timeval;
 	  TH2F *hist = GetHistogram(file, hname.str(), &int_prev, &int_curr, &int_start);
 	  MakePlot(hist, -1, -1, &int_prev, &int_curr, &int_start);    
 	  hname.str("");
@@ -2529,7 +2698,7 @@ void plotinflector()
   // Evolution of Phase Space (G4)
   //
   //------------------------------------
-  if ( plot_evolution && plot_truth ) {
+  if ( plot_truth_evolution && plot_truth ) {
 
     int NG42Dhists = 0;
     string G42Dhists[20];
@@ -2556,20 +2725,25 @@ void plotinflector()
       G4hists[NG4hists++] = "Nud";
     }
 
-    string G4base = "G4Track";
+    string G4base = "G4Track_";
     for ( int t = 0; t < Ntimestamps; t++ ) {
       string timestamp = timestamps[t];
       
       for ( int p = 0; p < Nparticles; p++ ) {
 	string truth_part_name = truth_particle_names[p];
 
+	//cout << "NAME: " << truth_part_name << endl;
 	if ( truth_part_name.find("BirthMuon") != string::npos ) { continue; }
-	if ( truth_part_name.find("StoredMuon") != string::npos ) { continue; }
+	//if ( truth_part_name.find("StoredMuon") != string::npos ) { continue; }
 	//if ( truth_part_name.find("LostMuon") != string::npos ) { NG42Dhists = 0; }
 
 	if ( plot_Nud == false && truth_part_name.find("DecayElectron") != string::npos ) { continue; }
 	
-	if ( (timestamp == "OncePerTurn" || timestamp == "TimeOncePerTurn") && truth_part_name.find("Muon") != string::npos ) { continue; }	
+// 	if ( (timestamp == "OncePerTurn" || timestamp == "TimeOncePerTurn") && 
+// 	     (truth_part_name.find("Muon") != string::npos && truth_part_name.find("Decay") == string::npos ) ) { continue; }	
+	
+	//cout << "--> NAME: " << truth_part_name << endl;
+	//continue;
 
 	for ( int n = 0; n < NG42Dhists; n++ ) {
 	  
@@ -2589,7 +2763,7 @@ void plotinflector()
 	    if ( histname.find("Xe") != string::npos ) { continue; }
 	  }
 
-	  hname << G4base << histname << "_" << truth_part_name << "_" << timestamp;
+	  hname << G4base << histname << "_" << truth_part_name << "_vs_" << timestamp;
 	  TH2F *hist = GetHistogram(file, hname.str(), &int_prev, &int_curr, &int_start);
 
 // 	  if ( truth_part_name.find("Muon") != string::npos || 1 ) {
@@ -2629,9 +2803,9 @@ void plotinflector()
 // 	      if ( histname.find("Num") != string::npos ) { continue; }
 
 	  
-	  hname << G4base << histname << "_" << truth_part_name << "_" << timestamps[t];
+	  hname << G4base << histname << "_" << truth_part_name << "_vs_" << timestamp;
 	  TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
-
+	  if ( !hist1d ) { continue; }
 
 	  if ( histname == "Num" ) {
 	    for ( int np = 0; np < 3; np++ ) {
@@ -2664,7 +2838,7 @@ void plotinflector()
 
 
 	      hname.str("");
-	      hname << G4base << histname << "_" << truth_part_name << "_" << timestamps[t];
+	      hname << G4base << histname << "_" << truth_part_name << "_vs_" << timestamp;
 	      cout << hname.str() << endl;
 	      
 	      if ( timestamps[t].find("Time") == string::npos ) {
@@ -2676,7 +2850,7 @@ void plotinflector()
 	      TH1F *hist1d_zoom = (TH1F*)(hist1d->Clone(hname.str().c_str()));
 	      MakePlot1D(hist1d_zoom, -1, -1, &int_prev, &int_curr, &int_start);
 	      hname.str("");
-	      hname << G4base << histname << "_" << truth_part_name << "_" << timestamps[t] << "_x";
+	      hname << G4base << histname << "_" << truth_part_name << "_vs_" << timestamp << "_x";
 	      hname << "_" << minturns_for_plot << "_" << maxturns_for_plot << "Time";
 	      TH1F *hist1d_zoom_fft = (TH1F*)(hist1d->Clone(hname.str().c_str()));
 	      ComputeFFT(hist1d_zoom_fft, hname.str());
@@ -2687,7 +2861,7 @@ void plotinflector()
 	  minturns_for_plot = -1.0;
 
 	  hname.str("");
-	  hname << G4base << histname << "_" << truth_part_name << "_" << timestamps[t] << "_x";
+	  hname << G4base << histname << "_" << truth_part_name << "_vs_" << timestamp << "_x";
 	  TH1F *hist1d_fft = (TH1F*)(hist1d->Clone(hname.str().c_str()));
 	  MakePlot1D(hist1d, -1, -1, &int_prev, &int_curr, &int_start);
 
@@ -2770,17 +2944,15 @@ void plotinflector()
     int_prev = -1.0;
     zoom = false; zoom2 = false; zoom3 = false;
 
-    bool plotdet = true;;
     for ( int i = 0; i < Nsysnames; i++ ) {
       for ( int st = 0; st < 1; st++ ) {
-	if ( plotdet == false ) { continue; }
 	string stname = "";
       
-	if ( plot_detectors == false ) { continue; }
 	for ( int n = 0; n < NSystem2Dhists; n++ ) {
 	  hname << rhitnames[i] << "Hits" << stname << "_" << System2Dhists[n];
 	  TH2F *hist = GetHistogram(file, hname.str(), &int_prev, &int_curr, &int_start);
-	  MakePlot(hist, -1, -1, &int_prev, &int_curr, &int_start);    
+	  cout << hname.str() << endl;
+	  MakePlot(hist, -1, -1, &int_prev, &int_curr, &int_start);
 	  hname.str("");
 	}
 

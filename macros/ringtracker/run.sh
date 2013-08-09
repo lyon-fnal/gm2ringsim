@@ -103,8 +103,15 @@ else
 	numevts=${3}
 	echo "Running over ${numevts} events."
 	ls ${output}/*${input}/*${suffix}*.root > input.dat
-    elif [ ${2} == "vp1" ] || [ ${2} == "vp" ] || [ ${2} == "novp1" ] || [ ${2} == "novp" ] || [ ${2} == "debug" ] || [ ${2} == "nodebug" ]; then
+    elif [ ${2} == "vp1" ] || [ ${2} == "vp" ] || [ ${2} == "novp1" ] || [ ${2} == "novp" ] || [ ${2} == "debug" ] || [ ${2} == "nodebug" ] || [ ${2} == "ring" ] || [ ${2} == "noring" ]; then
 	footer_fcl=`ls ${output}/*${input}*/footer_reader.fcl`
+
+	if [ ${2} == "ring" ]; then
+	    sed "s/SaveRingHits: false/SaveRingHits: true/g" ${footer_fcl} > ${footer_fcl}.tmp
+	fi
+	if [ ${2} == "noring" ]; then
+	    sed "s/SaveRingHits: true/SaveRingHits: false/g" ${footer_fcl} > ${footer_fcl}.tmp
+	fi
 	if [ ${2} == "vp" ]; then
 	    sed "s/SaveVRingHits: false/SaveVRingHits: true/g" ${footer_fcl} > ${footer_fcl}.tmp
 	    mv ${footer_fcl}.tmp ${footer_fcl}
@@ -275,7 +282,7 @@ else
     if [ ${nfiles} -gt 0 ]; then
 	if [ ${runplot} == 1 ]; then
 	    ./plotinf.sh ${input} ${update}
-	    ./copy.sh
+#	    ./copy.sh
 	else
 	    if [ ${local} == 1 ]; then
 		if ! [ -z ${extra_suffix} ]; then
@@ -286,8 +293,14 @@ else
 
 		if [ ${numevts} -gt 0 ]; then
 		    gm2 -c ${fcl} -n ${numevts} -T rootfiles/${subdir}/gm2ringsim_${input}${xsuffix}.root
+		    echo "File Location:"
+		    echo "root -l rootfiles/${subdir}/gm2ringsim_${input}${xsuffix}.root"
+		    echo ""
 		else
 		    gm2 -c ${fcl} -T rootfiles/${subdir}/gm2ringsim_${input}${xsuffix}.root
+		    echo "File Location:"
+		    echo "root -l rootfiles/${subdir}/gm2ringsim_${input}${xsuffix}.root"
+		    echo ""
 		fi
 	    else	       
 		outdir="/gm2/data/users/tgadfort/gm2ringsim/output/processed"
@@ -305,5 +318,11 @@ else
 	fi
     fi
 fi
-rm name.dat
-rm input.dat
+
+if [ -a name.dat ]; then
+    rm name.dat
+fi
+
+if [ -a input.dat ]; then
+    rm input.dat
+fi
