@@ -64,6 +64,8 @@ gm2ringsim::InflectorPGA::InflectorPGA(fhicl::ParameterSet const& p, art::Activi
   Pmean_(p.get<double>("Pmean", -9999.9)),
   dPOverP_(p.get<double>("dPOverP", -9999.9)),
   SigmaT_(p.get<double>("SigmaT", -9999.9)),
+  FlatDecayTime_(p.get<bool>("FlatDecayTime", false)),
+  MaxDecayTime_(p.get<double>("MaxDecayTime", -1.0)),
   Particle_(p.get<std::string>("Particle", "mu+")),
   NumParticles_(p.get<int>("NumParticles", 1)),
   DecayScaleFactor_(p.get<int>("DecayScaleFactor", 1)),
@@ -91,6 +93,8 @@ gm2ringsim::InflectorPGA::InflectorPGA(fhicl::ParameterSet const& p, art::Activi
     G4cout << "  dPOverP             " << dPOverP_ << G4endl;
     G4cout << "  Pmean               " << Pmean_ << G4endl;
     G4cout << "  SigmaT              " << SigmaT_ << G4endl;
+    G4cout << "  FlatDecayTime       " << FlatDecayTime_ << G4endl;
+    G4cout << "  MaxDecayTime        " << MaxDecayTime_ << G4endl;
     G4cout << "  Particle            " << Particle_ << G4endl;
     G4cout << "  NumParticles        " << NumParticles_ << G4endl;    
     G4cout << "  DecayScaleFactor    " << DecayScaleFactor_ << G4endl;   
@@ -127,6 +131,8 @@ void gm2ringsim::InflectorPGA::initialize() {
   gps_ -> SetdPOverP(dPOverP_);
   gps_ -> SetPmean(Pmean_);
   gps_ -> SetSigmaT(SigmaT_);
+  gps_ -> SetFlatDecayTime(FlatDecayTime_);
+  gps_ -> SetMaxDecayTime(MaxDecayTime_);
   gps_ -> SetParticle(Particle_);
   gps_ -> SetNumParticles(NumParticles_);
   gps_ -> SetDecayScaleFactor(DecayScaleFactor_);

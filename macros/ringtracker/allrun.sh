@@ -48,6 +48,9 @@ name()
 	extra="${extra}_CentralOrbit"
 	if [ ${offset} -gt 0 ]; then
 	    extra="${extra}_Offset${offset}"
+	elif [ ${offset} -lt 0 ]; then
+	    loc_offset=`echo " ${offset} * -1" | bc`
+	    extra="${extra}_Offsetm${loc_offset}"
 	fi
     else
 	extra="${extra}_PerfectStorage"
@@ -312,7 +315,7 @@ export edmval=0
 gm2size=""
 spintracking="edm"
 spintracking="spin"
-#spintracking=""
+spintracking=""
 edmsize="0"
 edmsizename="edmsize ${edmsize}"
 if ! [ -z ${gm2size} ]; then
@@ -373,21 +376,22 @@ bestkicks()
 
 bestoffsets()
 {
-    thebestoffsets="-1"
+    thebestoffsets="0"
     if [ ${beamstart} == "CentralOrbit" ]; then
 	if [ ${infstart} == 1 ]; then
+	    thebestoffsets="10 20 30 40"
+	    thebestoffsets="-10 -20 -30 -40"
 	    thebestoffsets="0"
-#	    thebestoffsets="20"
 	    return;
 	else
 	    thebestoffsets="0"
 	fi
     else
-	thebestoffsets="-1"
+	thebestoffsets="0"
     fi
     
     if [ ${test} == 1 ]; then
-	thebestoffsets="-1"
+	thebestoffsets="0"
     fi
 }
 
@@ -728,12 +732,11 @@ if [ ${beamstarts} == "CentralOrbit" ]; then
     moms="PerfectMatch_dP0001 PerfectMatch_dP001 PerfectMatch_dP0025 PerfectMatch_dP005 PerfectMatch_dP0075 PerfectMatch PerfectMatch_dP025 PerfectMatch_dP05 PerfectMatch_dP075 PerfectMatch_dP1 PerfectMatch_dP2 PerfectMatch_dP5 PerfectMatch_dP10"
     moms="${moms} E821Match_dP0001 E821Match_dP001 E821Match_dP0025 E821Match_dP005 E821Match_dP0075 E821Match E821Match_dP025 E821Match_dP05 E821Match_dP075 E821Match_dP1 E821Match_dP2 E821Match_dP5 E821Match_dP10"
 #    moms="E821Match_dP05 PerfectMatch_dP05 E821Match_dP005 PerfectMatch_dP005 E821Match_dP0001 PerfectMatch_dP0001"
-    moms="PerfectMatch_dP0001"
+    moms="PerfectMatch_dP0001 PerfectMatch PerfectMatch_dP05 PerfectMatch_dP2"
 # PerfectMatch"
-#    moms="PerfectMatch"
     moms="PerfectMatch_dP05"
 # PerfectMatch_dP05 PerfectMatch_dP001"
-#    moms="PerfectMatch_dP5"
+#    moms="PerfectMatch_dP05"
     core=0
 #    fields="0 1"
     fields="0"
@@ -815,15 +818,15 @@ fi
 # General Run Information
 #
 #
-numevts=2500
+numevts=10000
 
 scrapings="OFF"
 beamtypes="Gaussian Uniform"
 beamtypes="Uniform"
 #beamtypes="Gaussian"
 numturns=1
-#numturns=101
-#numturns=300
+numturns=101
+numturns=200
 
 beamsizes="10 20 30 40 50 60"
 #beamsizes="40 1 20"
@@ -832,8 +835,8 @@ beamsizes="10 20 30 40 50 60"
 beamsizes="40 0 20"
 #beamsizes="40"
 beamsizes="40 0"
-beamsizes="40"
-#beamsizes="40 20 1"
+#beamsizes="40"
+beamsizes="0"
 
 
 #####
@@ -858,10 +861,11 @@ fi
 cleanval="clean"
 cleanval=""
 submitname="local"
-#submitname="submit"
+submitname="submit"
 if [ ${xray} == 1 ]; then
     submitname="local"
 fi
+runall=0
 subjob=0
 clearnotinqueue=0
 suball=0
@@ -878,6 +882,12 @@ else
     elif [ ${1} == "keep" ]; then
 	subjob=1
 	suball=1
+	clearnotinqueue=0
+	cleanval=""
+    elif [ ${1} == "all" ]; then
+	subjob=0
+	suball=0
+	runall=1
 	clearnotinqueue=0
 	cleanval=""
     elif [ ${1} == "local" ]; then
@@ -901,7 +911,10 @@ sleepnum=0
 
 sigmats="1 50"
 sigmats="50"
-#sigmats="100"
+sigmats="1 25 50"
+sigmats="1 25"
+sigmats="1 5 25 50"
+#sigmats="5"
 
 
 if [ -z ${1} ]; then
@@ -924,7 +937,6 @@ runit=1
 
 if [ ${runit} == 1 ]; then    
        
-    runall=0
     nrun=0
     njob=0
     infstart=1

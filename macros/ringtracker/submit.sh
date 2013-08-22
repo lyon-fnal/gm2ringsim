@@ -83,18 +83,18 @@ bestoffsets()
     fi
     
     if [ ${infgun} == 1 ]; then
-	thebestoffsets="-1"
+	thebestoffsets="0"
 	return;
     fi
 
     if [ ${infgun} == 1 ]; then
-	thebestoffsets="-1"
+	thebestoffsets="0"
 	return;
     fi
 
-    thebestoffsets="-1"
+    thebestoffsets="0"
     if [ ${infstart} == 1 ]; then
-	thebestoffsets="-1"
+	thebestoffsets="0"
 	return;
     else
 	thebestoffsets="0 10 20 30 40 50 60 70 75 80"
@@ -103,7 +103,7 @@ bestoffsets()
     fi
 
     if [ ${test} == 1 ]; then
-	thebestoffsets="-1"
+	thebestoffsets="0"
     fi
 }
 
@@ -227,6 +227,9 @@ name()
 	extra="${extra}_CentralOrbit"
 	if [ ${offset} -gt 0 ]; then
 	    extra="${extra}_Offset${offset}"
+	elif [ ${offset} -lt 0 ]; then
+	    loc_offset=`echo " ${offset} * -1" | bc`
+	    extra="${extra}_Offsetm${loc_offset}"
 	fi
     else
 	extra="${extra}_PerfectStorage"
@@ -661,28 +664,28 @@ until [ -z ${1} ]; do
 	export beamstart=um
 	export infstart=1
 	beams="UpstreamMandrel"
-	offsets="-1"
+	offsets="0"
 	shift 1
 	continue
     elif [ ${1} == "dc" ] || [ ${1} == "DownstreamCryo" ] || [ ${1} == "downstreamcryo" ]; then
 	export beamstart=dc
 	export infstart=1
 	beams="DownstreamCryo"
-	offsets="-1"
+	offsets="0"
 	shift 1
 	continue
     elif [ ${1} == "dm" ] || [ ${1} == "DownstreamMandrel" ] || [ ${1} == "downstreammandrel" ]; then
 	export beamstart=dm
 	export infstart=1
 	beams="DownstreamMandrel"
-	offsets="-1"
+	offsets="0"
 	shift 1
 	continue
     elif [ ${1} == "co" ] || [ ${1} == "CentralOrbit" ] || [ ${1} == "centralorbit" ]; then
 	export beamstart=co	
 	export infstart=1
 	beams="CentralOrbit"
-	offsets="-1"
+	offsets="0"
 	shift 1
 	continue
     elif [ ${1} == "Perfect" ]; then
@@ -1215,6 +1218,10 @@ until [ -z ${1} ]; do
 	export sigmat=25
 	shift 1
 	continue
+    elif [ ${1} == "tSigma5" ]; then
+	export sigmat=5
+	shift 1
+	continue
     elif [ ${1} == "NoSigmaP_NoPrhat" ] || [ ${1} == "NoPrhat_NoSigmaP" ]; then
 	export sigmap=0
 	export prhat=0
@@ -1455,7 +1462,7 @@ for o in ${offsets}; do
 			done
 		    fi
 		    
-		    njobs="40"
+		    njobs="20"
 		    if [ ${submit} == 1 ]; then
 			echo "jobsub -g --opportunistic -dMYDIR ${fullDir} sub2.sh"
 #			echo "jobsub -e fullDir -e basename -e MYREL -N ${njobs} -g condor2.sh"
@@ -1487,12 +1494,28 @@ for o in ${offsets}; do
 			    if [ ${test} == 1 ]; then
 				rm dump
 				gm2 -c ${fullDir}/runner.fcl -o output_0.root | tee dump
-				mv output_0.root ${fullDir}/
+				c=0
+				while [ ${c} -ge 0 ]; do
+				    if ! [ -a ${fullDir}/output_${c}.root ]; then
+					echo "mv output_0.root ${fullDir}/output_${c}.root"
+					mv output_0.root ${fullDir}/output_${c}.root
+					break;
+				    fi
+				    ((c++))
+				done
 			    else
 				touch ${fullDir}/START
 #				echo ${fullDir}/runner.fcl}
 				gm2 -c ${fullDir}/runner.fcl -o output_0.root  | tee ${fullDir}/output.dat
-				mv output_0.root ${fullDir}/
+				c=0
+				while [ ${c} -ge 0 ]; do
+				    if ! [ -a ${fullDir}/output_${c}.root ]; then
+					echo "mv output_0.root ${fullDir}/output_${c}.root"
+					mv output_0.root ${fullDir}/output_${c}.root
+					break;
+				    fi
+				    ((c++))
+				done
 				rm ${fullDir}/START
 				touch ${fullDir}/DONE
 #				mv ${extra}*.root ${fullDir}/

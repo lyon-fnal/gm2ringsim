@@ -57,6 +57,8 @@ namespace gm2ringsim
     double Pmean_;
     double dPOverP_;
     double SigmaT_;
+    bool FlatDecayTime_;
+    double MaxDecayTime_;
     std::string Particle_;
     int NumParticles_;
     int DecayScaleFactor_;
