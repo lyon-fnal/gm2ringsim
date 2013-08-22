@@ -21,28 +21,22 @@
 #include "gm2geom/strawtracker/StrawTrackerGeometry.hh"
 
 #include "gm2ringsim/strawtracker/StrawHit.hh"
+#include "gm2dataproducts/strawtracker/WireID.hh"
+using gm2strawtracker::WireID;
+
+#include <string>
+#include <sstream>
+#include <iostream>
+using std::ostringstream;
+using std::istringstream;
+using std::string;
+
+
 //FIXME: do i need this?#include "g2UniqueObjectManager.rhh"
 namespace gm2ringsim {
     G4Allocator<StrawHit> StrawHitAllocator;
 }
 
-G4int gm2ringsim::StrawHit::extractValueFromName(std::string indicator, std::string name){
-  
-  G4int value;
-  
-  unsigned first = name.find(indicator);
-  first = first+indicator.length();
-  std::string str = name.substr(first);
-  unsigned second = str.find("-");
-  std::string num(name, first, second);
-  
-  std::istringstream iss(num);
-  iss >> value;
-  
-  return value;
-  
-  
-}
 
 gm2ringsim::StrawHit::StrawHit(G4Step* step) :
     global_position(step->GetPreStepPoint()->GetPosition()),
@@ -57,12 +51,25 @@ gm2ringsim::StrawHit::StrawHit(G4Step* step) :
   // get straw number
   G4StepPoint* preStepPoint  = step->GetPreStepPoint();
 
-  strawInRow = extractValueFromName("strawInRow", preStepPoint->GetPhysicalVolume()->GetName());
-  layerNumber = extractValueFromName("layer", preStepPoint->GetPhysicalVolume()->GetName());
-  viewNumber = extractValueFromName("view", preStepPoint->GetPhysicalVolume()->GetName());
-  stationNumber = extractValueFromName("stationNumber", preStepPoint->GetPhysicalVolume()->GetName());
-  strawNumber = extractValueFromName("strawNumber", preStepPoint->GetPhysicalVolume()->GetName());
-  
+  // Get the WireID from the logical volume's name!
+  istringstream thing(name);
+  string parseString; 
+  // First remove the "SingleStrawPV - " from the front.
+  std::getline(thing, parseString, '-');
+
+  // Next get the rest of the line (parses to the next \n)
+  std::getline(thing, parseString);
+
+  // And finally, make a WireID from that string
+  WireID wire = gm2strawtracker::wireIDfromString(parseString);
+
+  strawInRow = wire.getWire();
+  layerNumber = wire.getLayer();
+  viewNumber = wire.getView();
+  stationNumber = wire.getStation();
+  // No longer using the overall straw number
+  strawNumber = -1;
+
   particle_name = step->GetTrack()->GetParticleDefinition()->GetParticleName();
   parent_ID = step->GetTrack()->GetParentID();
     
@@ -94,9 +101,10 @@ gm2ringsim::StrawHit::StrawHit(G4Step* step) :
 
   }
   gm2geom::StrawTrackerGeometry g;
-  scallop_position.set(station_position.x() + g.strawStationCenterFromEdge[stationNumber],
-                         station_position.y() + g.strawStationLocation[stationNumber],
-                         station_position.z());
+  scallop_position.set(station_position.x() + 
+          g.strawStationCenterFromEdge[wire.getStation()],
+          station_position.y() + g.strawStationLocation[wire.getStation()],
+          station_position.z());
   
 }
 
