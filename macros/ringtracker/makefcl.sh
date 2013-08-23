@@ -97,7 +97,8 @@ services: {
 
     physicalVolumeStore: {}
     Gm2PhysicsList: {
-	muonDecayMode: ${muondecay}
+	physicsListName: old
+	decayMode: ${muondecay}
     }
 
     TrackingAction : {
@@ -122,8 +123,8 @@ services: {
 	Pmean: ${pmean}
 	dPOverP: ${dPoverP}
 	Particle: "${particle}"
-	DecayScaleFactor: 1
-	Polarization: E821
+	DecayScaleFactor: 5
+	Polarization: 100
 EOF
 
 if [ ${beamstart} == um ]; then
@@ -197,6 +198,11 @@ cat >> ${outfile} <<EOF
     Kicker: {}
     Collimator : {}
 
+    DecayedPositronAction: {
+      name: "DecayedPositronAction"
+      stored_threshold: -50.0
+    }
+
     LostMuonAction: {
       name: "LostMuonAction"
       stored_rmin: -50.0
@@ -266,7 +272,7 @@ services.user.Geometry.quad.StoreHV: 24
 services.user.Geometry.quad.ScrapeHV: 17
 services.user.Geometry.quad.SupportMaterial: Macor
 services.user.Geometry.quad.PlateMaterial: None
-#services.user.Geometry.vac.Frequency: 1
+services.user.Geometry.vac.Frequency: 1
 EOF
 echo "kickhv=${kickhv}"
 echo "kicksk=${kicksk}"
@@ -382,8 +388,8 @@ physics: {
       SaveInfHits: false
       SaveTruthHits: true
       SaveRingHits: false
-      SaveVRingHits: false
-      SaveVRing1PlaneHits: false
+      SaveVRingHits: true
+      SaveVRing1PlaneHits: true
       debug: false
     }
   }

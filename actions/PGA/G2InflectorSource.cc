@@ -1,4 +1,4 @@
-// Get the PGA header
+ // Get the PGA header
 //#include "gm2ringsim/actions/PGA/obsoletePrimaryGeneratorAction_service.hh"
 
 // ART includes
@@ -9,6 +9,9 @@
 #include "Geant4/G4Event.hh"
 #include "Geant4/G4GeneralParticleSource.hh"
 #include "Geant4/G4ParticleTable.hh"
+#include "Geant4/G4ParticleDefinition.hh"
+#include "Geant4/G4PrimaryVertex.hh"
+#include "Geant4/G4PrimaryParticle.hh"
 #include "Geant4/G4ParticleDefinition.hh"
 #include "Geant4/globals.hh"
 #include "Geant4/Randomize.hh"
@@ -60,6 +63,8 @@ gm2ringsim::G2InflectorSource::G2InflectorSource() :
   Pmean(0.005),
   dPOverP(0.005),
   SigmaT(50),
+  FlatDecayTime(false),
+  MaxDecayTime(-1.0),
   Particle_("mu+"),
   NumParticles_(1),
   DecayScaleFactor_(1),
@@ -120,6 +125,12 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
 
   G4ParticleDefinition *def = G4ParticleTable::GetParticleTable()->FindParticle(Particle_);
   if ( def ) {
+//     if ( GetFlatTime() ) {;
+//       double tau = def->GetPDGLifeTime();
+//       double gamma = gammaMagic();
+//       double mutau = tau*gamma;
+//       double rand = G4UniformRand();
+//     }
     if ( first_event ) {
       G4cout << "Found Particle Info for [" << Particle_ << "]" << G4endl;
       G4cout << " g-2/2 : " << def->CalculateAnomaly() << G4endl;
@@ -430,7 +441,16 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
     
   //  Fermilab tells us the beam will have a |deltaP/P| of 0.15% (in the downstream direction)
 
-  G4double pX   = pMagic()*G4RandGauss::shoot( 1, dP_over_P ); // "downstream" @12 o'clock
+  G4double pX   = pMagic();
+  if ( dP_over_P >= 0 ) {
+    pX *= G4RandGauss::shoot( 1, dP_over_P ); // "downstream" @12 o'clock
+  }
+  else {
+    double sigmapx = -pMagic()*dP_over_P;
+    pX += ((2*G4UniformRand()-1) * sigmapx);
+  }
+
+
   //G4double pX   = pMagic()*G4RandGauss::shoot( 1, 0.0015 ); // "downstream" @12 o'clock
   //G4double pX   = pMagic()*G4RandGauss::shoot( 1, 0.000015 ); // "downstream" @12 o'clock
   G4double pMag = pX/std::sqrt( 1-randXPrime*randXPrime-randYPrime*randYPrime );
@@ -532,7 +552,20 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
   //G4cout << "RandT = " << randT << G4endl;
 
   double sigmat = GetSigmaT();
-  randT += G4RandGauss::shoot(0.,sigmat)*ns;
+  //randT += G4RandGauss::shoot(0.,sigmat)*ns;
+  if ( GetStartPerfect() ) {
+    if ( sigmat < 0 ) {
+      randT = G4RandGauss::shoot(100.,sigmat)*ns;
+      if ( randT <= 0 ) { randT = 1*ns; }
+    }
+    else {
+      randT = (G4UniformRand() * sigmat)*ns;
+    }
+  }
+  else {
+    randT += ((2*G4UniformRand()-1) * sigmat)*ns;
+  }
+
   inflectorGun_->SetParticleTime( randT );
     
 
@@ -607,7 +640,20 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
       G4cout << "STARTING POINT NOT SPECIFIED!!!!" << G4endl;
     }
 
-    G4cout << "sigma(t0) = " << GetSigmaT() << " ns." << G4endl;
+    if ( GetSigmaT() < 0 ) {
+      G4cout << "Gaussian t0 with sigma = " << GetSigmaT() << " ns." << G4endl;
+    }
+    else {
+      G4cout << "Flat t0  between [0, " << GetSigmaT() << "] ns." << G4endl;
+    }
+    if ( GetFlatDecayTime() ) {
+      G4double maxtau = GetMaxDecayTime();
+      if ( maxtau < 1000 ) {
+	// assume this is actually the number of turns
+	maxtau *= 0.150; // tau in microseconds
+      }
+      G4cout << "Decay time is flat between [0, " << maxtau << "] microseconds." << endl;
+    }
       
     if ( launch_angle > 0 || launch_angle < 0 ) {
       G4cout << "Launching muon beam with a " << 1000*launch_angle << " mrad kick." << G4endl;
@@ -671,6 +717,28 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
   G4cout << "G2InflectorSource: About to call inflectorGun_->GeneratePrimaryVertex" << G4endl;
   }
   inflectorGun_->GeneratePrimaryVertex( evt );
+
+  if ( GetFlatDecayTime() ) {
+
+    G4PrimaryVertex *primary_vtx = evt->GetPrimaryVertex();
+    G4PrimaryParticle *primary = primary_vtx->GetPrimary();
+    if ( primary ) {
+      //primary->Print();
+      //G4double tau = primary->GetProperTime();
+      //G4cout << "Proper Time = " << tau << G4endl;
+      G4double maxtau = GetMaxDecayTime();
+      if ( maxtau < 1000 ) {
+	// assume this is actually the number of turns
+	maxtau *= 0.150; // tau in microseconds
+	maxtau /= gammaMagic(); // decay time in the lab is gamma*tau so we remove that feature here
+      }
+      maxtau *= G4UniformRand();      
+      primary->SetProperTime(maxtau*microsecond);
+//       G4cout << endl;
+//       G4cout.precision(6);
+//       G4cout << "Proper Time in GenEvt = " << primary->GetProperTime() << G4endl;
+    }
+  }
   if ( 0 ) {
     G4cout << "G2InflectorSource: About to call inflectorGun_->GeneratePrimaryVertex" << G4endl;
     G4cout << "ID: " << evt->GetEventID() << G4endl;

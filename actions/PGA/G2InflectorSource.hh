@@ -99,6 +99,12 @@ namespace gm2ringsim
     void SetSigmaT( double aDouble ){ SigmaT=aDouble; }
     double GetSigmaT( ){ return SigmaT; }
     
+    void SetFlatDecayTime( bool aBool ){ FlatDecayTime=aBool; }
+    bool GetFlatDecayTime( ){ return FlatDecayTime; }
+    
+    void SetMaxDecayTime( double aDouble ){ MaxDecayTime=aDouble; }
+    double GetMaxDecayTime( ){ return MaxDecayTime; }
+    
     void SetParticle( std::string aString ){ Particle_=aString; }
     std::string GetParticle(){ return Particle_; }
  
@@ -140,6 +146,8 @@ namespace gm2ringsim
     double Pmean;
     double dPOverP;
     double SigmaT;
+    bool FlatDecayTime;
+    double MaxDecayTime;
     std::string Particle_;
     int NumParticles_;
     int DecayScaleFactor_;
