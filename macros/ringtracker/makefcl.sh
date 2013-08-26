@@ -114,6 +114,21 @@ services: {
         name: "inflectorgun"
         inflectorVerbosity: true
 	SigmaT: ${sigmat}
+EOF
+if [ ${muondecay} == "none" ]; then
+cat >> ${outfile} <<EOF
+	FlatDecayTime: false
+	MaxDecayTime: -1
+EOF
+else
+cat >> ${outfile} <<EOF
+	FlatDecayTime: true
+#	MaxDecayTime: 20
+	MaxDecayTime: ${numturns}
+EOF
+fi
+
+cat >> ${outfile} <<EOF
 	EmittanceX: ${beamsize}
 	EmittanceY: ${beamsize}
 	BetaX:  ${betaX}
@@ -123,7 +138,7 @@ services: {
 	Pmean: ${pmean}
 	dPOverP: ${dPoverP}
 	Particle: "${particle}"
-	DecayScaleFactor: 5
+	DecayScaleFactor: 1
 	Polarization: 100
 EOF
 
@@ -221,7 +236,7 @@ EOF
 if [ ${evts} -gt 10 ]; then
     heartbeat=`echo " ${evts} / 10" | bc`
 else
-    heartbeat=1
+    heartbeat=25
 fi
 
 cat >> ${outfile} <<EOF

@@ -77,8 +77,11 @@ name()
 	infstart=0
     fi
     
-    if [ ${sigmat} -ge 1 ]; then
+    if [ ${sigmat} -ge 0 ]; then
 	extra="${extra}_tSigma${sigmat}"
+    else
+	loc_sigmat=`echo " ${sigmat} * -1" | bc`
+	extra="${extra}_GausstSigma${loc_sigmat}"
     fi
     
     kickname="NoKick"
@@ -223,6 +226,45 @@ name()
 	    if [ ${match_dp10} == 1 ]; then
 		extra="${extra}_PerfectMatch_dP10"
 	    fi
+	    if [ ${match_flat} == 1 ]; then
+		extra="${extra}_PerfectMatch_Flat"
+	    fi
+	    if [ ${match_flatdp2} == 1 ]; then
+		extra="${extra}_PerfectMatch_FlatdP2"
+	    fi
+	    if [ ${match_flatdp1} == 1 ]; then
+		extra="${extra}_PerfectMatch_FlatdP1"
+	    fi
+	    if [ ${match_flatdp001} == 1 ]; then
+		extra="${extra}_PerfectMatch_FlatdP001"
+	    fi
+	    if [ ${match_flatdp0001} == 1 ]; then
+		extra="${extra}_PerfectMatch_FlatdP0001"
+	    fi
+	    if [ ${match_flatdp005} == 1 ]; then
+		extra="${extra}_PerfectMatch_FlatdP005"
+	    fi
+	    if [ ${match_flatdp0075} == 1 ]; then
+		extra="${extra}_PerfectMatch_FlatdP0075"
+	    fi
+	    if [ ${match_flatdp0025} == 1 ]; then
+		extra="${extra}_PerfectMatch_FlatdP0025"
+	    fi
+	    if [ ${match_flatdp025} == 1 ]; then
+		extra="${extra}_PerfectMatch_FlatdP025"
+	    fi
+	    if [ ${match_flatdp075} == 1 ]; then
+		extra="${extra}_PerfectMatch_FlatdP075"
+	    fi
+	    if [ ${match_flatdp05} == 1 ]; then
+		extra="${extra}_PerfectMatch_FlatdP05"
+	    fi
+	    if [ ${match_flatdp5} == 1 ]; then
+		extra="${extra}_PerfectMatch_FlatdP5"
+	    fi
+	    if [ ${match_flatdp10} == 1 ]; then
+		extra="${extra}_PerfectMatch_FlatdP10"
+	    fi
 	    if [ ${bnlmatch} == 1 ]; then
 		extra="${extra}_E821Match"
 	    fi
@@ -247,6 +289,11 @@ name()
     elif [ ${muondecay} == "none" ]; then
 	extra="${extra}_NoMuonDecay"
     fi
+
+    if [ ${flatdecay} == 1 ] && ! [ ${muondecay} == "none" ]; then
+	extra="${extra}_FlatDecayTime"
+    fi
+	
 }
 
 carol=0
@@ -267,6 +314,19 @@ match_dp001=0
 match_dp0001=0
 match_dp05=0
 match_dp005=0
+match_flat=0
+match_flatdp0025=0
+match_flatdp0075=0
+match_flatdp025=0
+match_flatdp075=0
+match_flatdp10=0
+match_flatdp5=0
+match_flatdp2=0
+match_flatdp1=0
+match_flatdp001=0
+match_flatdp0001=0
+match_flatdp05=0
+match_flatdp005=0
 bnlmatch=0
 bnlmatch_dp0025=0
 bnlmatch_dp0075=0
@@ -293,10 +353,15 @@ export collimator_status=1
 
 # Muon Decay
 #
-#export muondecay="none"
+
+export flatdecay=1
+export muondecay="none"
 #export muondecay="iso"
 export muondecay="sm"
 muondecayname="decay ${muondecay}"
+if ! [ ${muondecay} == "none" ] && [ ${flatdecay} == 1 ]; then
+    muondecayname="${muondecayname} flatdecay"
+fi
 
 #
 # Injected Particle
@@ -378,16 +443,13 @@ bestoffsets()
 {
     thebestoffsets="0"
     if [ ${beamstart} == "CentralOrbit" ]; then
-	if [ ${infstart} == 1 ]; then
-	    thebestoffsets="10 20 30 40"
-	    thebestoffsets="-10 -20 -30 -40"
-	    thebestoffsets="0"
-	    return;
-	else
-	    thebestoffsets="0"
-	fi
+	thebestoffsets="10 20 30 40"
+	thebestoffsets="-10 -20 -30 -40"
+	thebestoffsets="20 40"
+	return;
     else
 	thebestoffsets="0"
+	return;
     fi
     
     if [ ${test} == 1 ]; then
@@ -734,9 +796,13 @@ if [ ${beamstarts} == "CentralOrbit" ]; then
 #    moms="E821Match_dP05 PerfectMatch_dP05 E821Match_dP005 PerfectMatch_dP005 E821Match_dP0001 PerfectMatch_dP0001"
     moms="PerfectMatch_dP0001 PerfectMatch PerfectMatch_dP05 PerfectMatch_dP2"
 # PerfectMatch"
-    moms="PerfectMatch_dP05"
+    moms="PerfectMatch PerfectMatch_Flat"
+#    moms="PerfectMatch_FlatdP05"
+#    moms="PerfectMatch_FlatdP0001 PerfectMatch_Flat PerfectMatch_FlatdP05 PerfectMatch_FlatdP2"
+    moms="PerfectMatch_dP001 PerfectMatch_dP005 PerfectMatch PerfectMatch_dP05"
+    moms="PerfectMatch_FlatdP001 PerfectMatch_FlatdP005 PerfectMatch_Flat PerfectMatch_FlatdP05"
 # PerfectMatch_dP05 PerfectMatch_dP001"
-#    moms="PerfectMatch_dP05"
+    moms="PerfectMatch" # PerfectMatch_Flat"
     core=0
 #    fields="0 1"
     fields="0"
@@ -818,7 +884,7 @@ fi
 # General Run Information
 #
 #
-numevts=10000
+numevts=25000
 
 scrapings="OFF"
 beamtypes="Gaussian Uniform"
@@ -914,7 +980,10 @@ sigmats="50"
 sigmats="1 25 50"
 sigmats="1 25"
 sigmats="1 5 25 50"
-#sigmats="5"
+#sigmats="1 5 50"
+sigmats="-1 -5 -25 -50"
+sigmats="1 25 50 -1 -25"
+sigmats="25 -25"
 
 
 if [ -z ${1} ]; then
@@ -1010,29 +1079,6 @@ if [ ${runit} == 1 ]; then
 				fi
 			    fi
 
-			    if [ ${beamstart} == "UpstreamCryo" ]; then
-				numevts=10000
-				if [ ${core} == 3 ];then
-				    numevts=2500
-				fi
-			    fi
-
-			    if [ ${beamstart} == "DownstreamMandrel" ]; then
-				numevts=5000
-				if [ ${core} == 3 ];then
-				    numevts=2500
-				fi
-			    fi
-
-			    if [ ${beamstart} == "DownstreamMandrel" ]; then
-				if [ ${core} == 3 ];then
-				    numevts=100
-				fi
-			    fi
-
-#			    if [ ${beamstart} == "CentralOrbit" ]; then
-#				numevts=10
-#			    fi
 			    
 			    echo "      Beamstart [${beamstart} / (${beamstarts})]"		    
 			    
@@ -1083,10 +1129,6 @@ if [ ${runit} == 1 ]; then
 					fi
 					echo "            Kick [${kick} / (${kicks})]"
 
-#					if [ ${kick} == 0 ]; then
-#					    kickname="NoKick"
-#					    numevts=5000
-#					fi
 					
 					for mom in ${moms}; do
 					    
@@ -1133,8 +1175,14 @@ if [ ${runit} == 1 ]; then
 						
 						myinf=${inftype}
 #						echo ${name}
-						
-						sigmatname="tSigma${sigmat}"
+
+						if [ ${sigmat} -ge 0 ]; then
+						    sigmatname="tSigma${sigmat}"
+						else
+						    loc_sigmat=`echo " ${sigmat} * -1" | bc`
+						    sigmatname="GausstSigma${loc_sigmat}"
+						fi
+
 						name
 						outname="${extra}"
 #						echo "Myname=${myname}"

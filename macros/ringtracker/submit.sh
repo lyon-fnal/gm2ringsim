@@ -256,9 +256,13 @@ name()
 	infstart=0
     fi
     
-    if [ ${sigmat} -ge 1 ]; then
+    if [ ${sigmat} -ge 0 ]; then
 	extra="${extra}_tSigma${sigmat}"
+    else
+	loc_sigmat=`echo " ${sigmat} * -1" | bc`
+	extra="${extra}_GausstSigma${loc_sigmat}"
     fi
+
     
     if [ ${kickhv} -gt 0 ]; then
 	extra="${extra}_${kickhv}kVLCRKick"
@@ -411,6 +415,45 @@ name()
 	if [ ${match_dp10} == 1 ]; then
 	    extra="${extra}_PerfectMatch_dP10"
 	fi
+	if [ ${match_flat} == 1 ]; then
+	    extra="${extra}_PerfectMatch_Flat"
+	fi
+	if [ ${match_flatdp2} == 1 ]; then
+	    extra="${extra}_PerfectMatch_FlatdP2"
+	fi
+	if [ ${match_flatdp1} == 1 ]; then
+	    extra="${extra}_PerfectMatch_FlatdP1"
+	fi
+	if [ ${match_flatdp001} == 1 ]; then
+	    extra="${extra}_PerfectMatch_FlatdP001"
+	fi
+	if [ ${match_flatdp0001} == 1 ]; then
+	    extra="${extra}_PerfectMatch_FlatdP0001"
+	fi
+	if [ ${match_flatdp005} == 1 ]; then
+	    extra="${extra}_PerfectMatch_FlatdP005"
+	fi
+	if [ ${match_flatdp0075} == 1 ]; then
+	    extra="${extra}_PerfectMatch_FlatdP0075"
+	fi
+	if [ ${match_flatdp0025} == 1 ]; then
+	    extra="${extra}_PerfectMatch_FlatdP0025"
+	fi
+	if [ ${match_flatdp025} == 1 ]; then
+	    extra="${extra}_PerfectMatch_FlatdP025"
+	fi
+	if [ ${match_flatdp075} == 1 ]; then
+	    extra="${extra}_PerfectMatch_FlatdP075"
+	fi
+	if [ ${match_flatdp05} == 1 ]; then
+	    extra="${extra}_PerfectMatch_FlatdP05"
+	fi
+	if [ ${match_flatdp5} == 1 ]; then
+	    extra="${extra}_PerfectMatch_FlatdP5"
+	fi
+	if [ ${match_flatdp10} == 1 ]; then
+	    extra="${extra}_PerfectMatch_FlatdP10"
+	fi
 	if [ ${bnlmatch} == 1 ]; then
 	    extra="${extra}_E821Match"
 	fi
@@ -469,6 +512,10 @@ name()
     elif [ ${muondecay} == "none" ]; then
 	extra="${extra}_NoMuonDecay"
     fi
+
+    if [ ${flatdecay} == 1 ] && ! [ ${muondecay} == "none" ]; then
+	extra="${extra}_FlatDecayTime"
+    fi
 }
 
 script="submit.sh"
@@ -482,6 +529,7 @@ infgun=1
 gengauss=0
 carol=0
 match=0
+match_flat=0
 bnlmatch=0
 match_dp0025=0
 match_dp0075=0
@@ -495,6 +543,19 @@ match_dp001=0
 match_dp0001=0
 match_dp05=0
 match_dp005=0
+
+match_flatdp0025=0
+match_flatdp0075=0
+match_flatdp025=0
+match_flatdp075=0
+match_flatdp10=0
+match_flatdp5=0
+match_flatdp2=0
+match_flatdp1=0
+match_flatdp001=0
+match_flatdp0001=0
+match_flatdp05=0
+match_flatdp005=0
 
 bnlmatch_dp0025=0
 bnlmatch_dp0075=0
@@ -574,6 +635,7 @@ export evts=10000
 # Number of turns
 #
 #
+export flatdecay=0
 export numturns=101
 #export muondecay="none"
 #export muondecay="standard"
@@ -712,6 +774,11 @@ until [ -z ${1} ]; do
 	shift 1
 	muondecay=${1}
 	export muondecay=${1}
+	shift 1
+	continue
+    elif [ ${1} == "flatdecay" ]; then
+	flatdecay=1
+	export flatdecay=1
 	shift 1
 	continue
     elif [ ${1} == "spin" ]; then
@@ -1028,6 +1095,175 @@ until [ -z ${1} ]; do
 	export dPoverP="0.075"
 	shift 1
 	continue
+    elif [ ${1} == "match_flat" ] || [ ${1} == "Match_Flat" ] || [ ${1} == "PerfectMatch_Flat" ]; then
+	export infgun=1
+	infgun=1
+	export match_flat=1	
+	match_flat=1
+#	beamsize="40"
+	export alphaX="0.0"
+	export betaX="7.66477"
+	export alphaY="0.0"
+	export betaY="19.0763"
+	export dPoverP="-0.0015"
+	shift 1
+	continue
+    elif [ ${1} == "match_flatdP2" ] || [ ${1} == "Match_FlatdP2" ] || [ ${1} == "PerfectMatch_FlatdP2" ]; then
+	export infgun=1
+	infgun=1
+	export match_flatdp2=1	
+	match_flatdp2=1
+#	beamsize="40"
+	export alphaX="0.0"
+	export betaX="7.66477"
+	export alphaY="0.0"
+	export betaY="19.0763"
+	export dPoverP="-0.02"
+	shift 1
+	continue
+    elif [ ${1} == "match_flatdP5" ] || [ ${1} == "Match_FlatdP5" ] || [ ${1} == "PerfectMatch_FlatdP5" ]; then
+	export infgun=1
+	infgun=1
+	export match_flatdp5=1	
+	match_flatdp5=1
+#	beamsize="40"
+	export alphaX="0.0"
+	export betaX="7.66477"
+	export alphaY="0.0"
+	export betaY="19.0763"
+	export dPoverP="-0.05"
+	shift 1
+	continue
+    elif [ ${1} == "match_flatdP10" ] || [ ${1} == "Match_FlatdP10" ] || [ ${1} == "PerfectMatch_FlatdP10" ]; then
+	export infgun=1
+	infgun=1
+	export match_flatdp10=1	
+	match_flatdp10=1
+#	beamsize="40"
+	export alphaX="0.0"
+	export betaX="7.66477"
+	export alphaY="0.0"
+	export betaY="19.0763"
+	export dPoverP="-0.10"
+	shift 1
+	continue
+    elif [ ${1} == "match_flatdP1" ] || [ ${1} == "Match_FlatdP1" ] || [ ${1} == "PerfectMatch_FlatdP1" ]; then
+	export infgun=1
+	infgun=1
+	export match_flatdp1=1	
+	match_flatdp1=1
+#	beamsize="40"
+	export alphaX="0.0"
+	export betaX="7.66477"
+	export alphaY="0.0"
+	export betaY="19.0763"
+	export dPoverP="-0.01"
+	shift 1
+	continue
+    elif [ ${1} == "match_flatdP001" ] || [ ${1} == "Match_FlatdP001" ] || [ ${1} == "PerfectMatch_FlatdP001" ]; then
+	export infgun=1
+	infgun=1
+	export match_flatdp001=1	
+	match_flatdp001=1
+#	beamsize="40"
+	export alphaX="0.0"
+	export betaX="7.66477"
+	export alphaY="0.0"
+	export betaY="19.0763"
+	export dPoverP="-0.0001"
+	shift 1
+	continue
+    elif [ ${1} == "match_flatdP0001" ] || [ ${1} == "Match_FlatdP0001" ] || [ ${1} == "PerfectMatch_FlatdP0001" ]; then
+	export infgun=1
+	infgun=1
+	export match_flatdp0001=1	
+	match_flatdp0001=1
+#	beamsize="40"
+	export alphaX="0.0"
+	export betaX="7.66477"
+	export alphaY="0.0"
+	export betaY="19.0763"
+	export dPoverP="-0.0001"
+	shift 1
+	continue
+    elif [ ${1} == "match_flatdP005" ] || [ ${1} == "Match_FlatdP005" ] || [ ${1} == "PerfectMatch_FlatdP005" ]; then
+	export infgun=1
+	infgun=1
+	export match_flatdp005=1	
+	match_flatdp005=1
+#	beamsize="40"
+	export alphaX="0.0"
+	export betaX="7.66477"
+	export alphaY="0.0"
+	export betaY="19.0763"
+	export dPoverP="-0.0005"
+	shift 1
+	continue
+    elif [ ${1} == "match_flatdP05" ] || [ ${1} == "Match_FlatdP05" ] || [ ${1} == "PerfectMatch_FlatdP05" ]; then
+	export infgun=1
+	infgun=1
+	export match_flatdp05=1	
+	match_flatdp05=1
+#	beamsize="40"
+	export alphaX="0.0"
+	export betaX="7.66477"
+	export alphaY="0.0"
+	export betaY="19.0763"
+	export dPoverP="-0.005"
+	shift 1
+	continue
+    elif [ ${1} == "match_flatdP0075" ] || [ ${1} == "Match_FlatdP0075" ] || [ ${1} == "PerfectMatch_FlatdP0075" ]; then
+	export infgun=1
+	infgun=1
+	export match_flatdp0075=1	
+	match_flatdp0075=1
+#	beamsize="40"
+	export alphaX="0.0"
+	export betaX="7.66477"
+	export alphaY="0.0"
+	export betaY="19.0763"
+	export dPoverP="-0.0075"
+	shift 1
+	continue
+    elif [ ${1} == "match_flatdP0025" ] || [ ${1} == "Match_FlatdP0025" ] || [ ${1} == "PerfectMatch_FlatdP0025" ]; then
+	export infgun=1
+	infgun=1
+	export match_flatdp0025=1	
+	match_flatdp0025=1
+#	beamsize="40"
+	export alphaX="0.0"
+	export betaX="7.66477"
+	export alphaY="0.0"
+	export betaY="19.0763"
+	export dPoverP="-0.0025"
+	shift 1
+	continue
+    elif [ ${1} == "match_flatdP025" ] || [ ${1} == "Match_FlatdP025" ] || [ ${1} == "PerfectMatch_FlatdP025" ]; then
+	export infgun=1
+	infgun=1
+	export match_flatdp025=1	
+	match_flatdp025=1
+#	beamsize="40"
+	export alphaX="0.0"
+	export betaX="7.66477"
+	export alphaY="0.0"
+	export betaY="19.0763"
+	export dPoverP="-0.025"
+	shift 1
+	continue
+    elif [ ${1} == "match_flatdP075" ] || [ ${1} == "Match_FlatdP075" ] || [ ${1} == "PerfectMatch_FlatdP075" ]; then
+	export infgun=1
+	infgun=1
+	export match_flatdp075=1	
+	match_flatdp075=1
+#	beamsize="40"
+	export alphaX="0.0"
+	export betaX="7.66477"
+	export alphaY="0.0"
+	export betaY="19.0763"
+	export dPoverP="-0.075"
+	shift 1
+	continue
     elif [ ${1} == "bnlmatch" ] || [ ${1} == "BNLMatch" ] || [ ${1} == "E821Match" ]; then
 	export infgun=1
 	infgun=1
@@ -1220,6 +1456,26 @@ until [ -z ${1} ]; do
 	continue
     elif [ ${1} == "tSigma5" ]; then
 	export sigmat=5
+	shift 1
+	continue
+    elif [ ${1} == "GausstSigma50" ]; then
+	export sigmat=-50
+	shift 1
+	continue
+    elif [ ${1} == "GausstSigma100" ]; then
+	export sigmat=-100
+	shift 1
+	continue
+    elif [ ${1} == "GausstSigma1" ]; then
+	export sigmat=-1
+	shift 1
+	continue
+    elif [ ${1} == "GausstSigma25" ]; then
+	export sigmat=-25
+	shift 1
+	continue
+    elif [ ${1} == "GausstSigma5" ]; then
+	export sigmat=-5
 	shift 1
 	continue
     elif [ ${1} == "NoSigmaP_NoPrhat" ] || [ ${1} == "NoPrhat_NoSigmaP" ]; then
@@ -1469,6 +1725,7 @@ for o in ${offsets}; do
 		    fi
 		    
 		    ./makefcl.sh "inflector" 
+#		    continue;
 		    if [ ${submit} == 1 ]; then
 			if [ -a cmd.sh ]; then
 			    rm cmd.sh

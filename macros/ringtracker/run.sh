@@ -86,7 +86,9 @@ else
 	echo "Merging files into single ${input} file."
 	hadd -f rootfiles/${subdir}/gm2ringsim_${input}.root `ls rootfiles/${subdir}/gm2ringsim_${input}_*.root`
 	echo "Done..."
-	sleep 10000000
+	exit;
+	echo "Hit Control-X"
+#	sleep 10000000
     elif [ ${2} == "onlyplot" ]; then
 	runplot=2
 	ls ${output}/*${input}*/*${suffix}*.root > input.dat
@@ -95,10 +97,40 @@ else
 	ls ${output}/*${input}*/*${suffix}*.root > input.dat
     elif [ ${2} == "frac" ]; then
 	extra_suffix=${3}
-	ls ${output}/*${input}/*${suffix}_*${extra_suffix}.root > input.dat
+	if [ ${extra_suffix} == "0-1" ]; then
+	    extra_suffix="_v0_1"
+	    echo ${extra_suffix}
+	    ls ${output}/*${input}/*${suffix}_*0.root > input.dat
+	    ls ${output}/*${input}/*${suffix}_*1.root >> input.dat
+	elif [ ${extra_suffix} == "0-2" ]; then
+	    extra_suffix="_v0_2"
+	    echo ${extra_suffix}
+	    ls ${output}/*${input}/*${suffix}_*0.root > input.dat
+	    ls ${output}/*${input}/*${suffix}_*1.root >> input.dat
+	    ls ${output}/*${input}/*${suffix}_*2.root >> input.dat
+	elif [ ${extra_suffix} == "0-3" ]; then
+	    extra_suffix="_v0_3"
+	    echo ${extra_suffix}
+	    ls ${output}/*${input}/*${suffix}_*0.root > input.dat
+	    ls ${output}/*${input}/*${suffix}_*1.root >> input.dat
+	    ls ${output}/*${input}/*${suffix}_*2.root >> input.dat
+	    ls ${output}/*${input}/*${suffix}_*3.root >> input.dat
+	elif [ ${extra_suffix} == "0-4" ]; then
+	    extra_suffix="_v0_4"
+	    echo ${extra_suffix}
+	    ls ${output}/*${input}/*${suffix}_*0.root > input.dat
+	    ls ${output}/*${input}/*${suffix}_*1.root >> input.dat
+	    ls ${output}/*${input}/*${suffix}_*2.root >> input.dat
+	    ls ${output}/*${input}/*${suffix}_*3.root >> input.dat
+	    ls ${output}/*${input}/*${suffix}_*4.root >> input.dat
+	else
+	    echo ${extra_suffix}
+	    ls ${output}/*${input}/*${suffix}_*${extra_suffix}.root > input.dat
+	fi
 	echo "Found the following:"
 	wc -l input.dat
 	echo ""
+#	sleep 100000
     elif [ ${2} == "n" ]; then
 	numevts=${3}
 	echo "Running over ${numevts} events."
@@ -176,6 +208,10 @@ if ! [ -z ${2} ]; then
 	echo "checking..."
 	root -l checkfile.C -b -q
 	echo "Hit Control-X"
+	chmod 777 rmfiles.sh
+	wc -l rmfiles.sh
+	./rmfiles.sh
+	exit;
 	sleep 1000000
     fi
 fi
@@ -201,11 +237,53 @@ for file in ${inputfiles}; do
     fi
 done
 
-echo HI
+#
+# Make Footer
+#
+#
+
+
+footer_fcl=`ls ${output}/*${input}*/footer_reader.fcl`
+size=`wc -l ${footer_fcl} | awk '{print $1}'`
+if [ ${size} == -1 ]; then
+cat >> ${footer_fcl} <<EOF
+}
+
+physics: {
+  analyzers: {
+    readRingTrackers: {
+      module_type: ringTrackerAnalyzer
+      hist_dir: ""
+      tree_dir: ""
+      beamstart: "CentralOrbit"
+      basename: "${input}"
+      maxturns: 200
+      LaunchAngle: 0
+      InflectorAngle: 0
+      StorageOffset: 0
+      SaveInfHits: false
+      SaveTruthHits: true
+      SaveRingHits: false
+      SaveVRingHits: false
+      SaveVRing1PlaneHits: false
+      debug: false
+    }
+  }
+  path1: [ readRingTrackers ]
+  end_paths: [ path1 ]
+}
+EOF
+fi
 
 files_fcl=`ls ${output}/*${input}*/files_reader.fcl`
 header_fcl=`ls ${output}/*${input}*/header_reader.fcl`
 footer_fcl=`ls ${output}/*${input}*/footer_reader.fcl`
+
+#echo "Footer"
+#cat ${footer_fcl}
+#echo "Files"
+#cat ${files_fcl}
+#sleep 10000
 #header_fcl=`ls ${output}/*${input}*/header_truthreader.fcl`
 #footer_fcl=`ls ${output}/*${input}*/footer_truthreader.fcl`
 fcl="${output}/${input}/reader.fcl"

@@ -118,9 +118,11 @@ void GetXminmax(TH2F *hist, double *xmin, double *xmax, double *ymin, double *ym
   bool isNavg = false;
   bool isPol = false;
   bool isXe = false;
+  bool isEqRad = false;
   bool isMom = false;
   bool isZhat = false;
   bool isNum = false;
+  bool isEqRadMom = false;
 
   TString name = hist->GetName();
 
@@ -139,6 +141,7 @@ void GetXminmax(TH2F *hist, double *xmin, double *xmax, double *ymin, double *ym
     if ( name.Contains("Track_Prhat") || name.Contains("Tracker_Prhat") ) { isXprime = true; }
     if ( name.Contains("Track_Pvhat") || name.Contains("Tracker_Pvhat") ) { isYprime = true; }
     if ( name.Contains("Track_Xe") || name.Contains("Tracker_Xe") ) { isXe = true; }
+    if ( name.Contains("Track_EqRad") || name.Contains("Tracker_EqRad") ) { isXe = true; }
     if ( name.Contains("Track_Pol") || name.Contains("Tracker_Pol") ) { isPol = true; }
     if ( name.Contains("Track_Zhat") || name.Contains("Tracker_Zhat") ) { isZhat = true; }
     if ( name.Contains("Track_NumCounter") || name.Contains("Tracker_NumCounter") ) { isNum = true; }
@@ -146,6 +149,7 @@ void GetXminmax(TH2F *hist, double *xmin, double *xmax, double *ymin, double *ym
   else {
     if ( name.Contains("PolXY") ) { isPol = true; }
     if ( name.Contains("RhatY") ) { isRhatY = true; }
+    if ( name.Contains("EqRadMom") ) { isEqRadMom = true; }
     if ( name.Contains("XZ") ) { isXZ = true; }
     if ( name.Contains("XprimeX") ) { isXprimeX = true; }
     if ( name.Contains("YprimeY") ) { isYprimeY = true; }
@@ -198,10 +202,10 @@ void GetXminmax(TH2F *hist, double *xmin, double *xmax, double *ymin, double *ym
 
     if ( isZhat ) {
       *ymax = TMath::Pi(); *ymin = -TMath::Pi();
-      for ( double mm = TMath::Pi(); mm >= 0.1; mm -= TMath::Pi()/8.0 ) {
-	if ( histymax < mm && histymin > -mm ) { *ymax = mm; *ymin = -mm; }
-	cout << mm << "\t" << *ymin << "\t" << *ymax << endl;
-      }
+//       for ( double mm = TMath::Pi(); mm >= 0.1; mm -= TMath::Pi()/8.0 ) {
+// 	if ( histymax < mm && histymin > -mm ) { *ymax = mm; *ymin = -mm; }
+// 	cout << mm << "\t" << *ymin << "\t" << *ymax << endl;
+//       }
       return;
     }
 
@@ -229,9 +233,9 @@ void GetXminmax(TH2F *hist, double *xmin, double *xmax, double *ymin, double *ym
       return;
     }
     
-    if ( isXe ) { 
+    if ( isXe || isEqRad ) { 
       *ymax = 50; *ymin = -50;
-      for ( int mm = 50; mm >= 10; mm -= 5 ) {
+      for ( int mm = 50; mm >= 10; mm -= 10 ) {
 	if ( histymax < mm && histymin > -mm ) { *ymax = mm; *ymin = -mm; }
       }
       return;
@@ -266,6 +270,28 @@ void GetXminmax(TH2F *hist, double *xmin, double *xmax, double *ymin, double *ym
       }
       return;
     }
+
+    if ( isEqRadMom ) {
+      *xmax = 50; *xmin = -50;
+      for ( int mm = 50; mm >= 10; mm -= 10 ) {
+	if ( histxmax < mm && histxmin > -mm ) { *xmax = mm; *xmin = -mm; }
+      }
+      *ymax = 2; *ymin = 0;
+      if ( name.Contains("Electron") ) {
+	*ymin = 0.0; *ymax = 1.0;
+      }
+      else {
+	if ( name.Contains("BirthMuon") || name.Contains("DecayMuon") || name.Contains("StoredMuon") || name.Contains("RingTracker") || name.Contains("Tracker_Mom") ) {
+	  *ymin = 1.0*(1-3*dPoverP);
+	  *ymax = 1.0*(1+3*dPoverP);
+	}
+	else {
+	  *ymin = 0.0; *ymax = 1.0;
+	}
+      }
+      return;
+    }
+
 
     if ( isXZ ) {
       *ymax = 8000.0; *ymin = -8000.0;
@@ -313,6 +339,7 @@ void RebinHist(TH1F *hist1d)
 
   if ( hname.Contains("FFT") ) { return; }
 
+  if ( hname.Contains("_Num") ) { hist1d->Rebin(70); return; }
   
   if ( hname.Contains("NgtEth") || hname.Contains("NwghtE") || hname.Contains("Nud") || hname.Contains("Nup") || hname.Contains("Ndown") || hname.Contains("Num") ) { ; }
   else {
@@ -362,7 +389,7 @@ void RebinHist(TH1F *hist1d)
 	if ( hist1d->GetBinContent(i) <= 0.0 ) { nempty++; }
       }
       cout << "EMPTY = " << nempty << " / " << nbins << endl;
-      while ( (double)nempty/nbins > 0.025 && (double)nempty/nbins < 0.75 ) {
+      while ( (double)nempty/nbins > 0.25 && (double)nempty/nbins < 0.75 ) {
 	hist1d->Rebin(2);
 	nempty = 0;
 	nbins = hist1d->GetNbinsX();
@@ -370,7 +397,7 @@ void RebinHist(TH1F *hist1d)
 	  if ( hist1d->GetBinContent(i) <= 0.0 ) { nempty++; }
 	}
 	cout << "EMPTY = " << nempty << " / " << nbins << endl;
-	if ( (double)nempty/nbins < 0.025 ) { break; }
+	if ( (double)nempty/nbins < 0.25 ) { break; }
       }
     }
   }
@@ -401,11 +428,12 @@ void GetXminmax(TH1F *hist, double *xmin, double *xmax, double *ymin, double *ym
   if ( name.Contains("_Vhat_") ) { isRhat = true; }
   if ( name.Contains("_Xprime_") ) { isXprime = true; }
   if ( name.Contains("_Yprime_") ) { isYprime = true; }
-  if ( name.Contains("_Num_") ) { isN = true; }
-  if ( name.Contains("_Nud_") ) { isNavg = true; }
+  if ( name.Contains("_NumStation") ) { isN = true; }
+  if ( name.Contains("_NudStation") ) { isNavg = true; }
   if ( name.Contains("_Pol_") ) { isPol = true; }
   if ( name.Contains("_Mom_") ) { isMom = true; }
   if ( name.Contains("_Xe_") ) { isXe = true; }
+  if ( name.Contains("_EqRad_") ) { isXe = true; }
   if ( name.Contains("FFT") ) { isFFT = true; }
   if ( name.Contains("_Zhat_") ) { isZhat = true; }
   if ( name.Contains("_R_") ) { isR = true; }
@@ -414,6 +442,19 @@ void GetXminmax(TH1F *hist, double *xmin, double *xmax, double *ymin, double *ym
   if ( name.Contains("_Rhat_") ) { isRhat = true; }
 
   bool debug = true;
+
+  double xmin95, xmax95;
+  xmin95 = histxmin;
+  xmax95 = histxmax;
+  if ( isXe ) { 
+    double sumall = hist->Integral();
+    for ( int i = 1; i <= hist->GetNbinsX(); i++ ) {
+      if ( hist->Integral(1, i) / sumall > 0.02 ) { xmin95 = hist->GetBinCenter(i); break; }
+    }
+    for ( int i = hist->GetNbinsX(); i >= 1; i-- ) {
+      if ( hist->Integral(1, i) / sumall < 0.98 ) { xmax95 = hist->GetBinCenter(i); break; }
+    }
+  }
   
   *xmin = histxmin;
   *xmax = histxmax;
@@ -446,8 +487,12 @@ void GetXminmax(TH1F *hist, double *xmin, double *xmax, double *ymin, double *ym
 
   // If vs time plot
   if ( isTurn || isTime ) {
-    *xmin = minturns_for_plot;
-    *xmax = maxturns_for_plot;
+    if ( minturns_for_plot > 0 ) {
+      *xmin = minturns_for_plot;
+    }
+    if ( maxturns_for_plot > 0 ) {
+      *xmax = maxturns_for_plot;
+    }
   }
   else
     if ( isRhat || isVhat ) {
@@ -497,15 +542,25 @@ void GetXminmax(TH1F *hist, double *xmin, double *xmax, double *ymin, double *ym
   if ( isXe ) {
     if ( debug ) { cout << "GetXminmax: IsXe" << endl; }
     *xmax = 50; *xmin = -50;
-    for ( int mm = 50; mm >= 10; mm -= 5 ) {
-      if ( histxmax < mm && histxmin > -mm ) { *xmax = mm; *xmin = -mm; }
+    for ( int mm = 50; mm >= 30; mm -= 20 ) {
+      if ( xmax95 < mm && xmin95 > -mm ) { *xmax = mm; *xmin = -mm; }
+      //if ( histxmax < mm && histxmin > -mm ) { *xmax = mm; *xmin = -mm; }
+    }
+    for ( int mm = 30; mm >= 15; mm -= 15 ) {
+      if ( xmax95 < mm && xmin95 > -mm ) { *xmax = mm; *xmin = -mm; }
+      //if ( histxmax < mm && histxmin > -mm ) { *xmax = mm; *xmin = -mm; }
+    }
+    for ( int mm = 15; mm >= 10; mm -= 5 ) {
+      if ( xmax95 < mm && xmin95 > -mm ) { *xmax = mm; *xmin = -mm; }
+      //if ( histxmax < mm && histxmin > -mm ) { *xmax = mm; *xmin = -mm; }
     }
     return;
   }
 
   if ( ist0 ) {
     if ( debug ) { cout << "GetXminmax: Ist0" << endl; }
-    //*xmax = histxmax * 1.25; *xmin = histxmin * 0.75 ;
+    *xmax = TMath::Min(histxmax * 1.25, histxmax + 5);
+    *xmin = TMath::Max(histxmin * 0.75, histxmin - 5) ;
     return;
     //HERE
   }
@@ -1425,7 +1480,7 @@ void MakePlot1D(TH1F *hist1d, int r, int i, double *int_prev, double *int_curr, 
   }
 
 
-  if ( hname.Contains("_Num_") == false ) {
+  if ( hname.Contains("_Num") == false ) {
     histxmax *= 1.25;
     histxmin *= 1.25;
   }
@@ -1511,7 +1566,7 @@ void MakePlot1D(TH1F *hist1d, int r, int i, double *int_prev, double *int_curr, 
   else if ( hname.Contains("Xprime") ) { yt << " mrad"; }
   else if ( hname.Contains("Yprime") ) { yt << " mrad"; }
   else if ( hname.Contains("Degree") ) { yt << " ^{#circ}"; }
-  else if ( hname.Contains("Xe") || hname.Contains("Vhat") ) { yt << " mm"; }
+  else if ( hname.Contains("Xe") || hname.Contains("EqRad") || hname.Contains("Vhat") ) { yt << " mm"; }
   else if ( hname.Contains("Pol") || hname.Contains("PolX")|| hname.Contains("PolY") ) { yt << ""; }
   else if ( hname.Contains("Rhat") || hname.Contains("Vhat") ) { yt << " mm"; }
   else if ( hname.Contains("Time") ) { yt << " #mus"; }
@@ -2330,6 +2385,7 @@ void plotinflector()
   
 
   //plot_truth = false;
+  //plot_truth_phasespace = false;
 
   bool runFFT = false;
   if ( dir.find("CentralOrbit") != string::npos &&
@@ -2430,7 +2486,7 @@ void plotinflector()
 //     Ring2Dhists[NRing2Dhists++] = "Pol";
 //     Ring2Dhists[NRing2Dhists++] = "PolX";
 //     Ring2Dhists[NRing2Dhists++] = "PolY";
-    Ring2Dhists[NRing2Dhists++] = "Xe";
+    Ring2Dhists[NRing2Dhists++] = "EqRad";
     Ring2Dhists[NRing2Dhists++] = "Zhat";
 
     int NRing1Dhists = 0;
@@ -2543,6 +2599,7 @@ void plotinflector()
   
 
 
+
   
   //------------------------------------
   //
@@ -2554,18 +2611,19 @@ void plotinflector()
     int NRinghists = 0;
     string Ringhists[20];
     Ringhists[NRinghists++] = "Rhat";
-    Ringhists[NRinghists++] = "Xe";
+    Ringhists[NRinghists++] = "EqRad";
     Ringhists[NRinghists++] = "Vhat";
     Ringhists[NRinghists++] = "Xprime";
     Ringhists[NRinghists++] = "Yprime";
     Ringhists[NRinghists++] = "Mom";
-    Ringhists[NRinghists++] = "Pol";
-    Ringhists[NRinghists++] = "PolX";
-    Ringhists[NRinghists++] = "PolY";
+//     Ringhists[NRinghists++] = "Pol";
+//     Ringhists[NRinghists++] = "PolX";
+//     Ringhists[NRinghists++] = "PolY";
     Ringhists[NRinghists++] = "Zhat";
 
     int NRing2Dhists = 0;
     string Ring2Dhists[20];
+    Ring2Dhists[NRing2Dhists++] = "EqRadMom";
     Ring2Dhists[NRing2Dhists++] = "RhatY";
     Ring2Dhists[NRing2Dhists++] = "XprimeX";
     Ring2Dhists[NRing2Dhists++] = "YprimeY";
@@ -2590,6 +2648,24 @@ void plotinflector()
 	hname << Ringbase << histname << "_" << time << "_" << timeval;
 	TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
 	MakePlot1D(hist1d, -1, -1, &int_prev, &int_curr, &int_start);    
+	hname.str("");
+      }
+
+      for ( int n = 0; n < NRing2Dhists; n++ ) {
+	string histname = Ring2Dhists[n];
+
+	string timeval  = timevals[kGeneratedDist];
+	
+	hname << Ringbase << histname << "_" << time << "_" << timeval;
+	TH2F *hist2d = GetHistogram(file, hname.str(), &int_prev, &int_curr, &int_start);
+	MakePlot(hist2d, -1, -1, &int_prev, &int_curr, &int_start);    
+	hname.str("");
+
+	timeval  = timevals[kRemainingDist];
+	
+	hname << Ringbase << histname << "_" << time << "_" << timeval;
+	TH2F *hist2d = GetHistogram(file, hname.str(), &int_prev, &int_curr, &int_start);
+	MakePlot(hist2d, -1, -1, &int_prev, &int_curr, &int_start);    
 	hname.str("");
       }
     }
@@ -2712,13 +2788,13 @@ void plotinflector()
     G42Dhists[NG42Dhists++] = "PolX";
     G42Dhists[NG42Dhists++] = "PolY";
     G42Dhists[NG42Dhists++] = "Xe";
-    G42Dhists[NG42Dhists++] = "NumCounter";
-    //NG42Dhists = 0;
-
+    NG42Dhists = 0;
+    
     int NG4hists = 0;
     string G4hists[20];
     //G4hists[NG4hists++] = "NgtEth";
-    G4hists[NG4hists++] = "Num";
+    G4hists[NG4hists++] = "NumStation11";
+    G4hists[NG4hists++] = "NumStation5";
     if ( plot_Nud ) {
       G4hists[NG4hists++] = "Vhat";
       G4hists[NG4hists++] = "Yprime";
@@ -2805,9 +2881,9 @@ void plotinflector()
 	  
 	  hname << G4base << histname << "_" << truth_part_name << "_vs_" << timestamp;
 	  TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
-	  if ( !hist1d ) { continue; }
+	  if ( !hist1d ) { hname.str(""); continue; }
 
-	  if ( histname == "Num" ) {
+	  if ( histname.find("Num") != string::npos ) {
 	    for ( int np = 0; np < 3; np++ ) {
 	      if ( np == 0 ) {
 		minturns_for_plot = 1;

@@ -33,9 +33,17 @@ EOF
 
 if ! [ -z "${1}" ]; then
     NiceTimestampName ${1}
+    if [ -z ${2} ]; then
 cat >> ${outputdir}/index.html <<EOF
         <td><b><i><center>${nicetimestamp}</center></i></b></td>
 EOF
+    else
+	nicetimestamp1=${nicetimestamp}
+	NiceTimestampName ${2}
+cat >> ${outputdir}/index.html <<EOF
+        <td><b><i><center>${nicetimestamp1}<br>${nicetimestamp}</center></i></b></td>
+EOF
+    fi
 fi
     
 }
@@ -186,7 +194,7 @@ EOF
 BeginTable
 
 histograms="Rhat Vhat Xprime Yprime Mom Pol Zhat"
-histograms="Rhat Vhat Xprime Yprime Mom"
+histograms="Rhat Vhat Xprime Yprime Mom EqRad EqRadMom"
 timestamps="Begin_GeneratedDist Final_GeneratedDist Final_RemainingDist"
 for timestamp in ${timestamps}; do
     BeginRow ${timestamp}
@@ -226,10 +234,10 @@ timestamps="Time Time_0_5us Time_12_17us Time_25_30us"
 for timestamp in ${timestamps}; do
     if [ ${plotspin} == 1 ]; then
 	histograms1="Rhat Y Prhat Pvhat Mom"
-	histograms2="Pol PolY Xe Zhat Num"
+	histograms2="Pol PolY EqRad Zhat Num"
     else
 	histograms1="Rhat Y Prhat Pvhat"
-	histograms2="Mom Xe Zhat Num"
+	histograms2="Mom EqRad Zhat Num"
     fi
 
     if [ ${timestamp} == "Time_0_5us" ] || [ ${timestamp} == "Time_12_17us" ] || [ ${timestamp} == "Time_25_30us" ]; then
@@ -282,9 +290,9 @@ EOF
     if [ ${particle} == "BirthMuon" ] || [ ${particle} == "DecayMuon" ] || [ ${particle} == "StoredMuon" ]; then
 	if [ ${plotspin} == 1 ]; then
 	    timehistograms1="RhatY XprimeX YprimeY XZ"
-	    timehistograms2="Mom Pol PolXY Xe Time"
+	    timehistograms2="Mom Pol Xe Time"
 	    if [ ${particle} == "BirthMuon" ]; then
-		timehistograms2="Mom Pol PolXY Xe t0"
+		timehistograms2="Mom Pol Xe t0"
 	    fi
 	else
 	    timehistograms1="RhatY XprimeX YprimeY"
@@ -343,9 +351,9 @@ fi
 timehistograms="Rhat Vhat Xprime Yprime Mom Pol PolX PolY Xe"
 timehistograms="Rhat Vhat Xprime Yprime Mom Xe"
 timestamps_muons="Turn OncePerTurn Time TimeOncePerTurn"
-timestamps_muons="Time TimeOncePerTurn"
+timestamps_muons="TimeOncePerTurn"
 timestamps_electrons="Turn Time OncePerTurn TimeOncePerTurn"
-timestamps_electrons="Time TimeOncePerTurn"
+timestamps_electrons="TimeOncePerTurn"
 
 for particle in ${particles}; do
 cat >> ${outputdir}/index.html <<EOF
@@ -407,11 +415,10 @@ EOF
     BeginTable
 
     for timestamp in ${timestamps}; do
-	histograms="Num NumCounter"
-	histograms="Num"
-
-	BeginRow ${timestamp}
+	histograms="NumStation11 NumStation5"
+	
 	for histogram in ${histograms}; do
+	    BeginRow ${timestamp} ${histogram}
 	    write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}.png ${histogram}
 	    
 	    if [ ${timestamp} == "TimeOncePerTurn" ] || [ ${timestamp} == "Time" ]; then
@@ -419,12 +426,14 @@ EOF
 		write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_15_20Time.png
 		write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_30_35Time.png
 	    fi
+	    EndRow
 	done
 	
-	EndRow
 
 	BeginRow ${timestamp}
 	for histogram in ${histograms}; do
+	    continue
+	    BeginRow ${timestamp} ${histogram}
 	    write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_x_FFT.png ${histogram}
 	    
 	    if [ ${timestamp} == "TimeOncePerTurn" ] || [ ${timestamp} == "Time" ]; then
@@ -432,9 +441,9 @@ EOF
 		write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_x_15_20Time_FFT.png
 		write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_x_30_35Time_FFT.png
 	    fi
+	    EndRow
 	done
 	
-	EndRow
     done
 
     EndTable
