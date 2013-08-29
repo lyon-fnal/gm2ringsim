@@ -118,6 +118,7 @@ namespace gm2ringsim
     std::string GetPolarization( ){ return Polarization_; }
     
 
+    G4double randTFromE989();
 
   private:
     G4ParticleGun* inflectorGun_;
