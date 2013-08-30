@@ -83,8 +83,8 @@ std::vector<G4LogicalVolume *> gm2ringsim::Straws::doBuildLVs() {
                                 );*/
 
 												G4Tubs* tracker_tube = new G4Tubs("tracker_tube",
-																													0.0,
-																													2.55,
+																													geom_.innerRadiusOfTheStraw,
+																													geom_.outerRadiusOfTheStraw,
 																													geom_.halfLengthOfTheStraw,
 																													geom_.startAngleOfTheStraw,
 																													geom_.spanningAngleOfTheStraw
@@ -92,16 +92,16 @@ std::vector<G4LogicalVolume *> gm2ringsim::Straws::doBuildLVs() {
 														
 
 												G4Tubs* gas_tube = new G4Tubs("gas_tube",
-																													0.0,
-																													2.535,
+																													geom_.innerRadiusOfTheStraw,
+																													geom_.outerRadiusOfTheGas,
 																													geom_.halfLengthOfTheStraw,
 																													geom_.startAngleOfTheStraw,
 																													geom_.spanningAngleOfTheStraw
 																												);
 
 												G4Tubs* wire_tube = new G4Tubs("wire_tube",
-																													0,
-																													0.0125,
+																													geom_.innerRadiusOfTheStraw,
+																													geom_.outerRadiusOfTheWire,
 																													geom_.halfLengthOfTheStraw,
 																													geom_.startAngleOfTheStraw,
 																													geom_.spanningAngleOfTheStraw
@@ -121,7 +121,7 @@ std::vector<G4LogicalVolume *> gm2ringsim::Straws::doBuildLVs() {
                                 0);
 
                         G4LogicalVolume* wireLV = new G4LogicalVolume(wire_tube,
-                                artg4Materials::Cu(),
+                                artg4Materials::W(),
                                 "wireLV",
                                 0,
                                 0);
