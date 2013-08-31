@@ -47,7 +47,8 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
     for (unsigned int sc =0 ; sc<geom_.strawStationLocation.size(); sc++){
       
       G4VSolid *strawStation = new G4Box("strawSystem", geom_.strawStationSizeHalf[sc], geom_.strawStationWidthHalf[sc], geom_.strawStationHeightHalf);
-      
+      G4VSolid *stationManifold = new G4Box("manifoldSystem", geom_.strawStationSizeHalf[sc], geom_.strawStationWidthHalf[sc], 10.0);
+       
       std::string strawStationLVName = artg4::addNumberToName("StationChamberLV-%d", sc+tb);
       
       G4LogicalVolume* strawStationLV = new G4LogicalVolume(
@@ -56,13 +57,38 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
                                                             strawStationLVName,
                                                             0,
                                                             0);
-      
+
+      G4LogicalVolume* manifoldLV = new G4LogicalVolume(
+                                                        stationManifold,
+                                                        artg4Materials::Al(),
+                                                        "stationManifold",
+                                                         0,
+                                                         0);
+       
+		  new G4PVPlacement(0,
+												G4ThreeVector(0,0,59.5),
+												manifoldLV,
+												"manifoldLV-top",
+												strawStationLV,
+											  0,
+											  0
+											 );
+
+
       artg4::setVisAtts( strawStationLV, geom_.displayStation, geom_.stationColor,
                         [] (G4VisAttributes* att) {
                           att->SetForceSolid(0);
                           att->SetVisibility(1);
                         }
                         );
+
+      artg4::setVisAtts( manifoldLV, geom_.displayStation, geom_.manifoldColor,
+                        [] (G4VisAttributes* att) {
+                          att->SetForceSolid(1);
+                          att->SetVisibility(1);
+                        }
+                        );
+      
       
       stations.push_back(strawStationLV);
       
