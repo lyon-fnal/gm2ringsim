@@ -15,6 +15,7 @@
 #include "Geant4/G4VisAttributes.hh"
 
 #include "Geant4/G4Box.hh"
+#include "Geant4/G4Tubs.hh"
 #include "Geant4/G4UserLimits.hh"
 #include "Geant4/G4TwoVector.hh"
 #include "Geant4/G4SubtractionSolid.hh"
@@ -48,12 +49,23 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
     for (unsigned int sc =0 ; sc<geom_.strawStationLocation.size(); sc++){
       
       G4VSolid *strawStation = new G4Box("strawSystem", geom_.strawStationSizeHalf[sc], geom_.strawStationWidthHalf[sc], geom_.strawStationHeightHalf);
+      
+      //Build Manifold structure. Hollow box built by subtracting a slightly smaller box from the full size. 
       G4VSolid *outerStationManifold = new G4Box("outerManifoldSystem", geom_.strawStationSizeHalf[sc], geom_.strawStationWidthHalf[sc], geom_.strawStationManifoldHeightHalf);
       G4VSolid *innerStationManifold = new G4Box("innerManifoldSystem", geom_.strawStationSizeHalf[sc]-1.5*mm, geom_.strawStationWidthHalf[sc]-1.5*mm, geom_.strawStationManifoldHeightHalf-1.5*mm);
-       
-
       G4SubtractionSolid *stationManifold = new G4SubtractionSolid("stationManifold", outerStationManifold, innerStationManifold);
 
+
+      //Build Support post
+      G4VSolid *supportPost = new G4Tubs("supportPost",0, 
+                                                       geom_.supportPostRadius, 
+																											 geom_.halfHeightOfTheStraw,
+																											 geom_.startAngleOfTheStraw,
+																											 geom_.spanningAngleOfTheStraw
+                                        );
+      //Build Support Plate
+      G4VSolid *supportPlate = new G4Box("supportPlate",geom_.supportPlateThickness/2, geom_.supportPlateWidth/2, geom_.halfHeightOfTheStraw);
+                                                            
       std::string strawStationLVName = artg4::addNumberToName("StationChamberLV-%d", sc+tb);
       
       G4LogicalVolume* strawStationLV = new G4LogicalVolume(
@@ -69,27 +81,62 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
                                                         "stationManifold",
                                                          0,
                                                          0);
-       
+
+      G4LogicalVolume* supportPostLV = new G4LogicalVolume(
+                                                            supportPost, 
+                                                            artg4Materials::Al(),
+                                                            "stationSupportPost",
+                                                            0,
+                                                            0
+                                                          );
+
+      G4LogicalVolume* supportPlateLV = new G4LogicalVolume(
+                                                            supportPlate, 
+                                                            artg4Materials::Al(),
+                                                            "stationSupportPlate",
+                                                            0,
+                                                            0
+                                                          );
+
+      
       double manifoldPlacement = geom_.strawStationHeightHalf-geom_.strawStationManifoldHeightHalf;
 
 	  new G4PVPlacement(0,
-					    G4ThreeVector(0,0,-1*manifoldPlacement),
-						manifoldLV,
-					    "manifoldLV-top",
-					    strawStationLV,
-						0,
-					    0
-                        );
+					            G4ThreeVector(0,0,-1*manifoldPlacement),
+						          manifoldLV,
+					            "manifoldLV-top",
+					            strawStationLV,
+						          0,
+					            0
+                     );
 
 	  new G4PVPlacement(0,
-					    G4ThreeVector(0,0,manifoldPlacement),
-						manifoldLV,
-					    "manifoldLV-bottom",
-					    strawStationLV,
-						0,
-					    0
-                       );
-
+					            G4ThreeVector(0,0,manifoldPlacement),
+						          manifoldLV,
+					            "manifoldLV-bottom",
+					            strawStationLV,
+						          0,
+					            0
+                     );
+    double xpospost = geom_.strawStationSizeHalf[sc]-geom_.supportPostRadius;
+    double ypospost = geom_.supportPostYPosition - geom_.strawStationWidthHalf[sc];
+    new G4PVPlacement(0,
+                      G4ThreeVector(xpospost,ypospost,0),
+                      supportPostLV,
+                      "supportPostLV",
+                      strawStationLV,
+                      0,
+                      0
+                     );
+     new G4PVPlacement(0,
+                      G4ThreeVector(geom_.supportPlateThickness/2-geom_.strawStationSizeHalf[sc],geom_.strawStationWidthHalf[sc]-geom_.supportPlateWidth/2,0),
+                       supportPlateLV,
+                       "supportPlateLV",
+                       strawStationLV,
+                       0,
+                       0
+                      );
+ 
       artg4::setVisAtts( strawStationLV, geom_.displayStation, geom_.stationColor,
                         [] (G4VisAttributes* att) {
                           att->SetForceSolid(0);
@@ -98,6 +145,19 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
                         );
 
       artg4::setVisAtts( manifoldLV, geom_.displayStation, geom_.manifoldColor,
+                        [] (G4VisAttributes* att) {
+                          att->SetForceSolid(1);
+                          att->SetVisibility(1);
+                        }
+                        );
+      artg4::setVisAtts( supportPostLV, geom_.displayStation, geom_.manifoldColor,
+                        [] (G4VisAttributes* att) {
+                          att->SetForceSolid(1);
+                          att->SetVisibility(1);
+                        }
+                        );
+      
+      artg4::setVisAtts( supportPlateLV, geom_.displayStation, geom_.manifoldColor,
                         [] (G4VisAttributes* att) {
                           att->SetForceSolid(1);
                           att->SetVisibility(1);
@@ -113,6 +173,7 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
   return stations;
   
 }
+
 
 // Build the physical volumes
 std::vector<G4VPhysicalVolume *> gm2ringsim::StrawTracker::doPlaceToPVs( std::vector<G4LogicalVolume*> vacs) {
