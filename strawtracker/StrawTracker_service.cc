@@ -17,6 +17,7 @@
 #include "Geant4/G4Box.hh"
 #include "Geant4/G4UserLimits.hh"
 #include "Geant4/G4TwoVector.hh"
+#include "Geant4/G4SubtractionSolid.hh"
 
 #include "gm2geom/strawtracker/StrawTrackerGeometry.hh"
 #include "gm2ringsim/strawtracker/StrawSD.hh"
@@ -47,8 +48,12 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
     for (unsigned int sc =0 ; sc<geom_.strawStationLocation.size(); sc++){
       
       G4VSolid *strawStation = new G4Box("strawSystem", geom_.strawStationSizeHalf[sc], geom_.strawStationWidthHalf[sc], geom_.strawStationHeightHalf);
-      G4VSolid *stationManifold = new G4Box("manifoldSystem", geom_.strawStationSizeHalf[sc], geom_.strawStationWidthHalf[sc], 10.0);
+      G4VSolid *outerStationManifold = new G4Box("outerManifoldSystem", geom_.strawStationSizeHalf[sc], geom_.strawStationWidthHalf[sc], geom_.strawStationManifoldHeightHalf);
+      G4VSolid *innerStationManifold = new G4Box("innerManifoldSystem", geom_.strawStationSizeHalf[sc]-1.5*mm, geom_.strawStationWidthHalf[sc]-1.5*mm, geom_.strawStationManifoldHeightHalf-1.5*mm);
        
+
+      G4SubtractionSolid *stationManifold = new G4SubtractionSolid("stationManifold", outerStationManifold, innerStationManifold);
+
       std::string strawStationLVName = artg4::addNumberToName("StationChamberLV-%d", sc+tb);
       
       G4LogicalVolume* strawStationLV = new G4LogicalVolume(
@@ -65,15 +70,25 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
                                                          0,
                                                          0);
        
-		  new G4PVPlacement(0,
-												G4ThreeVector(0,0,59.5),
-												manifoldLV,
-												"manifoldLV-top",
-												strawStationLV,
-											  0,
-											  0
-											 );
+      double manifoldPlacement = geom_.strawStationHeightHalf-geom_.strawStationManifoldHeightHalf;
 
+	  new G4PVPlacement(0,
+					    G4ThreeVector(0,0,-1*manifoldPlacement),
+						manifoldLV,
+					    "manifoldLV-top",
+					    strawStationLV,
+						0,
+					    0
+                        );
+
+	  new G4PVPlacement(0,
+					    G4ThreeVector(0,0,manifoldPlacement),
+						manifoldLV,
+					    "manifoldLV-bottom",
+					    strawStationLV,
+						0,
+					    0
+                       );
 
       artg4::setVisAtts( strawStationLV, geom_.displayStation, geom_.stationColor,
                         [] (G4VisAttributes* att) {
