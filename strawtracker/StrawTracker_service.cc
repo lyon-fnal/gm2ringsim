@@ -124,7 +124,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::StrawTracker::doPlaceToPVs( std::ve
   int strawTrackerIndex, strawTrackerNumber;
   int numberOfStationsPerTracker = geom_.strawStationSize.size();
   int stationIndex;
-
+  geom_.print();
   //loop over the logical volumes
   for ( auto aStrawStationLV : lvs() ) {
     // We to name the station including its station number
