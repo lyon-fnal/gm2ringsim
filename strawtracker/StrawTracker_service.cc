@@ -67,6 +67,7 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
       G4VSolid *supportPlate = new G4Box("supportPlate",geom_.supportPlateThickness/2, geom_.supportPlateWidth/2, geom_.halfHeightOfTheStraw);
                                                             
       std::string strawStationLVName = artg4::addNumberToName("StationChamberLV-%d", sc+tb);
+      G4Material *stationMaterial = artg4Materials::Al();
       
       G4LogicalVolume* strawStationLV = new G4LogicalVolume(
                                                             strawStation,
@@ -77,14 +78,14 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
 
       G4LogicalVolume* manifoldLV = new G4LogicalVolume(
                                                         stationManifold,
-                                                        artg4Materials::Al(),
+                                                        stationMaterial,
                                                         "stationManifold",
                                                          0,
                                                          0);
 
       G4LogicalVolume* supportPostLV = new G4LogicalVolume(
                                                             supportPost, 
-                                                            artg4Materials::Al(),
+                                                            stationMaterial,
                                                             "stationSupportPost",
                                                             0,
                                                             0
@@ -92,7 +93,7 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
 
       G4LogicalVolume* supportPlateLV = new G4LogicalVolume(
                                                             supportPlate, 
-                                                            artg4Materials::Al(),
+                                                            stationMaterial,
                                                             "stationSupportPlate",
                                                             0,
                                                             0
