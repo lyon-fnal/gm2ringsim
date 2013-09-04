@@ -128,8 +128,13 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
                       0,
                       0
                      );
+     
+      double yPosPlate;
+
+     if(sc == geom_.strawStationLocation.size()-1) yPosPlate = 0.0;
+     else yPosPlate = geom_.strawStationWidthHalf[sc]-geom_.supportPlateWidth/2;
      new G4PVPlacement(0,
-                      G4ThreeVector(geom_.supportPlateThickness/2-geom_.strawStationSizeHalf[sc],geom_.strawStationWidthHalf[sc]-geom_.supportPlateWidth/2,0),
+                      G4ThreeVector(geom_.supportPlateThickness/2-geom_.strawStationSizeHalf[sc],yPosPlate,0),
                        supportPlateLV,
                        "supportPlateLV",
                        strawStationLV,
@@ -144,20 +149,20 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
                         }
                         );
 
-      artg4::setVisAtts( manifoldLV, geom_.displayStation, geom_.manifoldColor,
+      artg4::setVisAtts( manifoldLV, geom_.displayStationMaterial, geom_.manifoldColor,
                         [] (G4VisAttributes* att) {
                           att->SetForceSolid(1);
                           att->SetVisibility(1);
                         }
                         );
-      artg4::setVisAtts( supportPostLV, geom_.displayStation, geom_.manifoldColor,
+      artg4::setVisAtts( supportPostLV, geom_.displayStationMaterial, geom_.manifoldColor,
                         [] (G4VisAttributes* att) {
                           att->SetForceSolid(1);
                           att->SetVisibility(1);
                         }
                         );
       
-      artg4::setVisAtts( supportPlateLV, geom_.displayStation, geom_.manifoldColor,
+      artg4::setVisAtts( supportPlateLV, geom_.displayStationMaterial, geom_.manifoldColor,
                         [] (G4VisAttributes* att) {
                           att->SetForceSolid(1);
                           att->SetVisibility(1);
