@@ -68,7 +68,8 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
                                                             
       std::string strawStationLVName = artg4::addNumberToName("StationChamberLV-%d", sc+tb);
       G4Material *stationMaterial = artg4Materials::Al();
-      
+      G4Material *supportPostMaterial = artg4Materials::C();
+    
       G4LogicalVolume* strawStationLV = new G4LogicalVolume(
                                                             strawStation,
                                                             artg4Materials::Vacuum(),
@@ -85,7 +86,7 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
 
       G4LogicalVolume* supportPostLV = new G4LogicalVolume(
                                                             supportPost, 
-                                                            stationMaterial,
+                                                            supportPostMaterial,
                                                             "stationSupportPost",
                                                             0,
                                                             0
