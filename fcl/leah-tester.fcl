@@ -17,7 +17,7 @@ process_name:myProcessName
 
 source: {
   module_type: EmptyEvent
-  maxEvents: 1
+  maxEvents: 10
 
 }
 
@@ -104,12 +104,10 @@ services: {
     }
 
     physicalVolumeStore: {}
+
     Gm2PhysicsList: {
-        muonDecayMode: "iso"
-
+        decayMode: "iso"
     }
-
-
 
     TrackingAction : {
           name : "trackingAction"
@@ -117,34 +115,28 @@ services: {
 
     ClockAction: {}
 
-//    G2PGA: {
-//	      name: "primary"
-//    }
-
-//    MuonGasPGA: {
-//        name: "muongas"
-//        muonGasVerbosity: false
-//    }
-
     InflectorPGA: {
         name: "inflectorgun"
         inflectorVerbosity: true
-	SigmaT: 25
-	EmittanceX: 1.0
-  EmittanceY: 1.0
-	BetaX:  7.66477
-	BetaY:  19.0763
-	AlphaX:  0.0
-	AlphaY:  0.0
-	Pmean: -1
-	dPOverP: 0.005
-	StartUpstream:  false
-	StartUpstreamCryo:  false
-	StartDownstream:  false
-	StartPerfect:  true
-	GenGaussian: false
-	LaunchAngle: 0.0
-	StorageOffset: 0.0
+				SigmaT: 25
+	      FlatDecayTime: true
+	      MaxDecayTime: 1
+				EmittanceX: 1.0
+  			EmittanceY: 1.0
+				BetaX:  7.66477
+				BetaY:  19.0763
+				AlphaX:  0.0
+				AlphaY:  0.0
+				Pmean: -1
+				dPOverP: 0.005
+				Particle: "mu+"
+				StartUpstream:  false
+				StartUpstreamCryo:  false
+				StartDownstream:  false
+				StartPerfect:  true
+				GenGaussian: false
+				LaunchAngle: 0.0
+				StorageOffset: 0.0
     }
 
     // Detectors
@@ -162,7 +154,7 @@ services: {
     Calorimeter: {}
     Collimator : {}
     StrawTracker: {}
-    Straws: {}
+//    Straws: {}
 
 
     MuonStorageStatusAction: {
@@ -177,7 +169,7 @@ services: {
 outputs: {
 out1: {
   module_type: RootOutput   
-  fileName: "gm2ringsimout-leahtest-5000evt-seed10-Vacuum.root"
+  fileName: "gm2ringsimout.root"
   }
 }
 
@@ -186,11 +178,10 @@ physics: {
     artg4 : { 
      module_type: artg4Main
      enableVisualization: true
-     macroPath: ".:./macros:../macros:../../macros"
+     macroPath: ".:./macros:../macros:../../macros:../srcs/gm2ringsim/macros"
      visMacro: "vis.mac"
-     afterEvent: pause
-       // (ui, pause, pass)
-     seed: 10
+     afterEvent: pause // (ui, pause, pass)
+     //seed: 10
      }
   }
 
