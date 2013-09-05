@@ -30,7 +30,7 @@ public:
     G4int turnNum; // obtained from turn counter
     G4int trackID;
     G4int caloNum;
-        
+    G4double energy;        
     CaloHit(G4Step*);
     
     inline void* operator new(size_t);
