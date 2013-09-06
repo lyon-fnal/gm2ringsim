@@ -46,9 +46,11 @@ namespace gm2ringsim {
         float py;
         float pz;
         
+        float energy;
+
         CaloArtRecord() :
         turn(0), caloNum(0), trackID(0),
-        x(0.), y(0.), z(0.), time(0.), px(0.), py(0.), pz(0.)
+        x(0.), y(0.), z(0.), time(0.), px(0.), py(0.), pz(0.), energy(0.)
         {}
         
         virtual ~CaloArtRecord(){};
@@ -57,10 +59,10 @@ namespace gm2ringsim {
 #ifndef __GCCXML__
         CaloArtRecord(int n, int cn, int id,
                       float x, float y, float z, float time,
-                      float px, float py, float pz) :
+                      float px, float py, float pz, float e) :
         turn(n), caloNum(cn), trackID(id),
         x(x), y(y), z(z), time(time),
-        px(px), py(py), pz(pz)
+        px(px), py(py), pz(pz), energy(e) 
         {}
         
 #endif // __GCCXML__

@@ -707,7 +707,8 @@ void gm2ringsim::Calorimeter::doFillEventWithCaloHits(G4HCofThisEvent * hc) {
                                     e->time,
                                     e->global_mom.x(),
                                     e->global_mom.y(),
-                                    e->global_mom.z() );
+                                    e->global_mom.z(), 
+                                    e->energy );
         }
     }
     else {

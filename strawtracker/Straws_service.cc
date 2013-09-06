@@ -74,13 +74,6 @@ std::vector<G4LogicalVolume *> gm2ringsim::Straws::doBuildLVs() {
                         lvStream << "SingleStrawLV - " << currentWire;
                         string strawLVName = lvStream.str();
 											  
-                       /*G4Tubs* tracker_tube = new G4Tubs("tracker_tube",
-                                geom_.innerRadiusOfTheStraw,
-                                geom_.outerRadiusOfTheStraw,
-                                geom_.halfLengthOfTheStraw,
-                                geom_.startAngleOfTheStraw,
-                                geom_.spanningAngleOfTheStraw
-                                );*/
 
 												G4Tubs* tracker_tube = new G4Tubs("tracker_tube",
 																													geom_.innerRadiusOfTheStraw,

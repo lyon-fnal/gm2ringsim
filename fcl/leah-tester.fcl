@@ -59,6 +59,18 @@ services: {
         
         }
        }
+       GeometryDetails:{
+       
+        type: "file"
+        threshold: "DEBUG"
+        append: false
+        filename: "geometrydetails.txt"
+        categories: {
+        
+          STRAWTRACKERGEOMETRY: {limit : 1000000}
+          default : {limit : 0 }
+        }
+       }
 
      }
   }
@@ -104,7 +116,6 @@ services: {
     }
 
     physicalVolumeStore: {}
-
     Gm2PhysicsList: {
         decayMode: "iso"
     }
@@ -154,7 +165,7 @@ services: {
     Calorimeter: {}
     Collimator : {}
     StrawTracker: {}
-//    Straws: {}
+    Straws: {}
 
 
     MuonStorageStatusAction: {
@@ -169,7 +180,7 @@ services: {
 outputs: {
 out1: {
   module_type: RootOutput   
-  fileName: "gm2ringsimout.root"
+  fileName: "gm2ringsimout-leahtest-5000-nopiping-1scallop.root"
   }
 }
 
@@ -179,6 +190,8 @@ physics: {
      module_type: artg4Main
      enableVisualization: true
      macroPath: ".:./macros:../macros:../../macros:../srcs/gm2ringsim/macros"
+     //visualizeSpecificEvents: true
+     //eventsToDisplay: [ 514 ]
      visMacro: "vis.mac"
      afterEvent: pause // (ui, pause, pass)
      //seed: 10
