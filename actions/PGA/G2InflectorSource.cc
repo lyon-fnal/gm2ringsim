@@ -659,7 +659,7 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
       G4double maxtau = GetMaxDecayTime();
       if ( maxtau < 1000 ) {
 	// assume this is actually the number of turns
-	maxtau *= 0.150; // tau in microseconds
+	maxtau *= 0.16; // tau in microseconds
       }
       G4cout << "Decay time is flat between [0, " << maxtau << "] microseconds." << endl;
     }
