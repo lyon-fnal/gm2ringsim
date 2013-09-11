@@ -42,6 +42,8 @@ double eff_turn10, err_turn10;
 double eff_turn100, err_turn100;
 double eff_turn, err_turn;
 
+double totsum = 0.0;
+
 double dPoverP = 0.0015;
 int Nrad = 51;
 double lambda;
@@ -120,7 +122,7 @@ void GetXminmax(TH1F *hist, double *xmin, double *xmax, double *ymin, double *ym
   
   *xmin = histxmin;
   *xmax = histxmax;
-  *ymax = 1.5*histymax;
+  *ymax = 1.6*histymax;
   *ymin = 1.5*histymin;
 
   if ( dolog ) { *ymin = *ymax / hist->GetEntries(); }
@@ -369,6 +371,9 @@ TString Nicename(TString name)
   if ( name == "FastRotation" ) { return( "Fast Rotation" ); }
   if ( name == "GEANT" ) { return ( "GEANT4 R_{avg}" ); }
   if ( name == "THEORY" ) { return ( "R = #frac{#delta p}{p} #frac{1}{1-n} #times R_{m}" ); }
+
+  if ( name == "Data" || name == "datasignal" ) { return( "GEANT4 \"Data\"" ); }
+  if ( name == "MC" || name == "mcsignal" )   { return( "FasRot \"Data\"" ); }
   
   cout << "Nice name not found for : " << name << endl;
   return( name );
@@ -566,11 +571,19 @@ void GetMaxMin(TGraph *gr, double *max, double *min)
 
 void MakePlot(TGraph *gr1, TGraph *gr2, string name1, string name2)
 {
+  MakePlot(gr1, gr2, NULL, name1, name2, "");
+}
 
+void MakePlot(TGraph *gr1, TGraph *gr2, TGraph *gr3, string name1, string name2, string name3)
+{
   TCanvas* c1 = new TCanvas("c1","g-2 Result",0,0,800,600);
   TPad* thePad = (TPad*)c1->cd();
   string name = name1 + "_" + name2;
+  if ( gr3 ) {
+    name = name + "_" + name3;
+  }
   string hname = name;
+
   
   double xmin, xmax;
   double ymin, ymax;
@@ -582,17 +595,43 @@ void MakePlot(TGraph *gr1, TGraph *gr2, string name1, string name2)
   grx90min = 99999.9;
   grx90max = -99999.9;
 
+  
   double gr1_max, gr1_min;
-  GetMaxMin(gr1, &gr1_max, &gr1_min);
   double gr2_max, gr2_min;
-  GetMaxMin(gr2, &gr2_max, &gr2_min);
+  double gr3_max, gr3_min;
+
+  
+  if ( (name1 == "Data" || name2 == "Data") && 0 ) {
+    gr1_max = gr1->GetMaximum();
+    gr2_max = gr2->GetMaximum();
+    gr1_min = 0;
+    gr2_min = 0;
+  }
+  else {
+    GetMaxMin(gr1, &gr1_max, &gr1_min);
+    GetMaxMin(gr2, &gr2_max, &gr2_min);
+    if ( gr3 ) {
+      GetMaxMin(gr3, &gr3_max, &gr3_min);
+    }
+    else {
+      gr3_max = 0.0; gr3_min = 0.0;
+    }
+  }
 
 
 
   double grymax = TMath::Max(gr1_max, gr2_max);
+  grymax = TMath::Max(grymax, gr3_max);
   double grymin = TMath::Min(gr1_min, gr2_min);
-  grxmin = -45;
-  grxmax = 45;
+  grymin = TMath::Max(grymin, gr3_min);
+  if ( name1 == "Data" || name2 == "Data" ) {
+    grxmin = 0.0;
+    grxmax = 1e4;
+  }
+  else {
+    grxmin = -45;
+    grxmax = 45;
+  }
 
 
   ymax = grymax * 1.2;
@@ -619,57 +658,159 @@ void MakePlot(TGraph *gr1, TGraph *gr2, string name1, string name2)
   h->GetXaxis()->SetTitleOffset(1.2);
   h->Draw();
 
-  int color1, color2;
+  int color1, color2, color3;
   if ( name1 == "THEORY" ) { color1 = kOrange+6; }
   if ( name2 == "THEORY" ) { color2 = kOrange+6; }
+  if ( name3 == "THEORY" ) { color3 = kOrange+6; }
 
-  if ( name1 == "GEANT" )  { color1 = kAzure+6; }
-  if ( name2 == "GEANT" )  { color2 = kAzure+6; }
+  
+  if ( name1 == "GEANT" )  { color1 = kSpring-5; }
+  if ( name2 == "GEANT" )  { color2 = kSpring-5; }
+  if ( name3 == "GEANT" )  { color3 = kSpring-5; }
 
-  if ( name1 == "FastRotation" )  { color1 = kSpring-5; }
-  if ( name2 == "FastRotation" )  { color2 = kSpring-5; }
+  if ( name1 == "FastRotation" )  { color1 = kAzure+6; }
+  if ( name2 == "FastRotation" )  { color2 = kAzure+6; }
+  if ( name3 == "FastRotation" )  { color3 = kAzure+6; }
+
 
   gr1->SetMarkerColor(color1);
   gr1->SetLineColor(color1);
-  gr1->SetLineWidth(4);
+  gr1->SetLineWidth(3);
 
   gr2->SetMarkerColor(color2);
   gr2->SetLineColor(color2);
-  gr2->SetLineWidth(4);
+  gr2->SetLineWidth(3);
+  gr2->SetLineStyle(2);
 
+  if ( gr3 ) {
+    gr3->SetMarkerColor(color3);
+    gr3->SetLineColor(color3);
+    gr3->SetLineWidth(3);
+    gr3->SetLineStyle(3);
+  }
 
-  if ( gr1_max > gr2_max ) {
-    gr1->Draw("LP");
-    gr2->Draw("LP");
+  if ( gr3 == NULL ) {
+    if ( gr1_max > gr2_max ) {
+      gr1->Draw("LP");
+      gr2->Draw("LP");
+    }
+    else {
+      gr2->Draw("LP");
+      gr1->Draw("LP");
+    }
   }
   else {
-    gr2->Draw("LP");
-    gr1->Draw("LP");
+    if ( gr1_max > gr2_max && gr1_max > gr3_max ) {
+      gr1->Draw("LP");
+      gr2->Draw("LP");
+      gr3->Draw("LP");
+    }
+    else if ( gr2_max > gr1_max && gr2_max > gr3_max ) {
+      gr2->Draw("LP");
+      gr1->Draw("LP");
+      gr3->Draw("LP");
+    }
+    else {
+      gr3->Draw("LP");
+      gr1->Draw("LP");
+      gr2->Draw("LP");
+    }
+  }
+  
+
+  double mychi2 = 0.0;
+  int Ndf = 0;
+  if ( name1 != "Data" && name2 != "Data" && name3 != "Data") {
+    double Nbin = Nrad;
+    double gxmin = -45.0;
+    double gxmax = 45.0;
+    TH1F *h1 = new TH1F("h1", "", Nbin, gxmin, gxmax);
+    h1->Sumw2();
+    TH1F *h2 = new TH1F("h2", "", Nbin, gxmin, gxmax);
+    h2->Sumw2();
+    TH1F *h3 = new TH1F("h3", "", Nbin, gxmin, gxmax);
+    h3->Sumw2();
+    int n1 = gr1->GetN();
+    Double_t *x1 = gr1->GetX();
+    Double_t *y1 = gr1->GetY();
+    int n2 = gr2->GetN();
+    Double_t *x2 = gr2->GetX();
+    Double_t *y2 = gr2->GetY();
+    Double_t *x3;
+    Double_t *y3;
+    if ( gr3 ) {
+      x3 = gr3->GetX();
+      y3 = gr3->GetY();
+    }
+    for ( int i = 0; i < n1; i++ ) {
+      h1->Fill(x1[i], y1[i]);
+      h2->Fill(x2[i], y2[i]);
+
+      if ( y1[i] > 0 ) {
+	double val1 = y1[i];
+	double val2 = y2[i];
+	double newerr2 = 1;
+	if ( val1 > 0 ) {
+	  newerr2 = TMath::Sqrt(val1); //val1*0.05;
+	}
+	if ( newerr2 <= 0 ) { newerr2 = 1.0; }
+	//newerr2 = 1.0;
+	mychi2 += ((val1-val2)*(val1-val2)/(newerr2*newerr2));
+	Ndf++;
+      }
+      if ( gr3 ) {
+	h3->Fill(x3[i], y3[i]);
+      }
+    }
+
+
+    Double_t chi2_val;
+    Int_t Ndf_val, IsGood;
+    double chi2gen = h1->Chi2TestX(h2, chi2_val, Ndf_val, IsGood, "WW, CHI2/NDF");
+    double pval = h1->Chi2Test(h2, "WW");
+    double ks = h1->KolmogorovTest(h2);
+    chi2gen = chi2_val / Ndf_val;
+    
+    chi2gen = mychi2 / (Ndf-2);
+    
+    stringstream chi2_ss;
+    chi2_ss.precision(3);
+    chi2_ss << "#chi^{2}/N_{dof} = " << chi2gen; // << " (KS = " << ks << ")";
+    myText(0.22, 0.86, 1, chi2_ss.str().c_str(), 0.04);
   }
 
-  
-  TLegend *leg = new TLegend(0.75, 0.80, 0.85, 0.90);
+  TLegend *leg = new TLegend(0.75, 0.75, 0.85, 0.90);
   leg->SetTextFont(42);
   leg->SetTextSize(0.03);
   leg->SetFillColor(0);
   leg->AddEntry(gr1, Nicename(name1.c_str()), "l");
   leg->AddEntry(gr2, Nicename(name2.c_str()), "l");
+  if ( gr3 ) {
+    leg->AddEntry(gr3, Nicename(name3.c_str()), "l");
+  }
   leg->Draw("SAME");
 
 
 
   stringstream dpname;
   dpname << "#frac{#deltap}{p} = " << dPoverP*100 << "%";
-  myText(0.22, 0.90-0.05, 1, dpname.str().c_str(), 0.035);
+  double offset = 0.03;
+  if ( gr3 ) { offset = 0.05; }
+  myText(0.78, 0.73-offset, 1, dpname.str().c_str(), 0.035);
   stringstream Nname;
   Nname << "n_{index} = 0.137";
-  myText(0.22, 0.84-0.05, 1, Nname.str().c_str(), 0.035);
+  myText(0.78, 0.73-0.05-offset, 1, Nname.str().c_str(), 0.035);
+
+  double binw = 90.0/(Nrad);
   stringstream Nradname;
-  Nradname << "N_{rad} Bins = " << Nrad;
-  myText(0.22, 0.78-0.05, 1, Nradname.str().c_str(), 0.035);
-  stringstream lambname;
-  lambname << "#lambda = " << lambda;
-  myText(0.22, 0.72-0.05, 1, lambname.str().c_str(), 0.035);
+  //Nradname << "N_{rad} Bins = " << Nrad;
+  Nradname.precision(2);
+  Nradname << "#DeltaR = " << binw << " mm";
+  myText(0.22, 0.80, 1, Nradname.str().c_str(), 0.035);
+  
+  //stringstream lambname;
+  //lambname << "#lambda = " << lambda;
+  //myText(0.22, 0.72-0.05, 1, lambname.str().c_str(), 0.035);
 
 
 
@@ -687,20 +828,24 @@ void MakePlot(TGraph *gr1, TGraph *gr2, string name1, string name2)
   if ( makeeps ) {
     c1->SaveAs(epsname.str().c_str());
   }
+  cout << "Wrote " << c1name.str() << endl;
   delete c1;
 }
 
-void MakePlot(TH1F *hist1, TH1F *hist2, string name)
+void MakePlot(TH1F *hist1, TH1F *hist2, string name1, string name2, double xmin, double xmax)
 {
-
   TCanvas* c1 = new TCanvas("c1","g-2 Result",0,0,800,600);
   TPad* thePad = (TPad*)c1->cd();
+  string name = name1 + "_" + name2;
   string hname = name;
 
-  hist1->Scale(1.0/hist1->Integral());
-  hist2->Scale(1.0/hist2->Integral());
+  //hist1->Scale(1.0/hist1->Integral());
+  //hist2->Scale(1.0/hist2->Integral());
+
+  //cout << hist1->GetMaximum() << endl;
+  //cout << hist2->GetMaximum() << endl;
   
-  double xmin, xmax;
+  //double xmin, xmax;
   double ymin, ymax;
   double histxmin, histxmax;
   double histymin, histymax;
@@ -714,6 +859,12 @@ void MakePlot(TH1F *hist1, TH1F *hist2, string name)
 
   double histymax = TMath::Max(hist1->GetMaximum(), hist2->GetMaximum());
   double histymin = TMath::Min(hist1->GetMinimum(), hist2->GetMinimum());
+  bool usexminmax = true;
+  if ( xmin < 0 && xmax < 0 ) {
+    xmax = histxmax;
+    xmin = histxmin;
+    usexminmax = false;
+  }
   for ( int bin = 1; bin < hist1->GetNbinsX()-1; bin++ ) {
     if ( hist1->GetBinContent(bin) > 0 ) { histxmin = hist1->GetBinLowEdge(bin); break; }
   }
@@ -726,10 +877,35 @@ void MakePlot(TH1F *hist1, TH1F *hist2, string name)
   for ( int bin = hist2->GetNbinsX()-1; bin >= 1; bin-- ) {
     if ( hist2->GetBinContent(bin) > 0 ) { histxmax = hist2->GetBinLowEdge(bin+1); break; }
   }
-  ymax = histymax * 1.2;
+
+  if ( usexminmax ) {
+    histymax = 0.0;
+    histymin = 99999.0;
+    int binlow = hist1->FindBin(xmin);
+    int binhigh = hist1->FindBin(xmax);
+    for ( int bin = binlow; bin <= binhigh; bin++ ) {
+      if ( hist1->GetBinContent(bin) > histymax ) { histymax = hist1->GetBinContent(bin); }
+      if ( hist2->GetBinContent(bin) > histymax ) { histymax = hist2->GetBinContent(bin); }
+      if ( hist1->GetBinContent(bin) < histymin ) { histymin = hist1->GetBinContent(bin); }
+      if ( hist2->GetBinContent(bin) < histymin ) { histymin = hist2->GetBinContent(bin); }
+    }
+  }
+
+
+  ymax = histymax * 1.3;
   ymin = histymin * 1.1;
-  xmax = histxmax;
-  xmin = histxmin;
+  if ( xmin < 0 && xmax < 0 ) {
+    xmax = histxmax;
+    xmin = histxmin;
+    usexminmax = false;
+  }
+
+  if ( name1 == "Data" || name2 == "Data" ) {
+    histxmin = xmin;
+    histxmax = xmax;
+    //xmin = 0.0;
+    //xmax = 1e4;
+  }
   //GetXminmax(hist1, &xmin, &xmax, &ymin, &ymax, histxmin, histxmax, histymin, histymax, false);
 
   TString xtitle = hist1->GetXaxis()->GetTitle();
@@ -752,24 +928,25 @@ void MakePlot(TH1F *hist1, TH1F *hist2, string name)
 
   if ( hist1->GetMaximum() > hist2->GetMaximum() ) {
     hist1->SetLineColor(kRed);
-    hist1->SetLineWidth(4);
-    hist1->Draw("HIST");
+    hist1->SetLineWidth(1);
+    hist1->Draw("HIST, SAME");
     
     hist2->SetLineColor(kBlue);
-    hist2->SetLineWidth(4);
+    hist2->SetLineWidth(1);
     hist2->Draw("HIST, SAME");
   }
   else {
     hist2->SetLineColor(kRed);
-    hist2->SetLineWidth(4);
-    hist2->Draw("HIST");
+    hist2->SetLineWidth(1);
+    hist2->Draw("HIST, SAME");
     
     hist1->SetLineColor(kBlue);
-    hist1->SetLineWidth(4);
+    hist1->SetLineWidth(1);
     hist1->Draw("HIST, SAME");
   }
+
   
-  TLegend *leg = new TLegend(0.75, 0.75, 0.85, 0.85);
+  TLegend *leg = new TLegend(0.75, 0.80, 0.85, 0.90);
   leg->SetTextFont(42);
   leg->SetTextSize(0.03);
   leg->SetFillColor(0);
@@ -777,8 +954,114 @@ void MakePlot(TH1F *hist1, TH1F *hist2, string name)
   leg->AddEntry(hist2, Nicename(hist2->GetName()), "l");
   leg->Draw("SAME");
 
+  
+  TH1F *hist1_err, *hist2_err;
+  hist1_err = (TH1F*)hist1->Clone("hist1_err");
+  hist2_err = (TH1F*)hist2->Clone("hist2_err");
+  hist1_err->Sumw2();
+  hist2_err->Sumw2();
+  double mychi2 = 0.0;
+  int Ndf = 0;
+  for ( int i = 1; i <= hist1_err->GetNbinsX(); i++ ) {
+    double val1 = hist1_err->GetBinContent(i);
+    double val2 = hist2_err->GetBinContent(i);
+    double err1 = hist1_err->GetBinError(i);
+    double err2 = hist2_err->GetBinError(i);
+    double xval = hist1_err->GetBinCenter(i);
+
+    double newerr1 = err1;
+    if ( val1 > 0 ) {
+      if ( err1 <= 0.0 ) {
+	newerr1 = TMath::Sqrt(val1);
+      }
+    }
+    else {
+      newerr1 = 1.0;
+    }
+
+    double newerr2 = err2;
+    if ( val2 > 0 ) {
+      if ( err2 <= 0.0 ) {
+	newerr2 = TMath::Sqrt(val2);
+      }
+    }
+    else {
+      newerr2 = 1.0;
+    }
+    
+    if ( usexminmax ) {
+      if ( xval < xmin || xval > xval ) {
+        hist1_err->SetBinContent(i, 0.0);
+	hist2_err->SetBinContent(i, 0.0);
+	newerr1 = 1.0;
+	newerr2 = 1.0;
+      }
+    }
+
+    if ( usexminmax ) {
+      if ( xval >= xmin && xval <= xval ) {
+	newerr2 = err2;
+	if ( val2 > 0 ) {
+	  if ( err2 <= 0.0 ) {
+	    newerr2 = TMath::Sqrt(val2);
+	  }
+	}
+	else {
+	  newerr2 = 1.0;
+	}
+	mychi2 += ((val1-val2)*(val1-val2)/(newerr2*newerr2));
+	Ndf++;
+      }
+    }
+    else {
+      newerr2 = err2;
+      if ( val2 > 0 ) {
+	if ( err2 <= 0.0 ) {
+	  newerr2 = TMath::Sqrt(val2);
+	}
+      }
+      else {
+	newerr2 = 1.0;
+      }
+      mychi2 += ((val1-val2)*(val1-val2)/(newerr2*newerr2));
+      Ndf++;
+    }
+    
+    hist1_err->SetBinError(i, newerr1);
+    hist2_err->SetBinError(i, newerr2);
+  }
 
 
+  mychi2 /= (Ndf-2);
+  Double_t chi2_val;
+  Int_t Ndf_val, IsGood;
+  double chi2gen = hist1_err->Chi2TestX(hist2_err, chi2_val, Ndf_val, IsGood, "WW, CHI2/NDF");
+  double pval = hist1_err->Chi2Test(hist2_err, "WW");
+  double ks = hist1_err->KolmogorovTest(hist2_err);
+
+//   cout << chi2_val << endl;
+//   cout << Ndf_val << endl;
+//   cout << IsGood << endl;
+//   int df = Ndf_val;
+//   double chi2_ndf = TMath::Power(chi2_val, df/2);
+//   //double p_val = ( 0.5*df/2.0 / TMath::Gamma(df/2) ) × (χ²)(df/2) -1 × e- χ²/2
+
+  //cout << chi2_val << "\t" << chi2gen << "\t" << 
+  chi2gen = chi2_val / Ndf_val;
+  chi2gen = mychi2;
+  
+  stringstream chi2_ss;
+  chi2_ss.precision(3);
+  chi2_ss << "#chi^{2}/N_{dof} = " << chi2gen; // << " (KS = " << ks << ")";
+  myText(0.25, 0.86, 1, chi2_ss.str().c_str(), 0.04);
+  stringstream sumtot_ss;
+  sumtot_ss.precision(2);
+  sumtot_ss << "#sumn(t) = " << totsum/1e6 << "#times10^{6}";
+  myText(0.25, 0.78, 1, sumtot_ss.str().c_str(), 0.03);
+
+  //cout << chi2_ss.str() << " \t " << ks_ss.str() << endl;
+
+  if ( 0 ) {
   stringstream dpname;
   dpname << "#frac{#deltap}{p} = " << dPoverP*100 << "%";
   myText(0.75, 0.60, 1, dpname.str().c_str(), 0.035);
@@ -788,7 +1071,7 @@ void MakePlot(TH1F *hist1, TH1F *hist2, string name)
   stringstream Nradname;
   Nradname << "N_{rad} Bins = " << Nrad;
   myText(0.75, 0.46, 1, Nradname.str().c_str(), 0.035);
-
+  }
 
 
 
@@ -796,6 +1079,9 @@ void MakePlot(TH1F *hist1, TH1F *hist2, string name)
 
   stringstream c1name;
   c1name << "~/public_html/plots/" << dir << "/" << name;
+  if ( usexminmax ) {
+    c1name << "_" << xmin << "_" << xmax;
+  }
 
   stringstream pngname, epsname;
   pngname << c1name.str() << ".png";
@@ -1172,13 +1458,32 @@ void plotfastrotation()
   in.close();
 
 
-  TH1F *h_MCSignal;
-  TH1F *h_DataSignal;
+  TH1F *h_MCSignal = NULL;
+  TH1F *h_DataSignal = NULL;
 
   TFile *file = NULL;
   int Nhists = 0;
   string Hists[30];
   string hbase = "h";
+
+  string formatfilename;
+  int pos2 = filename.find("_Delta150ns_");
+  formatfilename = filename.substr(0, pos2);
+  formatfilename += ".root";
+  TGraph *ger = NULL;
+  cout << formatfilename << endl;
+  if ( !gSystem->AccessPathName(formatfilename.c_str()) ) { 
+    cout << "It's there..." << endl;
+    TFile *f2 = TFile::Open(formatfilename.c_str());
+    if ( f2 ) {
+      ger = (TGraph*)f2->Get("g_EqRad_GEANT");
+    }
+    else {
+      cout << "Couldn't open " << formatfilename << endl;
+    }
+  }
+  cout << ger << endl;
+  //return;
     
   rootdir = "";
   file = TFile::Open(filename.c_str());
@@ -1186,8 +1491,9 @@ void plotfastrotation()
     cout << "Could not open " << filename << "." << endl;
     return;
   }
-  cout << "Contents of " << filename << endl;
-  file->ls();
+
+  //cout << "Contents of " << filename << endl;
+  //file->ls();
   dir = "FastRotation";
   dir = dir + "/" + core;
 
@@ -1204,9 +1510,11 @@ void plotfastrotation()
   in.close();
 
   if ( filename.find("NRad5") != string::npos ) { Nrad = 5; }
+  if ( filename.find("NRad7") != string::npos ) { Nrad = 7; }
   if ( filename.find("NRad51") != string::npos ) { Nrad = 51; }
   if ( filename.find("NRad25") != string::npos ) { Nrad = 25; }
   if ( filename.find("NRad15") != string::npos ) { Nrad = 15; }
+  if ( filename.find("NRad101") != string::npos ) { Nrad = 101; }
 
   if ( filename.find("Lamb0") != string::npos ) { lambda = 0; }
   if ( filename.find("Lamb0.01") != string::npos ) { lambda = 0.01; }
@@ -1237,60 +1545,9 @@ void plotfastrotation()
   TH1F *h_EqRad_THEORY = NULL;
     
 
-  TH1F   *h_
   TGraph *g_EqRad_FastRotation = NULL;
   TGraph *g_EqRad_GEANT = NULL;
   TGraph *g_EqRad_THEORY = NULL;
-
-  if ( filename.find("fasrof") != string::npos || 1 ) {
-
-//     Hists[Nhists++] = "spread";
-//     Hists[Nhists++] = "spread10";
-//     Hists[Nhists++] = "spread30";
-//     Hists[Nhists++] = "check";
-    Hists[Nhists++] = "gen";
-    //Hists[Nhists++] = "um";
-    Hists[Nhists++] = "fr2";
-    //Hists[Nhists++] = "Xe";
-    //Hists[Nhists++] = "EqRad";
-//     Hists[Nhists++] = "EqRadConv";
-    //Hists[Nhists++] = "Data_MC";
-    //Hists[Nhists++] = "eqrad";
-    //       Hists[Nhists++] = "pulse00";
-    //       Hists[Nhists++] = "pulse01";
-    //       Hists[Nhists++] = "pulse02";
-    //       Hists[Nhists++] = "pulse03";
-    //       Hists[Nhists++] = "pulse04";
-    //       Hists[Nhists++] = "pulse05";
-    //       Hists[Nhists++] = "pulse06";
-    //       Hists[Nhists++] = "pulse07";
-    //       Hists[Nhists++] = "pulse08";
-    //       Hists[Nhists++] = "pulse09";
-    //       Hists[Nhists++] = "pulse10";
-    //       Hists[Nhists++] = "pulse11";
-    //       Hists[Nhists++] = "pulse12";
-    //       Hists[Nhists++] = "pulse13";
-    //       Hists[Nhists++] = "pulse14";
-
-      
-    TGraph *gr = GetGraph(file, "gt0");
-    MakePlot(gr, "gt0");
-    TGraph *gr = GetGraph(file, "gt0weight");
-    MakePlot(gr, "gt0weight");
-    TGraph *gr = GetGraph(file, "gEqRad1");
-    MakePlot(gr, "gEqRad1");
-    TGraph *gr = GetGraph(file, "gEqRad2");
-    MakePlot(gr, "gEqRad2");
-    TGraph *gr = GetGraph(file, "geqrad");
-    MakePlot(gr, "geqrad");
-    TGraph *gr = GetGraph(file, "gPeriodRadius");
-    MakePlot(gr, "gPeriodRadius");
-
-
-    g_EqRad_FastRotation = GetGraph(file, "g_EqRad_FastRotation");
-    g_EqRad_GEANT        = GetGraph(file, "g_EqRad_GEANT");
-    g_EqRad_THEORY       = GetGraph(file, "g_EqRad_THEORY");
-  }
 
   if ( filename.find("g2gen") != string::npos ) {
       
@@ -1305,9 +1562,17 @@ void plotfastrotation()
     Hists[Nhists++] = "Signal00";
   }
 
-    
+
+  
+  
+  if ( filename.find("fasrof") != string::npos || 1 ) {
+    Hists[Nhists++] = "gen";
+    Hists[Nhists++] = "fr2";
+  }
+  
+  
   stringstream hname;
-    
+  
   for ( int n = 0; n < Nhists; n++ ) {
       
     string histname = Hists[n];
@@ -1320,8 +1585,13 @@ void plotfastrotation()
     if ( histname == "EqRadConv" ) { h_EqRad_FastRotation = (TH1F*)hist1d->Clone("EqRad_FastRotation"); }
     if ( histname == "EqRad" )     { h_EqRad_GEANT = (TH1F*)hist1d->Clone("EqRad_GEANT"); }
     if ( histname == "Xe" )        { h_EqRad_THEORY = (TH1F*)hist1d->Clone("EqRad_THEORY"); }
-    
-    if ( histname == "fr2" ) { h_DataSignal = (TH1F*)hist1d->Clone("datasignal"); }
+
+    if ( histname == "fr2" ) { 
+      h_DataSignal = (TH1F*)hist1d->Clone("datasignal");
+      if ( h_DataSignal ) {
+	totsum = h_DataSignal->Integral();
+      }
+    }
     if ( histname == "gen" ) { h_MCSignal = (TH1F*)hist1d->Clone("mcsignal"); }
     
     MakePlot(hist1d);
@@ -1344,28 +1614,71 @@ void plotfastrotation()
     }
   }
 
-
-  double binw = h_EqRad_FastRotation->GetBinWidth(1);
-  if ( h_EqRad_FastRotation ) { h_EqRad_FastRotation->Rebin(2); }
-  if ( h_EqRad_THEORY ) { h_EqRad_THEORY->Rebin(2); }
-  if ( h_EqRad_GEANT ) { h_EqRad_GEANT->Rebin(2); }
-
-  if ( g_EqRad_FastRotation && g_EqRad_GEANT ) {
-    Double_t *x = g_EqRad_FastRotation->GetX();
-    Double_t *y = g_EqRad_FastRotation->GetY();
-    for ( int i = 0; i < g_EqRad_FastRotation->GetN(); i++ ) {
-      cout << i << "\t" << x[i] << "\t" << y[i] << endl;
+  
+  TGraph *gr = GetGraph(file, "gt0");
+  MakePlot(gr, "gt0");
+  TGraph *gr = GetGraph(file, "gt0weight");
+  MakePlot(gr, "gt0weight");
+  TGraph *gr = GetGraph(file, "gEqRad1");
+  MakePlot(gr, "gEqRad1");
+  TGraph *gr = GetGraph(file, "gEqRad2");
+  MakePlot(gr, "gEqRad2");
+  TGraph *gr = GetGraph(file, "geqrad");
+  MakePlot(gr, "geqrad");
+  TGraph *gr = GetGraph(file, "gPeriodRadius");
+  MakePlot(gr, "gPeriodRadius");
+  
+  
+  g_EqRad_FastRotation = GetGraph(file, "g_EqRad_FastRotation");
+  g_EqRad_GEANT        = GetGraph(file, "g_EqRad_GEANT");
+  if ( g_EqRad_GEANT == NULL ) {
+    if ( ger ) {
+      g_EqRad_GEANT = ger;
     }
+  }
+  g_EqRad_THEORY       = GetGraph(file, "g_EqRad_THEORY");
+  
+  g_Data_Signal        = GetGraph(file, "g_Data_Signal_Norm");
+  g_MC_Signal          = GetGraph(file, "g_MC_Signal_Norm");
 
 
-    MakePlot(g_EqRad_FastRotation, g_EqRad_GEANT, "FastRotation", "GEANT");
+//   double binw = h_EqRad_FastRotation->GetBinWidth(1);
+//   if ( h_EqRad_FastRotation ) { h_EqRad_FastRotation->Rebin(2); }
+//   if ( h_EqRad_THEORY ) { h_EqRad_THEORY->Rebin(2); }
+//   if ( h_EqRad_GEANT ) { h_EqRad_GEANT->Rebin(2); }
+
+  if ( 1 ) {
+    if ( g_EqRad_FastRotation && g_EqRad_GEANT ) {
+      //Double_t *x = g_EqRad_FastRotation->GetX();
+      //Double_t *y = g_EqRad_FastRotation->GetY();
+      //for ( int i = 0; i < g_EqRad_FastRotation->GetN(); i++ ) {
+      // cout << i << "\t" << x[i] << "\t" << y[i] << endl;
+      //}
+      MakePlot(g_EqRad_FastRotation, g_EqRad_GEANT, "FastRotation", "GEANT");
+    }
+    if ( g_EqRad_FastRotation && g_EqRad_THEORY ) {
+      MakePlot(g_EqRad_FastRotation, g_EqRad_THEORY, "FastRotation", "THEORY");
+    }
+    if ( g_EqRad_FastRotation && g_EqRad_THEORY && g_EqRad_GEANT ) {
+      MakePlot(g_EqRad_FastRotation, g_EqRad_THEORY, g_EqRad_GEANT, "FastRotation", "THEORY", "GEANT");
+    }
+    if ( g_EqRad_GEANT && g_EqRad_THEORY ) {
+      MakePlot(g_EqRad_GEANT, g_EqRad_THEORY, "GEANT", "THEORY");
+    }
   }
-  if ( g_EqRad_FastRotation && g_EqRad_THEORY ) {
-    MakePlot(g_EqRad_FastRotation, g_EqRad_THEORY, "FastRotation", "THEORY");
+  
+  if ( h_DataSignal && h_MCSignal ) {
+    MakePlot(h_DataSignal, h_MCSignal, "Data", "MC", 0, 2e4);
+    MakePlot(h_DataSignal, h_MCSignal, "Data", "MC", 1000, 2000);
+    MakePlot(h_DataSignal, h_MCSignal, "Data", "MC", 10000, 11000);
+    MakePlot(h_DataSignal, h_MCSignal, "Data", "MC", 19000, 20000);
   }
-  if ( g_EqRad_GEANT && g_EqRad_THEORY ) {
-    MakePlot(g_EqRad_GEANT, g_EqRad_THEORY, "GEANT", "THEORY");
-  }
+
+//   if ( g_Data_Signal && g_MC_Signal ) {
+//     MakePlot(g_Data_Signal, "Data");
+//     MakePlot(g_MC_Signal, "MC");
+//     MakePlot(g_Data_Signal, g_MC_Signal, "Data", "MC");
+//   }
 
 //   if ( h_EqRad_FastRotation && h_EqRad_GEANT ) {
 //     MakePlot(h_EqRad_FastRotation, h_EqRad_GEANT, "FastRotation_GEANT");

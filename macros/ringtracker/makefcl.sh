@@ -21,6 +21,9 @@ cat >> ${outfile} <<EOF
 #include "geom/PGA.fcl"
 #include "geom/g2GPS.fcl"
 
+#include "geom/station.fcl"
+#include "geom/calorimeter.fcl"
+
 process_name:myProcessName
 
 source: {
@@ -66,6 +69,10 @@ services: {
       kicker: @local::kicker_geom
       collimator: @local::collimator_geom
       pga: @local::PGA_geom
+      
+      station: @local::station_geom
+      calorimeter: @local::calorimeter_geom
+
      }
 
      // Global simulation settings
@@ -213,10 +220,13 @@ cat >> ${outfile} <<EOF
     Kicker: {}
     Collimator : {}
 
-    DecayedPositronAction: {
-      name: "DecayedPositronAction"
-      stored_threshold: -50.0
-    }
+    Station: {}
+    Calorimeter: {}
+
+//    DecayedPositronAction: {
+//      name: "DecayedPositronAction"
+//      stored_threshold: -50.0
+//    }
 
     LostMuonAction: {
       name: "LostMuonAction"
@@ -403,8 +413,9 @@ physics: {
       SaveInfHits: false
       SaveTruthHits: true
       SaveRingHits: false
-      SaveVRingHits: true
-      SaveVRing1PlaneHits: true
+      SaveCaloHits: true
+      SaveVRingHits: false
+      SaveVRing1PlaneHits: false
       debug: false
     }
   }

@@ -14,6 +14,10 @@ NiceTimestampName()
 	nicetimestamp="12 Hits/Turn for 10 Turns"
     elif [ ${1} == "OncePerTurn" ]; then
 	nicetimestamp="1 Hit/Turn"
+    elif [ ${1} == "GeneratedDist" ]; then
+	nicetimestamp="Generated<br>Distributions"
+    elif [ ${1} == "RemainingDist" ]; then
+	nicetimestamp="Remaining<br>Distributions"
     else
 	nicetimestamp=${1}
     fi
@@ -272,47 +276,53 @@ EndTable
 #
 #
 #############################
-particles="BirthMuon DecayMuon LostMuon StoredMuon BirthElectron BirthElectronEgtEth"
+particles="BirthMuon DecayMuon LostMuon StoredMuon BirthElectron BirthElectronEgtEth DecayElectron DecayElectronEgtEth DecayElectronEgtHghEth"
 if [ ${plotelectron} == 0 ]; then
     particles="BirthMuon LostMuon StoredMuon"
 fi
 timehistograms="Rhat Vhat Xprime Yprime Mom Pol PolXY Xe Time"
-timestamps="GeneratedDist"
+timestamps="GeneratedDist RemainingDist"
 for particle in ${particles}; do
 cat >> ${outputdir}/index.html <<EOF
     <a name="${particle}PS"></a>
     <h2><center>Generated (G4) Phase Space for: ${particle}</center></h2>
 EOF
 
-    timehistograms1=""
-    timehistograms2=""
-
-    if [ ${particle} == "BirthMuon" ] || [ ${particle} == "DecayMuon" ] || [ ${particle} == "StoredMuon" ]; then
-	if [ ${plotspin} == 1 ]; then
-	    timehistograms1="RhatY XprimeX YprimeY XZ"
-	    timehistograms2="Mom Pol Xe Time"
-	    if [ ${particle} == "BirthMuon" ]; then
-		timehistograms2="Mom Pol Xe t0"
-	    fi
-	else
-	    timehistograms1="RhatY XprimeX YprimeY"
-	    timehistograms2="XZ Mom Xe Time"
-	    if [ ${particle} == "BirthMuon" ]; then
-		timehistograms2="XZ Mom Xe t0"
-	    fi
-	fi
-    fi
-    if [ ${particle} == "LostMuon" ]; then
-	timehistograms1="RhatY R Mom XZ Time"
-	timehistograms2=""
-    fi
-    if [ ${particle} == "BirthElectron" ] || [ ${particle} == "DecayElectron" ] || [ ${particle} == "BirthElectronEgtEth" ] || [ ${particle} == "DecayElectronEgtEth" ]; then
-	timehistograms1="RhatY XZ  Mom Time"
-	timehistograms2=""
-    fi
-
     BeginTable
     for timestamp in ${timestamps}; do
+	timehistograms1=""
+	timehistograms2=""
+	
+	if [ ${particle} == "BirthMuon" ]; then
+	    timehistograms1="RhatY XprimeX YprimeY"
+	    timehistograms2="Mom Xe t0"
+	elif  [ ${particle} == "DecayMuon" ] || [ ${particle} == "StoredMuon" ]; then
+	    if [ ${timestamp} == "GeneratedDist" ] && [ ${particle} == "DecayMuon" ]; then
+		continue;
+	    fi
+	    if [ ${timestamp} == "RemainingDist" ] && [ ${particle} == "StoredMuon" ]; then
+		continue;
+	    fi
+	    if [ ${plotspin} == 1 ]; then
+		timehistograms1="RhatY XprimeX YprimeY XZ"
+		timehistograms2="Mom Pol Xe Time"
+	    else
+		timehistograms1="RhatY XprimeX YprimeY"
+		timehistograms2="XZ Mom Xe Time"
+	    fi
+	fi
+
+	if [ ${particle} == "LostMuon" ]; then
+	    timehistograms1="RhatY R Mom XZ"
+	    timehistograms2="XprimeX YprimeY Xe Time"
+	fi
+
+	if [ ${particle} == "BirthElectron" ] || [ ${particle} == "DecayElectron" ] || [ ${particle} == "BirthElectronEgtEth" ] || [ ${particle} == "DecayElectronEgtEth" ] || [ ${particle} == "DecayElectronEgtHghEth" ]; then
+	    timehistograms1="NumCalo Mom Theta Rhat XZ"
+	    timehistograms2=""
+	fi
+
+	
 	BeginRow ${timestamp}
 	
 	for histogram in ${timehistograms1}; do
@@ -334,6 +344,53 @@ done
 
 
 
+#############################
+#
+#
+# Ratio of Generated Phase Space(s)
+#
+#
+#############################
+particles="DecayElectron DecayElectronEgtEth DecayElectronEgtHghEth"
+if [ ${plotelectron} == 0 ]; then
+    particles=""
+fi
+timehistograms="Rhat Vhat Xprime Yprime Mom Pol PolXY Xe Time"
+timestamps="GeneratedDist"
+for particle in ${particles}; do
+cat >> ${outputdir}/index.html <<EOF
+    <a name="${particle}PS"></a>
+    <h2><center>Ratio of Generated (G4) Phase Space for: ${particle}</center></h2>
+EOF
+
+    timehistograms1=""
+    timehistograms2=""
+
+    if [ ${particle} == "BirthElectron" ] || [ ${particle} == "DecayElectron" ] || [ ${particle} == "BirthElectronEgtEth" ] || [ ${particle} == "DecayElectronEgtEth" ] || [ ${particle} == "DecayElectronEgtHghEth" ]; then
+	timehistograms1="Mom XprimeX YprimeY"
+	timehistograms2="Rhat Theta XZ"
+    fi
+
+    BeginTable
+    for timestamp in ${timestamps}; do
+	BeginRow ${timestamp}
+	
+	for histogram in ${timehistograms1}; do
+	    write ${outputdir}/index.html G4Track_${histogram}_${particle}_${timestamp}_Ratio.png ${histogram}
+	done
+	
+	EndBeginRow ${timestamp}
+	
+	for histogram in ${timehistograms2}; do
+	    write ${outputdir}/index.html G4Track_${histogram}_${particle}_${timestamp}_Ratio.png ${histogram}
+	done
+	
+	EndRow
+    done
+    EndTable
+done
+
+
 
 
 
@@ -344,7 +401,7 @@ done
 #
 #
 #############################
-particles="DecayMuon LostMuon BirthElectron BirthElectronEgtEth"
+particles="DecayMuon LostMuon BirthElectron DecayElectron DecayElectronEgtEth DecayElectronEgtHghEth"
 if [ ${plotelectron} == 0 ]; then
     particles="LostMuon"
 fi
@@ -364,7 +421,7 @@ EOF
     if [ ${particle} == "DecayMuon" ] || [ ${particle} == "LostMuon" ]; then
 	timestamps="${timestamps_muons}"
     fi
-    if [ ${particle} == "BirthElectron" ] || [ ${particle} == "BirthElectronEgtEth" ]; then
+    if [ ${particle} == "BirthElectron" ] || [ ${particle} == "BirthElectronEgtEth" ] || [ ${particle} == "DecayElectron" ] || [ ${particle} == "DecayElectronEgtEth" ] || [ ${particle} == "DecayElectronEgtHghEth" ]; then
 	timestamps="${timestamps_electrons}"
     fi
 
@@ -386,7 +443,7 @@ EOF
 	if [ ${particle} == "DecayMuon" ]; then
 	    histograms="Rhat Y Prhat Pvhat Mom"
 	fi
-	if [ ${particle} == "BirthElectron" ] || [ ${particle} == "BirthElectronEgtEth" ]; then
+	if [ ${particle} == "BirthElectron" ] || [ ${particle} == "BirthElectronEgtEth" ] || [ ${particle} == "DecayElectron" ] || [ ${particle} == "DecayElectronEgtEth" ] || [ ${particle} == "DecayElectronEgtHghEth" ]; then
 	    histograms="Rhat Y Prhat Pvhat Mom"
 	fi
 	for histogram in ${histograms}; do
@@ -395,15 +452,6 @@ EOF
 	
 	EndRow
 
-
-
-#	if [ ${particle} == "DecayMuon" ] || [ ${particle} == "BirthElectron" ] || [ ${particle} == "LostMuon" ]; then
-#	    BeginRow ${timestamp}
-#	    for histogram in ${histograms}; do
-#		write ${outputdir}/index.html G4Track${histogram}_${particle}_${timestamp}_25Turns.png ${histogram}
-#	    done
-#	    EndRow
-#	fi
     done
 	    
 
@@ -415,20 +463,74 @@ EOF
     BeginTable
 
     for timestamp in ${timestamps}; do
-	histograms="NumStation11 NumStation5"
+	histograms="NumAllStations"
 	
 	for histogram in ${histograms}; do
 	    BeginRow ${timestamp} ${histogram}
 	    write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}.png ${histogram}
 	    
 	    if [ ${timestamp} == "TimeOncePerTurn" ] || [ ${timestamp} == "Time" ]; then
-		write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_1_6Time.png
-		write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_15_20Time.png
-		write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_30_35Time.png
+		write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_1_2Time.png
+		write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_11_12Time.png
+		write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_10_20Time.png
 	    fi
 	    EndRow
 	done
 	
+	if [ ${particle} == "DecayElectron" ] || [ ${particle} == "DecayElectronEgtEth" ] || [ ${particle} == "DecayElectronEgtHghEth" ]; then
+	    time_suffix="10_15"
+	    tmphists="NumCaloStation2 NumCaloStation8  NumCaloStation14  NumCaloStation20"
+	    BeginRow ${timestamp} "Calo[2,8,14,20]"
+	    for histogram in ${tmphists}; do
+		write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_${time_suffix}Time.png ${histogram}
+	    done
+	    EndRow
+
+	    full=0
+	    if [ ${full} == 1 ]; then
+	    tmphists="NumCaloStation0 NumCaloStation1  NumCaloStation2  NumCaloStation3"
+	    BeginRow ${timestamp} "Calo[0-3]"
+	    for histogram in ${tmphists}; do
+		write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_${time_suffix}Time.png ${histogram}
+	    done
+	    EndRow
+	    
+	    tmphists="NumCaloStation4 NumCaloStation5  NumCaloStation6  NumCaloStation7"
+	    BeginRow ${timestamp} "Calo[4-7]"
+	    for histogram in ${tmphists}; do
+		write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_${time_suffix}Time.png ${histogram}
+	    done
+	    EndRow
+	    
+	    tmphists="NumCaloStation8 NumCaloStation9  NumCaloStation10  NumCaloStation11"
+	    BeginRow ${timestamp} "Calo[8-11]"
+	    for histogram in ${tmphists}; do
+		write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_${time_suffix}Time.png ${histogram}
+	    done
+	    EndRow
+	    
+	    tmphists="NumCaloStation12 NumCaloStation13  NumCaloStation14  NumCaloStation15"
+	    BeginRow ${timestamp} "Calo[12-15]"
+	    for histogram in ${tmphists}; do
+		write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_${time_suffix}Time.png ${histogram}
+	    done
+	    EndRow
+	    
+	    tmphists="NumCaloStation16 NumCaloStation17  NumCaloStation18  NumCaloStation19"
+	    BeginRow ${timestamp} "Calo[16-19]"
+	    for histogram in ${tmphists}; do
+		write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_${time_suffix}Time.png ${histogram}
+	    done
+	    EndRow
+	    
+	    tmphists="NumCaloStation20 NumCaloStation21  NumCaloStation22  NumCaloStation23"
+	    BeginRow ${timestamp} "Calo[20-23]"
+	    for histogram in ${tmphists}; do
+		write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_${time_suffix}Time.png ${histogram}
+	    done
+	    EndRow
+	    fi
+	fi
 
 	BeginRow ${timestamp}
 	for histogram in ${histograms}; do
@@ -437,9 +539,9 @@ EOF
 	    write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_x_FFT.png ${histogram}
 	    
 	    if [ ${timestamp} == "TimeOncePerTurn" ] || [ ${timestamp} == "Time" ]; then
-		write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_x_1_6Time_FFT.png
-		write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_x_15_20Time_FFT.png
-		write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_x_30_35Time_FFT.png
+		write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_x_1_2Time_FFT.png
+		write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_x_11_12Time_FFT.png
+		write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_x_10_20Time_FFT.png
 	    fi
 	    EndRow
 	done

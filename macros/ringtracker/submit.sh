@@ -256,11 +256,13 @@ name()
 	infstart=0
     fi
     
-    if [ ${sigmat} -ge 0 ]; then
+    if [ ${sigmat} -gt 0 ]; then
 	extra="${extra}_tSigma${sigmat}"
-    else
+    elif [ ${sigmat} -lt 0 ]; then
 	loc_sigmat=`echo " ${sigmat} * -1" | bc`
 	extra="${extra}_GausstSigma${loc_sigmat}"
+    else
+	extra="${extra}_FNALt0"
     fi
 
     
@@ -1438,6 +1440,10 @@ until [ -z ${1} ]; do
 	fields="none"
 	shift 1
 	continue
+    elif [ ${1} == "tSigma0" ]; then
+	export sigmat=0
+	shift 1
+	continue
     elif [ ${1} == "tSigma50" ]; then
 	export sigmat=50
 	shift 1
@@ -1476,6 +1482,10 @@ until [ -z ${1} ]; do
 	continue
     elif [ ${1} == "GausstSigma5" ]; then
 	export sigmat=-5
+	shift 1
+	continue
+    elif [ ${1} == "GausstSigma15" ]; then
+	export sigmat=-15
 	shift 1
 	continue
     elif [ ${1} == "NoSigmaP_NoPrhat" ] || [ ${1} == "NoPrhat_NoSigmaP" ]; then

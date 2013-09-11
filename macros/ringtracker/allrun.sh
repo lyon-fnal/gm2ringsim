@@ -17,7 +17,6 @@ name()
 	particlename="piplus"
     elif [ ${particle} == "pi-" ]; then
 	particlename="piminus"
-
     else
 	particlename="${particle}"
     fi
@@ -77,11 +76,13 @@ name()
 	infstart=0
     fi
     
-    if [ ${sigmat} -ge 0 ]; then
+    if [ ${sigmat} -gt 0 ]; then
 	extra="${extra}_tSigma${sigmat}"
-    else
+    elif [ ${sigmat} -lt 0 ]; then
 	loc_sigmat=`echo " ${sigmat} * -1" | bc`
 	extra="${extra}_GausstSigma${loc_sigmat}"
+    else
+	extra="${extra}_FNALt0"
     fi
     
     kickname="NoKick"
@@ -380,7 +381,7 @@ export edmval=0
 gm2size=""
 spintracking="edm"
 spintracking="spin"
-spintracking=""
+#spintracking=""
 edmsize="0"
 edmsizename="edmsize ${edmsize}"
 if ! [ -z ${gm2size} ]; then
@@ -445,7 +446,8 @@ bestoffsets()
     if [ ${beamstart} == "CentralOrbit" ]; then
 	thebestoffsets="10 20 30 40"
 	thebestoffsets="-10 -20 -30 -40"
-	thebestoffsets="20 40"
+#	thebestoffsets="20 40"
+	thebestoffsets="0"
 	return;
     else
 	thebestoffsets="0"
@@ -775,6 +777,24 @@ fields="0"
 
 
 
+
+sigmats="1 50"
+sigmats="50"
+sigmats="1 25 50"
+sigmats="1 25"
+sigmats="1 5 25 50"
+#sigmats="1 5 50"
+sigmats="-1 -5 -25 -50"
+sigmats="1 25 50 -1 -25"
+sigmats="25 -25"
+sigmats="100"
+sigmats="100 0"
+#sigmats="50"
+sigmats="1 -5 -15 25 -25 50 100 0"
+sigmats="-15 100 0"
+sigmats="1"
+
+
 #
 # QUADS
 #
@@ -800,9 +820,18 @@ if [ ${beamstarts} == "CentralOrbit" ]; then
 #    moms="PerfectMatch_FlatdP05"
 #    moms="PerfectMatch_FlatdP0001 PerfectMatch_Flat PerfectMatch_FlatdP05 PerfectMatch_FlatdP2"
     moms="PerfectMatch_dP001 PerfectMatch_dP005 PerfectMatch PerfectMatch_dP05"
-    moms="PerfectMatch_FlatdP001 PerfectMatch_FlatdP005 PerfectMatch_Flat PerfectMatch_FlatdP05"
+    moms="${moms} PerfectMatch_FlatdP001 PerfectMatch_FlatdP005 PerfectMatch_Flat PerfectMatch_FlatdP05"
 # PerfectMatch_dP05 PerfectMatch_dP001"
-    moms="PerfectMatch" # PerfectMatch_Flat"
+    if ! [ -z ${spintracking} ]; then
+	if [ ${sigmats} == "-5" ] || [ ${sigmats} == "-15" ]; then
+	    moms="PerfectMatch_dP001 PerfectMatch_dP005 PerfectMatch PerfectMatch_dP05"
+	    moms="${moms} PerfectMatch_FlatdP001 PerfectMatch_FlatdP005 PerfectMatch_Flat PerfectMatch_FlatdP05"
+	else
+	    moms="PerfectMatch"
+	fi
+    fi
+    moms="PerfectMatch_dP05 PerfectMatch_FlatdP05"
+    moms="PerfectMatch"
     core=0
 #    fields="0 1"
     fields="0"
@@ -885,14 +914,15 @@ fi
 #
 #
 numevts=25000
+#numevts=10000
 
 scrapings="OFF"
 beamtypes="Gaussian Uniform"
 beamtypes="Uniform"
 #beamtypes="Gaussian"
+numturns=30
 numturns=1
-numturns=101
-numturns=200
+#numturns=150
 
 beamsizes="10 20 30 40 50 60"
 #beamsizes="40 1 20"
@@ -902,7 +932,7 @@ beamsizes="40 0 20"
 #beamsizes="40"
 beamsizes="40 0"
 #beamsizes="40"
-beamsizes="0"
+beamsizes="40"
 
 
 #####
@@ -927,7 +957,7 @@ fi
 cleanval="clean"
 cleanval=""
 submitname="local"
-submitname="submit"
+#submitname="submit"
 if [ ${xray} == 1 ]; then
     submitname="local"
 fi
@@ -974,16 +1004,6 @@ njob=0
 test=0
 
 sleepnum=0
-
-sigmats="1 50"
-sigmats="50"
-sigmats="1 25 50"
-sigmats="1 25"
-sigmats="1 5 25 50"
-#sigmats="1 5 50"
-sigmats="-1 -5 -25 -50"
-sigmats="1 25 50 -1 -25"
-sigmats="25 -25"
 
 
 if [ -z ${1} ]; then

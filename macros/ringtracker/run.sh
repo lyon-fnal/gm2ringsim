@@ -1,5 +1,43 @@
 #!/bin/sh
 
+fixfooter() {
+    footer_fcl=${1}
+
+    if [ -z ${2} ]; then
+	return;
+    fi
+    if [ ${2} == "vp1" ] || [ ${2} == "vp" ] || [ ${2} == "novp1" ] || [ ${2} == "novp" ] || [ ${2} == "debug" ] || [ ${2} == "nodebug" ] || [ ${2} == "ring" ] || [ ${2} == "noring" ]; then	
+	if [ ${2} == "ring" ]; then
+	    sed "s/SaveRingHits: false/SaveRingHits: true/g" ${footer_fcl} > ${footer_fcl}.tmp
+	fi
+	if [ ${2} == "noring" ]; then
+	    sed "s/SaveRingHits: true/SaveRingHits: false/g" ${footer_fcl} > ${footer_fcl}.tmp
+	fi
+	if [ ${2} == "vp" ]; then
+	    sed "s/SaveVRingHits: false/SaveVRingHits: true/g" ${footer_fcl} > ${footer_fcl}.tmp
+	    mv ${footer_fcl}.tmp ${footer_fcl}
+	    sed "s/SaveVRing1PlaneHits: false/SaveVRing1PlaneHits: true/g" ${footer_fcl} > ${footer_fcl}.tmp
+	fi
+	if [ ${2} == "novp" ]; then
+	    sed "s/SaveVRingHits: true/SaveVRingHits: false/g" ${footer_fcl} > ${footer_fcl}.tmp
+	    mv ${footer_fcl}.tmp ${footer_fcl}
+	    sed "s/SaveVRing1PlaneHits: true/SaveVRing1PlaneHits: false/g" ${footer_fcl} > ${footer_fcl}.tmp
+	fi
+	if [ ${2} == "vp1" ]; then
+	    sed "s/SaveVRing1PlaneHits: false/SaveVRing1PlaneHits: true/g" ${footer_fcl} > ${footer_fcl}.tmp
+	fi
+	if [ ${2} == "novp1" ]; then
+	    sed "s/SaveVRing1PlaneHits: true/SaveVRing1PlaneHits: false/g" ${footer_fcl} > ${footer_fcl}.tmp
+	fi
+	if [ ${2} == "debug" ]; then
+	    sed "s/debug: false/debug: true/g" ${footer_fcl} > ${footer_fcl}.tmp
+	fi	    
+	if [ ${2} == "nodebug" ]; then
+	    sed "s/debug: true/debug: false/g" ${footer_fcl} > ${footer_fcl}.tmp
+	fi	    
+	mv ${footer_fcl}.tmp ${footer_fcl}
+    fi
+}
 
 nt () {
     local OPTIND
@@ -63,10 +101,10 @@ echo "Subdir=${subdir}"
 
 
 output="/gm2/data/users/tgadfort/gm2ringsim/output/"
-ls ${output}/*${input}*/output*.root > input.dat
-echo "==============================================="
-wc -l input.dat
-echo "Found this many output files in the output directory."
+#ls ${output}/*${input}*/output*.root > input.dat
+#echo "==============================================="
+#wc -l input.dat
+#echo "Found this many output files in the output directory."
 echo "==============================================="
 echo""
 
@@ -75,12 +113,15 @@ echo""
 runplot=0
 numevts=-1
 suffix=""
-rm input.dat
+#rm input.dat
 if [ -z ${2} ]; then
     ls ${output}/*${input}*/*${suffix}*.root > input.dat
 else
     if [ ${2} == "plot" ]; then
 	runplot=1
+	if ! [ -z ${3} ]; then
+	    echo "${3}" > plotcmd
+	fi
     elif [ ${2} == "add" ] || [ ${2} == "merge" ]; then
 	runplot=1
 	echo "Merging files into single ${input} file."
@@ -94,7 +135,6 @@ else
 	ls ${output}/*${input}*/*${suffix}*.root > input.dat
     elif [ ${2} == "html" ]; then
 	runplot=3
-	ls ${output}/*${input}*/*${suffix}*.root > input.dat
     elif [ ${2} == "frac" ]; then
 	extra_suffix=${3}
 	if [ ${extra_suffix} == "0-1" ]; then
@@ -124,60 +164,51 @@ else
 	    ls ${output}/*${input}/*${suffix}_*3.root >> input.dat
 	    ls ${output}/*${input}/*${suffix}_*4.root >> input.dat
 	else
-	    echo ${extra_suffix}
-	    ls ${output}/*${input}/*${suffix}_*${extra_suffix}.root > input.dat
+	    echo "Extra Suffix = ${extra_suffix}"
+	    if [ ${extra_suffix} -ge 0 ]; then
+		echo "  <0"
+		ls ${output}/*${input}/*${suffix}*0_${extra_suffix}.root > input.dat
+		ls ${output}/*${input}/*${suffix}*2_${extra_suffix}.root >> input.dat
+		ls ${output}/*${input}/*${suffix}*4_${extra_suffix}.root >> input.dat
+		ls ${output}/*${input}/*${suffix}*6_${extra_suffix}.root >> input.dat
+		ls ${output}/*${input}/*${suffix}*8_${extra_suffix}.root >> input.dat
+	    else
+		echo "  >0"
+		loc_xsuffix=`echo " ${extra_suffix} * -1" | bc`
+		ls ${output}/*${input}/*${suffix}*1_${loc_xsuffix}.root > input.dat
+		ls ${output}/*${input}/*${suffix}*3_${loc_xsuffix}.root >> input.dat
+		ls ${output}/*${input}/*${suffix}*5_${loc_xsuffix}.root >> input.dat
+		ls ${output}/*${input}/*${suffix}*7_${loc_xsuffix}.root >> input.dat
+		ls ${output}/*${input}/*${suffix}*9_${loc_xsuffix}.root >> input.dat
+	    fi
+	fi
+
+	footer_fcl=`ls ${output}/*${input}*/footer_reader.fcl`
+	fixfooter ${footer_fcl} ${4}
+	if ! [ -z ${4} ]; then
+	    if [ ${4} == "n" ]; then
+		numevts=${5}
+	    fi
 	fi
 	echo "Found the following:"
 	wc -l input.dat
 	echo ""
 #	sleep 100000
+	echo "checking..."
+	root -l checkfile.C -b -q
+	echo "Hit Control-X"
+	chmod 777 rmfiles.sh
+	wc -l rmfiles.sh
+	./rmfiles.sh
     elif [ ${2} == "n" ]; then
 	numevts=${3}
 	echo "Running over ${numevts} events."
-	ls ${output}/*${input}/*${suffix}*.root > input.dat
-    elif [ ${2} == "vp1" ] || [ ${2} == "vp" ] || [ ${2} == "novp1" ] || [ ${2} == "novp" ] || [ ${2} == "debug" ] || [ ${2} == "nodebug" ] || [ ${2} == "ring" ] || [ ${2} == "noring" ]; then
 	footer_fcl=`ls ${output}/*${input}*/footer_reader.fcl`
-
-	if [ ${2} == "ring" ]; then
-	    sed "s/SaveRingHits: false/SaveRingHits: true/g" ${footer_fcl} > ${footer_fcl}.tmp
-	fi
-	if [ ${2} == "noring" ]; then
-	    sed "s/SaveRingHits: true/SaveRingHits: false/g" ${footer_fcl} > ${footer_fcl}.tmp
-	fi
-	if [ ${2} == "vp" ]; then
-	    sed "s/SaveVRingHits: false/SaveVRingHits: true/g" ${footer_fcl} > ${footer_fcl}.tmp
-	    mv ${footer_fcl}.tmp ${footer_fcl}
-	    sed "s/SaveVRing1PlaneHits: false/SaveVRing1PlaneHits: true/g" ${footer_fcl} > ${footer_fcl}.tmp
-	fi
-	if [ ${2} == "novp" ]; then
-	    sed "s/SaveVRingHits: true/SaveVRingHits: false/g" ${footer_fcl} > ${footer_fcl}.tmp
-	    mv ${footer_fcl}.tmp ${footer_fcl}
-	    sed "s/SaveVRing1PlaneHits: true/SaveVRing1PlaneHits: false/g" ${footer_fcl} > ${footer_fcl}.tmp
-	fi
-	if [ ${2} == "vp1" ]; then
-	    sed "s/SaveVRing1PlaneHits: false/SaveVRing1PlaneHits: true/g" ${footer_fcl} > ${footer_fcl}.tmp
-	fi
-	if [ ${2} == "novp1" ]; then
-	    sed "s/SaveVRing1PlaneHits: true/SaveVRing1PlaneHits: false/g" ${footer_fcl} > ${footer_fcl}.tmp
-	fi
-	if [ ${2} == "debug" ]; then
-	    sed "s/debug: false/debug: true/g" ${footer_fcl} > ${footer_fcl}.tmp
-	fi	    
-	if [ ${2} == "nodebug" ]; then
-	    sed "s/debug: true/debug: false/g" ${footer_fcl} > ${footer_fcl}.tmp
-	fi	    
-	mv ${footer_fcl}.tmp ${footer_fcl}
-	if ! [ -z ${3} ]; then
-	    if [ ${3} == "n" ]; then
-		numevts=${4}
-		echo "Running over ${numevts} events."
-	    fi
-	fi
+	fixfooter ${footer_fcl} ${3}	
 	ls ${output}/*${input}/*${suffix}*.root > input.dat
-    elif [ ${2} == "novp1" ]; then
+    elif [ ${2} == "vp1" ] || [ ${2} == "vp" ] || [ ${2} == "novp1" ] || [ ${2} == "novp" ] || [ ${2} == "debug" ] || [ ${2} == "nodebug" ] || [ ${2} == "ring" ] || [ ${2} == "noring" ]; then	
 	footer_fcl=`ls ${output}/*${input}*/footer_reader.fcl`
-	sed "s/SaveVRing1PlaneHits: true/SaveVRing1PlaneHits: false/g" ${footer_fcl} > ${footer_fcl}.tmp
-	mv ${footer_fcl}.tmp ${footer_fcl}
+	fixfooter ${footer_fcl} ${2}
 	if ! [ -z ${3} ]; then
 	    if [ ${3} == "n" ]; then
 		numevts=${4}
@@ -197,6 +228,12 @@ if [ -a input.dat ]; then
 fi
 update=0
 
+if ! [ -z ${extra_suffix} ]; then
+    if [ ${extra_suffix} == 0 ]; then
+	footer_fcl=`ls ${output}/*${input}*/footer_reader.fcl`
+	fixfooter ${footer_fcl} "vp"
+    fi
+fi
 
 if ! [ -z ${2} ]; then
     
@@ -298,12 +335,18 @@ cat ${footer_fcl} >> ${fcl}
 basedir=""
 
 
-    #
-    # Check for Eff/rootfile
-    #
-if [ -a rootfiles/${subdir}/gm2ringsim_${input}.root ]; then
-    fsize=`ls -l rootfiles/${subdir}/gm2ringsim_${input}.root | awk '{print $5}'`
-    fhsize=`ls -lh rootfiles/${subdir}/gm2ringsim_${input}.root | awk '{print $5}'`
+#
+# Check for Eff/rootfile
+#
+if [ -z ${extra_suffix} ]; then
+    outfile="rootfiles/${subdir}/gm2ringsim_${input}.root"
+else
+    outfile="rootfiles/${subdir}/gm2ringsim_${input}_${extra_suffix}.root"
+fi
+  
+if [ -a ${outfile} ]; then
+    fsize=`ls -l ${outfile} | awk '{print $5}'`
+    fhsize=`ls -lh ${outfile} | awk '{print $5}'`
     echo "Found output file w/ size=${fhsize}"
     nfiles=1
 else
@@ -351,6 +394,7 @@ fi
 echo "Post: Runplot = ${runplot}  ; Filesize = ${fhsize}  ; nfiles=${nfiles}"
 
 
+#numevts=10000
 local=1
 if [ ${runplot} == 2 ]; then
     ./plotinf.sh ${input} ${update}

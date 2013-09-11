@@ -35,6 +35,8 @@ mkdir -p ${outdir}
 if [ ${runFA} == 1 ]; then
     root -l plotfastrotation.C -b -q
 fi
+#sleep 1000
+
 rm filename
 
 let nfile=0
@@ -146,6 +148,17 @@ cat > ${html} <<EOF
       <td><center><img alt="" width="100%" src="gt0.png"></td>
       <td><center><img alt="" width="100%" src="gt0weight.png"></td>
       <td><center><img alt="" width="100%" src="gPeriodRadius.png"></td>
+    </tr>
+  </table>
+  <br><p><br>
+  <br><hr><br>
+
+  <table cellspacing=1 cellpadding=3 border=1>
+    <tr>
+      <td><center><img alt="" width="100%" src="Data_MC_0_20000.png"></td>
+      <td><center><img alt="" width="100%" src="Data_MC_1000_2000.png"></td>
+      <td><center><img alt="" width="100%" src="Data_MC_10000_11000.png"></td>
+      <td><center><img alt="" width="100%" src="Data_MC_19000_20000.png"></td>
     </tr>
   </table>
   <br><p><br>
