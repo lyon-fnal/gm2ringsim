@@ -1145,7 +1145,7 @@ void gm2ringsim::Inflector::doFillEventWithArtHits(G4HCofThisEvent *hc) {
   if (NULL != myCollection) {
     std::vector<InflectorHit*> geantHits = *(myCollection->GetVector());
     for ( auto e : geantHits ) {
-      e->Print();
+      //e->Print();
       // Copy this hit into the Art hit                                         
 
       myArtHits->push_back( convert(e));
