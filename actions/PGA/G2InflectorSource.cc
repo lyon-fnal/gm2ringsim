@@ -5,6 +5,8 @@
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+#include "TLorentzVector.h"
+
 // Geant includes
 #include "Geant4/G4Event.hh"
 #include "Geant4/G4GeneralParticleSource.hh"
@@ -54,6 +56,8 @@ gm2ringsim::G2InflectorSource::G2InflectorSource() :
   GenGaussian(false),
   LaunchAngle(0.0),
   StorageOffset(0.0),
+  TurnCounter_(11),
+  RotAngle_(0.0),
   EmittanceX(40.0),
   EmittanceY(40.0),
   BetaX(19.1),
@@ -229,6 +233,20 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
   G4ThreeVector storage_orbit(R_magic(), 0., 0.);
   G4double storage_offset = GetStorageOffset();
   if ( storage_offset > 0 ) { storage_orbit += G4ThreeVector(storage_offset,0.,0.); }
+  G4double RotAngle = 0.0;
+  if ( GetRotAngle() > 0 || GetRotAngle() < 0 ) {
+    RotAngle = GetRotAngle();
+  }
+  else {
+    if ( GetTurnCounter() == 11 ) {
+      //RotAngle = 2 * 3.14159 - 5.762;
+      RotAngle = 2 * 3.14159 - (GetTurnCounter())/12.0 * 2 * 3.14159;    
+    }
+    else {
+      RotAngle = 2 * 3.14159 - GetTurnCounter()/12.0 * 2 * 3.14159;
+    }
+  }
+  storage_orbit.rotateY(RotAngle);
     
 
   // CALCULATE THE DOWNSTREAM MANDREL VERTEX POSITION
@@ -373,22 +391,35 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
   randYPrime = y0Prime;
     
   G4ThreeVector xAxis, yAxis, zAxis;
+  
   zAxis = dir;
   yAxis = G4ThreeVector(0, 1, 0);
   xAxis = yAxis.cross(zAxis);
   if ( GetStartPerfect() ) {
     xAxis = G4ThreeVector(1, 0, 0);
+    xAxis.rotateY(RotAngle);
     yAxis = G4ThreeVector(0, 1, 0);
+    yAxis.rotateY(RotAngle);
     zAxis = G4ThreeVector(0, 0, 1);
+    zAxis.rotateY(RotAngle);
   }
 
 
 
   G4ThreeVector xy_gen(randX, randY, 0.0);
+  if ( GetStartPerfect() ) {
+    xy_gen.rotateY(RotAngle);
+  }
+  
 
-  G4ThreeVector storage_orbit_start(R_magic(), 0.0, 0.0);
-  if ( storage_offset > 0 ) { storage_orbit_start += G4ThreeVector(storage_offset,0.,0.); }
+  G4ThreeVector storage_orbit_start(R_magic(), 0., 0.);
+  if ( storage_offset > 0 ) {
+    storage_orbit_start += G4ThreeVector(storage_offset,0.,0.);
+  }
   storage_orbit_start += xy_gen;
+  if ( GetStartPerfect() ) {
+    storage_orbit_start.rotateY(RotAngle);
+  }
   
   G4ThreeVector downstream_start(R_magic()+ig.aperture_off(), 0.0, 0.0);
   downstream_start += xy_gen;
@@ -457,6 +488,12 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
   G4double pY   = randXPrime*pMag; // radial   @12 o'clock
   G4double pZ   = randYPrime*pMag; // vertical @lways
   G4ThreeVector p = G4ThreeVector(pX,pY,pZ);
+  TLorentzVector momvec;
+  G4double Emu = std::sqrt(pMag*pMag + mMuon()*mMuon());
+  momvec.SetPxPyPzE(pX,pY,pZ, Emu);
+  G4double mu_beta = momvec.Beta();
+  G4double mu_gamma = momvec.Gamma();
+
 
   G4ThreeVector momX = pY * xAxis;
   G4ThreeVector momY = pZ * yAxis;
@@ -628,6 +665,9 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
     else {
       G4cout << "Generating beam from a Uniform Distribution." << G4endl;
     }
+
+    G4cout << "TurnCounter    = " << GetTurnCounter() << G4endl;
+    G4cout << "Rotation Angle = " << RotAngle << G4endl;
     if ( GetStartDownstream() ) {
       G4cout << "STARTING Downstream Of The Inflector Mandrel." << G4endl;
     }
@@ -638,11 +678,21 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
       G4cout << "STARTING Upstream Of The Inflector Cryostat." << G4endl;
     }
     else if ( GetStartPerfect() ) {
-      if ( GetStorageOffset() > 0 ) {
-	G4cout << "STARTING at [R_magic() + " << GetStorageOffset() << ", 0, 0]" << G4endl;	
+      if ( RotAngle > 0 || RotAngle < 0 ) {
+	if ( GetStorageOffset() > 0 ) {
+	  G4cout << "STARTING at " << R_magic()+GetStorageOffset() << "[cos(" << RotAngle << "), 0, sin(" << RotAngle << ")]" << G4endl;	
+	}
+	else {
+	  G4cout << "STARTING at " << R_magic() << "[cos(" << RotAngle << "), 0, sin(" << RotAngle << ")]" << G4endl;	
+	}
       }
       else {
-	G4cout << "STARTING at [R_magic(), 0, 0]" << G4endl;	
+	if ( GetStorageOffset() > 0 ) {
+	  G4cout << "STARTING at " << R_magic()+GetStorageOffset() << "[1, 0, 0]" << G4endl;
+	}
+	else {
+	  G4cout << "STARTING at " << R_magic() << "[1, 0, 0]" << G4endl;
+	}
       }
     }
     else {
@@ -657,11 +707,11 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
     }
     if ( GetFlatDecayTime() ) {
       G4double maxtau = GetMaxDecayTime();
-      if ( maxtau < 1000 ) {
+      if ( maxtau < 2000 ) {
 	// assume this is actually the number of turns
-	maxtau *= 0.16; // tau in microseconds
+	maxtau *= (0.16  * 190.0/231.0); // tau in microseconds
       }
-      G4cout << "Decay time is flat between [0, " << maxtau << "] microseconds." << endl;
+      G4cout << "Decay time is flat between [0, " << maxtau << "] microseconds." << G4endl;
     }
       
     if ( launch_angle > 0 || launch_angle < 0 ) {
@@ -690,7 +740,7 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
     }
     G4cout << "<P>       = " << Pmean << " +/- " << Pmean * dP_over_P << " MeV" << G4endl;
     G4cout << "dP/P      = " << dP_over_P << G4endl;
-    G4cout << "s-dot-p   = " << s.x() << " , " << s.y() << " , " << s.z() << endl;
+    G4cout << "s-dot-p   = " << s.x() << " , " << s.y() << " , " << s.z() << G4endl;
     G4cout << "Particle  = " << Particle_ << G4endl;
 
     if ( GetPolarization() == "E821" ) {
@@ -736,14 +786,53 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
       //G4double tau = primary->GetProperTime();
       //G4cout << "Proper Time = " << tau << G4endl;
       G4double maxtau = GetMaxDecayTime();
-      if ( maxtau < 1000 ) {
+//       G4double gamma_mu = mu_gamma;
+//       G4double beta_mu  = mu_beta;
+//       G4double LdecayMagic = gamma_mu * beta * 
+// 	maxtau * Rmagic *TMath::TwoPi();
+//       G4double Ldecay = LdecayMax + 1;
+//       G4double Maxturns = maxtau;
+//       G4double 
+
+//       while ( Ldecay > LdecayMax ) {
+// 	G4double newtau = G4UniformRand(); 
+// 	Ldecay = gamma_mu * beta_mu * c_light * newtau
+      
+      // Decay length of magic momentum muon for N turns is Rmagic*N = 
+
+      // Lab time is gamma * tau (tau = 2.2 microseconds)
+      // Decay Length = gamma * beta * c * tau
+
+      if ( maxtau < 2000 ) {
 	// assume this is actually the number of turns
-	maxtau *= 0.150; // tau in microseconds
-	maxtau /= gammaMagic(); // decay time in the lab is gamma*tau so we remove that feature here
+	maxtau /= (gm2ringsim::omegaCMagic()/TMath::TwoPi());
+	//G4cout << maxtau << G4endl;
+	//maxtau *= (0.160   * 190.0/231.0); // tau in microseconds
+	maxtau /= mu_gamma; // decay time in the lab is gamma*tau so we remove that feature here
       }
       maxtau *= G4UniformRand();      
-      primary->SetProperTime(maxtau*microsecond);
-//       G4cout << endl;
+
+      //double ratio = ( mu_gamma * mu_beta ) / ( gammaMagic() * betaMagic() );
+      //double ratio = ( mu_gamma ) / ( gammaMagic() );
+      //maxtau /= ratio;
+
+      primary->SetProperTime(maxtau); // *microsecond);
+
+      G4double Ldecay = maxtau * c_light * mu_gamma * mu_beta;
+      G4double N2piR  = TMath::TwoPi() * R_magic();
+
+      //G4cout << mu_gamma << "\t" << gammaMagic() << "\t" << ratio << G4endl;
+      //G4cout << "Ldecay/N2piR = " << Ldecay << "\t" << N2piR << "\t";
+      if ( 0 ) {
+	if ( Ldecay > N2piR ) {
+	  G4cout << "\tBIGGER" << G4endl;
+	}
+	else {
+	  G4cout << G4endl;
+	}
+      }
+
+//       G4cout << G4endl;
 //       G4cout.precision(6);
 //       G4cout << "Proper Time in GenEvt = " << primary->GetProperTime() << G4endl;
     }
