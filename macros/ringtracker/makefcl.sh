@@ -147,7 +147,29 @@ cat >> ${outfile} <<EOF
 	Particle: "${particle}"
 	DecayScaleFactor: 1
 	Polarization: 100
+        TurnCounter: 11
+	RotAngle: 0.54
+
+
 EOF
+
+
+###	RotAngle: 0.52 ### little gap
+###	RotAngle: 0.53 ### no events
+###      RotAngle: 0.525 ### no events
+###	RotAngle: 0.5125 ### smaller gap
+###        RotAngle: 0.515 ### more gap?
+###	RotAngle: 0.5225 ### no events
+###	RotAngle: 0.5175 ### more gap?
+###	RotAngle: 0.51 ### same?
+###	RotAngle: 0.5 ### definitely more gap
+###	RotAngle: 0.512 ###
+###	RotAngle: 0.51 ### for BS2
+###	RotAngle: 0.52 ### for BS1
+###	RotAngle: 0.515 ### for BS3
+###	RotAngle: 0.53 ### for BS4
+###	RotAngle: 0.55 ### for BS5
+###	RotAngle: 0.54 // for BS6
 
 if [ ${beamstart} == um ]; then
     beamstartname="UpstreamMandrel"
@@ -230,14 +252,15 @@ cat >> ${outfile} <<EOF
 
     LostMuonAction: {
       name: "LostMuonAction"
-      stored_rmin: -50.0
-      stored_rmax: 50.0
-      stored_y: 50.0
+      stored_rmin: -75.0
+      stored_rmax: 75.0
+      stored_y: 75.0
     }
 
     MuonStorageStatusAction: {
       name: "MuonStorageStatusAction"
-      turnsForStorage: ${numturns}
+//      turnsForStorage: ${numturns}
+      turnsForStorage: 1000
       TrackPositrons: true
       stored_rmin: 7.035
       stored_rmax: 7.215
@@ -410,6 +433,7 @@ physics: {
       LaunchAngle: ${launch}
       InflectorAngle: ${delta}
       StorageOffset: ${offset}
+      TurnCounter: 11
       SaveInfHits: false
       SaveTruthHits: true
       SaveRingHits: false

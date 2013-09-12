@@ -1502,17 +1502,17 @@ void MakePlot(TH2F *hist, int r, int i, double *int_prev, double *int_curr, doub
     double rad = pi/180.0;
 
     // Draw Thetas
-    double R = 500;
+    double R = 750;
     TLine *l = new TLine(0.0, 0.0, R*TMath::Sin(45*rad), R*TMath::Cos(45*rad));
-    l->SetLineColor(kGray+2);
+    l->SetLineColor(kOrange+6);
     l->SetLineWidth(2);
     l->Draw("SAME");
-    myText(0.5, 0.52, kRed, "#theta=#frac{#pi}{4}", 0.035);
+    myText(0.57, 0.59, kOrange+6, "#theta=#frac{#pi}{4}", 0.035);
     TLine *l = new TLine(0.0, 0.0, R*TMath::Sin(-45*rad), R*TMath::Cos(-45*rad));
-    l->SetLineColor(kGray+2);
+    l->SetLineColor(kOrange+6);
     l->SetLineWidth(2);
     l->Draw("SAME");
-    myText(0.4, 0.52, kRed, "#theta=-#frac{#pi}{4}", 0.035);
+    myText(0.40, 0.59, kOrange+6, "#theta=-#frac{#pi}{4}", 0.035);
 
 
     

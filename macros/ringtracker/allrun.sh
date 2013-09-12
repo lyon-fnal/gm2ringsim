@@ -913,7 +913,7 @@ fi
 # General Run Information
 #
 #
-numevts=25000
+numevts=20000
 #numevts=10000
 
 scrapings="OFF"
@@ -922,7 +922,7 @@ beamtypes="Uniform"
 #beamtypes="Gaussian"
 numturns=30
 numturns=1
-#numturns=150
+numturns=1
 
 beamsizes="10 20 30 40 50 60"
 #beamsizes="40 1 20"
@@ -932,7 +932,7 @@ beamsizes="40 0 20"
 #beamsizes="40"
 beamsizes="40 0"
 #beamsizes="40"
-beamsizes="40"
+beamsizes="4"
 
 
 #####
@@ -956,8 +956,8 @@ fi
 
 cleanval="clean"
 cleanval=""
-submitname="local"
-#submitname="submit"
+#submitname="local"
+submitname="submit"
 if [ ${xray} == 1 ]; then
     submitname="local"
 fi

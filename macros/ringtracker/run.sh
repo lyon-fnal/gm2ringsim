@@ -113,11 +113,14 @@ echo""
 runplot=0
 numevts=-1
 suffix=""
+local=1
 #rm input.dat
 if [ -z ${2} ]; then
     ls ${output}/*${input}*/*${suffix}*.root > input.dat
 else
-    if [ ${2} == "plot" ]; then
+    if [ ${2} == "sub" ]; then
+	local=0
+    elif [ ${2} == "plot" ]; then
 	runplot=1
 	if ! [ -z ${3} ]; then
 	    echo "${3}" > plotcmd
@@ -186,7 +189,9 @@ else
 	footer_fcl=`ls ${output}/*${input}*/footer_reader.fcl`
 	fixfooter ${footer_fcl} ${4}
 	if ! [ -z ${4} ]; then
-	    if [ ${4} == "n" ]; then
+	    if [ ${4} == "sub" ]; then
+		local=0
+	    elif [ ${4} == "n" ]; then
 		numevts=${5}
 	    fi
 	fi
@@ -263,8 +268,14 @@ else
 fi
 #cat ${inputfiles}
 n=1
+
+#
+# Create INPUT_DIR_ARRAY
+#
+INPUT_DIR_ARRAY=""
 for file in ${inputfiles}; do
     if [ -a ${file} ]; then
+	INPUT_DIR_ARRAY="-f ${file} ${INPUT_DIR_ARRAY}"
 	if [ ${n} == 1 ]; then
 	    inputs="\"${file}\""
 	else
@@ -395,7 +406,6 @@ echo "Post: Runplot = ${runplot}  ; Filesize = ${fhsize}  ; nfiles=${nfiles}"
 
 
 #numevts=10000
-local=1
 if [ ${runplot} == 2 ]; then
     ./plotinf.sh ${input} ${update}
 elif [ ${runplot} == 3 ]; then
@@ -432,8 +442,9 @@ else
 		export fcl=${fcl}
 		cp input.dat ${outdir}/${input}_${extra_suffix}.dat
 		cp ${fcl} ${outdir}/${input}_${extra_suffix}.fcl
-		jobsub -g --opportunistic -e fcl -e fullDir -e extra_suffix -e outdir -dMYDIR ${outdir} proc.sh
+#		jobsub -g --opportunistic -e fcl -e fullDir -e extra_suffix -e outdir -dMYDIR ${outdir} proc.sh
 		
+		jobsub -g --opportunistic -e fcl -e fullDir -e extra_suffix -e outdir -dMYDIR ${outdir} ${INPUT_DIR_ARRAY} reproc.sh
 	    
 #		gm2 -c ${fcl} -n ${numevts} -T rootfiles/${subdir}/gm2ringsim_${input}_${extra_suffix}.root
 	    fi
