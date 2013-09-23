@@ -51,6 +51,13 @@ G4double gm2ringsim::ComputeRho(G4ThreeVector *pos)
   return( rho );
 }
 
+G4double gm2ringsim::ComputeRho(TVector3 *pos)
+{
+  G4double rho = std::sqrt(pos->X()*pos->X() + pos->Z()*pos->Z());
+
+  return( rho );
+}
+
 G4double gm2ringsim::ComputeRho(const G4ThreeVector *pos)
 {
   G4double rho = std::sqrt(pos->x()*pos->x() + pos->z()*pos->z());
@@ -73,6 +80,14 @@ G4double gm2ringsim::ComputeRhat(G4ThreeVector *pos)
 }
 
 G4double gm2ringsim::ComputeRhat(const G4ThreeVector *pos)
+{
+  if ( pos == NULL ) { return( -1.0 ); }
+
+  G4double rho = ComputeRho(pos);
+  return( ComputeRhat(rho) );
+}
+
+G4double gm2ringsim::ComputeRhat(TVector3 *pos)
 {
   if ( pos == NULL ) { return( -1.0 ); }
 
@@ -104,6 +119,14 @@ G4double gm2ringsim::ComputeVhat(G4ThreeVector *pos)
   return( vhat );
 }
 
+G4double gm2ringsim::ComputeVhat(TVector3 *pos)
+{
+  if ( pos == NULL ) { return( -1.0 ); }
+
+  G4double vhat = pos->Y();
+  return( vhat );
+}
+
 G4double gm2ringsim::ComputeVhat(const G4ThreeVector *pos)
 {
   if ( pos == NULL ) { return( -1.0 ); }
@@ -116,11 +139,18 @@ G4double gm2ringsim::ComputeTheta(G4ThreeVector *pos)
 {
   if ( pos == NULL ) { return( -1.0 ); }
 
+  return( ComputeTheta(pos->x(), pos->z()) );
+}
+
+G4double gm2ringsim::ComputeTheta(double x, double z)
+{
   // Theta starts at in `up` direction and moves clockwise
   // Otherwise it's a right-handed coordinate system
-  G4double theta = std::atan2(pos->z(),pos->x());
+  G4double theta = std::atan2(x,z);
+  theta = TMath::Pi()/2.0 - theta;
   if( theta < 0 )
     theta+= 2.*M_PI;
+
 
   return( theta );
 }
@@ -156,6 +186,36 @@ G4double gm2ringsim::ComputePvhat(G4ThreeVector *pos, G4ThreeVector *mom)
   return( pvhat );
 }
 
+
+G4double gm2ringsim::ComputePrhat(TVector3 *pos, TVector3 *mom)
+{
+  if ( pos == NULL || mom == NULL ) { return( -1.0 ); }
+
+  G4double rho = ComputeRho(pos);
+  G4double pmag = mom->Mag();
+  
+  //-----------------
+  // prhat = mom.dot(pos)/(|mom|*|pos|)
+  //-----------------
+  G4double prhat = (mom->X()*pos->X() + mom->X()*pos->Z());
+  prhat /= (rho*pmag);
+
+  return( prhat );
+}
+
+
+G4double gm2ringsim::ComputePvhat(TVector3 *pos, TVector3 *mom)
+{
+  if ( pos == NULL || mom == NULL ) { return( -1.0 ); }
+
+  //-----------------
+  // pvhat = mom->y()/(|mom|)
+  //-----------------
+  G4double pmag = mom->Mag();
+  G4double pvhat = mom->Y()/pmag;
+
+  return( pvhat );
+}
 
 G4double gm2ringsim::ComputeXe(G4double p, G4double n)
 {
