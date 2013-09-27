@@ -1,0 +1,222 @@
+#include "geom/world.fcl"
+#include "geom/arc.fcl"
+#include "geom/vac.fcl"
+#include "geom/inflector.fcl"
+#include "geom/quad.fcl"
+#include "geom/kicker_nokick.fcl"
+#include "geom/collimator.fcl"
+#include "geom/PGA.fcl"
+#include "geom/g2GPS.fcl"
+
+#include "geom/station.fcl"
+#include "geom/calorimeter.fcl"
+
+process_name:myProcessName
+
+source: {
+  module_type: EmptyEvent
+  maxEvents:  100
+}
+
+services: {
+
+  message : {
+     debugModules : ["*"]
+     suppressInfo : []
+     
+     destinations : {
+       LogToConsole : {
+         type : "cout"
+         threshold : "ERROR"
+       }
+       LogToFile : {
+         type : "file"
+         filename : "dummy.log"
+         append : false
+         threshold : "ERROR"
+       }
+     }
+  }
+
+  user : {
+  
+    // Mandatory ArtG4 services
+    DetectorHolder: {}
+    ActionHolder: {}
+    PhysicsListHolder: {}
+    RandomNumberGenerator: {}
+
+    // Geometry
+    Geometry: {
+      world: @local::world_geom
+      arc:   @local::arc_geom
+      vac:   @local::vac_geom
+      inflector: @local::inflector_geom
+      quad:   @local::quad_geom
+      kicker: @local::kicker_geom
+      collimator: @local::collimator_geom
+      pga: @local::PGA_geom
+      
+      station: @local::station_geom
+      calorimeter: @local::calorimeter_geom
+
+     }
+
+     // Global simulation settings
+     //
+     // The SpinTracking class tells the 5 fields in the gm2ringsim if they should propogate the muon spin as it travels around the ring
+     // : Default settings are false/false for spinTrackingEnabled/edmTrackingEnabled. If you want to see a wiggle plot then set it to true
+     // : Default setting is Q = 1, which assume that you are injecting a positively charged muon (or pion or proton).
+     //
+     RunSettings : {
+       SpinTracking : {
+	   spinTrackingEnabled : false
+	   edmTrackingEnabled : false
+	   Q : 1
+	   Eta : 0
+	   Gm2 : -1
+       }
+      G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel
+#      G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel_muminus
+    
+    }
+
+
+
+
+      // Action(s) for the simulation
+      StackingAction: {  
+            name: "stackingAction"
+	    OnlyTrackPrimary: false
+  	    TrackPrimaryDecay: true
+            TrackOrphans: false
+            minWavelength:250 //nm
+            maxWavelength:950  //nm
+      }
+
+    physicalVolumeStore: {}
+    Gm2PhysicsList: {
+	physicsListName: old
+	decayMode: none
+    }
+
+    TrackingAction : {
+          name : "trackingAction"
+	  OnlyTrackPrimary: false
+	  TrackPrimaryDecay: true
+          TrackOrphans: false
+    }
+
+    ClockAction: {}
+
+     //
+     // This is the inflector particle gun that allows the user to generate realistic muon beams
+     //  Default Settings and Flags:
+     //    inflectorVerbosity: true	<---no reason to change this since it tells what the gun is doing
+     //    SigmaT: 0	 		<---0 gives FNAL time structure, >0 gives uniform time with width=sigmaT, <0 gives Gaussian time with sigma=sigmaT
+     //    FlatDecayTime: false		<---If you have decay turned on then can generate exponential (false) or uniform decays (true)
+     //    MaxDecayTime: -1		<---If you have decay turned on then you can force all decays to occur between 0 and MaxDecayTime number of turns
+     //    EmittanceX: 40		<---Horizontal emittance
+     //    EmittanceY: 40		<---Vertical emittance
+     //    BetaX:  7.66477		<---Horizontal beta function (constant)
+     //    BetaY:  19.0763		<---Vertical beta function (constant)
+     //    AlphaX:  0.0			<---Horizontal alpha function (change in betaX)
+     //    AlphaY:  0.0			<---Vertical alpha function (change in betaY)
+     //    Pmean: -1			<---Mean of momentum distribution. -1 Assume you are centered on the magic momentum
+     //    dPOverP: 0.0015		<---Gaussian sigma of the beam, if positive. If negative, then dPOverP is the width of a flat beam in momentum space
+     //    Particle: "mu+"		<---Generated particle (charge must match the `Q` from above
+     //    DecayScaleFactor: 1		<---You can speed up the exponential decay by setting this to >1 or slow down the exponential decay with <1 (tau` = SF*tau)
+     //    Polarization: Full		<---Muon polarization. Full=100 along azimuth, E821=BNL polarization, Mixed=Random
+     //    TurnCounter: 11		<---Tells the gun where the turn counter is located
+     //    RotAngle: 0.54		<---If you start in the center of the storage region then rotate backwards by this many radians
+     //    StartUpstream:  false	<---If you want to start the beam at the "upstream mandrel" location
+     //    StartUpstreamCryo:  false	<---If you want to start the beam at the "upstream cryo" location
+     //    StartDownstream:  true	<---If you want to start the beam at the "downstream mandrel" location
+     //    StartPerfect:  false		<---If you watn to start the beam in the storage region on the magic radius
+     //    GenGaussian: false		<---If you want a Gaussian population of the phase space. False = uniform
+     //    LaunchAngle: -2		<---Relative angle between the momentum vector and the inflector main axis or tangent to the ring
+     //    StorageOffset: 0		<---If you start in the center of the ring you can choose to be offset by StorageOrbit millimeters.
+    InflectorPGA: {
+        name: "inflectorgun"
+        inflectorVerbosity: true
+	SigmaT: 0
+	FlatDecayTime: false
+	MaxDecayTime: -1
+	EmittanceX: 40
+	EmittanceY: 40
+	BetaX:  7.66477
+	BetaY:  19.0763
+	AlphaX:  0.0
+	AlphaY:  0.0
+	Pmean: -1
+	dPOverP: 0.0015
+	Particle: "mu+"
+	DecayScaleFactor: 1
+	Polarization: Full
+        TurnCounter: 11
+	RotAngle: 0.54
+	StartUpstream:  false
+	StartUpstreamCryo:  false
+	StartDownstream:  false
+	StartPerfect:  true
+	GenGaussian: false
+	LaunchAngle: -2
+	StorageOffset: 0
+    }
+
+
+    // Detectors
+    World: {}	
+    Ring: {}    // This is for the RingHits
+    VirtualRingStation: {} // This is for the virtual tracker planes in the vac
+    Arc: {}
+    Quad: {}
+    VacuumChamber: {}
+    Inflector:{}
+    Kicker: {}
+    Collimator : {}
+
+    Station: {}
+    Calorimeter: {}
+
+
+    MuonStorageStatusAction: {
+      name: "MuonStorageStatusAction"
+      turnsForStorage: 10
+      TrackPositrons: true
+      stored_rmin: 0.0
+      stored_rmax: 10.0
+      heartbeatFreq: 1000
+    }
+
+  } //user:
+} //services:
+
+outputs: {
+out1: {
+  module_type: RootOutput   
+  fileName: "dummy.root"
+  }
+}
+
+physics: {
+  producers: {
+    artg4 : { 
+     module_type: artg4Main
+     enableVisualization: false
+     macroPath: ".:./macros:../macros:../../macros"
+     visMacro: "vis.mac"
+     afterEvent: pause  // (ui, pause, pass)
+    }
+  }
+
+
+
+  path1: [ artg4 ]
+  readPath: [ ]
+  stream1:  [ out1 ]
+
+  trigger_paths: [ path1 ]
+  end_paths: [ readPath, stream1 ]
+
+}
