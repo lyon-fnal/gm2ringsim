@@ -84,7 +84,7 @@ gm2ringsim::InflectorPGA::InflectorPGA(fhicl::ParameterSet const& p, art::Activi
     G4cout << "  StartDownstream     " << StartDownstream_ << G4endl;
     G4cout << "  StartPerfect        " << StartPerfect_ << G4endl;
     G4cout << "  GenGaussian         " << GenGaussian_ << G4endl;
-    G4cout << "  LaunchAngle         " << LaunchAngle_ << G4endl;
+    G4cout << "  LaunchAngle         " << LaunchAngle_ << G4endl;    
     G4cout << "  StorageOffset       " << StorageOffset_ << G4endl;
     G4cout << "  TurnCounter         " << TurnCounter_ << G4endl;
     G4cout << "  RotAngle            " << RotAngle_ << G4endl;

@@ -23,6 +23,7 @@
 
 #include "gm2ringsim/actions/PGA/G2InflectorSource.hh"
 #include "gm2ringsim/common/g2PreciseValues.hh"
+#include "gm2ringsim/common/UsefulVariables.hh"
 
 #define randFromDistr CLHEP::RandGeneral
 
@@ -246,31 +247,37 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
       RotAngle = 2 * 3.14159 - GetTurnCounter()/12.0 * 2 * 3.14159;
     }
   }
-  storage_orbit.rotateY(RotAngle);
-    
+  if ( GetStartPerfect() ) {
+    storage_orbit.rotateY(RotAngle);
+  }
+
 
   // CALCULATE THE DOWNSTREAM MANDREL VERTEX POSITION
     
 
   gm2geom::inflectorGeometry const& ig = infGeom_.ig ;//inflectorGeometry::getInstance();
+
+  //double delta_angle = infGeom_.swingAngle;
+
+
   G4ThreeVector downstream(R_magic()+ig.aperture_off(), 0., 0.);
-  downstream.rotateY(ig.delta());
+  downstream.rotateY(infGeom_.rotAngle);
     
     
   // CALCULATE THE UPSTREAM MANDREL VERTEX POSITION
     
   G4ThreeVector upstream(0., 0., -ig.mandrel_length());  
-  upstream.rotateX(-ig.zeta()); // why negative?  WTF?
+  upstream.rotateX(-infGeom_.tiltAngle); // why negative?  WTF?
   upstream.rotateY(ig.gamma());
   upstream += G4ThreeVector(R_magic()+ig.aperture_off(),0.,0.);
-  upstream.rotateY(ig.delta());
+  upstream.rotateY(infGeom_.rotAngle);
     
   
   G4ThreeVector upstream_cryo(0., 0., -ig.length()+ig.window_thickness()+ig.conductor_thickness() );
-  upstream_cryo.rotateX(-ig.zeta()); // why negative?  WTF?
+  upstream_cryo.rotateX(-infGeom_.tiltAngle); // why negative?  WTF?
   upstream_cryo.rotateY(ig.gamma());
   upstream_cryo += G4ThreeVector(R_magic()+ig.aperture_off(),0.,0.);
-  upstream_cryo.rotateY(ig.delta());
+  upstream_cryo.rotateY(infGeom_.rotAngle);
 
 
   // Direction of inflector axis
@@ -423,21 +430,21 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
   
   G4ThreeVector downstream_start(R_magic()+ig.aperture_off(), 0.0, 0.0);
   downstream_start += xy_gen;
-  downstream_start.rotateY(ig.delta());
+  downstream_start.rotateY(infGeom_.rotAngle);
   
   G4ThreeVector upstream_start(0., 0., -ig.mandrel_length());  
-  upstream_start.rotateX(-ig.zeta()); // why negative?  WTF?
-  upstream_start.rotateY(ig.gamma());
+  upstream_start.rotateX(-infGeom_.tiltAngle); // why negative?  WTF?
+  upstream_start.rotateY(infGeom_.swingAngle);
   upstream_start += G4ThreeVector(R_magic()+ig.aperture_off(),0.,0.);
   upstream_start += xy_gen;
-  upstream_start.rotateY(ig.delta());
+  upstream_start.rotateY(infGeom_.rotAngle);
       
   G4ThreeVector upstream_cryo_start(0., 0., -ig.length()+ig.window_thickness()+ig.conductor_thickness() );
-  upstream_cryo_start.rotateX(-ig.zeta()); // why negative?  WTF?
-  upstream_cryo_start.rotateY(ig.gamma());
+  upstream_cryo_start.rotateX(-infGeom_.tiltAngle); // why negative?  WTF?
+  upstream_cryo_start.rotateY(infGeom_.swingAngle);
   upstream_cryo_start += G4ThreeVector(R_magic()+ig.aperture_off(),0.,0.);
   upstream_cryo_start += xy_gen;
-  upstream_cryo_start.rotateY(ig.delta());
+  upstream_cryo_start.rotateY(infGeom_.rotAngle);
 
 
   //----------------------------------------
@@ -539,7 +546,7 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
   G4double mom_GeV =  mom_start.mag()/(GeV/MeV);
 
   
-  if ( GetPolarization() == "E821" ) {
+  if ( GetPolarization() == "E821" || GetPolarization() == "E821Mixed" ) {
     //G4double sr = -0.9237 * (mom_start.mag()*GeV/MeV) + 2.8275;
     mom_GeV = TMath::Min(mom_GeV, 3.13);
     mom_GeV = TMath::Max(mom_GeV, 3.06);
@@ -556,13 +563,15 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
     s.setZ(sz);
     s = s.unit();
   }
-  else if (  GetPolarization() == "100%" ) {
-    s = mom_start.unit();
+  else if ( GetPolarization() == "100%" || GetPolarization() == "100" || GetPolarization() == "FullMixed" || GetPolarization() == "Full-Mixed" || GetPolarization() == "Full" ) {
+    s.setX(mom_start.x()/mom_start.mag());
+    s.setY(mom_start.y()/mom_start.mag());
+    s.setZ(mom_start.z()/mom_start.mag());
   }
   else {
-    s.setX(gRandom_->Uniform());
-    s.setY(gRandom_->Uniform());
-    s.setZ(gRandom_->Uniform());
+    s.setX(2*gRandom_->Uniform()-1);
+    s.setY(2*gRandom_->Uniform()-1);
+    s.setZ(2*gRandom_->Uniform()-1);
     s = s.unit();
   }
 
@@ -604,11 +613,18 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
   }
 
   if ( sigmat == 0.0 ) {
+    double randtime = randTFromE989();
     if ( GetStartPerfect() ) {
-      randT = 100*ns + randTFromE989();
+      randT = 100*ns + randtime;
     }
     else {
-      randT += randTFromE989();
+      randT += randtime;
+    }
+
+    if ( GetPolarization() == "Mixed" || GetPolarization() == "E821Mixed" || GetPolarization() == "FullMixed" || GetPolarization() == "Full-Mixed" ) {
+      //G4cout << "Randtime: " << randtime << "\t" << 800*ns << "\t" << -20*ns << G4endl;
+      if ( fabs(randtime) >= 80*ns ) { s.rotateY(2*TMath::Pi()/3); }
+      else if ( fabs(randtime) <= 20*ns ) { s.rotateY(-2*TMath::Pi()/3); }
     }
   }
 
@@ -667,7 +683,6 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
     }
 
     G4cout << "TurnCounter    = " << GetTurnCounter() << G4endl;
-    G4cout << "Rotation Angle = " << RotAngle << G4endl;
     if ( GetStartDownstream() ) {
       G4cout << "STARTING Downstream Of The Inflector Mandrel." << G4endl;
     }
@@ -678,6 +693,7 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
       G4cout << "STARTING Upstream Of The Inflector Cryostat." << G4endl;
     }
     else if ( GetStartPerfect() ) {
+      G4cout << "Rotation Angle = " << RotAngle << G4endl;
       if ( RotAngle > 0 || RotAngle < 0 ) {
 	if ( GetStorageOffset() > 0 ) {
 	  G4cout << "STARTING at " << R_magic()+GetStorageOffset() << "[cos(" << RotAngle << "), 0, sin(" << RotAngle << ")]" << G4endl;	
@@ -702,9 +718,13 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
     if ( GetSigmaT() < 0 ) {
       G4cout << "Gaussian t0 with sigma = " << GetSigmaT() << " ns." << G4endl;
     }
-    else {
+    else if ( GetSigmaT() > 0 ) {
       G4cout << "Flat t0  between [0, " << GetSigmaT() << "] ns." << G4endl;
     }
+    else {
+      G4cout << "FNAL t0 beam." << G4endl;
+    }
+
     if ( GetFlatDecayTime() ) {
       G4double maxtau = GetMaxDecayTime();
       if ( maxtau < 2000 ) {
@@ -713,10 +733,11 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
       }
       G4cout << "Decay time is flat between [0, " << maxtau << "] microseconds." << G4endl;
     }
-      
-    if ( launch_angle > 0 || launch_angle < 0 ) {
-      G4cout << "Launching muon beam with a " << 1000*launch_angle << " mrad kick." << G4endl;
-    }
+     
+    
+    G4cout << "Inflector swing angle = " << infGeom_.swingAngle << " mrad." << G4endl;
+    G4cout << "Launching muon beam with a " << launch_angle << " mrad kick." << G4endl;
+
 
       
     G4cout << "emittanceX = " << emittanceX << G4endl;
@@ -738,26 +759,50 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
       G4cout << "sqrt(emit*betaY) = " << std::sqrt( epsilonY*betaY0 ) << G4endl;
       G4cout << "sqrt(emit*gamY)  = " << std::sqrt( epsilonY*gammaY0 ) << G4endl;
     }
+    G4cout << "Particle  = " << Particle_ << G4endl;
     G4cout << "<P>       = " << Pmean << " +/- " << Pmean * dP_over_P << " MeV" << G4endl;
     G4cout << "dP/P      = " << dP_over_P << G4endl;
-    G4cout << "s-dot-p   = " << s.x() << " , " << s.y() << " , " << s.z() << G4endl;
-    G4cout << "Particle  = " << Particle_ << G4endl;
+    G4cout << "Spin:" << G4endl;
+    G4cout << "x         = " << beam_start.x() << " , " << beam_start.y() << " , " << beam_start.z() << G4endl;
+    G4cout << "p         = " << mom_start.x() << " , " << mom_start.y() << " , " << mom_start.z() << G4endl;
+    G4cout << "|p|       = " << mom_start.mag() << G4endl;
+    G4cout << "s         = " << s.x() << " , " << s.y() << " , " << s.z() << G4endl;
+    G4cout << "|s|       = " << s.mag() << G4endl;
+    G4cout << "s-dot-p   = " << s.dot(p)/(s.mag()*mom_start.mag()) << G4endl;
 
-    if ( GetPolarization() == "E821" ) {
+    G4double theta = ComputeTheta(beam_start.x(), beam_start.z());
+    double pol_azimuth, pol_radial, pol_vertical;
+    ComputePolarization(&pol_azimuth, &pol_radial, &pol_vertical, s.x(), s.y(), s.z(), theta);
+    G4cout << "s(r,v,z)  = " << pol_radial << " , " << pol_vertical << " , " << pol_azimuth << G4endl;
+   
+
+    if ( GetPolarization() == "Full-Mixed" || GetPolarization() == "FullMixed" ) {
+      G4cout << "Using polarization of muons in tails is rotated by 2pi/3 from 100% in the core." << G4endl;
+    }
+    else if ( GetPolarization() == "Mixed" || GetPolarization() == "E821Mixed" ) {
+      G4cout << "Using polarization of muons in tails is rotated by 2pi/3 from what is in the core." << G4endl;
+    }
+    else if ( GetPolarization() == "E821" || GetPolarization() == "E821Mixed" ) {
       G4cout << "Using E821 Hughon Polarization Fits." << G4endl;
     }
-    else if ( GetPolarization() == "100%" ) {
-      G4cout << "Assuming 100 polarization (s-dot-p=1)." << G4endl;
+    else if ( GetPolarization() == "100%" || GetPolarization() == "100" || GetPolarization() == "Full" ) {
+      G4cout << "Assuming 100% polarization (s-dot-p=1)." << G4endl;
     }
     else {
       G4cout << "Random Polarization." << G4endl;
     }
     
 
-    G4cout << "Inflector Coordinates:" << G4endl;
+    G4cout << "World Coordinates:" << G4endl;
+    G4cout << "  Main Inflector Axis: " << dir << G4endl;
+    G4cout << "  p-dot-inf   : " << dir.dot(mom_start.unit()) << G4endl;
     G4cout << "  xAxis.SetXYZ(" << xAxis.x() << " , " << xAxis.y() << " , " << xAxis.z() << ");" << G4endl;
     G4cout << "  yAxis.SetXYZ(" << yAxis.x() << " , " << yAxis.y() << " , " << yAxis.z() << ");" << G4endl;
     G4cout << "  zAxis.SetXYZ(" << zAxis.x() << " , " << zAxis.y() << " , " << zAxis.z() << ");" << G4endl;
+    G4cout << "  p-dot-inf : " << dir.dot(mom_start.unit()) << G4endl;
+    G4cout << "  p-dot-x   : " << xAxis.dot(mom_start.unit()) << G4endl;
+    G4cout << "  p-dot-y   : " << yAxis.dot(mom_start.unit()) << G4endl;
+    G4cout << "  p-dot-z   : " << zAxis.dot(mom_start.unit()) << G4endl;
     G4cout << "  beamStart.SetXYZ(" << beam_start_offset.x() << " , " << beam_start_offset.y() << " , " << beam_start_offset.z() << ");" << G4endl;
     G4cout << "  rhat_offset = " << sqrt(beam_start_offset.x()*beam_start_offset.x() + beam_start_offset.z()*beam_start_offset.z()) - R_magic() << ";" << G4endl;
     G4cout << "  yhat_offset = " << beam_start_offset.y() - 0.0 << ";" << G4endl;
