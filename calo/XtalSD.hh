@@ -40,6 +40,9 @@ public:
     G4int DrawLevel() const { return drawLevel; };
     G4int DrawLevel(G4int newLevel);
     
+    bool killOpticalPhotons() const { return killOpticalPhotons_; };
+    bool killOpticalPhotons(bool newLevel);
+    
     void setTotalXtals(int n) { nXtalsTotal_ = n; };
     void setXtalsPerCalo(int n) { nXtalsPerCalo_ = n; };
 
@@ -48,6 +51,8 @@ private:
     XtalPhotonHitsCollection *thisPhotonHC;
     
     G4int printLevel, drawLevel;
+    
+    bool killOpticalPhotons_;
             
     std::vector<bool> photonTracks;
     
