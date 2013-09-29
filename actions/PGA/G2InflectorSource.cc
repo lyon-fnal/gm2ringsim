@@ -124,7 +124,7 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
 {
   //bool debug = false;
 
-  //G4cout << "G2InflectorSource::GeneratePrimaryVertex  --- GENERATING EVENT!" << G4endl;
+  G4cout << "G2InflectorSource::GeneratePrimaryVertex  --- GENERATING EVENT!" << G4endl;
 
   mf::LogInfo("G2InflectorSource") << "GeneratePrimaryVertex";
 
@@ -254,10 +254,10 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
 
   // CALCULATE THE DOWNSTREAM MANDREL VERTEX POSITION
     
-
+  
   gm2geom::inflectorGeometry const& ig = infGeom_.ig ;//inflectorGeometry::getInstance();
 
-  //double delta_angle = infGeom_.swingAngle;
+  //double delta_angle = ig.swingAngle;
 
 
   G4ThreeVector downstream(R_magic()+ig.aperture_off(), 0., 0.);
@@ -268,14 +268,14 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
     
   G4ThreeVector upstream(0., 0., -ig.mandrel_length());  
   upstream.rotateX(-infGeom_.tiltAngle); // why negative?  WTF?
-  upstream.rotateY(ig.gamma());
+  upstream.rotateY(infGeom_.swingAngle);
   upstream += G4ThreeVector(R_magic()+ig.aperture_off(),0.,0.);
   upstream.rotateY(infGeom_.rotAngle);
     
   
   G4ThreeVector upstream_cryo(0., 0., -ig.length()+ig.window_thickness()+ig.conductor_thickness() );
   upstream_cryo.rotateX(-infGeom_.tiltAngle); // why negative?  WTF?
-  upstream_cryo.rotateY(ig.gamma());
+  upstream_cryo.rotateY(infGeom_.swingAngle);  
   upstream_cryo += G4ThreeVector(R_magic()+ig.aperture_off(),0.,0.);
   upstream_cryo.rotateY(infGeom_.rotAngle);
 
