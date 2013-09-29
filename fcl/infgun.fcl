@@ -148,7 +148,10 @@ services: {
     Collimator : {}
 
     Station: {}
-    Calorimeter: {}
+    Calorimeter: {
+        killAllParticles : true
+        killOpticalPhotons : true
+    }
 
 //    DecayedPositronAction: {
 //      name: "DecayedPositronAction"

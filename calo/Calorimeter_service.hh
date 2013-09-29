@@ -64,7 +64,13 @@ namespace gm2ringsim {
     private:
       
         std::string stationGeomName_;
-      
+
+        bool killAllParticles_;
+        bool killOpticalPhotons_;
+        
+        bool produceXtalHits_;
+        bool producePhotodetectorHits_;
+        
         CaloSD *caloSD_;
         XtalSD *xtalSD_;
         PhotodetectorSD *photodetectorSD_;

@@ -32,7 +32,7 @@ const int kNoTrackNumber = -1;
 
 gm2ringsim::XtalSD::XtalSD(G4String name) :
 G4VSensitiveDetector( name ),
-printLevel(0), drawLevel(0)
+printLevel(0), drawLevel(0), killOpticalPhotons_(true)
 {
     collectionName.insert( name );
     G4String photonName = Calorimeter::addPhotonToName(name);
@@ -119,12 +119,13 @@ G4bool gm2ringsim::XtalSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){
         
     }
     
+    // Stop processing the hit if it is something other than e+, e-, mu+, mu-, optical photon
+    //     Note: this mosly applies to non-optical photons (pdg id = 22)
     // really not sure that we want to do this!
     if( pdg != 11 && // electron
        pdg != 13 && // muon
        pdg != 0 ) // optical photon
     {
-        // std::cout << "leaving processhits for wrong particle" << std::endl;
         return false ;
     }
     
@@ -230,6 +231,11 @@ G4bool gm2ringsim::XtalSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){
                 thisPhotonHC->insert(xph);
                 PhotonHitCorrelator::getInstance().addTrack(thisID,xph);
             }
+            
+            // If the killOpticalPhotons_ parameter is set to true, kill the track
+            if (killOpticalPhotons_){
+                thisStep->GetTrack()->SetTrackStatus(fStopAndKill);
+            }
         }
         
     }
@@ -268,5 +274,11 @@ G4int gm2ringsim::XtalSD::PrintLevel(G4int newLevel){
 G4int gm2ringsim::XtalSD::DrawLevel(G4int newLevel){
     G4int temp = drawLevel;
     drawLevel = newLevel;
+    return temp;
+}
+
+bool gm2ringsim::XtalSD::killOpticalPhotons(bool newLevel){
+    bool temp = killOpticalPhotons_;
+    killOpticalPhotons_ = newLevel;
     return temp;
 }
