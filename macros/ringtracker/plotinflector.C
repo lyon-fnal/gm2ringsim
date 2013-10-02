@@ -86,9 +86,93 @@ TH2F *HitsRhatY[21];
 enum {kGeneratedDist, kRemainingDist};
 enum {kBegin, kFinal};
 
+bool PlotVariable(string varname, string particle, string timeval)
+{
+  if ( particle == "BirthMuon" ) {
+    if ( varname == "RhatY" ) { return( true ); }
+    if ( varname == "XprimeX" ) { return( true ); }
+    if ( varname == "YprimeY" ) { return( true ); }
+    if ( varname == "Xe" ) { return( true ); }
+    if ( varname == "Mom" ) { return( true ); }
+    if ( varname == "t0" ) { return( true ); }
+  }
+
+  if ( particle == "DecayMuon" ) {
+    if ( timeval == "RemainingDist" ) {
+      if ( varname == "RhatY" ) { return( true ); }
+      if ( varname == "XprimeX" ) { return( true ); }
+      if ( varname == "YprimeY" ) { return( true ); }
+      if ( varname == "XZ" ) { return( true ); }
+      if ( varname == "Pol" ) { return( true ); }
+      if ( varname == "Xe" ) { return( true ); }
+      if ( varname == "Time" ) { return( true ); }
+
+      if ( varname == "NumAllStations" && timeval == "TimeOncePerTurn" ) { return( true ); }
+    }
+  }
+
+  if ( particle == "LostMuon" ) {
+    if ( varname == "RhatY" ) { return( true ); }
+    if ( varname == "R" ) { return( true ); }
+    if ( varname == "XprimeX" ) { return( true ); }
+    if ( varname == "YprimeY" ) { return( true ); }
+    if ( varname == "XZ" ) { return( true ); }
+    if ( varname == "Mom" ) { return( true ); }
+    if ( varname == "Time" ) { return( true ); }
+
+    if ( varname == "NumAllStations" && timeval == "TimeOncePerTurn" ) { return( true ); }
+  }
+
+  if ( particle == "StoredMuon" ) {
+    if ( timeval == "GeneratedDist" ) {
+      if ( varname == "RhatY" ) { return( true ); }
+      if ( varname == "XprimeX" ) { return( true ); }
+      if ( varname == "YprimeY" ) { return( true ); }
+      if ( varname == "Mom" ) { return( true ); }
+      if ( varname == "Xe" ) { return( true ); }
+    }
+  }
+
+  if ( particle == "BirthElectron" ) {
+    if ( varname == "RhatY" ) { return( true ); }
+    //if ( varname == "ThetaRhat" ) { return( true ); }
+//     if ( varname == "ThetaR" ) { return( true ); }
+    if ( varname == "Theta" ) { return( true ); }
+    if ( varname == "Rhat" ) { return( true ); }
+    if ( varname == "XprimeX" ) { return( true ); }
+    if ( varname == "YprimeY" ) { return( true ); }
+    if ( varname == "XZ" ) { return( true ); }
+    if ( varname == "Mom" ) { return( true ); }
+
+    if ( varname == "NumAllStations" && timeval == "TimeOncePerTurn" ) { return( true ); }
+  }
+  
+  if ( particle == "DecayElectron" || particle == "DecayElectronEgtEth" || particle == "DecayElectronEgtHghEth" ) {
+    if ( varname == "RhatY" ) { return( true ); }
+//     if ( varname == "ThetaR" ) { return( true ); }
+    if ( varname == "Theta" ) { return( true ); }
+    if ( varname == "Rhat" ) { return( true ); }
+    //if ( varname == "ThetaRhat" ) { return( true ); }
+    if ( varname == "XprimeX" ) { return( true ); }
+    if ( varname == "YprimeY" ) { return( true ); }
+    if ( varname == "XZ" ) { return( true ); }
+    if ( varname == "Mom" ) { return( true ); }
+    if ( varname == "NumCalo" ) { return( true ); }
+
+    if ( varname == "NumAllStations" && timeval == "TimeOncePerTurn" ) { return( true ); }
+    if ( varname == "NumCaloStation2" && timeval == "TimeOncePerTurn" ) { return( true ); }
+    if ( varname == "NumCaloStation8" && timeval == "TimeOncePerTurn" ) { return( true ); }
+    if ( varname == "NumCaloStation14" && timeval == "TimeOncePerTurn" ) { return( true ); }
+    if ( varname == "NumCaloStation20" && timeval == "TimeOncePerTurn" ) { return( true ); }
+  }
+
+  return( false );
+}
+
 double GetLineWidth(TString name)
 {
   double size = 4;
+  if ( name.Contains("_Ratio") ) { size = 1; }
   if ( name.Contains("Num") ) { size = 1; }
 
   return( size );
@@ -97,6 +181,7 @@ double GetLineWidth(TString name)
 double GetMarkerSize(TString name)
 {
   double size = 1.25;
+  if ( name.Contains("_Ratio") ) { size = 0.25; }
   if ( name.Contains("Num") ) { size = 0.1; }
 
   return( size );
@@ -109,6 +194,9 @@ void GetXminmax(TH2F *hist, double *xmin, double *xmax, double *ymin, double *ym
   bool isVhat = false;
   bool isRhat = false;
   bool isR = false;
+  bool isTheta = false;
+  bool isThetaR = false;
+  bool isThetaRhat = false;
   bool isXZ = false;
   bool isXprimeX = false;
   bool isYprimeY = false;
@@ -118,9 +206,11 @@ void GetXminmax(TH2F *hist, double *xmin, double *xmax, double *ymin, double *ym
   bool isNavg = false;
   bool isPol = false;
   bool isXe = false;
+  bool isEqRad = false;
   bool isMom = false;
   bool isZhat = false;
   bool isNum = false;
+  bool isEqRadMom = false;
 
   TString name = hist->GetName();
 
@@ -131,6 +221,7 @@ void GetXminmax(TH2F *hist, double *xmin, double *xmax, double *ymin, double *ym
   if ( name.Contains("_vs_Time") ) { isTurn = true; }
   if ( name.Contains("_vs_TimeOncePerTurn") ) { isTurn = true; }
   if ( isTurn ) {
+    if ( name.Contains("Track_Theta") || name.Contains("Tracker_Theta") ) { isTheta = true; }
     if ( name.Contains("Track_R") || name.Contains("Tracker_R") ) { isR = true; }
     if ( name.Contains("Track_Rhat") || name.Contains("Tracker_Rhat") ) { isRhat = true; isR = false; }
     if ( name.Contains("Track_Y") || name.Contains("Tracker_Y") ) { isVhat = true; }
@@ -139,6 +230,7 @@ void GetXminmax(TH2F *hist, double *xmin, double *xmax, double *ymin, double *ym
     if ( name.Contains("Track_Prhat") || name.Contains("Tracker_Prhat") ) { isXprime = true; }
     if ( name.Contains("Track_Pvhat") || name.Contains("Tracker_Pvhat") ) { isYprime = true; }
     if ( name.Contains("Track_Xe") || name.Contains("Tracker_Xe") ) { isXe = true; }
+    if ( name.Contains("Track_EqRad") || name.Contains("Tracker_EqRad") ) { isXe = true; }
     if ( name.Contains("Track_Pol") || name.Contains("Tracker_Pol") ) { isPol = true; }
     if ( name.Contains("Track_Zhat") || name.Contains("Tracker_Zhat") ) { isZhat = true; }
     if ( name.Contains("Track_NumCounter") || name.Contains("Tracker_NumCounter") ) { isNum = true; }
@@ -146,9 +238,12 @@ void GetXminmax(TH2F *hist, double *xmin, double *xmax, double *ymin, double *ym
   else {
     if ( name.Contains("PolXY") ) { isPol = true; }
     if ( name.Contains("RhatY") ) { isRhatY = true; }
+    if ( name.Contains("EqRadMom") ) { isEqRadMom = true; }
     if ( name.Contains("XZ") ) { isXZ = true; }
     if ( name.Contains("XprimeX") ) { isXprimeX = true; }
     if ( name.Contains("YprimeY") ) { isYprimeY = true; }
+    if ( name.Contains("ThetaR") ) { isThetaR = true; }
+    if ( name.Contains("ThetaRhat") ) { isThetaRhat = true; isThetaR = false; }
   }
 
 
@@ -184,6 +279,12 @@ void GetXminmax(TH2F *hist, double *xmin, double *xmax, double *ymin, double *ym
       return;
     }
 
+    if ( isTheta ) {
+      *ymax = TMath::TwoPi();
+      *ymin = 0.0;
+      return;
+    }
+
     if ( isR ) {
       *ymax = 300; *ymin = -300;
       for ( int mm = 300; mm >= 50; mm -= 50 ) {
@@ -198,10 +299,10 @@ void GetXminmax(TH2F *hist, double *xmin, double *xmax, double *ymin, double *ym
 
     if ( isZhat ) {
       *ymax = TMath::Pi(); *ymin = -TMath::Pi();
-      for ( double mm = TMath::Pi(); mm >= 0.1; mm -= TMath::Pi()/8.0 ) {
-	if ( histymax < mm && histymin > -mm ) { *ymax = mm; *ymin = -mm; }
-	cout << mm << "\t" << *ymin << "\t" << *ymax << endl;
-      }
+//       for ( double mm = TMath::Pi(); mm >= 0.1; mm -= TMath::Pi()/8.0 ) {
+// 	if ( histymax < mm && histymin > -mm ) { *ymax = mm; *ymin = -mm; }
+// 	cout << mm << "\t" << *ymin << "\t" << *ymax << endl;
+//       }
       return;
     }
 
@@ -211,9 +312,25 @@ void GetXminmax(TH2F *hist, double *xmin, double *xmax, double *ymin, double *ym
 	*ymin = 0.0; *ymax = 1.0;
       }
       else {
-	if ( name.Contains("BirthMuon") || name.Contains("DecayMuon") || name.Contains("StoredMuon") || name.Contains("RingTracker") || name.Contains("Tracker_Mom") ) {
+	if ( name.Contains("Muon") && name.Contains("GeneratedDist") ) {
 	  *ymin = 1.0*(1-3*dPoverP);
 	  *ymax = 1.0*(1+3*dPoverP);
+	  return;
+	}
+	else if ( name.Contains("Muon") ) {
+	  if ( name.Contains("LostMuon") ) {
+	    *ymin = 1.0*(1-20*dPoverP);
+	    *ymax = 1.0*(1+20*dPoverP);	    
+	    return;
+	  }
+	  else {
+	    *ymin = 1.0*(1-3*dPoverP);
+	    *ymax = 1.0*(1+3*dPoverP);
+	    return;
+	  }
+	}
+	else if ( name.Contains("Electron") ) {
+	  *ymin = 0.0; *ymax = 1.0;
 	}
 	else {
 	  *ymin = 0.0; *ymax = 1.0;
@@ -229,9 +346,9 @@ void GetXminmax(TH2F *hist, double *xmin, double *xmax, double *ymin, double *ym
       return;
     }
     
-    if ( isXe ) { 
+    if ( isXe || isEqRad ) { 
       *ymax = 50; *ymin = -50;
-      for ( int mm = 50; mm >= 10; mm -= 5 ) {
+      for ( int mm = 50; mm >= 10; mm -= 10 ) {
 	if ( histymax < mm && histymin > -mm ) { *ymax = mm; *ymin = -mm; }
       }
       return;
@@ -249,6 +366,30 @@ void GetXminmax(TH2F *hist, double *xmin, double *xmax, double *ymin, double *ym
     }
   }
   else {
+    if ( isThetaRhat ) {
+      *ymax = 300; *ymin = -300;
+      *xmin = 0.0;
+      *xmax = TMath::TwoPi();
+      for ( int mm = 300; mm >= 50; mm -= 50 ) {
+	if ( histymax < mm && histymin > -mm ) { *ymax = mm; *ymin = -mm; }
+      }
+      for ( int mm = 50; mm >= 30; mm -= 5 ) {
+	if ( histymax < mm && histymin > -mm ) { *ymax = mm; *ymin = -mm; }
+      }
+      return;
+    }
+    if ( isThetaR ) {
+      *ymax = 300; *ymin = 0;
+      *xmin = 0.0;
+      *xmax = TMath::TwoPi();
+      for ( int mm = 300; mm >= 50; mm -= 50 ) {
+	if ( histymax < mm ) { *ymax = mm; }
+      }
+      for ( int mm = 50; mm >= 30; mm -= 5 ) {
+	if ( histymax < mm ) { *ymax = mm; }
+      }
+      return;
+    }
     if ( isRhatY ) {
       *ymax = 300; *ymin = -300;
       *xmax = 300; *xmin = -300;
@@ -266,6 +407,28 @@ void GetXminmax(TH2F *hist, double *xmin, double *xmax, double *ymin, double *ym
       }
       return;
     }
+
+    if ( isEqRadMom ) {
+      *xmax = 50; *xmin = -50;
+      for ( int mm = 50; mm >= 10; mm -= 10 ) {
+	if ( histxmax < mm && histxmin > -mm ) { *xmax = mm; *xmin = -mm; }
+      }
+      *ymax = 2; *ymin = 0;
+      if ( name.Contains("Electron") ) {
+	*ymin = 0.0; *ymax = 1.0;
+      }
+      else {
+	if ( name.Contains("BirthMuon") || name.Contains("DecayMuon") || name.Contains("StoredMuon") || name.Contains("RingTracker") || name.Contains("Tracker_Mom") ) {
+	  *ymin = 1.0*(1-3*dPoverP);
+	  *ymax = 1.0*(1+3*dPoverP);
+	}
+	else {
+	  *ymin = 0.0; *ymax = 1.0;
+	}
+      }
+      return;
+    }
+
 
     if ( isXZ ) {
       *ymax = 8000.0; *ymin = -8000.0;
@@ -313,6 +476,9 @@ void RebinHist(TH1F *hist1d)
 
   if ( hname.Contains("FFT") ) { return; }
 
+  //if ( hname.Contains("_Ratio") ) { hist1d->Rebin(100); return; }
+
+  if ( hname.Contains("_Num") ) { hist1d->Rebin(7*5); return; }
   
   if ( hname.Contains("NgtEth") || hname.Contains("NwghtE") || hname.Contains("Nud") || hname.Contains("Nup") || hname.Contains("Ndown") || hname.Contains("Num") ) { ; }
   else {
@@ -362,7 +528,7 @@ void RebinHist(TH1F *hist1d)
 	if ( hist1d->GetBinContent(i) <= 0.0 ) { nempty++; }
       }
       cout << "EMPTY = " << nempty << " / " << nbins << endl;
-      while ( (double)nempty/nbins > 0.025 && (double)nempty/nbins < 0.75 ) {
+      while ( (double)nempty/nbins > 0.25 && (double)nempty/nbins < 0.75 ) {
 	hist1d->Rebin(2);
 	nempty = 0;
 	nbins = hist1d->GetNbinsX();
@@ -370,7 +536,7 @@ void RebinHist(TH1F *hist1d)
 	  if ( hist1d->GetBinContent(i) <= 0.0 ) { nempty++; }
 	}
 	cout << "EMPTY = " << nempty << " / " << nbins << endl;
-	if ( (double)nempty/nbins < 0.025 ) { break; }
+	if ( (double)nempty/nbins < 0.25 ) { break; }
       }
     }
   }
@@ -378,6 +544,7 @@ void RebinHist(TH1F *hist1d)
 
 void GetXminmax(TH1F *hist, double *xmin, double *xmax, double *ymin, double *ymax, double histxmin, double histxmax, double histymin, double histymax, bool dolog)
 {
+  bool isRatio = false;
   bool isTurn = false;
   bool isTime = false;
   bool isRhat = false;
@@ -396,16 +563,19 @@ void GetXminmax(TH1F *hist, double *xmin, double *xmax, double *ymin, double *ym
 
   TString name = hist->GetName();
 
+  if ( name.Contains("_Ratio") ) { isRatio = true; }
   if ( name.Contains("_vs_Turn") ) { isTurn = true; }
   if ( name.Contains("_vs_Time") ) { isTime = true; }
   if ( name.Contains("_Vhat_") ) { isRhat = true; }
   if ( name.Contains("_Xprime_") ) { isXprime = true; }
   if ( name.Contains("_Yprime_") ) { isYprime = true; }
-  if ( name.Contains("_Num_") ) { isN = true; }
-  if ( name.Contains("_Nud_") ) { isNavg = true; }
+  if ( name.Contains("_NumStation") ) { isN = true; }
+  if ( name.Contains("_NumCaloStation") ) { isN = true; }
+  if ( name.Contains("_NudStation") ) { isNavg = true; }
   if ( name.Contains("_Pol_") ) { isPol = true; }
   if ( name.Contains("_Mom_") ) { isMom = true; }
   if ( name.Contains("_Xe_") ) { isXe = true; }
+  if ( name.Contains("_EqRad_") ) { isXe = true; }
   if ( name.Contains("FFT") ) { isFFT = true; }
   if ( name.Contains("_Zhat_") ) { isZhat = true; }
   if ( name.Contains("_R_") ) { isR = true; }
@@ -414,6 +584,19 @@ void GetXminmax(TH1F *hist, double *xmin, double *xmax, double *ymin, double *ym
   if ( name.Contains("_Rhat_") ) { isRhat = true; }
 
   bool debug = true;
+
+  double xmin95, xmax95;
+  xmin95 = histxmin;
+  xmax95 = histxmax;
+  if ( isXe ) { 
+    double sumall = hist->Integral();
+    for ( int i = 1; i <= hist->GetNbinsX(); i++ ) {
+      if ( hist->Integral(1, i) / sumall > 0.02 ) { xmin95 = hist->GetBinCenter(i); break; }
+    }
+    for ( int i = hist->GetNbinsX(); i >= 1; i-- ) {
+      if ( hist->Integral(1, i) / sumall < 0.98 ) { xmax95 = hist->GetBinCenter(i); break; }
+    }
+  }
   
   *xmin = histxmin;
   *xmax = histxmax;
@@ -444,10 +627,23 @@ void GetXminmax(TH1F *hist, double *xmin, double *xmax, double *ymin, double *ym
   }
 
 
+  if ( isRatio ) {
+    for ( int mm = 1.0; mm >= 0.01; mm -= 0.2 ) {
+      if ( histymax > mm ) { *ymax = mm; }
+    }
+    *ymax = *ymax * 1.1;
+    *ymin = 0.0;
+  }
+
+
   // If vs time plot
   if ( isTurn || isTime ) {
-    *xmin = minturns_for_plot;
-    *xmax = maxturns_for_plot;
+    if ( minturns_for_plot > 0 ) {
+      *xmin = minturns_for_plot;
+    }
+    if ( maxturns_for_plot > 0 ) {
+      *xmax = maxturns_for_plot;
+    }
   }
   else
     if ( isRhat || isVhat ) {
@@ -497,21 +693,38 @@ void GetXminmax(TH1F *hist, double *xmin, double *xmax, double *ymin, double *ym
   if ( isXe ) {
     if ( debug ) { cout << "GetXminmax: IsXe" << endl; }
     *xmax = 50; *xmin = -50;
-    for ( int mm = 50; mm >= 10; mm -= 5 ) {
-      if ( histxmax < mm && histxmin > -mm ) { *xmax = mm; *xmin = -mm; }
+    for ( int mm = 50; mm >= 30; mm -= 20 ) {
+      if ( xmax95 < mm && xmin95 > -mm ) { *xmax = mm; *xmin = -mm; }
+      //if ( histxmax < mm && histxmin > -mm ) { *xmax = mm; *xmin = -mm; }
+    }
+    for ( int mm = 30; mm >= 15; mm -= 15 ) {
+      if ( xmax95 < mm && xmin95 > -mm ) { *xmax = mm; *xmin = -mm; }
+      //if ( histxmax < mm && histxmin > -mm ) { *xmax = mm; *xmin = -mm; }
+    }
+    for ( int mm = 15; mm >= 10; mm -= 5 ) {
+      if ( xmax95 < mm && xmin95 > -mm ) { *xmax = mm; *xmin = -mm; }
+      //if ( histxmax < mm && histxmin > -mm ) { *xmax = mm; *xmin = -mm; }
     }
     return;
   }
 
   if ( ist0 ) {
     if ( debug ) { cout << "GetXminmax: Ist0" << endl; }
-    //*xmax = histxmax * 1.25; *xmin = histxmin * 0.75 ;
+    *xmax = TMath::Min(histxmax * 1.25, histxmax + 5);
+    *xmin = TMath::Max(histxmin * 0.75, histxmin - 5) ;
     return;
     //HERE
   }
 
   if ( isN ) {
     *ymax = histymax; *ymin = histymin;
+    if ( isRatio ) {
+      for ( int mm = 1.0; mm >= 0.01; mm -= 0.2 ) {
+	if ( histymax > mm ) { *ymax = mm; }
+      }
+      *ymax = *ymax * 1.1;
+      *ymin = 0.0;
+    }
     return;
   }
 
@@ -539,6 +752,13 @@ void GetXminmax(TH1F *hist, double *xmin, double *xmax, double *ymin, double *ym
     else {
       *ymin = yavg - 3*yrms; *ymax = yavg + 3*yrms;
     }
+    if ( isRatio ) {
+      for ( int mm = 1.0; mm >= 0.01; mm -= 0.2 ) {
+	if ( histymax > mm ) { *ymax = mm; }
+      }
+      *ymax = *ymax * 1.1;
+      *ymin = 0.0;
+    }
     return;
   }
 
@@ -561,12 +781,22 @@ void GetXminmax(TH1F *hist, double *xmin, double *xmax, double *ymin, double *ym
       *xmin = 0.0; *xmax = 1.0;
     }
     else {
-      if ( name.Contains("BirthMuon") || name.Contains("DecayMuon") || name.Contains("StoredMuon") || name.Contains("RingTracker") ) {
+      if ( name.Contains("Muon") && name.Contains("GeneratedDist") ) {
 	*xmin = 1.0*(1-3*dPoverP);
 	*xmax = 1.0*(1+3*dPoverP);
+	return;
       }
-      else {
-	*xmin = 0.0; *xmax = 1.0*(1+3*dPoverP);
+      else if ( name.Contains("Muon") ) {
+	if ( name.Contains("LostMuon") ) {
+	  *xmin = 1.0*(1-20*dPoverP);
+	  *xmax = 1.0*(1+20*dPoverP);	    
+	  return;
+	}
+	else {
+	  *xmin = 1.0*(1-3*dPoverP);
+	  *xmax = 1.0*(1+3*dPoverP);
+	  return;
+	}
       }
     }
     return;
@@ -817,6 +1047,7 @@ void MakePlot(TH2F *hist, int r, int i, double *int_prev, double *int_curr, doub
   if ( update && hist == NULL ) { return; }
   if ( hist == NULL ) { cout << "Histogram is NULL" << endl; return; }
   if ( hist->GetEntries() <= 0 ) { cout << "Histogram [" << hist->GetName() << "] is empty" << endl; return; }
+  if ( hist->Integral() <= 0.0 ) { cout << "Histogram [" << hist->GetName() << "] is empty" << endl; return; }
   TCanvas* c1 = new TCanvas("c1","g-2 Result",0,0,800,600);
   TPad* thePad = (TPad*)c1->cd();
   
@@ -1267,6 +1498,80 @@ void MakePlot(TH2F *hist, int r, int i, double *int_prev, double *int_curr, doub
   }
   
   if ( hname.Contains("_XZ") ) {
+    double pi = TMath::Pi();
+    double rad = pi/180.0;
+
+    // Draw Thetas
+    double R = 750;
+    TLine *l = new TLine(0.0, 0.0, R*TMath::Sin(45*rad), R*TMath::Cos(45*rad));
+    l->SetLineColor(kOrange+6);
+    l->SetLineWidth(2);
+    l->Draw("SAME");
+    myText(0.57, 0.59, kOrange+6, "#theta=#frac{#pi}{4}", 0.035);
+    TLine *l = new TLine(0.0, 0.0, R*TMath::Sin(-45*rad), R*TMath::Cos(-45*rad));
+    l->SetLineColor(kOrange+6);
+    l->SetLineWidth(2);
+    l->Draw("SAME");
+    myText(0.40, 0.59, kOrange+6, "#theta=-#frac{#pi}{4}", 0.035);
+
+
+    
+    //
+    // Draw Kicker Plates
+    double deg_Kicker[3][2];
+    deg_Kicker[0][0] = 60.3;
+    deg_Kicker[0][1] = 74.4;
+    deg_Kicker[1][0] = 75.2;
+    deg_Kicker[1][1] = 89.3;
+    deg_Kicker[2][0] = 90.2;
+    deg_Kicker[2][1] = 104.3;
+    double R[2];
+    R[0] = 7112 - 4*45.0;
+    R[1] = 7112 + 8*45.0;
+    double pi = TMath::Pi();
+    double rad = pi/180.0;
+
+    for ( int j = 0; j < 2; j++ ) {
+      for ( int i = 0; i < 3; i++ ) {
+	double X1 = R[j] * TMath::Sin(deg_Kicker[i][0]*rad);
+	double Y1 = R[j] * TMath::Cos(deg_Kicker[i][0]*rad);
+	double X2 = R[j] * TMath::Sin(deg_Kicker[i][1]*rad);
+	double Y2 = R[j] * TMath::Cos(deg_Kicker[i][1]*rad);
+	TLine *lKicker = new TLine(X1, Y1, X2, Y2);
+	lKicker->SetLineColor(kBlack);
+	lKicker->SetLineWidth(2);
+	lKicker->Draw("SAME");
+      }
+    }
+
+    //
+    // Draw Quad Plates
+    double deg_Quad[8][2];
+    deg_Quad[0][0] = 16.38;
+    deg_Quad[0][1] = 28.73;
+    deg_Quad[1][0] = 33.5;
+    deg_Quad[1][1] = 60.2;
+    for ( int i = 2; i < 8; i++ ) {
+      for ( int j = 0; j < 2; j++ ) {
+	deg_Quad[i][j] = deg_Quad[i-2][j] + 90.0;
+      }
+    }
+
+
+    for ( int j = 0; j < 2; j++ ) {
+      for ( int i = 0; i < 8; i++ ) {
+	double X1 = R[j] * TMath::Sin(deg_Quad[i][0]*rad);
+	double Y1 = R[j] * TMath::Cos(deg_Quad[i][0]*rad);
+	double X2 = R[j] * TMath::Sin(deg_Quad[i][1]*rad);
+	double Y2 = R[j] * TMath::Cos(deg_Quad[i][1]*rad);
+	TLine *lQuad = new TLine(X1, Y1, X2, Y2);
+	lQuad->SetLineColor(kMagenta);
+	lQuad->SetLineWidth(2);
+	lQuad->Draw("SAME");
+      }
+    }
+
+    if ( 0 ) {
     TVector2 axis(0.0, ymax*0.5);
     TLine *l = new TLine(0.0, 0.0, axis.X(), axis.Y());
     l->SetLineColor(kGray+2);
@@ -1314,6 +1619,7 @@ void MakePlot(TH2F *hist, int r, int i, double *int_prev, double *int_curr, doub
     l8->SetLineColor(kGray+2);
     l8->SetLineWidth(2);
     l8->Draw("SAME");
+    }
   }
 
   //int result = hist->Fit("[0]*sin([1]*x)", "R");
@@ -1374,6 +1680,7 @@ void MakePlot1D(TH1F *hist1d, int r, int i, double *int_prev, double *int_curr, 
 
   TString hname = hist1d->GetName();
   if ( hist1d->GetEntries() <= 0 ) { cout << "Histogram [" << hist1d->GetName() << "] is empty" << endl; return; }
+  if ( hist1d->Integral() <= 0.0 ) { cout << "Histogram [" << hist1d->GetName() << "] is empty" << endl; return; }
 
   if ( hname.Contains("_Nhits") ) {
     if ( hist1d->Integral(hist1d->FindBin(1), hist1d->FindBin(100)) <= 0 ) { return; }
@@ -1417,15 +1724,22 @@ void MakePlot1D(TH1F *hist1d, int r, int i, double *int_prev, double *int_curr, 
   if ( ( maxturns_for_plot > 0 || minturns_for_plot > 0) && dofft == false ) {
     histymax = 0.0;
     histymin = 0.0;
+
     
+
+    int sbin = hist1d->FindBin(minturns_for_plot);
+    int ebin = hist1d->FindBin(maxturns_for_plot);
+    if ( hist1d->Integral(sbin, ebin) <= 0.0 ) { return; }
     for ( int bin = hist1d->FindBin(minturns_for_plot); bin < hist1d->FindBin(maxturns_for_plot); bin++ ) {
       if ( hist1d->GetBinContent(bin) > histymax ) { histymax =  hist1d->GetBinContent(bin); }
       if ( hist1d->GetBinContent(bin) < histymin ) { histymin =  hist1d->GetBinContent(bin); }
     }
+    if ( histymax == histymin ) { return; }
   }
 
+  
 
-  if ( hname.Contains("_Num_") == false ) {
+  if ( hname.Contains("_Num") == false ) {
     histxmax *= 1.25;
     histxmin *= 1.25;
   }
@@ -1511,12 +1825,17 @@ void MakePlot1D(TH1F *hist1d, int r, int i, double *int_prev, double *int_curr, 
   else if ( hname.Contains("Xprime") ) { yt << " mrad"; }
   else if ( hname.Contains("Yprime") ) { yt << " mrad"; }
   else if ( hname.Contains("Degree") ) { yt << " ^{#circ}"; }
-  else if ( hname.Contains("Xe") || hname.Contains("Vhat") ) { yt << " mm"; }
+  else if ( hname.Contains("Xe") || hname.Contains("EqRad") || hname.Contains("Vhat") ) { yt << " mm"; }
   else if ( hname.Contains("Pol") || hname.Contains("PolX")|| hname.Contains("PolY") ) { yt << ""; }
   else if ( hname.Contains("Rhat") || hname.Contains("Vhat") ) { yt << " mm"; }
   else if ( hname.Contains("Time") ) { yt << " #mus"; }
   else { yt << " [Unit]"; }
 
+
+  if ( hname.Contains("_Ratio") ) {
+    yt.str("");
+    yt << "Calo Acceptance/Efficiency";
+  }
 	
   if ( hname.Contains("TrackVhat") ) { 
     yt.str("");
@@ -2158,11 +2477,18 @@ void plotinflector()
 
   cout << "dP/P Set to " << 100*dPoverP << "%" << endl;
 
+  ifstream incmd;
+  incmd.open("plotcmd");
+  string cmd;
+  if ( incmd.is_open() ) {
+    in >> cmd;
+  }
+
   ifstream effin;
   string effname;
   effname = "Eff/" + subdir + "/" + base + ".dat";
   effin.open(effname.c_str());
-  if ( effin.is_open() == false ) { cout << "Could not open " << effname << endl; return; }
+  //if ( effin.is_open() == false ) { cout << "Could not open " << effname << endl; return; }
 
   int Nstart_inflector = 0;
   int Nexit_inflector = 0;
@@ -2171,11 +2497,14 @@ void plotinflector()
   int Nstored10_ring = 0;
   int Nstored100_ring = 0;
   int Ngen = 0;
-  
-  effin >> Nstart_inflector >> Nexit_inflector;
-  effin >> Nstart_ring;
-  effin >> Nstored1_ring >> Nstored10_ring >> Nstored100_ring;
-  effin >> Ngen;
+
+  if ( effin.is_open() ) {
+    effin >> Nstart_inflector >> Nexit_inflector;
+    effin >> Nstart_ring;
+    effin >> Nstored1_ring >> Nstored10_ring >> Nstored100_ring;
+    effin >> Ngen;
+    effin.close();
+  }
 
   cout << "Ngen: " << Ngen << endl;
 
@@ -2256,7 +2585,7 @@ void plotinflector()
 
 
   int Nparticles = 0;
-  string truth_particle_names[8];
+  string truth_particle_names[10];
   if ( dir.find("NoMuonDecay") != string::npos ) {
     Nparticles = 0;
     truth_particle_names[Nparticles++] = "BirthMuon";
@@ -2265,12 +2594,19 @@ void plotinflector()
   }
   else {
     Nparticles = 0;
+    if ( 0 ) {
     truth_particle_names[Nparticles++] = "BirthMuon";
     truth_particle_names[Nparticles++] = "DecayMuon";
     truth_particle_names[Nparticles++] = "LostMuon";
     truth_particle_names[Nparticles++] = "StoredMuon";
+    }
     truth_particle_names[Nparticles++] = "BirthElectron";
-    truth_particle_names[Nparticles++] = "BirthElectronEgtEth";
+    //truth_particle_names[Nparticles++] = "BirthElectronEgtEth";
+    if ( 0 ) {
+      truth_particle_names[Nparticles++] = "DecayElectron";
+      truth_particle_names[Nparticles++] = "DecayElectronEgtEth";
+      truth_particle_names[Nparticles++] = "DecayElectronEgtHghEth";
+    }
   }
 
 
@@ -2323,6 +2659,7 @@ void plotinflector()
     plot_ringtrackers_evolution = true;
   }
   else {
+    plot_ringtrackers = false;
     plot_truth_evolution = true;
     plot_truth = true;
     plot_truth_evolution = true;
@@ -2330,6 +2667,7 @@ void plotinflector()
   
 
   //plot_truth = false;
+  //plot_truth_phasespace = false;
 
   bool runFFT = false;
   if ( dir.find("CentralOrbit") != string::npos &&
@@ -2430,7 +2768,7 @@ void plotinflector()
 //     Ring2Dhists[NRing2Dhists++] = "Pol";
 //     Ring2Dhists[NRing2Dhists++] = "PolX";
 //     Ring2Dhists[NRing2Dhists++] = "PolY";
-    Ring2Dhists[NRing2Dhists++] = "Xe";
+    Ring2Dhists[NRing2Dhists++] = "EqRad";
     Ring2Dhists[NRing2Dhists++] = "Zhat";
 
     int NRing1Dhists = 0;
@@ -2543,6 +2881,7 @@ void plotinflector()
   
 
 
+
   
   //------------------------------------
   //
@@ -2554,18 +2893,19 @@ void plotinflector()
     int NRinghists = 0;
     string Ringhists[20];
     Ringhists[NRinghists++] = "Rhat";
-    Ringhists[NRinghists++] = "Xe";
+    Ringhists[NRinghists++] = "EqRad";
     Ringhists[NRinghists++] = "Vhat";
     Ringhists[NRinghists++] = "Xprime";
     Ringhists[NRinghists++] = "Yprime";
     Ringhists[NRinghists++] = "Mom";
-    Ringhists[NRinghists++] = "Pol";
-    Ringhists[NRinghists++] = "PolX";
-    Ringhists[NRinghists++] = "PolY";
+    //Ringhists[NRinghists++] = "Pol";
+    //Ringhists[NRinghists++] = "PolX";
+    //Ringhists[NRinghists++] = "PolY";
     Ringhists[NRinghists++] = "Zhat";
 
     int NRing2Dhists = 0;
     string Ring2Dhists[20];
+    Ring2Dhists[NRing2Dhists++] = "EqRadMom";
     Ring2Dhists[NRing2Dhists++] = "RhatY";
     Ring2Dhists[NRing2Dhists++] = "XprimeX";
     Ring2Dhists[NRing2Dhists++] = "YprimeY";
@@ -2592,6 +2932,24 @@ void plotinflector()
 	MakePlot1D(hist1d, -1, -1, &int_prev, &int_curr, &int_start);    
 	hname.str("");
       }
+
+      for ( int n = 0; n < NRing2Dhists; n++ ) {
+	string histname = Ring2Dhists[n];
+
+	string timeval  = timevals[kGeneratedDist];
+	
+	hname << Ringbase << histname << "_" << time << "_" << timeval;
+	TH2F *hist2d = GetHistogram(file, hname.str(), &int_prev, &int_curr, &int_start);
+	MakePlot(hist2d, -1, -1, &int_prev, &int_curr, &int_start);    
+	hname.str("");
+
+	timeval  = timevals[kRemainingDist];
+	
+	hname << Ringbase << histname << "_" << time << "_" << timeval;
+	TH2F *hist2d = GetHistogram(file, hname.str(), &int_prev, &int_curr, &int_start);
+	MakePlot(hist2d, -1, -1, &int_prev, &int_curr, &int_start);    
+	hname.str("");
+      }
     }
   }
   else {
@@ -2608,6 +2966,15 @@ void plotinflector()
   // Generated Phase Space (G4)
   //
   //------------------------------------
+  TH1F *hDecayBirthRatio[20][4];
+  TH2F *hDecayBirthRatio2D[20][4];
+  for ( int i = 0; i < 20; i++ ) {
+    for ( int j = 0; j < 4; j++ ) {
+      hDecayBirthRatio[i][j] = NULL;    
+      hDecayBirthRatio2D[i][j] = NULL;
+    }
+  }
+
   if ( plot_truth_phasespace && plot_truth ) {
 
     int NG4hists = 0;
@@ -2623,7 +2990,10 @@ void plotinflector()
     G4hists[NG4hists++] = "PolX";
     G4hists[NG4hists++] = "PolY";
     G4hists[NG4hists++] = "t0";
+    G4hists[NG4hists++] = "NumCalo";
     G4hists[NG4hists++] = "Time";
+    G4hists[NG4hists++] = "Theta";
+    G4hists[NG4hists++] = "DriftTime";
 
     int NG42Dhists = 0;
     string G42Dhists[20];
@@ -2632,34 +3002,44 @@ void plotinflector()
     G42Dhists[NG42Dhists++] = "RhatY";
     G42Dhists[NG42Dhists++] = "XprimeX";
     G42Dhists[NG42Dhists++] = "YprimeY";
+    G42Dhists[NG42Dhists++] = "ThetaRhat";
+    G42Dhists[NG42Dhists++] = "ThetaR";
+
 
     string G4base = "G4Track_";
 
     for ( int p = 0; p < Nparticles; p++ ) {
       string truth_part_name = truth_particle_names[p];
-
-      if ( plot_Nud == false && truth_part_name.find("DecayElectron") != string::npos ) { continue; }
+      
+      //if ( plot_Nud == false && truth_part_name.find("DecayElectron") != string::npos ) { continue; }
       
       for ( int t = 0; t < Ntimevals; t++ ) {
 	string timeval = timevals[t];
-	if ( timeval.find("Remaining") != string::npos ) { continue; }
 
-	if ( truth_part_name.find("LostMuon") != string::npos && timeval.find("Remaining") != string::npos ) { continue; }
-	
 	for ( int n = 0; n < NG4hists; n++ ) {
 
 	  string histname = G4hists[n];
-	  if ( truth_part_name.find("Electron") != string::npos ) {
-	    if ( histname.find("Pol") != string::npos ) { continue; }
-	    if ( histname.find("Xe") != string::npos ) { continue; }
-	    if ( histname.find("Xprime") != string::npos ) { continue; }
-	    if ( histname.find("Yprime") != string::npos ) { continue; }
-	  }
+
+	  if ( !PlotVariable(histname, truth_part_name, timeval) ) { continue; }
 	  
 	  hname << G4base << histname << "_" << truth_part_name << "_" + timeval;
 	  TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
 	  MakePlot1D(hist1d, -1, -1, &int_prev, &int_curr, &int_start);    
 	  hname.str("");
+	  if ( timeval.find("GeneratedDist") != string::npos ) {
+	    if ( truth_part_name == "DecayElectronEgtHghEth" ) {
+	      hDecayBirthRatio[n][3] = hist1d;
+	    }
+	    if ( truth_part_name == "DecayElectronEgtEth" ) {
+	      hDecayBirthRatio[n][2] = hist1d;
+	    }
+	    if ( truth_part_name == "DecayElectron" ) {
+	      hDecayBirthRatio[n][1] = hist1d;
+	    }
+	    if ( truth_part_name == "BirthElectron" ) {
+	      hDecayBirthRatio[n][0] = hist1d;
+	    }
+	  }
 	}
 
 	
@@ -2667,15 +3047,26 @@ void plotinflector()
 
 	  string histname = G42Dhists[n];
 
-	  if ( truth_part_name.find("LostMuon") != string::npos ) {
-	    if ( histname.find("XprimeX") != string::npos ) { continue; }
-	    if ( histname.find("YprimeY") != string::npos ) { continue; }
-	  }
+	  if ( !PlotVariable(histname, truth_part_name, timeval) ) { continue; }
 
 	  hname << G4base << histname << "_" << truth_part_name << "_" << timeval;
 	  TH2F *hist = GetHistogram(file, hname.str(), &int_prev, &int_curr, &int_start);
 	  MakePlot(hist, -1, -1, &int_prev, &int_curr, &int_start);    
 	  hname.str("");
+	  if ( timeval.find("GeneratedDist") != string::npos ) { 
+	    if ( truth_part_name == "DecayElectronEgtHghEth" ) {
+	      hDecayBirthRatio2D[n][3] = hist;
+	    }
+	    if ( truth_part_name == "DecayElectronEgtEth" ) {
+	      hDecayBirthRatio2D[n][2] = hist;
+	    }
+	    if ( truth_part_name == "DecayElectron" ) {
+	      hDecayBirthRatio2D[n][1] = hist;
+	    }
+	    if ( truth_part_name == "BirthElectron" ) {
+	      hDecayBirthRatio2D[n][0] = hist;
+	    }
+	  }
 	}
       }
     }
@@ -2686,6 +3077,101 @@ void plotinflector()
     cout << endl;
   }
 
+
+  for ( int i = 0; i < 20; i++ ) {
+    if ( hDecayBirthRatio[i][0] && hDecayBirthRatio[i][1] ) {
+      stringstream name;
+      name << hDecayBirthRatio[i][1]->GetName() << "_Ratio";
+      TH1F *hist1d = (TH1F*)hDecayBirthRatio[i][0]->Clone(name.str().c_str());
+      hist1d->Sumw2();
+      //hist1d->Rebin(10);
+      //hDecayBirthRatio[i][0]->Rebin(10);
+      //hDecayBirthRatio[i][1]->Rebin(10);
+      hDecayBirthRatio[i][0]->Sumw2();
+      hDecayBirthRatio[i][1]->Sumw2();
+      hist1d->Divide(hDecayBirthRatio[i][1], hDecayBirthRatio[i][0], 1, 1, "B");
+      MakePlot1D(hist1d, -1, -1, &int_prev, &int_curr, &int_start);    
+      hname.str("");
+    }
+
+    if ( hDecayBirthRatio[i][0] && hDecayBirthRatio[i][2] ) {
+      stringstream name;
+      name << hDecayBirthRatio[i][2]->GetName() << "_Ratio";
+      TH1F *hist1d = (TH1F*)hDecayBirthRatio[i][0]->Clone(name.str().c_str());
+      hist1d->Sumw2();
+      //hist1d->Rebin(10);
+      //hDecayBirthRatio[i][0]->Rebin(10);
+      //hDecayBirthRatio[i][1]->Rebin(10);
+      hDecayBirthRatio[i][0]->Sumw2();
+      hDecayBirthRatio[i][2]->Sumw2();
+      hist1d->Divide(hDecayBirthRatio[i][2], hDecayBirthRatio[i][0], 1, 1, "B");
+      MakePlot1D(hist1d, -1, -1, &int_prev, &int_curr, &int_start);    
+      hname.str("");
+    }
+
+    if ( hDecayBirthRatio[i][0] && hDecayBirthRatio[i][3] ) {
+      stringstream name;
+      name << hDecayBirthRatio[i][3]->GetName() << "_Ratio";
+      TH1F *hist1d = (TH1F*)hDecayBirthRatio[i][0]->Clone(name.str().c_str());
+      hist1d->Sumw2();
+      //hist1d->Rebin(10);
+      //hDecayBirthRatio[i][0]->Rebin(10);
+      //hDecayBirthRatio[i][1]->Rebin(10);
+      hDecayBirthRatio[i][0]->Sumw2();
+      hDecayBirthRatio[i][3]->Sumw2();
+      hist1d->Divide(hDecayBirthRatio[i][3], hDecayBirthRatio[i][0], 1, 1, "B");
+      MakePlot1D(hist1d, -1, -1, &int_prev, &int_curr, &int_start);    
+      hname.str("");
+    }
+
+    
+    if ( hDecayBirthRatio2D[i][0] && hDecayBirthRatio2D[i][1] ) {
+      stringstream name;
+      name << hDecayBirthRatio2D[i][1]->GetName() << "_Ratio";
+      TH2F *hist = (TH2F*)hDecayBirthRatio2D[i][0]->Clone(name.str().c_str());
+      hist->Sumw2();
+      //hist1d->Rebin(10);
+      //hDecayBirthRatio2D[i][0]->Rebin(10);
+      //hDecayBirthRatio2D[i][1]->Rebin(10);
+      hDecayBirthRatio2D[i][0]->Sumw2();
+      hDecayBirthRatio2D[i][1]->Sumw2();
+      hist->Divide(hDecayBirthRatio2D[i][1], hDecayBirthRatio2D[i][0], 1, 1, "B");
+      MakePlot(hist, -1, -1, &int_prev, &int_curr, &int_start);    
+      hname.str("");
+    }   
+
+    
+    if ( hDecayBirthRatio2D[i][0] && hDecayBirthRatio2D[i][2] ) {
+      stringstream name;
+      name << hDecayBirthRatio2D[i][2]->GetName() << "_Ratio";
+      TH2F *hist = (TH2F*)hDecayBirthRatio2D[i][0]->Clone(name.str().c_str());
+      hist->Sumw2();
+      //hist1d->Rebin(10);
+      //hDecayBirthRatio2D[i][0]->Rebin(10);
+      //hDecayBirthRatio2D[i][1]->Rebin(10);
+      hDecayBirthRatio2D[i][0]->Sumw2();
+      hDecayBirthRatio2D[i][2]->Sumw2();
+      hist->Divide(hDecayBirthRatio2D[i][2], hDecayBirthRatio2D[i][0], 1, 1, "B");
+      MakePlot(hist, -1, -1, &int_prev, &int_curr, &int_start);    
+      hname.str("");
+    }    
+
+    
+    if ( hDecayBirthRatio2D[i][0] && hDecayBirthRatio2D[i][3] ) {
+      stringstream name;
+      name << hDecayBirthRatio2D[i][3]->GetName() << "_Ratio";
+      TH2F *hist = (TH2F*)hDecayBirthRatio2D[i][0]->Clone(name.str().c_str());
+      hist->Sumw2();
+      //hist1d->Rebin(10);
+      //hDecayBirthRatio2D[i][0]->Rebin(10);
+      //hDecayBirthRatio2D[i][1]->Rebin(10);
+      hDecayBirthRatio2D[i][0]->Sumw2();
+      hDecayBirthRatio2D[i][3]->Sumw2();
+      hist->Divide(hDecayBirthRatio2D[i][3], hDecayBirthRatio2D[i][0], 1, 1, "B");
+      MakePlot(hist, -1, -1, &int_prev, &int_curr, &int_start);    
+      hname.str("");
+    }    
+  }
 
 
 
@@ -2712,13 +3198,12 @@ void plotinflector()
     G42Dhists[NG42Dhists++] = "PolX";
     G42Dhists[NG42Dhists++] = "PolY";
     G42Dhists[NG42Dhists++] = "Xe";
-    G42Dhists[NG42Dhists++] = "NumCounter";
-    //NG42Dhists = 0;
-
+    NG42Dhists = 0;
+    
     int NG4hists = 0;
     string G4hists[20];
     //G4hists[NG4hists++] = "NgtEth";
-    G4hists[NG4hists++] = "Num";
+    G4hists[NG4hists++] = "NumAllStations";
     if ( plot_Nud ) {
       G4hists[NG4hists++] = "Vhat";
       G4hists[NG4hists++] = "Yprime";
@@ -2732,107 +3217,60 @@ void plotinflector()
       for ( int p = 0; p < Nparticles; p++ ) {
 	string truth_part_name = truth_particle_names[p];
 
-	//cout << "NAME: " << truth_part_name << endl;
 	if ( truth_part_name.find("BirthMuon") != string::npos ) { continue; }
-	//if ( truth_part_name.find("StoredMuon") != string::npos ) { continue; }
-	//if ( truth_part_name.find("LostMuon") != string::npos ) { NG42Dhists = 0; }
-
-	if ( plot_Nud == false && truth_part_name.find("DecayElectron") != string::npos ) { continue; }
+	if ( truth_part_name.find("StoredMuon") != string::npos ) { continue; }
 	
-// 	if ( (timestamp == "OncePerTurn" || timestamp == "TimeOncePerTurn") && 
-// 	     (truth_part_name.find("Muon") != string::npos && truth_part_name.find("Decay") == string::npos ) ) { continue; }	
-	
-	//cout << "--> NAME: " << truth_part_name << endl;
-	//continue;
-
 	for ( int n = 0; n < NG42Dhists; n++ ) {
-	  
-	  //cout << "2D: " << timestamp << "\t" << truth_part_name << "\t" << n << endl;
 
 	  string histname = G42Dhists[n];
-	  if ( truth_part_name.find("Electron") != string::npos ) {
-	    if ( histname.find("Pol") != string::npos ) { continue; }
-	    if ( histname.find("Xe") != string::npos ) { continue; }
-	    if ( histname.find("Xprime") != string::npos ) { continue; }
-	    if ( histname.find("Yprime") != string::npos ) { continue; }
-	  }
 
-	  if ( truth_part_name.find("LostMuon") != string::npos ) {
-	    if ( histname.find("Prhat") != string::npos ) { continue; }
-	    if ( histname.find("Pvhat") != string::npos ) { continue; }
-	    if ( histname.find("Xe") != string::npos ) { continue; }
-	  }
+	  if ( !PlotVariable(histname, truth_part_name, timeval) ) { continue; }
+	  
+	  string histname = G42Dhists[n];
 
 	  hname << G4base << histname << "_" << truth_part_name << "_vs_" << timestamp;
 	  TH2F *hist = GetHistogram(file, hname.str(), &int_prev, &int_curr, &int_start);
-
-// 	  if ( truth_part_name.find("Muon") != string::npos || 1 ) {
-// 	    maxturns_for_plot = 25;
-// 	    hname << "_" << maxturns_for_plot << "Turns";
-// 	    TH2F *hist_zoom = (TH2F*)hist->Clone(hname.str().c_str());
-// 	    MakePlot(hist_zoom, -1, -1, &int_prev, &int_curr, &int_start);	    
-// 	  }
-// 	  minturns_for_plot = -1.0;
-// 	  maxturns_for_plot = -1.0;
 
 	  MakePlot(hist, -1, -1, &int_prev, &int_curr, &int_start);
 	  hname.str("");
 	}
 
+	
 	for ( int n = 0; n < NG4hists; n++ ) {
-
-	  //cout << "1D: " << timestamp << "\t" << truth_part_name << "\t" << n << endl;
-
 	  string histname = G4hists[n];
 
-	  //cout << "1D: " << timestamp << "\t" << truth_part_name << "\t" << histname << endl;
+	  if ( !PlotVariable(histname, truth_part_name, timestamp) ) { continue; }
 
-	  if ( truth_part_name.find("Muon") != string::npos ) { 
-	    if ( histname.find("Ngt") != string::npos ) { continue; }
-	    if ( histname.find("Nwgt") != string::npos ) { continue; }
-	  }
-
-// 	  if ( truth_part_name.find("BirthElectron") != string::npos ||
-// 	       truth_part_name.find("DecayElectron") != string::npos ) { 
-// 	    if ( truth_part_name.find("EgtEth") != string::npos ) {
-// 	      if ( histname.find("NgtEth") != string::npos ) { continue; }
-// 	      if ( histname.find("Num") != string::npos ) { ; }
-// 	    }
-// 	    else {
-// 	      if ( histname.find("NgtEth") != string::npos ) { continue; }
-// 	      if ( histname.find("Num") != string::npos ) { continue; }
-
-	  
 	  hname << G4base << histname << "_" << truth_part_name << "_vs_" << timestamp;
 	  TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
-	  if ( !hist1d ) { continue; }
+	  if ( !hist1d ) { hname.str(""); continue; }
 
-	  if ( histname == "Num" ) {
+	  if ( histname.find("Num") != string::npos ) {
 	    for ( int np = 0; np < 3; np++ ) {
 	      if ( np == 0 ) {
 		minturns_for_plot = 1;
-		maxturns_for_plot = 5;
+		maxturns_for_plot = 2;
 	      }
 	      if ( np == 1 ) {
-		minturns_for_plot = 200;
-		maxturns_for_plot = 225;
+		minturns_for_plot = 25;
+		maxturns_for_plot = 26;
 	      }
 	      if ( np == 2 ) {
-		minturns_for_plot = 10;
-		maxturns_for_plot = 20;
+		minturns_for_plot = 11;
+		maxturns_for_plot = 12;
 	      }
 	      if ( timestamps[t].find("Time") != string::npos ) {
 		if ( np == 0 ) {
 		  minturns_for_plot = 1;
-		  maxturns_for_plot = 6;
+		  maxturns_for_plot = 2;
 		}
 		if ( np == 1 ) {
-		  minturns_for_plot = 30;
-		  maxturns_for_plot = 35;
+		  minturns_for_plot = 10;
+		  maxturns_for_plot = 20;
 		}
 		if ( np == 2 ) {
-		  minturns_for_plot = 15;
-		  maxturns_for_plot = 20;
+		  minturns_for_plot = 11;
+		  maxturns_for_plot = 12;
 		}
 	      }
 
@@ -2869,7 +3307,31 @@ void plotinflector()
 	  cout << "Bins = " << hist1d_fft->GetNbinsX() << endl;
 	  ComputeFFT(hist1d_fft, hname.str());
 	  hname.str("");
-	}	  
+	}
+
+	// Special plots for Decay Electron
+	if ( truth_part_name.find("DecayElectron") != string::npos &&
+	     timestamp == "TimeOncePerTurn" ) {  
+	  maxturns_for_plot = 15.0;
+	  minturns_for_plot = 10.0;
+	  for ( int s = 0; s < 24; s++ ) {
+	    stringstream histname_ss;
+	    histname_ss << "NumCaloStation" << s;
+
+	    if ( !PlotVariable(histname_ss.str(), truth_part_name, timestamp) ) { continue; }
+	    
+	    hname << G4base << histname_ss.str() << "_" << truth_part_name << "_vs_" << timestamp;
+	    TH1F *hist1d = GetHistogram1D(file, hname.str(), &int_prev, &int_curr, &int_start);
+	    if ( !hist1d ) { hname.str(""); continue; }	   
+
+	    hname << "_" << minturns_for_plot << "_" << maxturns_for_plot << "Time";
+	    TH1F *hist1d_zoom = (TH1F*)(hist1d->Clone(hname.str().c_str()));
+	    MakePlot1D(hist1d_zoom, -1, -1, &int_prev, &int_curr, &int_start);
+	    hname.str("");
+	  }
+	  maxturns_for_plot = -1.0;
+	  minturns_for_plot = -1.0;
+	}
       }
     }
   }

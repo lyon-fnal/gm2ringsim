@@ -8,11 +8,14 @@
 #include "geom/PGA.fcl"
 #include "geom/g2GPS.fcl"
 
+#include "geom/station.fcl"
+#include "geom/calorimeter.fcl"
+
 process_name:myProcessName
 
 source: {
   module_type: EmptyEvent
-  maxEvents:  25000
+  maxEvents:  20000
 }
 
 services: {
@@ -28,7 +31,7 @@ services: {
        }
        LogToFile : {
          type : "file"
-         filename : "/gm2/data/users/tgadfort/gm2ringsim/output/ScrapingOFF_NewSupports_200Turns_muplus_SpinTracking_CentralOrbit_GausstSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize40pimmmrad_UniformInflectorGun_PerfectMatch_Flat_CollimatorON_StandardModelMuonDecay_FlatDecayTime/ScrapingOFF_NewSupports_200Turns_muplus_SpinTracking_CentralOrbit_GausstSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize40pimmmrad_UniformInflectorGun_PerfectMatch_Flat_CollimatorON_StandardModelMuonDecay_FlatDecayTime.log"
+         filename : "/gm2/data/users/tgadfort/gm2ringsim/output/ScrapingOFF_NewSupports_1Turns_muplus_SpinTracking_CentralOrbit_tSigma1_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize4pimmmrad_UniformInflectorGun_PerfectMatch_CollimatorON_StandardModelMuonDecay_FlatDecayTime/ScrapingOFF_NewSupports_1Turns_muplus_SpinTracking_CentralOrbit_tSigma1_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize4pimmmrad_UniformInflectorGun_PerfectMatch_CollimatorON_StandardModelMuonDecay_FlatDecayTime.log"
          append : false
          threshold : "ERROR"
        }
@@ -53,6 +56,10 @@ services: {
       kicker: @local::kicker_geom
       collimator: @local::collimator_geom
       pga: @local::PGA_geom
+      
+      station: @local::station_geom
+      calorimeter: @local::calorimeter_geom
+
      }
 
      // Global simulation settings
@@ -100,21 +107,25 @@ services: {
     InflectorPGA: {
         name: "inflectorgun"
         inflectorVerbosity: true
-	SigmaT: -25
+	SigmaT: 1
 	FlatDecayTime: true
 #	MaxDecayTime: 20
-	MaxDecayTime: 200
-	EmittanceX: 40
-	EmittanceY: 40
+	MaxDecayTime: 1
+	EmittanceX: 4
+	EmittanceY: 4
 	BetaX:  7.66477
 	BetaY:  19.0763
 	AlphaX:  0.0
 	AlphaY:  0.0
 	Pmean: -1
-	dPOverP: -0.0015
+	dPOverP: 0.0015
 	Particle: "mu+"
 	DecayScaleFactor: 1
 	Polarization: 100
+        TurnCounter: 11
+	RotAngle: 0.54
+
+
 	StartUpstream:  false
 	StartUpstreamCryo:  false
 	StartDownstream:  false
@@ -136,25 +147,32 @@ services: {
     Kicker: {}
     Collimator : {}
 
-    DecayedPositronAction: {
-      name: "DecayedPositronAction"
-      stored_threshold: -50.0
+    Station: {}
+    Calorimeter: {
+        killAllParticles : true
+        killOpticalPhotons : true
     }
+
+//    DecayedPositronAction: {
+//      name: "DecayedPositronAction"
+//      stored_threshold: -50.0
+//    }
 
     LostMuonAction: {
       name: "LostMuonAction"
-      stored_rmin: -50.0
-      stored_rmax: 50.0
-      stored_y: 50.0
+      stored_rmin: -75.0
+      stored_rmax: 75.0
+      stored_y: 75.0
     }
 
     MuonStorageStatusAction: {
       name: "MuonStorageStatusAction"
-      turnsForStorage: 200
+//      turnsForStorage: 1
+      turnsForStorage: 1000
       TrackPositrons: true
       stored_rmin: 7.035
       stored_rmax: 7.215
-      heartbeatFreq: 2500
+      heartbeatFreq: 2000
     }
 
   } //user:
@@ -163,7 +181,7 @@ services: {
 outputs: {
 out1: {
   module_type: RootOutput   
-  fileName: "/gm2/data/users/tgadfort/gm2ringsim/output/ScrapingOFF_NewSupports_200Turns_muplus_SpinTracking_CentralOrbit_GausstSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize40pimmmrad_UniformInflectorGun_PerfectMatch_Flat_CollimatorON_StandardModelMuonDecay_FlatDecayTime/ScrapingOFF_NewSupports_200Turns_muplus_SpinTracking_CentralOrbit_GausstSigma25_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize40pimmmrad_UniformInflectorGun_PerfectMatch_Flat_CollimatorON_StandardModelMuonDecay_FlatDecayTime.root"
+  fileName: "/gm2/data/users/tgadfort/gm2ringsim/output/ScrapingOFF_NewSupports_1Turns_muplus_SpinTracking_CentralOrbit_tSigma1_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize4pimmmrad_UniformInflectorGun_PerfectMatch_CollimatorON_StandardModelMuonDecay_FlatDecayTime/ScrapingOFF_NewSupports_1Turns_muplus_SpinTracking_CentralOrbit_tSigma1_NoKick_InflectorOpen_NoDelta_NoLaunch_BeamSize4pimmmrad_UniformInflectorGun_PerfectMatch_CollimatorON_StandardModelMuonDecay_FlatDecayTime.root"
   }
 }
 

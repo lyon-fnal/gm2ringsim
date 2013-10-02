@@ -48,6 +48,8 @@ namespace gm2ringsim
     bool GenGaussian_;
     double LaunchAngle_;
     double StorageOffset_;
+    int TurnCounter_;
+    double RotAngle_;
     double EmittanceX_;
     double EmittanceY_;
     double BetaX_;

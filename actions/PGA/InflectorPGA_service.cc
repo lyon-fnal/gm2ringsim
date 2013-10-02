@@ -55,6 +55,8 @@ gm2ringsim::InflectorPGA::InflectorPGA(fhicl::ParameterSet const& p, art::Activi
   GenGaussian_(p.get<bool>("GenGaussian", true)),
   LaunchAngle_(p.get<double>("LaunchAngle", -9999.9)),
   StorageOffset_(p.get<double>("StorageOffset", -9999.9)),
+  TurnCounter_(p.get<int>("TurnCounter", 11)),
+  RotAngle_(p.get<double>("RotAngle", 0.0)),
   EmittanceX_(p.get<double>("EmittanceX", -9999.9)),
   EmittanceY_(p.get<double>("EmittanceY", -9999.9)),
   BetaX_(p.get<double>("BetaX", -9999.9)),
@@ -82,8 +84,10 @@ gm2ringsim::InflectorPGA::InflectorPGA(fhicl::ParameterSet const& p, art::Activi
     G4cout << "  StartDownstream     " << StartDownstream_ << G4endl;
     G4cout << "  StartPerfect        " << StartPerfect_ << G4endl;
     G4cout << "  GenGaussian         " << GenGaussian_ << G4endl;
-    G4cout << "  LaunchAngle         " << LaunchAngle_ << G4endl;
+    G4cout << "  LaunchAngle         " << LaunchAngle_ << G4endl;    
     G4cout << "  StorageOffset       " << StorageOffset_ << G4endl;
+    G4cout << "  TurnCounter         " << TurnCounter_ << G4endl;
+    G4cout << "  RotAngle            " << RotAngle_ << G4endl;
     G4cout << "  EmittanceX          " << EmittanceX_ << G4endl;
     G4cout << "  EmittanceY          " << EmittanceY_ << G4endl;
     G4cout << "  BetaX               " << BetaX_ << G4endl;
@@ -122,6 +126,8 @@ void gm2ringsim::InflectorPGA::initialize() {
   gps_ -> SetGenGaussian(GenGaussian_);
   gps_ -> SetLaunchAngle(LaunchAngle_);
   gps_ -> SetStorageOffset(StorageOffset_);
+  gps_ -> SetTurnCounter(TurnCounter_);
+  gps_ -> SetRotAngle(RotAngle_);
   gps_ -> SetEmittanceX(EmittanceX_);
   gps_ -> SetEmittanceY(EmittanceY_);
   gps_ -> SetBetaX(BetaX_);

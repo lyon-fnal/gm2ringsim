@@ -72,6 +72,12 @@ namespace gm2ringsim
     void SetStorageOffset( double aDouble ){ StorageOffset=aDouble; }
     double GetStorageOffset( ){ return StorageOffset; }
     
+    void SetTurnCounter( double aInt ){ TurnCounter_=aInt; }
+    int GetTurnCounter( ){ return TurnCounter_; }
+    
+    void SetRotAngle( double aDouble ){ RotAngle_=aDouble; }
+    double GetRotAngle( ){ return RotAngle_; }
+    
     void SetEmittanceX( double aDouble ){ EmittanceX=aDouble; }
     double GetEmittanceX( ){ return EmittanceX; }
     
@@ -118,6 +124,7 @@ namespace gm2ringsim
     std::string GetPolarization( ){ return Polarization_; }
     
 
+    G4double randTFromE989();
 
   private:
     G4ParticleGun* inflectorGun_;
@@ -137,6 +144,8 @@ namespace gm2ringsim
     bool GenGaussian;
     double LaunchAngle;
     double StorageOffset;
+    double TurnCounter_;
+    double RotAngle_;
     double EmittanceX;
     double EmittanceY;
     double BetaX;

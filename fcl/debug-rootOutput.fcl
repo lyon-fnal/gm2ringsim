@@ -104,7 +104,10 @@ services: {
     Kicker: {}
     FiberHarp: {}	   
     Station: {}
-    Calorimeter: {}
+  Calorimeter: {
+    killAllParticles : true
+    killOpticalPhotons : true
+  }
     Collimator : {}
     Traceback: {}
 
