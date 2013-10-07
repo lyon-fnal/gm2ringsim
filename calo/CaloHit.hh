@@ -30,7 +30,12 @@ public:
     G4int turnNum; // obtained from turn counter
     G4int trackID;
     G4int caloNum;
+		//Added for straw analysis
     G4double energy;        
+    G4String particle_name;
+    G4int parent_ID;
+		//--------------
+
     CaloHit(G4Step*);
     
     inline void* operator new(size_t);

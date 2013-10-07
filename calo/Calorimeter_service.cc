@@ -746,7 +746,9 @@ void gm2ringsim::Calorimeter::doFillEventWithCaloHits(G4HCofThisEvent * hc) {
                                     e->global_mom.x(),
                                     e->global_mom.y(),
                                     e->global_mom.z(), 
-                                    e->energy );
+                                    e->energy,
+																		e->particle_name, 
+																		e->parent_ID);
         }
     }
     else {
