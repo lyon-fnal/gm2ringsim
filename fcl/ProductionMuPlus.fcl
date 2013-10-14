@@ -1,3 +1,14 @@
+// Oct 14, 2013 : The point of this fcl file is to maintain the settings  
+// that best correspond to the production g-2 running. This means we use 
+// a muplus beam polarity at the downstream end of the inflector
+// All of the destructive beam monitor are removed from the system.
+//
+// Please maintain this file based on the best approximation of current 
+// design choices.
+//
+// Currently, particles are killed at the surface of the calorimeter
+
+
 #include "geom/world.fcl"
 #include "geom/arc.fcl"
 #include "geom/vac.fcl"
@@ -33,7 +44,7 @@ services: {
        }
        LogToFile : {
          type : "file"
-         filename : "gm2ringsim.log"
+         filename : "gm2ringsim_ProductionMuPlus.log"
          append : false
          threshold : "DEBUG"
        }
@@ -66,11 +77,20 @@ services: {
      }
 
      // Global simulation settings
+     //
+     // The SpinTracking class tells the 5 fields in the gm2ringsim if they should propogate the muon spin as it travels around the ring
+     // : Default settings are false/false for spinTrackingEnabled/edmTrackingEnabled. If you want to see a wiggle plot then set it to true
+     // : Default setting is Q = 1, which assume that you are injecting a positively charged muon (or pion or proton).
+     //
      RunSettings : {
        SpinTracking : {
-        spinTrackingEnabled : false
+	   spinTrackingEnabled : false
+	   edmTrackingEnabled : false
+	   Q : 1
+	   Eta : 0
+	   Gm2 : -1
        }
-       G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel
+       G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel_muplus
     }
 
     // Action(s) for the simulation
@@ -97,17 +117,6 @@ services: {
       name: "primary"
     }
 
-//    MuonGasPGA: {
-//        name: "muongas"
-//        muonGasVerbosity: false
-//    }
-
-//    CaloElectronPGA: {} // shoots one electron directly into calo #8
-
-//    CaloHitPGA: {} // creates particles from stored calo hits (need to change 
-                     // source module type at top of file to RootInput and use 
-                     // different process name than first pass)
-
     // Detectors
     World: {}	
     Ring: {}    // This is for the RingHits
@@ -116,9 +125,7 @@ services: {
     VacuumChamber: {}
     Inflector:{}
     Quad: {}
-    Octupole: {}
     Kicker: {}
-    FiberHarp: {}
     Station: {}
     Calorimeter: {
         killAllParticles : true
@@ -136,10 +143,13 @@ services: {
   } //user:
 } //services:
 
+// This line deals with the fact that the inflector cryo is not properly implemented
+services.user.Geometry.inflector.CryoWallMaterial: Vacuum
+
 outputs: {
 out1: {
   module_type: RootOutput   
-  fileName: "gm2ringsimout.root"
+  fileName: "gm2ringsim_ProductionMuPlus.root"
   }
 }
 
