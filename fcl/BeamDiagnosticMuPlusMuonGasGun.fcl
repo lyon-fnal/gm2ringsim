@@ -184,3 +184,9 @@ physics: {
 
 }
 
+
+services.user.Geometry.quad.DoScraping : false
+services.user.Geometry.kicker.kPlate1HV : 0 //kilovolt
+services.user.Geometry.kicker.kPlate2HV : 0 //kilovolt
+services.user.Geometry.kicker.kPlate3HV : 0 //kilovolt
+services.user.Geometry.kicker.kickerHV : [0 , 0 , 0 ] //kilovolt
