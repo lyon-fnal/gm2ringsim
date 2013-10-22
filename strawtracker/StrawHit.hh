@@ -38,7 +38,7 @@ namespace gm2ringsim {
     G4int viewNumber;
     G4int stationNumber;
     G4int strawNumber;
-    
+    G4int trackerNumber;    
     inline void* operator new(size_t);
     inline void operator delete(void*);
     

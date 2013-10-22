@@ -62,7 +62,7 @@ std::vector<G4LogicalVolume *> gm2ringsim::Straws::doBuildLVs() {
 
                         // Create a WireID to identify this straw
                         WireID currentWire;
-                        currentWire.setTrackerNumber(tb);
+                        currentWire.setTrackerNumber(geom_.whichScallopLocations[tb]);
                         currentWire.setStation(sc);
                         currentWire.setView( view == 0 ? gm2strawtracker::u_view : 
                                 (view == 1 ? gm2strawtracker::v_view : gm2strawtracker::na_view));
@@ -183,6 +183,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Straws::doPlaceToPVs( std::vector<G
         << "layer, " 
         << "view, " 
         << "station, "
+        << "tracker, "
         << "x, "
         << "y, "
         << "xTracker, " 
@@ -226,6 +227,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Straws::doPlaceToPVs( std::vector<G
             << wire.getLayer() << ", " 
             << wire.getView() << ", " 
             << wire.getStation() << ", " 
+            << wire.getTrackerNumber() << ", "
             << x << ", " 
             << y << ", "
             << trackerLocation.getX() << ", "
@@ -278,7 +280,7 @@ void gm2ringsim::Straws::doFillEventWithArtHits(G4HCofThisEvent * hc) {
 
             // Copy this hit into the Art hit
 
-            //std::cout<<"Straw Number is: "<<e->straw<<std::endl;
+            std::cout<<"Tracker Number is: "<<e->trackerNumber<<std::endl;
             myArtHits->emplace_back( e->global_position.x(),e->global_position.y(),e->global_position.z(),e->global_position.r(),
                     e->momentum.x(),e->momentum.y(),e->momentum.z(),
                     e->local_position.x(),e->local_position.y(), e->local_position.z(),
@@ -288,7 +290,7 @@ void gm2ringsim::Straws::doFillEventWithArtHits(G4HCofThisEvent * hc) {
                     e->time,
                     e->trackID,
                     e->volumeUID,
-                    e->strawInRow, e->layerNumber, e->viewNumber, e->stationNumber, e->strawNumber,
+                    e->strawInRow, e->layerNumber, e->viewNumber, e->stationNumber, e->strawNumber, e->trackerNumber,
                     e->particle_name, e->parent_ID);
 
         } //loop over geantHits
