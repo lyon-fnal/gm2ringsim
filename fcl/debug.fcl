@@ -84,6 +84,7 @@ services: {
     Gm2PhysicsList: {
       decayMode: "iso"
       physicsListName: "FTFP_BERT"
+      includeCerenkovProcess: true
    }
 
     TrackingAction : {

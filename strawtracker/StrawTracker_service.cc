@@ -52,7 +52,7 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
       
       //Build Manifold structure. Hollow box built by subtracting a slightly smaller box from the full size. 
       G4VSolid *outerStationManifold = new G4Box("outerManifoldSystem", geom_.strawStationSizeHalf[sc], geom_.strawStationWidthHalf[sc], geom_.strawStationManifoldHeightHalf);
-      G4VSolid *innerStationManifold = new G4Box("innerManifoldSystem", geom_.strawStationSizeHalf[sc]-1.5*mm, geom_.strawStationWidthHalf[sc]-1.5*mm, geom_.strawStationManifoldHeightHalf-1.5*mm);
+      G4VSolid *innerStationManifold = new G4Box("innerManifoldSystem", geom_.strawStationSizeHalf[sc]-0.1*mm, geom_.strawStationWidthHalf[sc]-0.1*mm, geom_.strawStationManifoldHeightHalf-0.1*mm);
       G4SubtractionSolid *stationManifold = new G4SubtractionSolid("stationManifold", outerStationManifold, innerStationManifold);
 
 
@@ -69,6 +69,8 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
       std::string strawStationLVName = artg4::addNumberToName("StationChamberLV-%d", sc+tb);
       G4Material *stationMaterial = artg4Materials::Al();
       G4Material *supportPostMaterial = artg4Materials::C();
+      //G4Material *stationMaterial = artg4Materials::Vacuum();
+      //G4Material *supportPostMaterial = artg4Materials::Vacuum();
     
       G4LogicalVolume* strawStationLV = new G4LogicalVolume(
                                                             strawStation,

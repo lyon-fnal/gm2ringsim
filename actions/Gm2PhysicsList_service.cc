@@ -56,6 +56,7 @@ gm2ringsim::Gm2PhysicsListService::Gm2PhysicsListService(fhicl::ParameterSet con
   decayMode_(p.get<std::string>("decayMode", "sm")),
   physicsListName_(G4String(p.get<std::string>("physicsListName", "FTFP_BERT"))),
   verboseLevel_(p.get<int>("verboseLevel", 0)),
+  includeCerenkovProcess_(p.get<bool>("includeCerenkovProcess", true)),
   thePhysicsList_(0),
   theParticleIterator_(G4ParticleTable::GetParticleTable()->GetIterator()),
   decayStatus_(decay_init),
@@ -169,8 +170,11 @@ void gm2ringsim::Gm2PhysicsListService::ConstructAdditionalProcess(){
      G4ProcessManager* pmanager = particle->GetProcessManager();
      G4String particleName = particle->GetParticleName();
      if (theCerenkovProcess->IsApplicable(*particle)) {
-	pmanager->AddProcess(theCerenkovProcess);
-	pmanager->SetProcessOrdering(theCerenkovProcess,idxPostStep);
+         if (includeCerenkovProcess_)
+         {
+             pmanager->AddProcess(theCerenkovProcess);
+             pmanager->SetProcessOrdering(theCerenkovProcess,idxPostStep);
+         }
      }
      if (theScintillationProcess->IsApplicable(*particle)) {
 	pmanager->AddProcess(theScintillationProcess);

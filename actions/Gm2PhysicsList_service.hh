@@ -66,6 +66,7 @@ namespace gm2ringsim {
     std::string decayMode_;
     G4String physicsListName_;
     int verboseLevel_;
+    bool includeCerenkovProcess_;
     G4VModularPhysicsList* thePhysicsList_;
     G4ParticleTable::G4PTblDicIterator *theParticleIterator_;
 
