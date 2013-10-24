@@ -62,7 +62,7 @@ std::vector<G4LogicalVolume *> gm2ringsim::Straws::doBuildLVs() {
 
                         // Create a WireID to identify this straw
                         WireID currentWire;
-                        currentWire.setTrackerNumber(geom_.whichScallopLocations[tb]);
+                        currentWire.setTrackerNumber((short)geom_.whichScallopLocations[tb]);
                         currentWire.setStation(sc);
                         currentWire.setView( view == 0 ? gm2strawtracker::u_view : 
                                 (view == 1 ? gm2strawtracker::v_view : gm2strawtracker::na_view));
@@ -204,12 +204,12 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Straws::doPlaceToPVs( std::vector<G
 
         // And finally, make a WireID from that string
         WireID wire = gm2strawtracker::wireIDfromString(parseString);
-
         // Make the physical volume's name
         ostringstream pvStream;
         pvStream << "SingleStrawPV - " << wire;
         string strawPVName = pvStream.str();
 
+        std::cout<<"The physical volume name is: "<<strawPVName<<std::endl;
         x = geom_.wireXPosition(wire) - geom_.strawStationSizeHalf[wire.getStation()];
         y = geom_.wireYPosition(wire);
 
@@ -234,10 +234,15 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Straws::doPlaceToPVs( std::vector<G
             << trackerLocation.getZ() << ", "
             << rot << "\n";
 
+        int pos = std::find(geom_.whichScallopLocations.begin(), geom_.whichScallopLocations.end(), wire.getTrackerNumber()) - geom_.whichScallopLocations.begin();
+        
+        std::cout<<"Position in vector: "<<pos<<std::endl;
+        std::cout<<"Total station number: "<<wire.getStation() + pos*geom_.strawStationLocation.size()<<std::endl;
+        //std::cout<<"Total station number: "<<geom_.TotalStationNumber(wire)<<std::endl;
         strawPVs.push_back(new G4PVPlacement(G4Transform3D(*yRot, placement),
                     aStrawLV,
                     strawPVName,
-                    planes[wire.getStation()],
+                    planes[wire.getStation() + pos*geom_.strawStationLocation.size()],
                     false,
                     0
                     )
