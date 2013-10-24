@@ -62,7 +62,7 @@ std::vector<G4LogicalVolume *> gm2ringsim::Straws::doBuildLVs() {
 
                         // Create a WireID to identify this straw
                         WireID currentWire;
-                        currentWire.setTrackerNumber((short)geom_.whichScallopLocations[tb]);
+                        currentWire.setTrackerNumber(geom_.whichScallopLocations[tb]);
                         currentWire.setStation(sc);
                         currentWire.setView( view == 0 ? gm2strawtracker::u_view : 
                                 (view == 1 ? gm2strawtracker::v_view : gm2strawtracker::na_view));
@@ -209,7 +209,6 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Straws::doPlaceToPVs( std::vector<G
         pvStream << "SingleStrawPV - " << wire;
         string strawPVName = pvStream.str();
 
-        std::cout<<"The physical volume name is: "<<strawPVName<<std::endl;
         x = geom_.wireXPosition(wire) - geom_.strawStationSizeHalf[wire.getStation()];
         y = geom_.wireYPosition(wire);
 
@@ -234,15 +233,11 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Straws::doPlaceToPVs( std::vector<G
             << trackerLocation.getZ() << ", "
             << rot << "\n";
 
-        int pos = std::find(geom_.whichScallopLocations.begin(), geom_.whichScallopLocations.end(), wire.getTrackerNumber()) - geom_.whichScallopLocations.begin();
         
-        std::cout<<"Position in vector: "<<pos<<std::endl;
-        std::cout<<"Total station number: "<<wire.getStation() + pos*geom_.strawStationLocation.size()<<std::endl;
-        //std::cout<<"Total station number: "<<geom_.TotalStationNumber(wire)<<std::endl;
         strawPVs.push_back(new G4PVPlacement(G4Transform3D(*yRot, placement),
                     aStrawLV,
                     strawPVName,
-                    planes[wire.getStation() + pos*geom_.strawStationLocation.size()],
+                    planes[geom_.TotalStationNumber(wire)],
                     false,
                     0
                     )
@@ -285,7 +280,6 @@ void gm2ringsim::Straws::doFillEventWithArtHits(G4HCofThisEvent * hc) {
 
             // Copy this hit into the Art hit
 
-            std::cout<<"Tracker Number is: "<<e->trackerNumber<<std::endl;
             myArtHits->emplace_back( e->global_position.x(),e->global_position.y(),e->global_position.z(),e->global_position.r(),
                     e->momentum.x(),e->momentum.y(),e->momentum.z(),
                     e->local_position.x(),e->local_position.y(), e->local_position.z(),
