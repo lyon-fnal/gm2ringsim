@@ -66,13 +66,13 @@ gm2ringsim::Kicker::Kicker(fhicl::ParameterSet const & p, art::ActivityRegistry 
 
   if ( KickType_ == KICK_LCR ) {
     G4cout << "| B(y) = " << kg_.kickerHV[0] << " , " << kg_.kickerHV[1] << " , " << kg_.kickerHV[2] << " Gauss" << G4endl;
-    if ( kg_.kickerHV[0] <= 0.0 && kg_.kickerHV[0] <= 0.0 && kg_.kickerHV[0] <= 0.0 ) {
+    if ( kg_.kickerHV[0] <= 0.0 && kg_.kickerHV[1] <= 0.0 && kg_.kickerHV[2] <= 0.0 ) {
       KickType_ = KICK_OTHER;
     }
   }
   else if ( KickType_ == KICK_SQUARE ) {
     G4cout << "| HV = " << kg_.squareMag[0] << " , " << kg_.squareMag[1] << kg_.squareMag[2] << G4endl;
-    if ( kg_.squareMag[0] <= 0.0 && kg_.squareMag[0] <= 0.0 && kg_.squareMag[0] <= 0.0 ) {
+    if ( kg_.squareMag[0] <= 0.0 && kg_.squareMag[1] <= 0.0 && kg_.squareMag[2] <= 0.0 ) {
       KickType_ = KICK_OTHER;
     }
   }

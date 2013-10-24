@@ -438,7 +438,7 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
                                                    photodetectorDepth / 2. ) ;
                 // --- photodetector logical volume
                 photodetector_L = new G4LogicalVolume( photodetector_S,
-                                            artg4Materials::Borosilicate(),
+                                            artg4Materials::SiPMSurfaceResin(),
                                             "photodetector_L" ) ;
                 
             // Case 2: cylindrical photodetector (e.g., phototube)
@@ -459,7 +459,7 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
                                                      0, 360. * deg);
                 // --- photodetector logical volume
                 photodetector_L = new G4LogicalVolume( photodetector_S,
-                                                      artg4Materials::Borosilicate(),
+                                                      artg4Materials::SiPMSurfaceResin(),
                                                       "photodetector_L" ) ;
  
             // Whoops! Invalid photodetector shape

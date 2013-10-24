@@ -1,0 +1,194 @@
+// Oct 14, 2013 : The point of this fcl file is to maintain the settings  
+// that best correspond to the production g-2 running. This means we use 
+// a muplus beam polarity at the downstream end of the inflector
+// All of the destructive beam monitor are removed from the system.
+//
+// Please maintain this file based on the best approximation of current 
+// design choices.
+//
+// In this code, the particles are fired using the MuonGasGun model instead
+// of the general Particle  Gun.
+//
+// Currently, particles are killed at the surface of the calorimeter
+
+
+#include "geom/world.fcl"
+#include "geom/arc.fcl"
+#include "geom/vac.fcl"
+#include "geom/inflector.fcl"
+#include "geom/quad.fcl"
+#include "geom/oct.fcl"
+#include "geom/kicker.fcl"
+#include "geom/fiberHarp.fcl"
+#include "geom/station.fcl"
+#include "geom/calorimeter.fcl"
+#include "geom/collimator.fcl"
+#include "geom/PGA.fcl"
+#include "geom/g2GPS.fcl"
+#include "geom/strawtracker.fcl"
+
+process_name: myProcessName
+
+source: {
+  module_type: EmptyEvent
+  maxEvents:  10
+}
+
+services: {
+
+  message : {
+     debugModules : ["*"]
+     suppressInfo : []
+     
+     destinations : {
+       LogToConsole : {
+         type : "cout"
+         threshold : "DEBUG"
+       }
+       LogToFile : {
+         type : "file"
+         filename : "gm2ringsim_ProductionMuPlusMuonGasGun.log"
+         append : false
+         threshold : "DEBUG"
+       }
+     }
+  }
+
+  user : {
+  
+    // Mandatory ArtG4 services
+    DetectorHolder: {}
+    ActionHolder: {}
+    PhysicsListHolder: {}
+    RandomNumberGenerator: {}
+
+    // Geometry
+    Geometry: {
+      world: @local::world_geom
+      arc:   @local::arc_geom
+      vac:   @local::vac_geom
+      inflector: @local::inflector_geom
+      quad: @local::quad_geom
+      octupole: @local::oct_geom
+      kicker: @local::kicker_geom
+      fiberHarp: @local::fiberHarp_geom
+      station: @local::station_geom
+      calorimeter: @local::calorimeter_geom
+      collimator: @local::collimator_geom
+      pga: @local::PGA_geom
+      strawtracker: @local::strawtracker_geom
+     }
+
+       // Global simulation settings
+     //
+     // The SpinTracking class tells the 5 fields in the gm2ringsim if they should propogate the muon spin as it travels around the ring
+     // : Default settings are false/false for spinTrackingEnabled/edmTrackingEnabled. If you want to see a wiggle plot then set it to true
+     // : Default setting is Q = 1, which assume that you are injecting a positively charged muon (or pion or proton).
+     //
+     RunSettings : {
+       SpinTracking : {
+	   spinTrackingEnabled : false
+	   edmTrackingEnabled : false
+	   Q : 1
+	   Eta : 0
+	   Gm2 : -1
+       }
+       G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel_muplus
+    }
+
+    // Action(s) for the simulation
+    StackingAction: {  
+          name: "stackingAction"
+          minWavelength:250 //nm
+          maxWavelength:950  //nm
+    }
+
+    physicalVolumeStore: {}
+    Gm2PhysicsList: {
+      decayMode: "iso"
+      physicsListName: "FTFP_BERT"
+      includeCerenkovProcess: true
+   }
+
+    TrackingAction : {
+          name : "trackingAction"
+    }
+
+    ClockAction: {}
+
+
+    MuonGasPGA: {
+        name: "muongas"
+        muonGasVerbosity: false
+    }
+
+
+    // Detectors
+    World: {}	
+    Ring: {}    // This is for the RingHits
+    VirtualRingStation: {} // This is for the virtual tracker planes in the vac
+    Arc: {}
+    VacuumChamber: {}
+    Inflector:{}
+    Quad: {}
+    Kicker: {}
+    Station: {}
+    Calorimeter: {
+        killAllParticles : true
+        killOpticalPhotons : true
+    }
+    Collimator : {}
+    StrawTracker: {}
+    Straws:{}
+
+
+    MuonStorageStatusAction: {
+      name: "MuonStorageStatusAction"
+    }
+
+  } //user:
+} //services:
+
+// This line deals with the fact that the inflector cryo is not properly implemented
+services.user.Geometry.inflector.CryoWallMaterial: Vacuum
+
+outputs: {
+out1: {
+  module_type: RootOutput   
+  fileName: "gm2ringsim_ProductionMuPlusMuonGasGun.root"
+  }
+}
+
+physics: {
+  producers: {
+    artg4 : { 
+     module_type: artg4Main
+     enableVisualization: false
+     macroPath: ".:./macros:../macros:../../macros"
+     visMacro: "vis.mac"
+     afterEvent: pause  // (ui, pause, pass)
+     }
+  }
+
+  analyzers: {
+    readTracks: {
+      module_type: particleTrackAnalyzer
+    }
+  }
+
+
+  path1: [ artg4 ]
+  readPath: [ readTracks ]
+  stream1:  [ out1 ]
+
+  trigger_paths: [ path1 ]
+  end_paths: [ readPath, stream1 ]
+
+}
+
+
+services.user.Geometry.quad.DoScraping : false
+services.user.Geometry.kicker.kPlate1HV : 0 //kilovolt
+services.user.Geometry.kicker.kPlate2HV : 0 //kilovolt
+services.user.Geometry.kicker.kPlate3HV : 0 //kilovolt
+services.user.Geometry.kicker.kickerHV : [0 , 0 , 0 ] //kilovolt

@@ -1,6 +1,6 @@
 /** @file PhotodetectorSD.cc
  
-    Implements the "stop and kill" photodetector sensitive detector.
+    Implements the photodetector sensitive detector.
  
     Ported to Art from g2migtrace file pmtSD.cc
         @author Kevin Lynch
@@ -69,27 +69,26 @@ void gm2ringsim::PhotodetectorSD::Initialize(G4HCofThisEvent* HCoTE){
 
 G4bool gm2ringsim::PhotodetectorSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){
     G4Track* track = thisStep->GetTrack() ;
-    
-    
-    // get local position & momentum (to check that this photon should make a hit --
-    //     don't want to include photons that reflect off photodetector face or enter sides of photodetector)
-    G4ThreeVector global_pos = thisStep->GetPreStepPoint()->GetPosition();
-    G4ThreeVector global_mom = thisStep->GetPreStepPoint()->GetMomentum();
-    G4TouchableHandle const touchy = thisStep->GetPreStepPoint()->GetTouchableHandle();
-    G4ThreeVector local_pos = touchy->GetHistory()->GetTopTransform().TransformPoint(global_pos);
-    G4VTouchable const *feely = thisStep->GetPreStepPoint()->GetTouchable();
-    G4RotationMatrix const *rot = feely->GetRotation();
-    G4ThreeVector local_mom = global_mom;
-    local_mom.transform(*rot);
-    
-    // find out which calorimeter station & which photodetector contain this step
-    int copyID = thisStep->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo(); // each photodetector in the entire ring has a unique copy number
-    int caloNum = copyID / nPhotodetectorsPerCalo_ ; // integer division
-    int PDNum = copyID % nPhotodetectorsPerCalo_ ; // photodetector num local to that calo
-    
-    //   if( track->GetParticleDefinition()->GetPDGEncoding() == 0 ) // opticalphoton
+ 
+    // Photodetector SD only acts on optical photons:
     if( track->GetDefinition()->GetPDGEncoding() == 0 ) // opticalphoton
     {
+    
+        // get local position & momentum (to check that this photon should make a hit --
+        //     don't want to include photons that reflect off photodetector face or enter sides of photodetector)
+        G4ThreeVector global_pos = thisStep->GetPreStepPoint()->GetPosition();
+        G4ThreeVector global_mom = thisStep->GetPreStepPoint()->GetMomentum();
+        G4TouchableHandle const touchy = thisStep->GetPreStepPoint()->GetTouchableHandle();
+        G4ThreeVector local_pos = touchy->GetHistory()->GetTopTransform().TransformPoint(global_pos);
+        G4VTouchable const *feely = thisStep->GetPreStepPoint()->GetTouchable();
+        G4RotationMatrix const *rot = feely->GetRotation();
+        G4ThreeVector local_mom = global_mom;
+        local_mom.transform(*rot);
+        
+        // find out which calorimeter station & which photodetector contain this step
+        int copyID = thisStep->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo(); // each photodetector in the entire ring has a unique copy number
+        int caloNum = copyID / nPhotodetectorsPerCalo_ ; // integer division
+        int PDNum = copyID % nPhotodetectorsPerCalo_ ; // photodetector num local to that calo
         
         if (local_mom.z() < 0) return true; // photon reflected off face of photodetector: do not process the hit
         // and do not kill the track
@@ -388,9 +387,11 @@ G4bool gm2ringsim::PhotodetectorSD::ProcessHits(G4Step* thisStep, G4TouchableHis
                 // 		   << std::endl ;
             }
         }
-    }
+
+        // kill optical photon tracks
+        thisStep->GetTrack()->SetTrackStatus(fStopAndKill);
     
-    thisStep->GetTrack()->SetTrackStatus(fStopAndKill);
+    } // end optical photon block
     
     return true;
 }
