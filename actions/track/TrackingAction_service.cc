@@ -26,6 +26,7 @@ gm2ringsim::TrackingAction::TrackingAction(fhicl::ParameterSet const & p,
   TrackOrphans_(p.get<bool>("TrackOrphans", true)),
   Ndecays_(0),
   Nlost_(0),
+  Nstore_(0),
   myArtHits_(new TrackingActionArtRecordCollection),
   myMuonCharge_(new int(2)),
   logInfo_("TrackingAction")
@@ -47,19 +48,38 @@ gm2ringsim::TrackingAction::~TrackingAction()
 // Overload the PreUserTrackingAction method to initialize the track and
 // add it to our collection
 void gm2ringsim::TrackingAction::postUserTrackingAction(const G4Track * currentTrack)
-{  
+{
   if ( currentTrack->GetTrackID() == 1 ) {
+    //G4cout.precision(6);
+    //G4cout << "Global Time in postUserTrackingAction = " << currentTrack->GetGlobalTime() << G4endl;
     if ( currentTrack->GetTrackStatus() == fKillTrackAndSecondaries ) {
-//       G4cout << "Muon track is stopped, but alive." << G4endl;
-//       G4cout << "  Rhat = " << ComputeRhat(currentTrack) << "\t" << "Vhat = " << ComputeVhat(currentTrack) << G4endl;
-      Nlost_++;
-      FillTrackingActionArtRecord(currentTrack, gm2ringsim::kLost);
-      // Stored muon
+
+      //G4cout << "Weight (TA): " << currentTrack->GetWeight() << G4endl;
+      if ( currentTrack->GetWeight() >= 1.0 ) {
+	//       G4cout << "Muon track is stopped, but alive." << G4endl;
+	//       G4cout << "  Rhat = " << ComputeRhat(currentTrack) << "\t" << "Vhat = " << ComputeVhat(currentTrack) << G4endl;
+	Nlost_++;
+	FillTrackingActionArtRecord(currentTrack, gm2ringsim::kLost);
+	// Stored muon
+      }
+      else {
+	//       G4cout << "Muon track is stopped, but alive." << G4endl;
+	//       G4cout << "  Rhat = " << ComputeRhat(currentTrack) << "\t" << "Vhat = " << ComputeVhat(currentTrack) << G4endl;
+	Nstore_++;
+	//G4cout << "Muon stored..." << G4endl;
+	//G4cout << "  Global Time = " << currentTrack->GetGlobalTime() << G4endl;
+	FillTrackingActionArtRecord(currentTrack, gm2ringsim::kStore);
+	// Stored muon
+      }
     }
     else if ( currentTrack->GetTrackStatus() == fStopAndKill ) {
 //       G4cout << "Muon track is killed." << G4endl;
 //       G4cout << "  Rhat = " << ComputeRhat(currentTrack) << "\t" << "Vhat = " << ComputeVhat(currentTrack) << G4endl;
+//       G4cout << G4endl;
 //       G4cout << "Muon decay..." << G4endl;
+//       G4cout << "  Proper Time = " << currentTrack->GetProperTime() << G4endl;
+//       G4cout << "  Global Time = " << currentTrack->GetGlobalTime() << G4endl;
+//       G4cout << "   Local Time = " << currentTrack->GetLocalTime() << G4endl;
       Ndecays_++;
       FillTrackingActionArtRecord(currentTrack, gm2ringsim::kDecay);
     }
@@ -139,6 +159,13 @@ void gm2ringsim::TrackingAction::FillTrackingActionArtRecord(const G4Track * cur
 {
   bool debug = false;
   bool keep_track = true;
+
+  if ( currentTrack->GetTrackID() == 1 && status == 1 && debug ) {
+    G4cout << "Found " << currentTrack->GetDefinition()->GetParticleName() << " (" << currentTrack->GetDefinition()->GetPDGEncoding() << ") and status = " << status << G4endl;
+    G4cout << "  Proper Time = " << currentTrack->GetProperTime() << G4endl;
+    G4cout << "  Global Time = " << currentTrack->GetGlobalTime() << G4endl;
+    G4cout << "   Local Time = " << currentTrack->GetLocalTime() << G4endl;
+  }
 
   if ( currentTrack->GetTrackID() == 1 ) {   
     PrimaryTrackCharge_ = (int)currentTrack->GetParticleDefinition()->GetPDGCharge(); 
@@ -265,6 +292,7 @@ void gm2ringsim::TrackingAction::FillTrackingActionArtRecord(const G4Track * cur
   tr.vhat = vhat;
   tr.theta = theta;
   tr.time = currentTrack->GetGlobalTime();
+  tr.t0 = currentTrack->GetProperTime();
 
 
   //-------------------
@@ -323,6 +351,7 @@ void gm2ringsim::TrackingAction::fillEventWithArtStuff(art::Event & e)
 void gm2ringsim::TrackingAction::beginOfRunAction(const G4Run *) {
   Nlost_ = 0;
   Ndecays_ = 0;
+  Nstore_ = 0;
 }
 
 void gm2ringsim::TrackingAction::endOfRunAction(const G4Run *currentRun) {
@@ -333,6 +362,7 @@ void gm2ringsim::TrackingAction::endOfRunAction(const G4Run *currentRun) {
   G4cout << "   Muons injected     : " << totalEvents << G4endl;
   G4cout << "   Muons decayed      : " << Ndecays_ << G4endl;
   G4cout << "   Muons lost         : " << Nlost_ << G4endl;
+  G4cout << "   Muons stored       : " << Nstore_ << G4endl;
   G4cout << "====================================================" << G4endl;
 }
 

@@ -82,6 +82,7 @@ namespace gm2ringsim {
 
     int Ndecays_;
     int Nlost_;
+    int Nstore_;
 
     // Our collection of track hits
     std::unique_ptr<TrackingActionArtRecordCollection> myArtHits_;
