@@ -11,13 +11,13 @@
 #include "geom/collimator.fcl"
 #include "geom/PGA.fcl"
 #include "geom/g2GPS.fcl"
-#include "geom/traceback.fcl"
+#include "geom/strawtracker.fcl"
 
-process_name:myProcessName
+process_name: myProcessName
 
 source: {
   module_type: EmptyEvent
-  maxEvents:  25
+  maxEvents:  10
 }
 
 services: {
@@ -30,15 +30,14 @@ services: {
        LogToConsole : {
          type : "cout"
          threshold : "DEBUG"
-         
-         categories : {
-           default : { limit : 50 }
-         }
+       }
+       LogToFile : {
+         type : "file"
+         filename : "gm2ringsim.log"
+         append : false
+         threshold : "DEBUG"
        }
      }
-  }
-  TFileService: {
-    fileName: "data_out.root"
   }
 
   user : {
@@ -57,25 +56,21 @@ services: {
       inflector: @local::inflector_geom
       quad: @local::quad_geom
       octupole: @local::oct_geom
-      kicker: @local::kicker_geom	
+      kicker: @local::kicker_geom
       fiberHarp: @local::fiberHarp_geom
       station: @local::station_geom
       calorimeter: @local::calorimeter_geom
       collimator: @local::collimator_geom
-      pga: @local::PGA_geom	
-      traceback: @local::traceback_geom
-
+      pga: @local::PGA_geom
+      strawtracker: @local::strawtracker_geom
      }
 
      // Global simulation settings
      RunSettings : {
-      SpinTracking : {
+       SpinTracking : {
         spinTrackingEnabled : false
-        }
-      G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel
-      //G2GPSSettings:  @local::G2GPS_storageVertex
-      
-      
+       }
+       G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel_muplus
     }
 
     // Action(s) for the simulation
@@ -84,67 +79,67 @@ services: {
           minWavelength:250 //nm
           maxWavelength:950  //nm
     }
+
     physicalVolumeStore: {}
-    Gm2PhysicsList: {}
+    Gm2PhysicsList: {
+      decayMode: "iso"
+      physicsListName: "FTFP_BERT"
+      includeCerenkovProcess: true
+   }
+
     TrackingAction : {
           name : "trackingAction"
     }
-    ClockAction: {}	
+
+    ClockAction: {}
+
     G2PGA: {
       name: "primary"
     }
+
+//    MuonGasPGA: {
+//        name: "muongas"
+//        muonGasVerbosity: false
+//    }
+
+//    CaloElectronPGA: {} // shoots one electron directly into calo #8
+
+//    CaloHitPGA: {} // creates particles from stored calo hits (need to change 
+                     // source module type at top of file to RootInput and use 
+                     // different process name than first pass)
 
     // Detectors
     World: {}	
+    Ring: {}    // This is for the RingHits
+    VirtualRingStation: {} // This is for the virtual tracker planes in the vac
     Arc: {}
     VacuumChamber: {}
-    Inflector:{}	
+    Inflector:{}
     Quad: {}
-    Octupole: {}
+    // Octupole: {}  These things don't exist in real life. Leave them off unless you are studying them for Yannis
     Kicker: {}
-    FiberHarp: {}	   
+    FiberHarp: {}
     Station: {}
-  Calorimeter: {
-    killAllParticles : true
-    killOpticalPhotons : true
-  }
-    Collimator : {}
-    Traceback: {}
-
-    G2PGA: {
-      name: "primary"
+    Calorimeter: {
+        killAllParticles : true
+        killOpticalPhotons : true
     }
- 
-//    PrimaryGeneratorAction: {
-//            name: "primary"	
-//	    muonGasVerbosity : true
-//            g2GPS : {
-//	      useMuonGasGun: true
-//            } //g2GPS Parameter Set
-//        } //PrimaryGeneratorAciton
-
-      MuonStorageStatusAction: { 
-        name: "MuonStorageStatusAction"
-      }//MuonStorageStatusAction
-//    RunAction: {
-//      name: "run"
-//    }//RunAction
+    Collimator : {}
+    StrawTracker: {}
+    Straws:{}
 
 
-//    EventAction: {
-//      name: "event"
-//      // heartbeatFreq :  100
-//      // heartbeatLength: 0
-//    }//EventAction
-    
+    MuonStorageStatusAction: {
+      name: "MuonStorageStatusAction"
+    }
 
   } //user:
 } //services:
 
 outputs: {
-  out1: {
-    module_type: RootOutput
-    fileName: "gm2ringsimout.root"
+out1: {
+  module_type: RootOutput   
+  fileName: "gm2ringsimout.root"
   }
 }
 
@@ -152,31 +147,26 @@ physics: {
   producers: {
     artg4 : { 
      module_type: artg4Main
-     enableVisualization: true
+     enableVisualization: false
      macroPath: ".:./macros:../macros:../../macros"
      visMacro: "vis.mac"
      afterEvent: pause  // (ui, pause, pass)
      }
   }
+
   analyzers: {
-    strawChambers: {
-      module_type: readHits
-      hist_dir: ""
-      tree_dir: ""
-      hitModuleLabel: artg4
-      instanceName: "traceback"
+    readTracks: {
+      module_type: particleTrackAnalyzer
     }
   }
 
- 
 
-  pathMake: [ artg4 ]
-  pathRead: [ strawChambers ]
-  
+  path1: [ artg4 ]
+  readPath: [ readTracks ]
   stream1:  [ out1 ]
 
-  trigger_paths: [ pathMake ]
-  end_paths: [ pathRead, stream1 ]
-  
+  trigger_paths: [ path1 ]
+  end_paths: [ readPath, stream1 ]
+
 }
 

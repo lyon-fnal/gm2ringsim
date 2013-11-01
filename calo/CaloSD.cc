@@ -80,7 +80,7 @@ G4bool gm2ringsim::CaloSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){
         thisHC->insert(new CaloHit(thisStep));
     }
     
-    // If killShowers = true, kill track when it enters the calo volume (i.e., turn the clao into a black box)
+    // If killShowers = true, kill track when it enters the calo volume (i.e., turn the calo into a black box)
     if( killShowers ){
         thisStep->GetTrack()->SetTrackStatus(fStopAndKill);
     }

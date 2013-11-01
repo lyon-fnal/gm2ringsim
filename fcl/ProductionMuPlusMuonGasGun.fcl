@@ -1,10 +1,24 @@
+// Oct 14, 2013 : The point of this fcl file is to maintain the settings  
+// that best correspond to the production g-2 running. This means we use 
+// a muplus beam polarity at the downstream end of the inflector
+// All of the destructive beam monitor are removed from the system.
+//
+// Please maintain this file based on the best approximation of current 
+// design choices.
+//
+// In this code, the particles are fired using the MuonGasGun model instead
+// of the general Particle  Gun.
+//
+// Currently, particles are killed at the surface of the calorimeter
+
+
 #include "geom/world.fcl"
 #include "geom/arc.fcl"
 #include "geom/vac.fcl"
 #include "geom/inflector.fcl"
 #include "geom/quad.fcl"
 #include "geom/oct.fcl"
-#include "geom/kicker_nokick.fcl"
+#include "geom/kicker.fcl"
 #include "geom/fiberHarp.fcl"
 #include "geom/station.fcl"
 #include "geom/calorimeter.fcl"
@@ -13,12 +27,11 @@
 #include "geom/g2GPS.fcl"
 #include "geom/strawtracker.fcl"
 
-process_name:myProcessName
+process_name: myProcessName
 
 source: {
   module_type: EmptyEvent
-  maxEvents: 10
-
+  maxEvents:  10
 }
 
 services: {
@@ -30,48 +43,14 @@ services: {
      destinations : {
        LogToConsole : {
          type : "cout"
-         threshold : "ERROR"
+         threshold : "DEBUG"
        }
        LogToFile : {
          type : "file"
-         filename : "gm2ringsim.log"
+         filename : "gm2ringsim_ProductionMuPlusMuonGasGun.log"
          append : false
-         threshold : "ERROR"
+         threshold : "DEBUG"
        }
-       LogToTrackerFile:{
-        type: "file"
-        filename: "strawtrackergeometry.csv"
-        append : false
-        theshold : "DEBUG"
-        categories : {
-          StrawGeometryPlacementDetails : { limit : 1000000 }
-          default : { limit : 0 }
-        }
-       }
-       LogToStrawLocationDatabase:{
-        type: "file"
-        filename: "strawlocationdatabase.csv"
-        append : false
-        treshold: "DEBUG"
-        categories : {
-          StrawLocationDatabase : { limit : 1000000 }
-          default : {limit : 0 }
-        
-        }
-       }
-       GeometryDetails:{
-       
-        type: "file"
-        threshold: "DEBUG"
-        append: false
-        filename: "geometrydetails.txt"
-        categories: {
-        
-          STRAWTRACKERGEOMETRY: {limit : 1000000}
-          default : {limit : 0 }
-        }
-       }
-
      }
   }
 
@@ -100,12 +79,21 @@ services: {
       strawtracker: @local::strawtracker_geom
      }
 
-     // Global simulation settings
+       // Global simulation settings
+     //
+     // The SpinTracking class tells the 5 fields in the gm2ringsim if they should propogate the muon spin as it travels around the ring
+     // : Default settings are false/false for spinTrackingEnabled/edmTrackingEnabled. If you want to see a wiggle plot then set it to true
+     // : Default setting is Q = 1, which assume that you are injecting a positively charged muon (or pion or proton).
+     //
      RunSettings : {
        SpinTracking : {
-        spinTrackingEnabled : false
+	   spinTrackingEnabled : false
+	   edmTrackingEnabled : false
+	   Q : 1
+	   Eta : 0
+	   Gm2 : -1
        }
-      G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel
+       G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel_muplus
     }
 
     // Action(s) for the simulation
@@ -117,8 +105,10 @@ services: {
 
     physicalVolumeStore: {}
     Gm2PhysicsList: {
-        decayMode: "iso"
-    }
+      decayMode: "iso"
+      physicsListName: "FTFP_BERT"
+      includeCerenkovProcess: true
+   }
 
     TrackingAction : {
           name : "trackingAction"
@@ -126,29 +116,12 @@ services: {
 
     ClockAction: {}
 
-    InflectorPGA: {
-        name: "inflectorgun"
-        inflectorVerbosity: true
-				SigmaT: 25
-	      FlatDecayTime: true
-	      MaxDecayTime: 1
-				EmittanceX: 1.0
-  			EmittanceY: 1.0
-				BetaX:  7.66477
-				BetaY:  19.0763
-				AlphaX:  0.0
-				AlphaY:  0.0
-				Pmean: -1
-				dPOverP: 0.005
-				Particle: "mu+"
-				StartUpstream:  false
-				StartUpstreamCryo:  false
-				StartDownstream:  false
-				StartPerfect:  true
-				GenGaussian: false
-				LaunchAngle: 0.0
-				StorageOffset: 0.0
+
+    MuonGasPGA: {
+        name: "muongas"
+        muonGasVerbosity: false
     }
+
 
     // Detectors
     World: {}	
@@ -158,9 +131,7 @@ services: {
     VacuumChamber: {}
     Inflector:{}
     Quad: {}
-    Octupole: {}
     Kicker: {}
-    FiberHarp: {}
     Station: {}
     Calorimeter: {
         killAllParticles : true
@@ -168,22 +139,23 @@ services: {
     }
     Collimator : {}
     StrawTracker: {}
-    Straws: {}
+    Straws:{}
 
 
     MuonStorageStatusAction: {
       name: "MuonStorageStatusAction"
-      turnsForStorage: 101
-      heartbeatFreq: 10
     }
 
   } //user:
 } //services:
 
+// This line deals with the fact that the inflector cryo is not properly implemented
+services.user.Geometry.inflector.CryoWallMaterial: Vacuum
+
 outputs: {
 out1: {
   module_type: RootOutput   
-  fileName: "gm2ringsimout-leahtest-5000-nopiping-1scallop.root"
+  fileName: "gm2ringsim_ProductionMuPlusMuonGasGun.root"
   }
 }
 
@@ -191,20 +163,22 @@ physics: {
   producers: {
     artg4 : { 
      module_type: artg4Main
-     enableVisualization: true
-     macroPath: ".:./macros:../macros:../../macros:../srcs/gm2ringsim/macros"
-     //visualizeSpecificEvents: true
-     //eventsToDisplay: [ 514 ]
+     enableVisualization: false
+     macroPath: ".:./macros:../macros:../../macros"
      visMacro: "vis.mac"
-     afterEvent: pause // (ui, pause, pass)
-     //seed: 10
+     afterEvent: pause  // (ui, pause, pass)
      }
   }
 
+  analyzers: {
+    readTracks: {
+      module_type: particleTrackAnalyzer
+    }
+  }
 
 
   path1: [ artg4 ]
-  readPath: [ ]
+  readPath: [ readTracks ]
   stream1:  [ out1 ]
 
   trigger_paths: [ path1 ]
@@ -212,3 +186,9 @@ physics: {
 
 }
 
+
+services.user.Geometry.quad.DoScraping : false
+services.user.Geometry.kicker.kPlate1HV : 0 //kilovolt
+services.user.Geometry.kicker.kPlate2HV : 0 //kilovolt
+services.user.Geometry.kicker.kPlate3HV : 0 //kilovolt
+services.user.Geometry.kicker.kickerHV : [0 , 0 , 0 ] //kilovolt

@@ -44,6 +44,9 @@ gm2ringsim::Straws::Straws(fhicl::ParameterSet const & p, art::ActivityRegistry 
 {
     //strawSD_ = artg4::getSensitiveDetector<StrawSD>(strawSDname_);
 }
+//Build the straw walls
+//Build the gas straw 
+//Build the wire
 
 // Build the logical volumes
 std::vector<G4LogicalVolume *> gm2ringsim::Straws::doBuildLVs() {
@@ -55,14 +58,8 @@ std::vector<G4LogicalVolume *> gm2ringsim::Straws::doBuildLVs() {
             for (int view = 0 ; view<geom_.strawView ; view++){
                 for (int layer = 0 ; layer<geom_.strawLayers; layer++){
                     for (int st = 0; st<geom_.strawStationType[sc]; st++){
+				
 
-                        G4Tubs* tracker_tube = new G4Tubs("tracker_tube",
-                                geom_.innerRadiusOfTheStraw,
-                                geom_.outerRadiusOfTheStraw,
-                                geom_.halfLengthOfTheStraw,
-                                geom_.startAngleOfTheStraw,
-                                geom_.spanningAngleOfTheStraw
-                                );
                         // Create a WireID to identify this straw
                         WireID currentWire;
                         currentWire.setTrackerNumber(tb);
@@ -76,14 +73,88 @@ std::vector<G4LogicalVolume *> gm2ringsim::Straws::doBuildLVs() {
                         ostringstream lvStream;
                         lvStream << "SingleStrawLV - " << currentWire;
                         string strawLVName = lvStream.str();
+											  
+
+												G4Tubs* tracker_tube = new G4Tubs("tracker_tube",
+																													geom_.innerRadiusOfTheStraw,
+																													geom_.outerRadiusOfTheStraw,
+																													geom_.halfLengthOfTheStraw,
+																													geom_.startAngleOfTheStraw,
+																													geom_.spanningAngleOfTheStraw
+																												);
+														
+
+												G4Tubs* gas_tube = new G4Tubs("gas_tube",
+																													geom_.innerRadiusOfTheStraw,
+																													geom_.outerRadiusOfTheGas,
+																													geom_.halfLengthOfTheStraw,
+																													geom_.startAngleOfTheStraw,
+																													geom_.spanningAngleOfTheStraw
+																												);
+
+												G4Tubs* wire_tube = new G4Tubs("wire_tube",
+																													geom_.innerRadiusOfTheStraw,
+																													geom_.outerRadiusOfTheWire,
+																													geom_.halfLengthOfTheStraw,
+																													geom_.startAngleOfTheStraw,
+																													geom_.spanningAngleOfTheStraw
+																												);
+
 
                         G4LogicalVolume* strawLV = new G4LogicalVolume(tracker_tube,
-                                artg4Materials::ArCO2(),
+                                artg4Materials::Mylar(),
                                 strawLVName,
+                                0,
+                               0);
+																										
+                        G4LogicalVolume* gasLV = new G4LogicalVolume(gas_tube,
+                                artg4Materials::ArCO2(),
+                                "gasLV",
                                 0,
                                 0);
 
+                        G4LogicalVolume* wireLV = new G4LogicalVolume(wire_tube,
+                                artg4Materials::W(),
+                                "wireLV",
+                                0,
+                                0);
+
+												//Make the Gas layer
+
+												new G4PVPlacement(0,
+																					G4ThreeVector(0,0,0),
+																					wireLV,
+																					"wireLV",
+																					gasLV,
+																				  0,
+																				  0
+																				);
+
+												new G4PVPlacement(0,
+												 								  G4ThreeVector(0,0,0),
+																				  gasLV,
+																				  "gasLV",
+																					strawLV,
+																					0,
+																					0
+																				);
+
+
                         artg4::setVisAtts( strawLV, geom_.displayStraw, geom_.strawColor,
+                                [] (G4VisAttributes* att) {
+                                att->SetForceSolid(1);
+                                att->SetVisibility(1);
+                                }
+                                );
+
+                        artg4::setVisAtts( gasLV, geom_.displayStraw, geom_.gasColor,
+                                [] (G4VisAttributes* att) {
+                                att->SetForceSolid(1);
+                                att->SetVisibility(1);
+                                }
+                                );
+
+                        artg4::setVisAtts( wireLV, geom_.displayStraw, geom_.wireColor,
                                 [] (G4VisAttributes* att) {
                                 att->SetForceSolid(1);
                                 att->SetVisibility(1);
@@ -98,7 +169,6 @@ std::vector<G4LogicalVolume *> gm2ringsim::Straws::doBuildLVs() {
     }
     return straws;
 }
-
 
 // Build the physical volumes
 std::vector<G4VPhysicalVolume *> gm2ringsim::Straws::doPlaceToPVs( std::vector<G4LogicalVolume*> planes) {

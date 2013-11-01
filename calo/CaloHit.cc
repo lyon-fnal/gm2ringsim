@@ -37,7 +37,10 @@ global_mom(step->GetPreStepPoint()->GetMomentum()),
 time(step->GetPreStepPoint()->GetGlobalTime()),
 turnNum(TurnCounter::getInstance().turns()),
 trackID(step->GetTrack()->GetTrackID()),
-caloNum(step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo())
+caloNum(step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo()),
+energy( step->GetPreStepPoint()->GetTotalEnergy() ),
+particle_name( step->GetTrack()->GetParticleDefinition()->GetParticleName()),
+parent_ID( step->GetTrack()->GetParentID())
 {
 }
 

@@ -52,6 +52,8 @@ gm2ringsim::Calorimeter::Calorimeter(fhicl::ParameterSet const & p, art::Activit
              p.get<std::string>("category", "calorimeter"),
              p.get<std::string>("mother_category", "station")),
     stationGeomName_(p.get<std::string>("stationGeomName", "")), // For calo placement, use a geometry different from the mother category
+    killAllParticles_(p.get<bool>("killAllParticles", true)),
+    killOpticalPhotons_(p.get<bool>("killOpticalPhotons", true)),
     caloSD_(0),
     xtalSD_(0),
     photodetectorSD_(0)
@@ -59,6 +61,24 @@ gm2ringsim::Calorimeter::Calorimeter(fhicl::ParameterSet const & p, art::Activit
   if ( stationGeomName_.empty() ) {
     stationGeomName_ = motherCategory();
   }
+    
+    // determine what kinds of hits to produce (always produce calo hits)
+    if (killAllParticles_)
+    {
+        produceXtalHits_ = false;
+        producePhotodetectorHits_ = false;
+    }
+    else if (killOpticalPhotons_)
+    {
+        produceXtalHits_ = true;
+        producePhotodetectorHits_ = false;
+    }
+    else // all particles are being tracked, including optical photons
+    {
+        produceXtalHits_ = true;
+        producePhotodetectorHits_ = true;
+    }
+    
 }
 
 G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeometry& caloGeom, int calorimeterNumber ) {
@@ -418,7 +438,7 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
                                                    photodetectorDepth / 2. ) ;
                 // --- photodetector logical volume
                 photodetector_L = new G4LogicalVolume( photodetector_S,
-                                            artg4Materials::Borosilicate(),
+                                            artg4Materials::SiPMSurfaceResin(),
                                             "photodetector_L" ) ;
                 
             // Case 2: cylindrical photodetector (e.g., phototube)
@@ -439,7 +459,7 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
                                                      0, 360. * deg);
                 // --- photodetector logical volume
                 photodetector_L = new G4LogicalVolume( photodetector_S,
-                                                      artg4Materials::Borosilicate(),
+                                                      artg4Materials::SiPMSurfaceResin(),
                                                       "photodetector_L" ) ;
  
             // Whoops! Invalid photodetector shape
@@ -573,8 +593,11 @@ std::vector<G4LogicalVolume *> gm2ringsim::Calorimeter::doBuildLVs() {
     xtalSD_ = artg4::getSensitiveDetector<XtalSD>(getXtalName());
     photodetectorSD_ = artg4::getSensitiveDetector<PhotodetectorSD>(getPhotodetectorName());
 
-    // set whether CaloSD kills showers
-    caloSD_->KillShowers(caloGeom.killShowers);
+    // set whether CaloSD allows particles to enter the calorimeter volume for further tracking
+    caloSD_->KillShowers(killAllParticles_);
+    
+    // set whether XtalSD kills optical photon tracks
+    xtalSD_->killOpticalPhotons(killOpticalPhotons_);
     
     // make sure sensitive detectors have the right number of xtals/photodetectors
     int nCalo = caloGeom.nCalorimeters;
@@ -665,19 +688,34 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Calorimeter::doPlaceToPVs( std::vec
 // Declare to Art what we are producing
 void gm2ringsim::Calorimeter::doCallArtProduces(art::EDProducer * producer) {
     producer->produces<CaloArtRecordCollection>(category());
-    producer->produces<XtalArtRecordCollection>(category());
-    producer->produces<XtalPhotonArtRecordCollection>(category());
-    producer->produces<PhotodetectorArtRecordCollection>(category());
-    producer->produces<PhotodetectorPhotonArtRecordCollection>(category());
+    
+    if (produceXtalHits_)
+    {
+        producer->produces<XtalArtRecordCollection>(category());
+        producer->produces<XtalPhotonArtRecordCollection>(category());
+    }
+    if (producePhotodetectorHits_)
+    {
+        producer->produces<PhotodetectorArtRecordCollection>(category());
+        producer->produces<PhotodetectorPhotonArtRecordCollection>(category());
+    }
 }
 
 // Actually add the data to the event
 void gm2ringsim::Calorimeter::doFillEventWithArtHits(G4HCofThisEvent * hc) {
     doFillEventWithCaloHits(hc);
-    doFillEventWithXtalHits(hc);
-    doFillEventWithXtalPhotonHits(hc);
-    doFillEventWithPhotodetectorHits(hc);
-    doFillEventWithPhotodetectorPhotonHits(hc);
+    
+    if (produceXtalHits_)
+    {
+        doFillEventWithXtalHits(hc);
+        doFillEventWithXtalPhotonHits(hc);
+    }
+    
+    if (producePhotodetectorHits_)
+    {
+        doFillEventWithPhotodetectorHits(hc);
+        doFillEventWithPhotodetectorPhotonHits(hc);
+    }
 }
 
 void gm2ringsim::Calorimeter::doFillEventWithCaloHits(G4HCofThisEvent * hc) {
@@ -707,7 +745,10 @@ void gm2ringsim::Calorimeter::doFillEventWithCaloHits(G4HCofThisEvent * hc) {
                                     e->time,
                                     e->global_mom.x(),
                                     e->global_mom.y(),
-                                    e->global_mom.z() );
+                                    e->global_mom.z(), 
+                                    e->energy,
+																		e->particle_name, 
+																		e->parent_ID);
         }
     }
     else {

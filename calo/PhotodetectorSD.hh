@@ -3,8 +3,7 @@
 
 /** @file PhotodetectorSD.hh
  
-    Provides the declaration of a "stops and kills" photodetector
-    sensitive detector.
+    Provides the declaration of a photodetector sensitive detector.
  
     Ported to Art from g2migtrace file pmtSD.hh
         @author Werner Sun
@@ -23,11 +22,10 @@
 
 /** A sensitive detector for the photodetectors.
  
- Currently, this class will "swallow" any particle that enters a photodetector module, and output various information via a PhotodetectorHit. The particle track is then "stopped and killed".
+ Currently, this class creates a Photodetector Photon Hit for each optical photon that enters a photodetector volume. The optical photons tracks are "stopped and killed," but other particle types are allowed to pass through.
  
- @bug This is long-term unacceptable behavior, but suffices for
- now.  Kevin has side documentation on the various behaviors that
- should be implemented in future.
+ Before 10/24/2013, all tracks were killed by the photodetector SD.
+
  */
 
 namespace gm2ringsim {

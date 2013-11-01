@@ -81,7 +81,10 @@ services: {
 
     // Detectors
     World: {}	
-    Calorimeter: {}
+    Calorimeter: {
+        killAllParticles : false
+        killOpticalPhotons : false
+    }
 
 
   } //user:
@@ -120,4 +123,3 @@ services.user.Calorimeter.mother_category : world
 services.user.Calorimeter.stationGeomName : station
 services.user.Geometry.calorimeter.nCalorimeters : 1
 services.user.Geometry.calorimeter.placeInStation : false
-services.user.Geometry.calorimeter.killShowers : false
