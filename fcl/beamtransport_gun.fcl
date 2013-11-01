@@ -1,0 +1,213 @@
+#include "geom/world.fcl"
+#include "geom/arc.fcl"
+#include "geom/vac.fcl"
+#include "geom/inflector.fcl"
+#include "geom/quad.fcl"
+#include "geom/kicker_nokick.fcl"
+#include "geom/collimator.fcl"
+#include "geom/PGA.fcl"
+#include "geom/g2GPS.fcl"
+#include "geom/station.fcl"
+#include "geom/calorimeter.fcl"
+
+process_name:myProcessName
+
+source: {
+  module_type: EmptyEvent
+  maxEvents:  75000
+}
+
+services: {
+
+  message : {
+     debugModules : ["*"]
+     suppressInfo : []
+     
+     destinations : {
+       LogToConsole : {
+         type : "cout"
+         threshold : "ERROR"
+       }
+       LogToFile : {
+         type : "file"
+//         filename : "/gm2/data/users/tgadfort/gm2ringsim/output/ScrapingOFF_NoQuads_2500Turns_muplus_SpinTracking_PolFull_DM_FNALt0_210GSquareKick_InfOpen_NoDelta_NoLaunch_BeamSize40pimmmrad_BeamTransportGun_RingBeta_Dispersion_PerfectMatch_CollimatorON_StandardModelMuonDecay_ExpDecayTime/ScrapingOFF_NoQuads_2500Turns_muplus_SpinTracking_PolFull_DM_FNALt0_210GSquareKick_InfOpen_NoDelta_NoLaunch_BeamSize40pimmmrad_BeamTransportGun_RingBeta_Dispersion_PerfectMatch_CollimatorON_StandardModelMuonDecay_ExpDecayTime.log"
+         filename : "dummy.log"
+         append : false
+         threshold : "ERROR"
+       }
+     }
+  }
+
+  user : {
+  
+    // Mandatory ArtG4 services
+    DetectorHolder: {}
+    ActionHolder: {}
+    PhysicsListHolder: {}
+    RandomNumberGenerator: {}
+
+    // Geometry
+    Geometry: {
+      world: @local::world_geom
+      arc:   @local::arc_geom
+      vac:   @local::vac_geom
+      inflector: @local::inflector_geom
+      quad:   @local::quad_geom
+      kicker: @local::kicker_geom
+      collimator: @local::collimator_geom
+      pga: @local::PGA_geom
+      station: @local::station_geom
+      calorimeter: @local::calorimeter_geom
+     }
+
+     // Global simulation settings
+     RunSettings : {
+       SpinTracking : {
+	   spinTrackingEnabled : true
+	   edmTrackingEnabled : false
+	   Q : 1
+	   Eta : 0
+	   Gm2 : -1
+       }
+      G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel_muplus
+#      G2GPSSettings:  @local::G2GPS_downstreamInflectorMandrel_muminus
+    
+    }
+
+
+
+
+      // Action(s) for the simulation
+      StackingAction: {  
+            name: "stackingAction"
+	    OnlyTrackPrimary: false
+  	    TrackPrimaryDecay: true
+            TrackOrphans: false
+            minWavelength:250 //nm
+            maxWavelength:950  //nm
+      }
+
+    physicalVolumeStore: {}
+    Gm2PhysicsList: {
+	physicsListName: old
+	decayMode: sm
+    }
+
+    TrackingAction : {
+          name : "trackingAction"
+	  OnlyTrackPrimary: false
+	  TrackPrimaryDecay: true
+          TrackOrphans: false
+    }
+
+    ClockAction: {}
+
+
+    BeamTransportPGA: {
+        name: "beamtransport"
+	FlatDecayTime: false
+	MaxDecayTime: 375.00
+	EmittanceX: 40
+	EmittanceY: 40
+	BetaX:  7.66477
+	BetaY:  19.0763
+	AlphaX:  0.0
+	AlphaY:  0.0
+	UseConstBeta:  false
+	UseDispersion: true
+	UseFNALt0: true
+	Particle: "mu+"
+	Polarization: Full
+        Debug: false
+        NoTransMom: false
+	PosOffset: false
+	StartPerfect:  false
+	Kick: 210
+	RotAngle: 0.0
+    }
+
+
+    // Detectors
+    World: {}	
+    Ring: {}    // This is for the RingHits
+    VirtualRingStation: {} // This is for the virtual tracker planes in the vac
+    Arc: {}
+    Quad: {}
+    VacuumChamber: {}
+    Inflector:{}
+    Kicker: {}
+    Collimator : {}
+    Station: {}
+    Calorimeter: {}
+
+    LostMuonAction: {
+      name: "LostMuonAction"
+    stored_rmin: -300.0
+    stored_rmax: 300.0
+    stored_y: 50
+    }
+
+    MuonStorageStatusAction: {
+      name: "MuonStorageStatusAction"
+      turnsForStorage: 2515
+      TrackPositrons: true
+      stored_rmin: 0.0
+      stored_rmax: 10.0
+      heartbeatFreq: 7500
+    }
+
+  } //user:
+} //services:
+
+outputs: {
+out1: {
+  module_type: RootOutput   
+  fileName: "/gm2/data/users/tgadfort/gm2ringsim/output/ScrapingOFF_NoQuads_2500Turns_muplus_SpinTracking_PolFull_DM_FNALt0_210GSquareKick_InfOpen_NoDelta_NoLaunch_BeamSize40pimmmrad_BeamTransportGun_RingBeta_Dispersion_PerfectMatch_CollimatorON_StandardModelMuonDecay_ExpDecayTime/ScrapingOFF_NoQuads_2500Turns_muplus_SpinTracking_PolFull_DM_FNALt0_210GSquareKick_InfOpen_NoDelta_NoLaunch_BeamSize40pimmmrad_BeamTransportGun_RingBeta_Dispersion_PerfectMatch_CollimatorON_StandardModelMuonDecay_ExpDecayTime.root"
+  }
+}
+
+physics: {
+  producers: {
+    artg4 : { 
+     module_type: artg4Main
+     enableVisualization: false
+     macroPath: ".:./macros:../macros:../../macros"
+     visMacro: "vis.mac"
+     afterEvent: pause  // (ui, pause, pass)
+    }
+  }
+
+
+
+  path1: [ artg4 ]
+  readPath: [ ]
+  stream1:  [ out1 ]
+
+  trigger_paths: [ path1 ]
+  end_paths: [ readPath, stream1 ]
+
+}
+#
+# Add-ons
+#
+services.user.Geometry.inflector.CryoWallMaterial: Vacuum
+services.user.RunSettings.G2GPS_downstreamInflectorMandrel.particle: muplus
+services.user.Geometry.quad.DoScraping: false
+services.user.Geometry.quad.StoreHV: 24
+services.user.Geometry.quad.ScrapeHV: 17
+services.user.Geometry.quad.SupportMaterial: None
+services.user.Geometry.quad.PlateMaterial: None
+# Both Open
+services.user.Geometry.inflector.useUpstreamWindow:       false
+services.user.Geometry.inflector.useDownstreamWindow :    false
+services.user.Geometry.inflector.useUpstreamConductor :   false
+services.user.Geometry.inflector.useDownstreamConductor : false
+services.user.Geometry.inflector.useUpstreamEndFlange :   false
+services.user.Geometry.inflector.useDownstreamEndFlange : false
+services.user.Geometry.inflector.fieldType : VANISH
+services.user.Geometry.inflector.swingAngle : 0
+services.user.Geometry.vac.Frequency: 1
+//kickhv=0
+//kicksk=210
+services.user.Geometry.kicker.TypeOfKick: SQUARE
+services.user.Geometry.kicker.squareMag : [210.0 , 210.0 , 210.0 ] //gauss
