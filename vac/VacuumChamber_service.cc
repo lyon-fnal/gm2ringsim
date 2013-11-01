@@ -206,28 +206,47 @@ void gm2ringsim::VacuumChamber::makeVacuumPVs(
 }
 
 void gm2ringsim::VacuumChamber::makeVirtualRingStationPVs(
-          std::vector<G4LogicalVolume*>& vacLVs,
-          const VacGeometry& g)
+							  std::vector<G4LogicalVolume*>& vacLVs,
+							  const VacGeometry& g)
 {
   int freq = g.Frequency;
+
   
   for(int arc=0; arc!=12; ++arc){
-
-    if ( freq == 12 ) { ; } // Build all
-    else if ( freq == 6 ) { // Build every other one
-      if ( arc % 2 != 0 ) { continue; }
-    }
-    else if ( freq == 4 ) { // Build every third one
-      if ( arc % 3 != 0 ) { continue; }
-    }
-    else if ( freq == 3 ) { // Build every quarter one
-      if ( arc % 4 != 0 ) { continue; }
-    }
-    else if ( freq == 2 ) { // Build every 6th one
-      if ( arc % 6 != 0 ) { continue; }
-    }
-    else if ( freq == 1 ) { // Build every 6th one
-      if ( arc % 12 != 0 ) { continue; }
+    
+    if ( arc != 11 ) {
+      if ( freq == 12 ) { ; } // Build all
+      else if ( freq == 6 ) { // Build every other one
+	if ( arc == 11 ) {;}
+	else if ( arc == 9 ) {;}
+	else if ( arc == 7 ) {;}
+	else if ( arc == 5 ) {;}
+	else if ( arc == 3 ) {;}
+	else if ( arc == 1 ) {;}
+	else { continue; }
+      }
+      else if ( freq == 4 ) { // Build every third one
+	if ( arc == 11 ) {;}
+	else if ( arc == 8 ) {;}
+	else if ( arc == 5 ) {;}
+	else if ( arc == 2 ) {;}
+	else { continue; }
+      }
+      else if ( freq == 3 ) { // Build every quarter one
+	if ( arc == 11 ) {;}
+	else if ( arc == 7 ) {;}
+	else if ( arc == 3 ) {;}
+	else { continue; }
+      }
+      else if ( freq == 2 ) { // Build every 6th one
+	if ( arc == 11 ) {;}
+	else if ( arc == 8 ) {;}
+	else { continue; }
+      }
+      else if ( freq == 1 ) { // Build every 6th one
+	if ( arc == 11 ) {;}
+	else { continue; }
+      }
     }
 
 
