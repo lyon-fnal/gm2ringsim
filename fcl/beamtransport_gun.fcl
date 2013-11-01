@@ -30,7 +30,6 @@ services: {
        }
        LogToFile : {
          type : "file"
-//         filename : "/gm2/data/users/tgadfort/gm2ringsim/output/ScrapingOFF_NoQuads_2500Turns_muplus_SpinTracking_PolFull_DM_FNALt0_210GSquareKick_InfOpen_NoDelta_NoLaunch_BeamSize40pimmmrad_BeamTransportGun_RingBeta_Dispersion_PerfectMatch_CollimatorON_StandardModelMuonDecay_ExpDecayTime/ScrapingOFF_NoQuads_2500Turns_muplus_SpinTracking_PolFull_DM_FNALt0_210GSquareKick_InfOpen_NoDelta_NoLaunch_BeamSize40pimmmrad_BeamTransportGun_RingBeta_Dispersion_PerfectMatch_CollimatorON_StandardModelMuonDecay_ExpDecayTime.log"
          filename : "dummy.log"
          append : false
          threshold : "ERROR"
@@ -103,10 +102,35 @@ services: {
     ClockAction: {}
 
 
+
+     //
+     // This is the beam transport particle gun that allows the user to generate realistic muon beams
+     //  Default Settings and Flags:
+     //    FlatDecayTime: false		<---If you have decay turned on then can generate exponential (false) or uniform decays (true)
+     //    MaxDecayTime: -1		<---If you have decay turned on then you can force all decays to occur between 0 and MaxDecayTime number of turns
+     //    EmittanceX: 40		<---Horizontal emittance
+     //    EmittanceY: 40		<---Vertical emittance
+     //    BetaX:  7.66477		<---Horizontal beta function (constant)
+     //    BetaY:  19.0763		<---Vertical beta function (constant)
+     //    AlphaX:  0.0			<---Horizontal alpha function (change in betaX)
+     //    AlphaY:  0.0			<---Vertical alpha function (change in betaY)
+     //    UseConstBeta: false          <---No real reason to switch to constant beta function.
+     //    UseDispersion: true          <---Generate dP/P with dispersion instead of Xe distribution
+     //    UseFNALt0: true              <---If true -> use FNAL time structure. If false -> use Gauss with sigmaT = 25 ns.
+     //    Particle: "mu+"		<---Generated particle (charge must match the `Q` from above
+     //    Polarization: Full		<---Muon polarization. Full=100 along azimuth, E821=BNL polarization, Mixed=Random
+     //    Debug: false                 <---False for running, true for debunning.
+     //    NoTransMom: false            <---If true then x'=y'=0 for all events. X and Y are still generated within the emittance ellipse.
+     //    PosOffset: false             <---If you want to generate all of your events on the edge of the emittance ellipse (for testing).
+     //    StartPerfect:  false		<---If you want to start the beam in the storage region on the magic radius. If it is false then it assume you want to start at the downstream inflector exit.
+     //    Kick: 210                    <---Set to 0 if you want to start on the magic radius although this is done automatically in the code. 210 is the default "perfect kick"
+     //    RotAngle: 0.54		<---If you start in the center of the storage region then rotate backwards by this many radians
+
+
     BeamTransportPGA: {
         name: "beamtransport"
 	FlatDecayTime: false
-	MaxDecayTime: 375.00
+	MaxDecayTime: -1
 	EmittanceX: 40
 	EmittanceY: 40
 	BetaX:  7.66477
@@ -162,7 +186,7 @@ services: {
 outputs: {
 out1: {
   module_type: RootOutput   
-  fileName: "/gm2/data/users/tgadfort/gm2ringsim/output/ScrapingOFF_NoQuads_2500Turns_muplus_SpinTracking_PolFull_DM_FNALt0_210GSquareKick_InfOpen_NoDelta_NoLaunch_BeamSize40pimmmrad_BeamTransportGun_RingBeta_Dispersion_PerfectMatch_CollimatorON_StandardModelMuonDecay_ExpDecayTime/ScrapingOFF_NoQuads_2500Turns_muplus_SpinTracking_PolFull_DM_FNALt0_210GSquareKick_InfOpen_NoDelta_NoLaunch_BeamSize40pimmmrad_BeamTransportGun_RingBeta_Dispersion_PerfectMatch_CollimatorON_StandardModelMuonDecay_ExpDecayTime.root"
+  fileName: "dummy.root"
   }
 }
 
