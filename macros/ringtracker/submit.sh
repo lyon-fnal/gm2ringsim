@@ -135,7 +135,7 @@ bestdeltas()
     if [ ${infstart} == 1 ]; then
 	if [ ${field} == 1 ]; then
 	    thebestdeltas="-10 -10 -8 -7 -6 -5 -2 0 2 5"
-	    if [ ${beam} == "UpstreamCryo" ] || [ ${beam} == "UpstreamMandrel" ]; then
+	    if [ ${beam} == "UC" ] || [ ${beam} == "UM" ]; then
 		thebestdeltas="-8 -7 -6 -5 -4 -3 -2 0 2"
 		thebestdeltas="-4 -3"
 	    fi
@@ -205,7 +205,7 @@ name()
 	extra="${extra}_NoSpinTracking"
     else
 	if [ ${spintracking} == "spin" ]; then
-	    extra="${extra}_SpinTracking"
+	    extra="${extra}_SpinTracking_Pol${polarization}"
 	elif [ ${spintracking} == "edm" ]; then
 	    extra="${extra}_EDMTracking_Eta_${edmsize}"
 	fi
@@ -215,16 +215,16 @@ name()
 	fi
     fi
 
-    if [ ${beamstart} == "uc" ] || [ ${beamstart} == "UpstreamCryo" ]; then
-	extra="${extra}_UpstreamCryo"
-    elif [ ${beamstart} == "dc" ] || [ ${beamstart} == "DownstreamCryo" ]; then
-	extra="${extra}_DownstreamCryo"
-    elif [ ${beamstart} == "um" ] || [ ${beamstart} == "UpstreamMandrel" ]; then
-	extra="${extra}_UpstreamMandrel"
-    elif [ ${beamstart} == "dm" ] || [ ${beamstart} == "DownstreamMandrel" ]; then
-	extra="${extra}_DownstreamMandrel"
-    elif [ ${beamstart} == "co" ] || [ ${beamstart} == "CentralOrbit" ]; then
-	extra="${extra}_CentralOrbit"
+    if [ ${beamstart} == "uc" ] || [ ${beamstart} == "UC" ]; then
+	extra="${extra}_UC"
+    elif [ ${beamstart} == "dc" ] || [ ${beamstart} == "DC" ]; then
+	extra="${extra}_DC"
+    elif [ ${beamstart} == "um" ] || [ ${beamstart} == "UM" ]; then
+	extra="${extra}_UM"
+    elif [ ${beamstart} == "dm" ] || [ ${beamstart} == "DM" ]; then
+	extra="${extra}_DM"
+    elif [ ${beamstart} == "co" ] || [ ${beamstart} == "CO" ]; then
+	extra="${extra}_CO"
 	if [ ${offset} -gt 0 ]; then
 	    extra="${extra}_Offset${offset}"
 	elif [ ${offset} -lt 0 ]; then
@@ -276,13 +276,13 @@ name()
     
     if [ ${infstart} == 1 ]; then
 	if [ ${inftype} == 1 ]; then
-	    extra="${extra}_DownstreamInflectorOpen"
+	    extra="${extra}_InfDownstreamOpen"
 	elif [ ${inftype} == 2 ]; then
-	    extra="${extra}_InflectorOpen"
+	    extra="${extra}_InfOpen"
 	elif [ ${inftype} == 3 ]; then
-	    extra="${extra}_PartiallyOpen"
+	    extra="${extra}_InfPartial"
 	else
-	    extra="${extra}_ClosedInflector"
+	    extra="${extra}_InfClosed"
 	fi
 	
 	if [ ${infgun} == 0 ]; then
@@ -330,13 +330,13 @@ name()
 	fi
     else
 	if [ ${inftype} == 1 ]; then
-	    extra="${extra}_DownstreamInflectorOpen"
+	    extra="${extra}_InfDownstreamOpen"
 	elif [ ${inftype} == 2 ]; then
-	    extra="${extra}_InflectorOpen"
+	    extra="${extra}_InfOpen"
 	elif [ ${inftype} == 3 ]; then
-	    extra="${extra}_PartiallyOpen"
+	    extra="${extra}_InfPartial"
 	else
-	    extra="${extra}_ClosedInflector"
+	    extra="${extra}_InfClosed"
 	fi
     fi
     
@@ -371,7 +371,16 @@ name()
     if [ ${infgun} == 1 ]; then
 	if [ ${gengauss} == 1 ]; then
 	    extra="${extra}_InflectorGun"
-	else
+	elif [ ${gengauss} == -1 ]; then
+	    extra="${extra}_MuonGasGun"
+	    extra="${extra}_${betaname}"
+	elif [ ${gengauss} == -2 ]; then
+	    extra="${extra}_BeamTransportGun"
+	    extra="${extra}_${betaname}"
+	    if ! [ -z ${dispersionname} ]; then
+		extra="${extra}_${dispersionname}"
+	    fi
+	elif [ ${gengauss} == 0 ]; then
 	    extra="${extra}_UniformInflectorGun"
 	fi
 
@@ -518,6 +527,9 @@ name()
     if [ ${flatdecay} == 1 ] && ! [ ${muondecay} == "none" ]; then
 	extra="${extra}_FlatDecayTime"
     fi
+    if [ ${flatdecay} == 0 ] && ! [ ${muondecay} == "none" ]; then
+	extra="${extra}_ExpDecayTime"
+    fi
 }
 
 script="submit.sh"
@@ -528,6 +540,10 @@ match=0
 
 infstart=1
 infgun=1
+muongas=0
+export muongas=${muongas}
+beamtransport=0
+export beamtransport=${beamtransport}
 gengauss=0
 carol=0
 match=0
@@ -703,59 +719,59 @@ until [ -z ${1} ]; do
 	submit=1
 	shift 1
 	continue
-    elif [ ${1} == "open" ] || [ ${1} == "Open" ] || [ ${1} == "OpenInflector" ] || [ ${1} == "InflectorOpen" ]; then
+    elif [ ${1} == "open" ] || [ ${1} == "Open" ] || [ ${1} == "InfOpen" ] || [ ${1} == "OpenInflector" ] || [ ${1} == "InflectorOpen" ]; then
 	export inftype=2
-	infs="OpenInflector"
+	infs="InfOpen"
 	shift 1
 	continue
-    elif [ ${1} == "closed" ] || [ ${1} == "Closed" ] || [ ${1} == "ClosedInflector" ] || [ ${1} == "InflectorClosed" ]; then
+    elif [ ${1} == "closed" ] || [ ${1} == "Closed" ] || [ ${1} == "ClosedInflector" ] || [ ${1} == "InfClosed" ] || [ ${1} == "InflectorClosed" ]; then
 	export inftype=0
-	infs="ClosedInflector"
+	infs="InfClosed"
 	shift 1
 	continue
-    elif [ ${1} == "partial" ] || [ ${1} == "PartiallyOpen" ] || [ ${1} == "PartiallyOpenInflector" ]; then
+    elif [ ${1} == "partial" ] || [ ${1} == "PartiallyOpen" ] || [ ${1} == "InfPartial" ] || [ ${1} == "PartiallyOpenInflector" ]; then
 	export inftype=3
-	infs="PartiallyOpen"
+	infs="InfPartial"
 	shift 1
 	continue
-    elif [ ${1} == "uc" ] || [ ${1} == "UpstreamCryo" ] || [ ${1} == "upstreamcryo" ]; then
+    elif [ ${1} == "uc" ] || [ ${1} == "UC" ] || [ ${1} == "upstreamcryo" ]; then
 	export beamstart=uc
 	export infstart=1
-	beams="UpstreamCryo"
+	beams="UC"
 	shift 1
 	continue
-    elif [ ${1} == "um" ] || [ ${1} == "UpstreamMandrel" ] || [ ${1} == "upstreammandrel" ]; then
+    elif [ ${1} == "um" ] || [ ${1} == "UM" ] || [ ${1} == "upstreammandrel" ]; then
 	export beamstart=um
 	export infstart=1
-	beams="UpstreamMandrel"
+	beams="UM"
 	offsets="0"
 	shift 1
 	continue
-    elif [ ${1} == "dc" ] || [ ${1} == "DownstreamCryo" ] || [ ${1} == "downstreamcryo" ]; then
+    elif [ ${1} == "dc" ] || [ ${1} == "DC" ] || [ ${1} == "downstreamcryo" ]; then
 	export beamstart=dc
 	export infstart=1
-	beams="DownstreamCryo"
+	beams="DC"
 	offsets="0"
 	shift 1
 	continue
-    elif [ ${1} == "dm" ] || [ ${1} == "DownstreamMandrel" ] || [ ${1} == "downstreammandrel" ]; then
+    elif [ ${1} == "dm" ] || [ ${1} == "DM" ] || [ ${1} == "downstreammandrel" ]; then
 	export beamstart=dm
 	export infstart=1
-	beams="DownstreamMandrel"
+	beams="DM"
 	offsets="0"
 	shift 1
 	continue
-    elif [ ${1} == "co" ] || [ ${1} == "CentralOrbit" ] || [ ${1} == "centralorbit" ]; then
+    elif [ ${1} == "co" ] || [ ${1} == "CO" ] || [ ${1} == "centralorbit" ]; then
 	export beamstart=co	
 	export infstart=1
-	beams="CentralOrbit"
+	beams="CO"
 	offsets="0"
 	shift 1
 	continue
     elif [ ${1} == "Perfect" ]; then
 	export beamstart=0
 	export infstart=0
-	beams="DownstreamMandrel"
+	beams="DM"
 	shift 1
 	continue
     elif [ ${1} == "print" ]; then	
@@ -786,6 +802,12 @@ until [ -z ${1} ]; do
     elif [ ${1} == "spin" ]; then
 	spintracking="spin"
 	export spintrackingname=true	
+	shift 1
+	continue
+    elif [ ${1} == "Pol" ]; then
+	shift
+	polarization=${1}
+	export polarization=${1}
 	shift 1
 	continue
     elif [ ${1} == "edm" ]; then
@@ -902,6 +924,33 @@ until [ -z ${1} ]; do
     elif [ ${1} == "Uniform" ]; then
 	gengauss=0
 	export gengauss=0
+	shift 1
+	continue
+    elif [ ${1} == "MuonGas" ]; then
+	gengauss=-1
+	export gengauss=-1
+	export muongas=1
+	shift 1
+	continue
+    elif [ ${1} == "BeamTransport" ]; then
+	gengauss=-2
+	export gengauss=-2
+	export beamtransport=1
+	shift 1
+	continue
+    elif [ ${1} == "ConstBeta" ]; then
+	betaname="ConstBeta"
+	export betaname="${betaname}"
+	shift 1
+	continue
+    elif [ ${1} == "RingBeta" ]; then
+	betaname="RingBeta"
+	export betaname="${betaname}"
+	shift 1
+	continue
+    elif [ ${1} == "Dispersion" ]; then
+	dispersionname="Dispersion"
+	export dispersionname="${dispersionname}"
 	shift 1
 	continue
     elif [ ${1} == "carol" ] || [ ${1} == "Carol" ] || [ ${1} == "CarolMatch" ]; then
@@ -1452,6 +1501,10 @@ until [ -z ${1} ]; do
 	export sigmat=100
 	shift 1
 	continue
+    elif [ ${1} == "tSigma150" ]; then
+	export sigmat=150
+	shift 1
+	continue
     elif [ ${1} == "tSigma1" ]; then
 	export sigmat=1
 	shift 1
@@ -1702,6 +1755,7 @@ for o in ${offsets}; do
 		    export basename=${extra}
 		    
 		    export outDir=/gm2/data/users/tgadfort/gm2ringsim/output
+
 		    if [ ${submit} == 1 ]; then
 			subDir="${extra}_${mydate}"
 			subDir="${extra}"
@@ -1728,7 +1782,7 @@ for o in ${offsets}; do
 			done
 		    fi
 		    
-		    njobs="20"
+		    njobs="10"
 		    if [ ${submit} == 1 ]; then
 			echo "jobsub -g --opportunistic -dMYDIR ${fullDir} sub2.sh"
 #			echo "jobsub -e fullDir -e basename -e MYREL -N ${njobs} -g condor2.sh"
