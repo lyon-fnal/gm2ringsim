@@ -147,7 +147,8 @@ void gm2ringsim::DecayedPositronAction::userSteppingAction(const G4Step *current
   G4double const rhat = ComputeRhat(&currentPos);
   
   if( currentTrack -> GetTrackID() == 1 ) {
-    if( rhat < stored_threshold_ ) { 
+    if( rhat < stored_threshold_ ) {
+      currentTrack -> SetWeight(0.5);
       currentTrack -> SetTrackStatus(fKillTrackAndSecondaries);
       currentTrack -> SetGoodForTrackingFlag(true);
       currentTrack -> SetWeight(0.5);
