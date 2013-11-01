@@ -131,6 +131,72 @@ gm2ringsim::Inflector::Inflector(fhicl::ParameterSet const & p, art::ActivityReg
 {
   if ( spin_tracking_ || edm_tracking_ ) { nospin_tracking_ = false; }
 
+  if ( infGeom_.fieldType == "MAPPED" || infGeom_.fieldType == "mapped" || infGeom_.fieldType == "map" ) {
+    mag_field_type_ = MAPPED_FIELD;
+  }
+  if ( infGeom_.fieldType == "NONE" || infGeom_.fieldType == "vanishing" || infGeom_.fieldType == "vanish" || infGeom_.fieldType == "VANISH" ) {
+    mag_field_type_ = VANISHING_FIELD;
+  }
+
+  G4cout << "=========== Inflector ===========" << G4endl;
+  G4cout << "| Beam Charge      = " << sts_.GetCharge() << G4endl;
+  G4cout << "| Spin Tracking    = " << spin_tracking_ << G4endl;
+  G4cout << "| EDM Tracking     = " << edm_tracking_ << G4endl;
+
+  G4cout << "| UpstreamWindow       = " << useUpstreamWindow_ << G4endl;
+  G4cout << "| DownstreamWindow     = " << useDownstreamWindow_ << G4endl;
+  G4cout << "| UpstreamConductor    = " << useUpstreamConductor_ << G4endl;
+  G4cout << "| DownstreamConductor  = " << useDownstreamConductor_ << G4endl;
+  G4cout << "| UpstreamEndFlange    = " << useUpstreamEndFlange_ << G4endl;
+  G4cout << "| DownstreamEndFlange  = " << useDownstreamEndFlange_ << G4endl;
+
+
+  G4cout << "| Downstream End   = ";
+  if(useDownstreamWindow_ && useDownstreamConductor_ && useDownstreamEndFlange_) 
+    G4cout << "COMPLETELY CLOSED\n";
+  else if(!useDownstreamWindow_ && !useDownstreamConductor_ && !useDownstreamEndFlange_) 
+    G4cout << "COMPLETELY OPEN\n";
+  else
+    G4cout << "PARTIALLY CLOSED\n";
+
+  G4cout << "| Upstream End     = ";
+  if(useUpstreamWindow_ && useUpstreamConductor_ && useUpstreamEndFlange_) 
+    G4cout << "COMPLETELY CLOSED\n";
+  else if(!useUpstreamWindow_ && !useUpstreamConductor_ && !useUpstreamEndFlange_) 
+    G4cout << "COMPLETELY OPEN\n";
+  else
+    G4cout << "PARTIALLY CLOSED\n";
+
+  G4cout << "| Inflector Field  = ";
+  switch( mag_field_type_ ){
+  case VANISHING_FIELD:
+    G4cout << "Vanishing\n";
+    break;
+  case SIMPLE_FIELD:
+    G4cout << "Simple\n";
+    break;
+  case MAPPED_FIELD:
+    G4cout << "Mapped\n";
+    break;
+  default:
+    G4cout << "failure!!!!\n";
+  }
+
+
+  G4cout << "| Inflector Ring Angle  = " << infGeom_.rotAngle << G4endl;
+  G4cout << "| Inflector Swing Angle = " << infGeom_.swingAngle << G4endl;
+  G4cout << "| Inflector Tilt Angle  = " << infGeom_.tiltAngle << G4endl;
+  
+  G4cout << "=================================" << G4endl;
+  
+
+
+
+
+
+
+  if ( spin_tracking_ || edm_tracking_ ) { nospin_tracking_ = false; }
+
 
   G4cout << "=========== Inflector ===========" << G4endl;
   G4cout << "| Beam Charge      = " << sts_.GetCharge() << G4endl;
@@ -892,10 +958,10 @@ void gm2ringsim::Inflector::rebuildFieldImpl(){
     inflectorMagField_ = new VanishingInflectorField;
     break;
   case SIMPLE_FIELD:
-    inflectorMagField_ = new SimpleInflectorField(fieldNormConst_, sts_.GetCharge());
+    inflectorMagField_ = new SimpleInflectorField(fieldNormConst_, sts_.GetCharge(), infGeom_.rotAngle, infGeom_.swingAngle, infGeom_.tiltAngle);
     break;
   case MAPPED_FIELD:
-    inflectorMagField_ = new MappedInflectorField(sts_.GetCharge());
+    inflectorMagField_ = new MappedInflectorField(sts_.GetCharge(), infGeom_.rotAngle, infGeom_.swingAngle, infGeom_.tiltAngle);
     break;
   default:
     G4cout << "An improper Inflector Field was set in Inflector::rebuildFieldImpl()!!\n";
@@ -1046,8 +1112,8 @@ void gm2ringsim::Inflector::getInflectorInfo(){
   gm2geom::inflectorGeometry const& ig = infGeom_.ig ;//inflectorGeometry::getInstance();
 
   G4cout << std::setw(40) << "Azimuthal Aperture Position:"
-	 << std::setw(15) << G4BestUnit(ig.delta(),"Angle");
-  if(ig.delta() == 6.*degree)
+	 << std::setw(15) << G4BestUnit(infGeom_.rotAngle,"Angle");
+  if(infGeom_.rotAngle == 6.*degree)
     G4cout << "  (DEFAULT)";
 
   G4cout << "\n";
@@ -1060,15 +1126,15 @@ void gm2ringsim::Inflector::getInflectorInfo(){
   G4cout << "\n";
 
   G4cout << std::setw(40) << "Tilt Angle:"
-	 << std::setw(15) << G4BestUnit(ig.zeta(),"Angle");
-  if(ig.zeta() == 0.*degree)
+	 << std::setw(15) << G4BestUnit(infGeom_.tiltAngle,"Angle");
+  if(infGeom_.tiltAngle == 0.*degree)
     G4cout << "  (DEFAULT)";
   
   G4cout << "\n";
   
   G4cout << std::setw(40) << "Swing Angle:"
-	 << std::setw(15) << G4BestUnit(ig.gamma(),"Angle");
-  if(ig.gamma() == 2.4*milliradian)
+	 << std::setw(15) << G4BestUnit(infGeom_.swingAngle,"Angle");
+  if(infGeom_.swingAngle == 2.4*milliradian)
     G4cout << "  (DEFAULT)";
 
   G4cout << "\n";
@@ -1190,10 +1256,10 @@ namespace gm2ringsim {
     
     G4ThreeVector xformed = e->position;
     // undo the transformations in inflectorContruction.cc
-    xformed.rotateY(-ig.delta());
+    xformed.rotateY(-infGeom.rotAngle);
     xformed -= G4ThreeVector(R_magic()+ig.aperture_off(),0.,0.);
-    xformed.rotateY(-ig.gamma());
-    xformed.rotateX(ig.zeta());
+    xformed.rotateY(-infGeom.swingAngle);
+    xformed.rotateX(infGeom.tiltAngle);
     xformed += G4ThreeVector(0.,0.,ig.length());
     
     //    G4cout << "xformed: " << xformed << '\n';
@@ -1265,11 +1331,11 @@ G4ThreeVector gm2ringsim::Inflector::calc_position() const  {
 
   if (0) // GetfromFcl
     {
-      posX =  apRad*cos(epsilon_ - ig.delta()) + 
-	ig.mandrel_half_length()*sin(epsilon_ - ig.delta() - ig.gamma());
+      posX =  apRad*cos(epsilon_ - infGeom_.rotAngle) + 
+	ig.mandrel_half_length()*sin(epsilon_ - infGeom_.rotAngle - infGeom_.swingAngle);
       
-      posY = apRad*sin(epsilon_ - ig.delta()) -
-	ig.mandrel_half_length()*cos(epsilon_ - ig.delta() - ig.gamma());
+      posY = apRad*sin(epsilon_ - infGeom_.rotAngle) -
+	ig.mandrel_half_length()*cos(epsilon_ - infGeom_.rotAngle - infGeom_.swingAngle);
       
       posZ = 0.;
     }
@@ -1280,13 +1346,13 @@ G4ThreeVector gm2ringsim::Inflector::calc_position() const  {
     {
       // Calculate the position of the completly assembled inflector 
       // what Zach wrote....
-      G4double changeInXandY = ig.mandrel_half_length()*(1. - cos(ig.zeta()));
-      G4double changeInZ = ig.mandrel_half_length() * sin(ig.zeta());
+      G4double changeInXandY = ig.mandrel_half_length()*(1. - cos(infGeom_.tiltAngle));
+      G4double changeInZ = ig.mandrel_half_length() * sin(infGeom_.tiltAngle);
       
-      posX = ( apRad*cos(epsilon_ - ig.delta()) ) 
-    + (ig.mandrel_half_length() - changeInXandY)*sin(epsilon_ - ig.delta() - ig.gamma());
-      posY = ( apRad*sin(epsilon_ - ig.delta()) ) 
-    - (ig.mandrel_half_length() - changeInXandY)*cos(epsilon_ - ig.delta() - ig.gamma());
+      posX = ( apRad*cos(epsilon_ - infGeom_.rotAngle) ) 
+    + (ig.mandrel_half_length() - changeInXandY)*sin(epsilon_ - infGeom_.rotAngle - infGeom_.swingAngle);
+      posY = ( apRad*sin(epsilon_ - infGeom_.rotAngle) ) 
+    - (ig.mandrel_half_length() - changeInXandY)*cos(epsilon_ - infGeom_.rotAngle - infGeom_.swingAngle);
       posZ = changeInZ;
     }
 
@@ -1295,23 +1361,23 @@ G4ThreeVector gm2ringsim::Inflector::calc_position() const  {
   // inflector, but around the upstream BEAM CHANNEL.  So, we have to
   // not only rotate, but we have to make a small shift to account for
   // the offset rotation calculation.
-  G4double const radial_fixup = -bco*(1.-cos(ig.gamma()));
-  G4double const tangent_fixup = bco*sin(ig.gamma());
+  G4double const radial_fixup = -bco*(1.-cos(infGeom_.swingAngle));
+  G4double const tangent_fixup = bco*sin(infGeom_.swingAngle);
 
   //G4double// const 
-    posX = apRad*cos(epsilon_ - ig.delta())
-    + ig.mandrel_half_length()*cos(ig.zeta())*sin(epsilon_ - ig.delta()- ig.gamma())
+    posX = apRad*cos(epsilon_ - infGeom_.rotAngle)
+    + ig.mandrel_half_length()*cos(infGeom_.tiltAngle)*sin(epsilon_ - infGeom_.rotAngle- infGeom_.swingAngle)
     // fixups
     +radial_fixup*cos(epsilon_) + tangent_fixup*sin(epsilon_)
     ;
   //G4double //const
-    posY =  apRad*sin(epsilon_ - ig.delta())
-    - ig.mandrel_half_length()*cos(ig.zeta())*cos(epsilon_ - ig.delta() - ig.gamma())
+    posY =  apRad*sin(epsilon_ - infGeom_.rotAngle)
+    - ig.mandrel_half_length()*cos(infGeom_.tiltAngle)*cos(epsilon_ - infGeom_.rotAngle - infGeom_.swingAngle)
     // fixups
     +radial_fixup*sin(epsilon_)-tangent_fixup*cos(epsilon_)
     ;
   // G4double// const
-    posZ = ig.mandrel_half_length()*sin(ig.zeta());
+    posZ = ig.mandrel_half_length()*sin(infGeom_.tiltAngle);
   }
 
 
@@ -1340,11 +1406,11 @@ G4RotationMatrix* gm2ringsim::Inflector::calc_rotation() {
   
   // g2MIGTRACE:  inflectorGeometry const& ig = inflectorGeometry::getInstance();
   // ART : 
-    gm2geom::inflectorGeometry const& ig = infGeom_.ig;
+  //gm2geom::inflectorGeometry const& ig = infGeom_.ig;
   
-  G4double theta1 = (90*degree + epsilon_) - ig.delta() - ig.gamma();
+  G4double theta1 = (90*degree + epsilon_) - infGeom_.rotAngle - infGeom_.swingAngle;
   G4double phi = -90*degree;
-  G4double theta2 = 90*degree + ig.zeta();
+  G4double theta2 = 90*degree + infGeom_.tiltAngle;
 
   G4RotationMatrix temp(theta1, phi, theta2);
 

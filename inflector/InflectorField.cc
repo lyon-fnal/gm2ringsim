@@ -40,15 +40,18 @@ void gm2ringsim::VanishingInflectorField::GetFieldValue(const double */*Point*/,
 
 //////////// simpleInflectorField
 
-gm2ringsim::SimpleInflectorField::SimpleInflectorField(G4double fieldNormConstant, int Charge) :
+gm2ringsim::SimpleInflectorField::SimpleInflectorField(G4double fieldNormConstant, int Charge, double rotAngle, double swingAngle, double tiltAngle) :
   epsilon(30*degree),fieldNormConst(fieldNormConstant), Charge_(Charge)
 {
   // Set data members to latest position of inflector
   inflectorGeometry const& ig = inflectorGeometry::getInstance();
 
-  delta = ig.delta();
-  gamma = ig.gamma();
-  zeta = ig.zeta();
+  delta = rotAngle;
+  gamma = swingAngle;
+  zeta  = tiltAngle;
+//   delta = ig.delta();
+//   gamma = ig.gamma();
+//   zeta = ig.zeta();
   apertureRadius = R_magic() + ig.aperture_off();
   inflectorTotalLength = ig.length();
 
@@ -207,17 +210,21 @@ G4double gm2ringsim::SimpleInflectorField::CalculateFieldValue(const G4double x_
 
 /** @bug Need to fix things so that these field maps don't get
     reloaded when the field gets reinstantiated. */
-gm2ringsim::MappedInflectorField::MappedInflectorField(int Charge) :
-  magnet_file_("g2RunTimeFiles/injec_fld.dat"), 
-  inflector_file_("g2RunTimeFiles/inf_field_alone.dat"),
+gm2ringsim::MappedInflectorField::MappedInflectorField(int Charge, double rotAngle, double swingAngle, double tiltAngle) :
+  magnet_file_("/gm2/app/users/tgadfort/gm2ART7/srcs/gm2ringsim/g2RunTimeFiles/injec_fld.dat"),
+  inflector_file_("/gm2/app/users/tgadfort/gm2ART7/srcs/gm2ringsim/g2RunTimeFiles/inf_field_alone.dat"),
   Charge_(Charge)
 	      
 {
-  inflectorGeometry const& ig = inflectorGeometry::getInstance();
-  delta_ = ig.delta();
-  gamma_ = ig.gamma();
-  zeta_ = ig.zeta();
+//   inflectorGeometry const& ig = inflectorGeometry::getInstance();
+//   delta_ = ig.delta();
+//   gamma_ = ig.gamma();
+//   zeta_ = ig.zeta();
   
+  delta_ = rotAngle;
+  gamma_ = swingAngle;
+  zeta_  = tiltAngle;
+
   load_maps();
 }
 
