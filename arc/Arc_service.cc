@@ -136,7 +136,7 @@ G4LogicalVolume* gm2ringsim::Arc::makeAnArcLV(gm2geom::ArcGeometry const & g, un
   mf::LogInfo("Arc") <<"In the Arc::makeAnArcLV, with spin_tracking_ set to "<<spin_tracking_;
   mf::LogInfo("Arc") <<"In the Arc::makeAnArcLV, with edm_tracking_ set to "<<edm_tracking_;
 
-  G4FieldManager *tmpFieldManager;
+  G4FieldManager *tmpFieldManager = NULL;
   if ( nospin_tracking_ ) { 
     tmpFieldManager = withoutSpin_;
   }

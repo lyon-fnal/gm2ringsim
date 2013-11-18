@@ -29,6 +29,7 @@ namespace gm2ringsim {
       vhat(0),
       theta(0),
       time(0),
+      t0(0),
       p(0),
       prhat(0),
       pvhat(0),
@@ -70,6 +71,9 @@ namespace gm2ringsim {
 
     // Global time at the particle's birth
     double time;
+
+    // Proper time at the particle's birth
+    double t0;
 
     // Total momentum of the particle at birth
     double p;

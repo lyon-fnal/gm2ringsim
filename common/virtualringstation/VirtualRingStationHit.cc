@@ -77,6 +77,8 @@ void gm2ringsim::VirtualRingStationHit::Print(){
 	   << "  vhat: " << vhat
 	   << "  prhat: " << prhat
 	   << "  pvhat: " << pvhat
+	   << "  time: " << time
+	   << "  ID: " << trackID
 	   << "\n";
   }
 }

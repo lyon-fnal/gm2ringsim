@@ -191,29 +191,6 @@ void gm2ringsim::MuonStorageStatusAction::userSteppingAction(const G4Step *curre
   
   G4Track *currentTrack = currentStep -> GetTrack();
 
-
-  //--------------------------
-  //
-  // An aside for positrons leaving the storage region
-  //
-  //--------------------------
-  if ( TrackPositron_ ) {
-    int parentid = currentTrack->GetParentID();
-    if ( parentid == 1 ) {
-      G4ParticleDefinition *def = currentTrack->GetDefinition();
-      int id = def->GetPDGEncoding();
-      //G4cout << "Muon decay particle -> " << def->GetParticleName() << G4endl;
-      if ( id == -11 ) { // positron from mu+ decay
-	if ( ComputeRhat(currentTrack) > 45*mm || ComputeRhat(currentTrack) < -45*mm ) {
-	  //G4cout << "  Outside of storage region: Tag it!" << G4endl;
-	  //FillTrackingActionArtRecord(currentTrack, gm2ringsim::kDecay);
-	  currentTrack -> SetTrackStatus(fKillTrackAndSecondaries);
-	  return;
-	}
-      }
-    }
-  }
-
   //-------------------------
   //
   // Only run this for muons
@@ -234,6 +211,7 @@ void gm2ringsim::MuonStorageStatusAction::userSteppingAction(const G4Step *curre
     if( currentTrack -> GetTrackID() == 1 ) {
       unsuccessfulStorage("Inflector"); //Part of EventAction
       //FillTrackingActionArtRecord(currentTrack, gm2ringsim::kLost);
+      currentTrack -> SetWeight(1.0);      
       currentTrack -> SetTrackStatus(fKillTrackAndSecondaries);
       //G4cout << "Muon is in the inflector." << G4endl;
       return;
@@ -243,20 +221,9 @@ void gm2ringsim::MuonStorageStatusAction::userSteppingAction(const G4Step *curre
     if( currentTrack -> GetTrackID() == 1 ) {
       unsuccessfulStorage("Lab"); //Part of EventAction      
       //FillTrackingActionArtRecord(currentTrack, gm2ringsim::kLost);
+      currentTrack -> SetWeight(1.0);
       currentTrack -> SetTrackStatus(fKillTrackAndSecondaries);
       //G4cout << "Muon is in the lab." << G4endl;
-      return;
-    }
-  }
-
-  G4int turn = TurnCounter::getInstance().turns();
-  
-  if( currentTrack -> GetTrackID() == 1 ) {
-    if( turn >= turnsForStorage_ ) {
-      successfulStorage(); //Part of EventAction
-      //FillTrackingActionArtRecord(currentTrack, gm2ringsim::kStore);
-      currentTrack -> SetTrackStatus(fStopButAlive);
-      //G4cout << "Stored Muon!" << G4endl;
       return;
     }
   }
@@ -274,7 +241,24 @@ void gm2ringsim::MuonStorageStatusAction::userSteppingAction(const G4Step *curre
       //FillTrackingActionArtRecord(currentTrack, gm2ringsim::kLost);
       unsuccessfulStorage("StorageRegion"); //part of EventAction
       //G4cout << "Muon is beyond storage region." << G4endl;
+      currentTrack -> SetWeight(1.0);      
       currentTrack -> SetTrackStatus(fKillTrackAndSecondaries);
+      return;
+    }
+  }
+
+  G4int turn = TurnCounter::getInstance().turns();
+  //G4cout << "Turn: " << turn << G4endl;
+  
+  if( currentTrack -> GetTrackID() == 1 ) {
+    //G4cout << turn << "\t" << turnsForStorage_ << G4endl;
+    if( turn >= turnsForStorage_ ) {
+      successfulStorage(); //Part of EventAction
+      //FillTrackingActionArtRecord(currentTrack, gm2ringsim::kStore);
+      currentTrack -> SetWeight(0.5);
+      currentTrack -> SetTrackStatus(fKillTrackAndSecondaries);
+      //G4cout << "Weight (MS): " << currentTrack->GetWeight() << G4endl;
+      //G4cout << "Stored Muon!" << G4endl;
       return;
     }
   }
@@ -351,7 +335,7 @@ void gm2ringsim::MuonStorageStatusAction::FillTrackingActionArtRecord(G4Track * 
 {
   //if ( currentTrack->GetTrackID() != 1 ) { return; }
   
-  bool debug = false;
+  bool debug = true;
   bool keep_track = true;
 
 

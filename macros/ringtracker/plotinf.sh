@@ -1,8 +1,186 @@
 #!/bin/sh
 
+FindFiles()
+{
+    test1=${1}
+    test2=${2}
+    test3=${3}
+
+    FILES=""
+    let numf=0
+    curdir=`pwd`
+    cd ${outputdir}
+
+    comp=""
+    if [ ${test1} == "x" ]; then
+	if [ ${test3} == "-" ]; then
+#	    echo "11"
+	    for file in *${test2}; do
+		if [ -a ${file} ]; then
+		    ((numf++))
+		    FILES="${file} ${FILES}"
+		fi
+	    done
+	elif [ ${test3} == "x" ]; then
+	    echo "12"
+	    for file in *${test2}*; do
+		if [ -a ${file} ]; then
+		    ((numf++))
+		    FILES="${file} ${FILES}"
+		fi
+	    done
+	else
+#	    echo "13"
+	    for file in *${test2}*${test3}; do
+		if [ -a ${file} ]; then
+		    ((numf++))
+		    FILES="${file} ${FILES}"
+		fi
+	    done
+	fi
+    else
+	if [ ${test3} == "-" ]; then
+#	    echo "21"
+	    for file in ${test1}*${test2}; do
+		if [ -a ${file} ]; then
+		    ((numf++))
+	    FILES="${file} ${FILES}"
+		fi
+	    done
+	elif [ ${test3} == "x" ]; then
+#	    echo "22"
+	    for file in ${test1}*${test2}*; do
+		if [ -a ${file} ]; then
+		    ((numf++))
+		    FILES="${file} ${FILES}"
+		fi
+	    done
+	else
+	    for file in ${test1}*${test2}*${test3}; do
+		if [ -a ${file} ]; then
+		    ((numf++))
+		    FILES="${file} ${FILES}"
+		fi
+	    done
+	fi
+    fi	
+
+#    echo ${test1} ${test2} ${test3}
+#    echo "FILES=${FILES}"
+    cd ${curdir}
+}
+
+WriteFiles()
+{
+    timestamp=${1}
+    timestamp2=${2}
+    exclude=""
+    include=""
+    if ! [ -z ${timestamp2} ]; then
+	if [ ${timestamp2} == "excl" ] || [ ${timestamp2} == "Excl" ]; then
+	    exclude=${3}
+	fi
+	if [ ${timestamp2} == "incl" ] || [ ${timestamp2} == "Incl" ]; then
+	    include=${3}
+	fi
+    fi
+    if ! [ -z ${3} ]; then
+	if [ ${3} == "excl" ] || [ ${3} == "Excl" ]; then
+	    exclude=${4}
+	fi
+	if [ ${3} == "incl" ] || [ ${3} == "Incl" ]; then
+	    include=${4}
+	fi
+    fi
+    
+    #echo "  ${include} - ${exclude} , ${FILES}"
+
+    let nf=0
+    for file in ${FILES}; do
+	
+	if ! [ -z ${exclude} ]; then
+	    exclcheck=${file/${exclude}/}
+#	    echo "    ${exclcheck} , ${file}"
+	    if ! [ ${exclcheck} == ${file} ]; then
+		continue;
+	    fi
+	fi
+
+	if ! [ -z ${include} ]; then
+	    inclcheck=${file/${include}/}
+	    if [ ${exclcheck} == ${file} ]; then
+		continue;
+	    fi
+	fi
+
+	#echo ${nf} `expr ${nf} % 5`
+	if [ ${nf} == 0 ]; then
+	    BeginRow ${timestamp} ${timestamp2}
+	elif [ `expr ${nf} % 5` == 0 ]; then
+	    EndRow ${timestamp}
+	    BeginRow ${timestamp} ${timestamp2}
+	fi
+
+	caption=${file/.png/}
+	caption=${caption/"NumAllStationsNoFastRotation"/"Observed Count (w/o FR) -- "}
+	caption=${caption/"NumAllStations"/"Observed Count -- "}
+	caption=${caption/"Tracker_"/}
+	caption=${caption/"G4Track_"/}
+	caption=${caption/"_x_FFT"/" -- FFT"}
+	caption=${caption/"_DecayElectron"/}
+	caption=${caption/"_DecayMuon"/}
+	caption=${caption/"EgtEth"/}	
+	caption=${caption/"VirtualRing"/}
+	caption=${caption/"_Middle_"/" [ t < 5&mu;s ] "}
+	caption=${caption/"_Early_"/" [ t < 1&mu;s ] "}
+	caption=${caption/"_Late_"/" [ t < 20&mu;s ] "}
+	caption=${caption/"_All_"/" [ t < 1000&mu;s ] "}
+	caption=${caption/"with1Tracker"/" -- w/ 1 tracker"}
+	caption=${caption/"with2Trackers"/" -- w/ 2 trackers"}
+	caption=${caption/"_PhaseSpace"/}
+	caption=${caption/"_Profile"/}
+	caption=${caption/"_vs_TimeSingleHit_"/" - [11] - "}
+	caption=${caption/"_vs_TimeSingleHit"/" - [11] - "}
+	caption=${caption/"_vs_TimeOncePerTurn_"/" - [all] - "}
+	caption=${caption/"_vs_TimeOncePerTurn"/" - [all] - "}
+	caption=${caption/"_vs_TimeTwicePerTurn"/" - [8,11] -"}
+	caption=${caption/"_Width"/" -- Width"}
+	caption=${caption/"_Mean"/" -- Mean"}
+	caption=${caption/"Rhat_"/"Radial Position -- "}
+	caption=${caption/"Y_"/"Vertical Position -- "}
+	caption=${caption/"1_3us"/" [ 1 < t < 3&mu;s ] "}
+	caption=${caption/"1_4us"/" [ 1 < t < 4&mu;s ] "}
+	caption=${caption/"1_5us"/" [ 1 < t < 5&mu;s ] "}
+	caption=${caption/"1_20us"/" [ 1 < t < 20&mu;s ] "}
+	caption=${caption/"0_20us"/" [ t < 20&mu;s ] "}
+	caption=${caption/"150_600us"/" [ 150 < t < 600&mu;s ] "}
+	caption=${caption/"1_50us"/" [ 1 < t < 50&mu;s ] "}
+	caption=${caption/"1_500us"/" [ 1 < t < 500&mu;s ] "}
+	caption=${caption/"340_360us"/" [ 340 < t < 360&mu;s ] "}
+	caption=${caption/"50_600us"/" [ 50 < t < 600&mu;s ] "}
+	caption=${caption/"50_750us"/" [ 50 < t < 750&mu;s ] "}
+	caption=${caption/"0_90us"/" [ t < 90&mu;s ] "}
+
+	write ${outputdir}/index.html ${file} ${file/.png/} ${caption}
+	((nf++))
+    done
+    
+    if ! [ `expr ${nf} % 5` == 0 ]; then
+	EndRow ${timestamp}
+    fi
+}
+
 NiceTimestampName()
 {
-    if [ ${1} == "Init_Init" ]; then
+    if [ ${1} == "AllTimes" ]; then
+	nicetimestamp="t > 0"
+    elif [ ${1} == "SubTimes" ]; then
+	nicetimestamp="Specific Times"
+    elif [ ${1} == "AllTimesFFTs" ]; then
+	nicetimestamp="t > 0 ; FFTs"
+    elif [ ${1} == "SubTimesFFTs" ]; then
+	nicetimestamp="Specific Times ; FFTs"
+    elif [ ${1} == "Init_Init" ]; then
 	nicetimestamp="Initial Phase Space"
     elif [ ${1} == "FinalAvg_Init" ]; then
 	nicetimestamp="Time Averged Phase Space for Last 30 Turns"
@@ -81,8 +259,10 @@ write()
 {
     outfile=${1}
     filename=${2}
-    myhistogram=${3}
-
+    myhistogram=${3}    
+    if [ -z ${4} ]; then
+	caption=${myhistogram}
+    fi
     
     if [ -a ${outputdir}/${filename} ]; then
 	epsname=${filename/png/eps}
@@ -91,7 +271,7 @@ write()
 	    linkname=${epsname}
 	fi
 cat >> ${outfile} <<EOF
-	  <td><center><a href="${linkname}"><img alt="" width="100%" src="${filename}"></a></td>
+	  <td><center><a href="${linkname}"><figure><img alt="" width="100%" src="${filename}"><figcaption>${caption}</figcaption></figure></a></td>
 EOF
     else
 #	echo "[${outputdir}/${filename}] not found."
@@ -101,12 +281,12 @@ EOF
 
 makeindex()
 {
-thetype=${1}
-
-if [ -a ${outputdir}/index.html ]; then
-    rm ${outputdir}/index.html
-fi
-
+    thetype=${1}
+    
+    if [ -a ${outputdir}/index.html ]; then
+	rm ${outputdir}/index.html
+    fi
+    
 cat >> ${outputdir}/index.html <<EOF
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
@@ -118,35 +298,121 @@ cat >> ${outputdir}/index.html <<EOF
   <body>
 EOF
 
+
+
+
+
+
+
+
+
+#############################
+#
+#
+# Phase Space in Time
+#
+#
+#############################
+
+cat >> ${outputdir}/index.html <<EOF
+    <a name="PhaseSpacewithTime"></a>
+    <h2><center>Phase Space w/ Time</center></h2>
+EOF
+
 BeginTable
-BeginRow
-cat >> ${outputdir}/index.html <<EOF
-      <td><a href="#RingTracker">Ring Tracker (30 deg)</a></td>
-      <td><a href="#RingTrackerFinalAvg">Ring Tracker <Avg></a></td>
-      <td><a href="#RingTrackerwithTime">Ring Tracker w/ Time</a></td>
-EOF
-EndBeginRow
-cat >> ${outputdir}/index.html <<EOF
-      <td><a href="#BirthMuonPS">Birth Muon PS</a></td>
-      <td><a href="#DecayMuonPS">Decay Muon PS</a></td>
-      <td><a href="#StoredMuonPS">Stored Muon PS</a></td>
-      <td><a href="#LostMuonPS">Lost Muon PS</a></td>
-      <td><a href="#BirthElectronPS">Birth Electron PS</a></td>
-      <td><a href="#DecayElectronPS">Decay Electron PS</a></td>
-      <td><a href="#BirthElectronEgtEthPS">Birth Electron (E>1.8) PS</a></td>
-      <td><a href="#DecayElectronEgtEthPS">Decay Electron (E>1.8) PS</a></td>
-EOF
-EndBeginRow
-cat >> ${outputdir}/index.html <<EOF
-      <td><a href="#DecayMuonPSwithTime">Decay Muon PS w/ Time</a></td>
-      <td><a href="#LostMuonPSwithTime">Lost Muon PS w/ Time</a></td>
-      <td><a href="#BirthElectronPSwithTime">Birth Electron PS w/ Time</a></td>
-      <td><a href="#DecayElectronPSwithTime">Decay Electron PS w/ Time</a></td>
-      <td><a href="#BirthElectronEgtEthPSwithTime">Birth Electron (E>1.8) PS w/ Time</a></td>
-      <td><a href="#DecayElectronEgtEthPSwithTime">Decay Electron (E>1.8) PS w/ Time</a></td>
-EOF
-EndRow
+timestamps="TimeOncePerTurn" # TimeTwicePerTurn"
+hists="Rhat Y2"
+if [ ${plotmuongas} == 1 ]; then
+    timestamps=""
+fi
+
+histograms="XprimeX YprimeY"
+BeginTable  
+for histogram in ${histograms}; do
+    BeginTable  
+    FindFiles VirtualRingTracker_${histogram} PhaseSpace 1Tracker.png
+    WriteFiles ${timestamp}
+    FindFiles VirtualRingTracker_${histogram} PhaseSpace 2Trackers.png
+    WriteFiles ${timestamp}
+done
+
+
+for timestamp in ${timestamps}; do
+BeginTable
+    for hist in ${hists}; do
+	FindFiles x ${hist}_vs_${timestamp} Full_Profile.png
+	WriteFiles ${timestamp}
+	FindFiles x ${hist}_vs_${timestamp} Full_Profile_x_FFT.png
+	WriteFiles ${timestamp}
+	FindFiles x ${hist}_vs_${timestamp} Mean_Profile.png
+	WriteFiles ${timestamp}
+	FindFiles x ${hist}_vs_${timestamp} Mean_Profile_x_FFT.png
+	WriteFiles ${timestamp}
+	FindFiles x ${hist}_vs_${timestamp} Width_Profile.png
+	WriteFiles ${timestamp}
+	FindFiles x ${hist}_vs_${timestamp} Width_Profile_x_FFT.png
+	WriteFiles ${timestamp}
+    done
 EndTable
+done
+
+
+
+
+#############################
+#
+#
+# CBO
+#
+#
+#############################
+
+cat >> ${outputdir}/index.html <<EOF
+    <a name="CBO"></a>
+    <h2><center>CBO</center></h2>
+EOF
+
+BeginTable
+FindFiles x CBO png
+WriteFiles "CBO"
+EndTable
+
+BeginTable
+FindFiles G4Track_XprimeX_DecayMuon Dist x
+WriteFiles "Rhat for CBO"
+EndTable
+
+BeginTable
+FindFiles G4Track_Rhat_DecayMuon TimeSingleHit x
+WriteFiles "Rhat for CBO"
+EndTable
+
+
+#############################
+#
+#
+# Corrections
+#
+#
+#############################
+
+cat >> ${outputdir}/index.html <<EOF
+    <a name="PhaseSpacewithTime"></a>
+    <h2><center>Corrections</center></h2>
+EOF
+
+timestamps="TimeOncePerTurn TimeSingleHit" # TimeTwicePerTurn"
+hists="Rhat Y"
+
+for timestamp in ${timestamps}; do
+BeginTable
+    for hist in ${hists}; do
+	FindFiles G4Track_${hist} vs_${timestamp} MeanSquared.png
+	WriteFiles ${timestamp}
+    done
+EndTable
+done
+
 
 
 
@@ -164,22 +430,26 @@ cat >> ${outputdir}/index.html <<EOF
     <h2><center>Ring Tracker Stats For Specific Turns</center></h2>
 EOF
 
+
+
 BeginTable
-
-trackers="00 01 02 03 04 05 06 07 08"
-trackers=""
-histograms="RhatY XprimeX YprimeY Mom Rhat Vhat"
-for tracker in ${trackers}; do
-    BeginRow ${tracker}
-    
-    for histogram in ${histograms}; do
-	write ${outputdir}/index.html RingTracker_Snapshot_${tracker}_${histogram}.png ${histogram}
-    done
-
-    EndRow
+histograms="RingTracker_Nhits Nparticles"
+for histogram in ${histograms}; do
+    FindFiles ${histogram}.png x x
+    WriteFiles "Snapshot"
 done
-
 EndTable
+
+     
+histograms="Rhat"
+BeginTable
+for histogram in ${histograms}; do
+    FindFiles RingTracker_Snapshot x deg_${histogram}.png
+    WriteFiles "Snapshot"
+done
+EndTable
+
+
 
 
 #############################
@@ -198,21 +468,18 @@ EOF
 BeginTable
 
 histograms="Rhat Vhat Xprime Yprime Mom Pol Zhat"
-histograms="Rhat Vhat Xprime Yprime Mom EqRad EqRadMom"
+histograms="Rhat Vhat Xprime Yprime Mom EqRad"
 timestamps="Begin_GeneratedDist Final_GeneratedDist Final_RemainingDist"
+if [ ${plotmuongas} == 1 ]; then
+    timestamps=""
+fi
+     
+BeginTable
 for timestamp in ${timestamps}; do
-    BeginRow ${timestamp}
-    
-    for histogram in ${histograms}; do
-	write ${outputdir}/index.html RingTracker_${histogram}_${timestamp}.png ${histogram}
-    done
-
-    EndRow
+    FindFiles RingTracker_ x _${timestamp}.png
+    WriteFiles ${timestamp}
 done
-
 EndTable
-
-
 
 
 
@@ -229,43 +496,18 @@ cat >> ${outputdir}/index.html <<EOF
     <h2><center>Ring Tracker Stats For All Turns</center></h2>
 EOF
 
+timestamps="TimeOncePerTurn"
+if [ ${plotmuongas} == 1 ]; then
+    timestamps=""
+fi
+     
 BeginTable
-
-
-timestamps="Turn OncePerTurn Turn_25Turns"
-timestamps="Turn"
-timestamps="Time Time_0_5us Time_12_17us Time_25_30us"
 for timestamp in ${timestamps}; do
-    if [ ${plotspin} == 1 ]; then
-	histograms1="Rhat Y Prhat Pvhat Mom"
-	histograms2="Pol PolY EqRad Zhat Num"
-    else
-	histograms1="Rhat Y Prhat Pvhat"
-	histograms2="Mom EqRad Zhat Num"
-    fi
-
-    if [ ${timestamp} == "Time_0_5us" ] || [ ${timestamp} == "Time_12_17us" ] || [ ${timestamp} == "Time_25_30us" ]; then
-	histograms1="Rhat Y Mom Num"
-	histograms2=""
-    fi
-	
-    BeginRow ${timestamp}
-    
-    for histogram in ${histograms1}; do
-	write ${outputdir}/index.html Tracker_${histogram}_vs_${timestamp}.png ${histogram}
-    done
-
-    EndRow
-    BeginRow ${timestamp}
-    
-    for histogram in ${histograms2}; do
-	write ${outputdir}/index.html Tracker_${histogram}_vs_${timestamp}.png ${histogram}
-    done
-
-    EndRow
+    FindFiles Tracker_ x _vs_${timestamp}.png
+    WriteFiles ${timestamp}
 done
-
 EndTable
+
 
 
 
@@ -280,7 +522,10 @@ particles="BirthMuon DecayMuon LostMuon StoredMuon BirthElectron BirthElectronEg
 if [ ${plotelectron} == 0 ]; then
     particles="BirthMuon LostMuon StoredMuon"
 fi
-timehistograms="Rhat Vhat Xprime Yprime Mom Pol PolXY Xe Time"
+if [ ${plotmuongas} == 1 ]; then
+    particles="DecayMuon BirthElectronEgtEth DecayElectron DecayElectronEgtEth"
+fi
+
 timestamps="GeneratedDist RemainingDist"
 for particle in ${particles}; do
 cat >> ${outputdir}/index.html <<EOF
@@ -288,54 +533,11 @@ cat >> ${outputdir}/index.html <<EOF
     <h2><center>Generated (G4) Phase Space for: ${particle}</center></h2>
 EOF
 
+     
     BeginTable
     for timestamp in ${timestamps}; do
-	timehistograms1=""
-	timehistograms2=""
-	
-	if [ ${particle} == "BirthMuon" ]; then
-	    timehistograms1="RhatY XprimeX YprimeY"
-	    timehistograms2="Mom Xe t0"
-	elif  [ ${particle} == "DecayMuon" ] || [ ${particle} == "StoredMuon" ]; then
-	    if [ ${timestamp} == "GeneratedDist" ] && [ ${particle} == "DecayMuon" ]; then
-		continue;
-	    fi
-	    if [ ${timestamp} == "RemainingDist" ] && [ ${particle} == "StoredMuon" ]; then
-		continue;
-	    fi
-	    if [ ${plotspin} == 1 ]; then
-		timehistograms1="RhatY XprimeX YprimeY XZ"
-		timehistograms2="Mom Pol Xe Time"
-	    else
-		timehistograms1="RhatY XprimeX YprimeY"
-		timehistograms2="XZ Mom Xe Time"
-	    fi
-	fi
-
-	if [ ${particle} == "LostMuon" ]; then
-	    timehistograms1="RhatY R Mom XZ"
-	    timehistograms2="XprimeX YprimeY Xe Time"
-	fi
-
-	if [ ${particle} == "BirthElectron" ] || [ ${particle} == "DecayElectron" ] || [ ${particle} == "BirthElectronEgtEth" ] || [ ${particle} == "DecayElectronEgtEth" ] || [ ${particle} == "DecayElectronEgtHghEth" ]; then
-	    timehistograms1="NumCalo Mom Theta Rhat XZ"
-	    timehistograms2=""
-	fi
-
-	
-	BeginRow ${timestamp}
-	
-	for histogram in ${timehistograms1}; do
-	    write ${outputdir}/index.html G4Track_${histogram}_${particle}_${timestamp}.png ${histogram}
-	done
-	
-	EndBeginRow ${timestamp}
-	
-	for histogram in ${timehistograms2}; do
-	    write ${outputdir}/index.html G4Track_${histogram}_${particle}_${timestamp}.png ${histogram}
-	done
-	
-	EndRow
+	FindFiles G4Track_ ${particle}_${timestamp}.png -
+	WriteFiles ${timestamp}
     done
     EndTable
 done
@@ -355,6 +557,9 @@ particles="DecayElectron DecayElectronEgtEth DecayElectronEgtHghEth"
 if [ ${plotelectron} == 0 ]; then
     particles=""
 fi
+if [ ${plotmuongas} == 1 ]; then
+    particles=""
+fi
 timehistograms="Rhat Vhat Xprime Yprime Mom Pol PolXY Xe Time"
 timestamps="GeneratedDist"
 for particle in ${particles}; do
@@ -363,29 +568,11 @@ cat >> ${outputdir}/index.html <<EOF
     <h2><center>Ratio of Generated (G4) Phase Space for: ${particle}</center></h2>
 EOF
 
-    timehistograms1=""
-    timehistograms2=""
-
-    if [ ${particle} == "BirthElectron" ] || [ ${particle} == "DecayElectron" ] || [ ${particle} == "BirthElectronEgtEth" ] || [ ${particle} == "DecayElectronEgtEth" ] || [ ${particle} == "DecayElectronEgtHghEth" ]; then
-	timehistograms1="Mom XprimeX YprimeY"
-	timehistograms2="Rhat Theta XZ"
-    fi
-
+     
     BeginTable
     for timestamp in ${timestamps}; do
-	BeginRow ${timestamp}
-	
-	for histogram in ${timehistograms1}; do
-	    write ${outputdir}/index.html G4Track_${histogram}_${particle}_${timestamp}_Ratio.png ${histogram}
-	done
-	
-	EndBeginRow ${timestamp}
-	
-	for histogram in ${timehistograms2}; do
-	    write ${outputdir}/index.html G4Track_${histogram}_${particle}_${timestamp}_Ratio.png ${histogram}
-	done
-	
-	EndRow
+	FindFiles G4Track_ x _${particle}_${timestamp}_Ratio.png
+	WriteFiles ${timestamp}
     done
     EndTable
 done
@@ -405,89 +592,72 @@ particles="DecayMuon LostMuon BirthElectron DecayElectron DecayElectronEgtEth De
 if [ ${plotelectron} == 0 ]; then
     particles="LostMuon"
 fi
-timehistograms="Rhat Vhat Xprime Yprime Mom Pol PolX PolY Xe"
-timehistograms="Rhat Vhat Xprime Yprime Mom Xe"
-timestamps_muons="Turn OncePerTurn Time TimeOncePerTurn"
-timestamps_muons="TimeOncePerTurn"
-timestamps_electrons="Turn Time OncePerTurn TimeOncePerTurn"
-timestamps_electrons="TimeOncePerTurn"
+if [ ${plotmuongas} == 1 ]; then
+    particles="DecayMuon BirthElectronEgtEth DecayElectron DecayElectronEgtEth"
+fi
+timestamps="TimeSingleHit TimeOncePerTurn"
 
 for particle in ${particles}; do
+
 cat >> ${outputdir}/index.html <<EOF
     <a name="${particle}PSwithTime"></a>
     <h2><center>Evolution of (G4) Phase Space for: ${particle}</center></h2>
 EOF
      
-    if [ ${particle} == "DecayMuon" ] || [ ${particle} == "LostMuon" ]; then
-	timestamps="${timestamps_muons}"
-    fi
-    if [ ${particle} == "BirthElectron" ] || [ ${particle} == "BirthElectronEgtEth" ] || [ ${particle} == "DecayElectron" ] || [ ${particle} == "DecayElectronEgtEth" ] || [ ${particle} == "DecayElectronEgtHghEth" ]; then
-	timestamps="${timestamps_electrons}"
-    fi
-
-
+echo "Starting w/ ${particle}"
     BeginTable
     for timestamp in ${timestamps}; do
-	if [ ${particle} == "DecayMuon" ] || [ ${particle} == "LostMuon" ]; then
-	    if [ ${timestamp} == "OncePerTurn" ]; then
-		continue;
-	    fi
-	fi
-
-	BeginRow ${timestamp}
-	
-	if [ ${particle} == "LostMuon" ]; then
-	    histograms="R Mom"
-	    histograms=""
-	fi
-	if [ ${particle} == "DecayMuon" ]; then
-	    histograms="Rhat Y Prhat Pvhat Mom"
-	fi
-	if [ ${particle} == "BirthElectron" ] || [ ${particle} == "BirthElectronEgtEth" ] || [ ${particle} == "DecayElectron" ] || [ ${particle} == "DecayElectronEgtEth" ] || [ ${particle} == "DecayElectronEgtHghEth" ]; then
-	    histograms="Rhat Y Prhat Pvhat Mom"
-	fi
-	for histogram in ${histograms}; do
-	    write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}.png ${histogram}
-	done
-	
-	EndRow
-
+	FindFiles G4Track ${particle}_vs_${timestamp}_Full_Profile.png -
+	WriteFiles ${timestamp} excl NumAllStations
+	FindFiles G4Track ${particle}_vs_${timestamp}_Full_Profile_x_FFT.png -
+	WriteFiles ${timestamp} excl NumAllStations
     done
-	    
-
     EndTable
+
+echo "Starting w/ ${particle} for specific times"
+    BeginTable
+    for timestamp in ${timestamps}; do
+	FindFiles G4Track ${particle}_vs_${timestamp} us.png
+	WriteFiles ${timestamp} excl NumAllStations
+    done
+    EndTable
+
+
 cat >> ${outputdir}/index.html <<EOF
     <a name="${particle}PSwithTime"></a>
     <h2><center>Number Count Evolution of (G4) Phase Space for: ${particle}</center></h2>
 EOF
+
+
     BeginTable
-
+    histograms="NumAllStations NumAllStationsNoFastRotation" # NudAllStations"
     for timestamp in ${timestamps}; do
-	histograms="NumAllStations"
-	
-	for histogram in ${histograms}; do
-	    BeginRow ${timestamp} ${histogram}
-	    write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}.png ${histogram}
-	    
-	    if [ ${timestamp} == "TimeOncePerTurn" ] || [ ${timestamp} == "Time" ]; then
-		write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_1_2Time.png
-		write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_11_12Time.png
-		write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_10_20Time.png
-	    fi
-	    EndRow
-	done
-	
-	if [ ${particle} == "DecayElectron" ] || [ ${particle} == "DecayElectronEgtEth" ] || [ ${particle} == "DecayElectronEgtHghEth" ]; then
-	    time_suffix="10_15"
-	    tmphists="NumCaloStation2 NumCaloStation8  NumCaloStation14  NumCaloStation20"
-	    BeginRow ${timestamp} "Calo[2,8,14,20]"
-	    for histogram in ${tmphists}; do
-		write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_${time_suffix}Time.png ${histogram}
-	    done
-	    EndRow
+#	for histogram in ${histograms}; do
+#	continue;
+	    FindFiles G4Track_ ${particle}_vs ${timestamp}.png
+	    WriteFiles ${timestamp} "AllTimes" incl NumAllStations
+	    FindFiles G4Track_ ${particle}_vs ${timestamp}_x_FFT.png
+	    WriteFiles ${timestamp} "AllTimesFFTs" incl NumAllStations
+	    FindFiles G4Track_ ${particle}_vs_${timestamp} us.png
+	    WriteFiles ${timestamp} "SubTimes" incl NumAllStations
+	    FindFiles G4Track_ ${particle}_vs_${timestamp} us_x_FFT.png
+	    WriteFiles ${timestamp} "SubTimesFFTs" incl NumAllStations
+#	done
+    done
+    EndTable
 
-	    full=0
-	    if [ ${full} == 1 ]; then
+    
+    if [ ${particle} == "DecayElectron" ] || [ ${particle} == "DecayElectronEgtEth" ] || [ ${particle} == "DecayElectronEgtHghEth" ]; then
+	time_suffix="10_15"
+	tmphists="NumCaloStation2 NumCaloStation8  NumCaloStation14  NumCaloStation20"
+	BeginRow ${timestamp} "Calo[2,8,14,20]"
+	for histogram in ${tmphists}; do
+	    write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_${time_suffix}Time.png ${histogram}
+	done
+	EndRow
+	
+	full=0
+	if [ ${full} == 1 ]; then
 	    tmphists="NumCaloStation0 NumCaloStation1  NumCaloStation2  NumCaloStation3"
 	    BeginRow ${timestamp} "Calo[0-3]"
 	    for histogram in ${tmphists}; do
@@ -529,28 +699,23 @@ EOF
 		write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_${time_suffix}Time.png ${histogram}
 	    done
 	    EndRow
-	    fi
 	fi
-
-	BeginRow ${timestamp}
-	for histogram in ${histograms}; do
-	    continue
-	    BeginRow ${timestamp} ${histogram}
-	    write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_x_FFT.png ${histogram}
-	    
-	    if [ ${timestamp} == "TimeOncePerTurn" ] || [ ${timestamp} == "Time" ]; then
-		write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_x_1_2Time_FFT.png
-		write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_x_11_12Time_FFT.png
-		write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_x_10_20Time_FFT.png
-	    fi
-	    EndRow
-	done
+    fi
+    
+    BeginRow ${timestamp}
+    for histogram in ${histograms}; do
+	continue
+	BeginRow ${timestamp} ${histogram}
+	write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_x_FFT.png ${histogram}
 	
+	if [ ${timestamp} == "TimeOncePerTurn" ] || [ ${timestamp} == "Time" ]; then
+	    write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_x_1_2Time_FFT.png
+	    write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_x_11_12Time_FFT.png
+	    write ${outputdir}/index.html G4Track_${histogram}_${particle}_vs_${timestamp}_x_10_20Time_FFT.png
+	fi
+	EndRow
     done
-
-    EndTable
 done
-
 
 
 
@@ -574,20 +739,12 @@ cat >> ${outputdir}/index.html <<EOF
     <h2><center>Detector System Hits</center></h2>
 EOF
      
+     
 BeginTable
 for system in ${systems}; do
-    BeginRow ${system}
-    for histogram in ${histograms2d}; do
-	write ${outputdir}/index.html ${system}Hits_${histogram}.png
-    done
-
-    for histogram in ${histograms1d}; do
-	write ${outputdir}/index.html ${system}_${histogram}.png
-    done
-
-    EndRow
+    FindFiles ${system}Hits x .png
+    WriteFiles ${system}
 done
-
 EndTable
 
 
@@ -607,6 +764,8 @@ Last modified: Thu Mar  8 16:44:05 EST 2012
   </body>
 </html>
 EOF
+
+
 }
 
 
@@ -642,7 +801,7 @@ if ! [ -z ${2} ]; then
     fi
 fi
 
-beamstarts="UpstreamMandrel UpstreamCryo DownstreamMandrel PerfectStorage CentralOrbit_Offset77 CentralOrbit"
+beamstarts="UM DM UC DC CO"
 basedir=""
 for beamstart in ${beamstarts}; do
     check_beamstart=${input/${beamstart}/}
@@ -653,7 +812,7 @@ for beamstart in ${beamstarts}; do
     fi
 done
 
-infs="ClosedInflector InflectorOpen PartiallyOpen"
+infs="InfClosed InfOpen InfPartial"
 for inf in ${infs}; do
     check_inf=${input/${inf}/}
     if ! [ ${check_inf} == ${input} ]; then
@@ -730,6 +889,18 @@ if [ ${checkforelectron} == ${input} ]; then
     plotelectron=1
 fi
 
+checkformuongas=${input/"MuonGas"/}
+plotmuongas=0
+if ! [ ${checkformuongas} == ${input} ]; then
+    plotmuongas=1
+fi
+if [ ${plotmuongas} == 0 ]; then
+    checkformuongas=${input/"BeamTransport"/}
+    if ! [ ${checkformuongas} == ${input} ]; then
+	plotmuongas=1
+    fi
+fi
+
 checkforspin=${input/"NoSpinTracking"/}
 plotspin=0
 if [ ${checkforspin} == ${input} ]; then
@@ -750,12 +921,8 @@ cd /afs/fnal.gov/files/home/room3/tgadfort/public_html/plots
 #./gen.sh
 #cd ../UpstreamCryo
 #./gen.sh
-#cd ../DownstreamMandrel
-#./gen.sh
-cd CentralOrbit
-./gen.sh
-#cd ../CentralOrbit_Offset77
-#./gen.sh
-cd -
+cd DM ; ./gen.sh ; cd -
+cd CO ; ./gen.sh ; cd -
+
 
 fi

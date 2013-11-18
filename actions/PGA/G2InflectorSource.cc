@@ -124,7 +124,7 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
 {
   //bool debug = false;
 
-  G4cout << "G2InflectorSource::GeneratePrimaryVertex  --- GENERATING EVENT!" << G4endl;
+  //G4cout << "G2InflectorSource::GeneratePrimaryVertex  --- GENERATING EVENT!" << G4endl;
 
   mf::LogInfo("G2InflectorSource") << "GeneratePrimaryVertex";
 
@@ -733,7 +733,10 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
       }
       G4cout << "Decay time is flat between [0, " << maxtau << "] microseconds." << G4endl;
     }
-     
+    else {
+      G4cout << "Decay time is exponential." << G4endl;
+    }
+    
     
     G4cout << "Inflector swing angle = " << infGeom_.swingAngle << " mrad." << G4endl;
     G4cout << "Launching muon beam with a " << launch_angle << " mrad kick." << G4endl;

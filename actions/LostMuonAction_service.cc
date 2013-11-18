@@ -149,13 +149,14 @@ void gm2ringsim::LostMuonAction::userSteppingAction(const G4Step *currentStep) {
   G4ThreeVector const currentPos =
     currentStep -> GetPostStepPoint() -> GetPosition();
   G4double const rhat = ComputeRhat(&currentPos);
-  G4double const vhat = ComputeRhat(&currentPos);
+  G4double const vhat = ComputeVhat(&currentPos);
   
   if( currentTrack -> GetTrackID() == 1 ) {
     if( rhat < stored_rmin_ || rhat > stored_rmax_ || std::abs(vhat) > stored_y_) {
+      //G4cout << rhat << " < " << stored_rmin_ << " , " << rhat << " > " << stored_rmax_ << " , " << std::abs(vhat) << " > " << stored_y_ << G4endl;
+      currentTrack -> SetWeight(1);
       currentTrack -> SetTrackStatus(fKillTrackAndSecondaries);
       currentTrack -> SetGoodForTrackingFlag(true);
-      currentTrack -> SetWeight(0.5);
       Nkilled_++;
       return;
     }
