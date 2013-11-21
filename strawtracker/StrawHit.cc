@@ -20,6 +20,8 @@
 #include "Geant4/G4Navigator.hh"
 #include "gm2geom/strawtracker/StrawTrackerGeometry.hh"
 
+#include "artg4/pluginActions/physicalVolumeStore/physicalVolumeStore_service.hh"
+
 #include "gm2ringsim/strawtracker/StrawHit.hh"
 #include "gm2dataproducts/strawtracker/WireID.hh"
 using gm2strawtracker::WireID;
@@ -42,9 +44,12 @@ gm2ringsim::StrawHit::StrawHit(G4Step* step) :
     global_position(step->GetPreStepPoint()->GetPosition()),
     momentum(step->GetPreStepPoint()->GetMomentum()),
     time(step->GetPreStepPoint()->GetGlobalTime()),
-    trackID(step->GetTrack()->GetTrackID()) //,
-    //FIXME  volumeUID(get_uid(step->GetPreStepPoint()->GetPhysicalVolume()))
+    trackID(step->GetTrack()->GetTrackID())
 {
+
+  art::ServiceHandle<artg4::PhysicalVolumeStoreService> pvs;
+  volumeUID = pvs->idGivenPhysicalVolume( step->GetPreStepPoint()->GetPhysicalVolume() );
+
   // The name is HARP[m].fiber[n] or HARP[m].support[n]
   std::string name = step->GetPreStepPoint()->GetPhysicalVolume()->GetName();
   
