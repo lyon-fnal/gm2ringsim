@@ -52,7 +52,7 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
       
       //Build Manifold structure. Hollow box built by subtracting a slightly smaller box from the full size. 
       G4VSolid *outerStationManifold = new G4Box("outerManifoldSystem", geom_.strawStationSizeHalf[sc], geom_.strawStationWidthHalf[sc], geom_.strawStationManifoldHeightHalf);
-      G4VSolid *innerStationManifold = new G4Box("innerManifoldSystem", geom_.strawStationSizeHalf[sc]-0.1*mm, geom_.strawStationWidthHalf[sc]-0.1*mm, geom_.strawStationManifoldHeightHalf-0.1*mm);
+      G4VSolid *innerStationManifold = new G4Box("innerManifoldSystem", geom_.strawStationSizeHalf[sc]-geom_.strawStationManifoldThickness, geom_.strawStationWidthHalf[sc]-geom_.strawStationManifoldThickness, geom_.strawStationManifoldHeightHalf-geom_.strawStationManifoldThickness);
       G4SubtractionSolid *stationManifold = new G4SubtractionSolid("stationManifold", outerStationManifold, innerStationManifold);
 
 
