@@ -30,6 +30,7 @@
 #include "gm2ringsim/arc/StorageRingField.hh"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+#include "gm2ringsim/actions/muonStorageStatus/TurnCounter.hh"
 
 namespace kickParams {
 
@@ -160,9 +161,10 @@ gm2ringsim::LCRKickField::LCRKickField(G4double kickerHV,
   HV(kickerHV), offsetTime(kickerOffsetTime), 
   C(circuitC), L(circuitL), R(circuitR),
   omega(sqrt( 1/(L*C) - (R*R/( 4.0*L*L )) )),
-  X( R/( 2.0*L ) ), i0( HV / ( omega*L ) ),
+  X( R/( 2.0*L ) ),
   Charge_(Charge)
 {
+  
   //-------------------
   // Correct for polarity if we run with positive muons.
   //-------------------
@@ -172,7 +174,8 @@ gm2ringsim::LCRKickField::LCRKickField(G4double kickerHV,
   kickerHV = 95*kilovolt;
   if ( Charge_ == 1 ) { kickerHV *= -1; }
   G4cout << "============ LCRKickField ===============" << G4endl;
-  G4cout << "| Square field: " << kickerHV << G4endl;
+  G4cout << "| LCR HV: " << kickerHV/kilovolt << " kV" << G4endl;
+  G4cout << "| Offset: " << offsetTime << G4endl;
   G4cout << "| Beam Charge:  " << Charge_ << G4endl;
   G4ThreeVector pnt(0, 0, gm2ringsim::R_magic());
   G4ThreeVector v(-1, 0, 0);
@@ -181,15 +184,20 @@ gm2ringsim::LCRKickField::LCRKickField(G4double kickerHV,
   Point[0] = pnt.x();
   Point[1] = pnt.y();
   Point[2] = pnt.z();
-  Point[3] = 0.0;
-  KickFieldValue(Point, Bfield);
+  for ( double t = 0.0; t < 1000.0; t += 5 ) {
+    Point[3] = t;
+    KickFieldValue(Point, Bfield);
+    G4ThreeVector B(Bfield[0], Bfield[1], Bfield[2]);
+    //G4cout << "INIT" << "\t" << t << "\t" << Bfield[1]/gauss << G4endl;
+  }
   //if ( Charge_ == 1 ) {
   //for ( int i = 0; i < 3; i++ ) { Bfield[i] *= -1; }
   //}
+  Point[3] = 0.0;
   G4ThreeVector B(Bfield[0], Bfield[1], Bfield[2]);
   if ( B.mag() > 0 ) {
     G4cout << "| v(0,0,R)      = " << v << G4endl;
-    G4cout << "| B(0,0,R)      = " << B << "  Gauss." << G4endl;
+    G4cout << "| B(0,0,R)      = " << B/gauss << "  Gauss." << G4endl;
     G4ThreeVector F = v.cross(B)/(v.mag()*B.mag());
     G4cout << "| q(v x B)      = " << Charge * F << G4endl;
     if ( Charge_ * F.x() < 0 ) { G4cout << "| Kick is toward to the center of the ring." << G4endl; }
@@ -197,11 +205,12 @@ gm2ringsim::LCRKickField::LCRKickField(G4double kickerHV,
   }
   G4cout << "===========================================" << G4endl;
   kickerHV = tmp_kickerHV;
+  i0 = kickerHV / ( omega*L );
 }
 
 void gm2ringsim::LCRKickField::KickFieldValue(double const Point[4],
 				  double Kfield[3]) const {
-
+  bool debug = false;
 
   // The concept of offset time ensures that the kicker has sufficient
   // time to ramp up its current such that the bunch of muons to be
@@ -236,20 +245,24 @@ void gm2ringsim::LCRKickField::KickFieldValue(double const Point[4],
 
   Kfield[0] = Kfield[2] = 0.;
 
-  /*
-  G4double x = Point[0];
-  G4double y = Point[1];
-  G4double z = Point[2];
-  G4double r = sqrt( x*x + z*z );  
-  G4double theta = atan2(x,z);
-  G4cout << "(r,theta,y,t) = (" 
-	 << r << ','
-	 << theta << ',' 
-	 << y << ',' 
-	 << time << ")\t"
-	 << "ByK = " << Bfield[1] << '\n';
-*/
-
+  if ( debug ) {
+    G4double x = Point[0];
+    G4double y = Point[1];
+    G4double z = Point[2];
+    G4double r = sqrt( x*x + z*z );  
+    G4double theta = atan2(x,z);
+    if ( Kfield[1]/gauss > 0 && time == time ) {
+      G4cout << "LCR\tT" << TurnCounter::getInstance().turns() << "\t" << time << "\t" << theta << "\t" << Kfield[1]/gauss << G4endl;
+    }
+    if ( 0 ) {
+      G4cout << "(r,theta,y,t) = (" 
+	     << r << ','
+	     << theta << ',' 
+	     << y << ',' 
+	     << time << ")\t"
+	     << "ByK = " << Kfield[1]/gauss << G4endl;
+    }
+  }
 }
 
 
@@ -284,7 +297,7 @@ gm2ringsim::SquareKickField::SquareKickField(G4double kickSquareField,
   G4ThreeVector B(Bfield[0], Bfield[1], Bfield[2]);
   if ( B.mag() > 0 ) {
     G4cout << "| v(0,0,R)      = " << v << G4endl;
-    G4cout << "| B(0,0,R)      = " << B << "  Gauss." << G4endl;
+    G4cout << "| B(0,0,R)      = " << B/gauss << "  Gauss." << G4endl;
     G4ThreeVector F = v.cross(B)/(v.mag()*B.mag());
     G4cout << "| q(v x B)      = " << Charge * F << G4endl;
     if ( Charge_ * F.x() < 0 ) { G4cout << "| Kick is toward to the center of the ring." << G4endl; }
@@ -300,10 +313,10 @@ namespace{
   G4double const timeForOneFullCircuit = 200*ns;
 }
 
-#include "gm2ringsim/actions/muonStorageStatus/TurnCounter.hh"
-  
-void gm2ringsim::SquareKickField::KickFieldValue(G4double const /*Point*/[4],
-				     G4double Kfield[3]) const {
+
+void gm2ringsim::SquareKickField::KickFieldValue(G4double const Point[4],
+						 G4double Kfield[3]) const {
+  bool debug = false;
 
   Kfield[0] = Kfield[1] = Kfield[2] = 0.;
   //  G4double const& time = Point[3];
@@ -315,6 +328,32 @@ void gm2ringsim::SquareKickField::KickFieldValue(G4double const /*Point*/[4],
     //  } else if( turnCounter::getInstance().turns() == 1 ){
     //    Kfield[1] = 85.*gauss;
   }  
+
+
+
+  if ( debug ) {
+    G4double const time = Point[3];
+    G4double x = Point[0];
+    G4double y = Point[1];
+    G4double z = Point[2];
+    G4double r = sqrt( x*x + z*z );  
+    G4double theta = atan2(x,z);
+    G4cout.precision(4);
+    if ( Kfield[1]/gauss > 0 && time == time ) {
+      G4cout << "SQUARE\tT" << TurnCounter::getInstance().turns() << "\t" << time << "\t" << theta << "\t" << Kfield[1]/gauss << G4endl;
+    }
+    if ( Kfield[1] > 0 ) {
+      ;//G4cout << time << "\t" << theta << "\t" << Kfield[1] << G4endl;
+    }
+    if ( 0 ) {
+      G4cout << "(r,theta,y,t) = (" 
+	     << r << ','
+	     << theta << ',' 
+	     << y << ',' 
+	     << time << ")\t"
+	     << "ByK = " << Kfield[1]/gauss << " Gauss." << G4endl;
+    }
+  }
 
 }
 
