@@ -53,5 +53,6 @@ namespace gm2ringsim {
 
     };
 }
-
+using gm2ringsim::Station;
+DECLARE_ART_SERVICE(Station,LEGACY)
 #endif

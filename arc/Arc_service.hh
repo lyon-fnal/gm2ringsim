@@ -67,4 +67,6 @@ namespace gm2ringsim {
     };
 }
 
+using gm2ringsim::Arc;
+DECLARE_ART_SERVICE(Arc,LEGACY)
 #endif

@@ -46,5 +46,6 @@ namespace gm2ringsim {
 
     };
 }
-
+using gm2ringsim::StrawTracker;
+DECLARE_ART_SERVICE(StrawTracker,LEGACY)
 #endif

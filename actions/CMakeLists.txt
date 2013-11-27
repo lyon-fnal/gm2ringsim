@@ -1,4 +1,4 @@
-art_make( LIBRARIES "gm2ringsim_actions" )
+art_make( SERVICE_LIBRARIES "gm2ringsim_actions" )
 add_subdirectory ( PGA )
 add_subdirectory ( track )
 add_subdirectory ( muonStorageStatus )

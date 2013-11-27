@@ -45,5 +45,8 @@ namespace gm2ringsim
 
   }; // End MuonGasPGA class 
 }
+
+using gm2ringsim::MuonGasPGA;
+DECLARE_ART_SERVICE(MuonGasPGA,LEGACY)
 #endif // MUONGASPGA_SERVICE_HH
 

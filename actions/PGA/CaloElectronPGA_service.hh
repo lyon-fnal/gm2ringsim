@@ -42,5 +42,7 @@ namespace gm2ringsim
     
 } // gm2ringsim namespace
 
+using gm2ringsim::CaloElectronPGA;
+DECLARE_ART_SERVICE(CaloElectronPGA)
 #endif // CALOELECTRONPGA_SERVICE_HH
 

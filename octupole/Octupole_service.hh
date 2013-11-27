@@ -97,5 +97,6 @@ namespace gm2ringsim {
       
     };
 }
-
+using gm2ringsim::Octupole;
+DECLARE_ART_SERVICE(Octupole,LEGACY)
 #endif //OCTUPOLE_HH
