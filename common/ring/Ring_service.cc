@@ -39,9 +39,9 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Ring::doPlaceToPVs(std::vector<G4Lo
 }
 
 // Declare to Art what we are producing
-void gm2ringsim::Ring::doCallArtProduces(art::EDProducer *producer) {
+void gm2ringsim::Ring::doCallArtProduces(art::EDProducer* ) {//FIXME //producer) {
   mf::LogInfo("Ring_service") << "About to doCallArtProduces";
-  producer->produces<RingArtRecordCollection>(category());
+  // FIXME producer->produces<RingArtRecordCollection>(category());
   mf::LogInfo("Ring_service") << "done with doCallArtProduces";
 }
 

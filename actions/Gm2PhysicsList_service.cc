@@ -161,8 +161,9 @@ void gm2ringsim::Gm2PhysicsListService::ConstructAdditionalProcess(){
   G4EmSaturation* emSaturation = G4LossTableManager::Instance()->EmSaturation();
   theScintillationProcess->AddSaturation(emSaturation);
 
-  G4OpticalSurfaceModel themodel = unified;
-  theBoundaryProcess->SetModel(themodel);
+  // No longer include the call to the pointless "SetModel" function
+  //  G4OpticalSurfaceModel themodel = unified;
+  //theBoundaryProcess->SetModel(themodel);
 
   theParticleIterator_->reset();
   while( (*theParticleIterator_)() ){

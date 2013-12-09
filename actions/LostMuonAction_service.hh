@@ -97,6 +97,6 @@ namespace gm2ringsim
 } //namespace gm2ringsim
 
 using gm2ringsim::LostMuonAction;
-DELCARE_ART_SERVICE(LostMuonAction, LEGACY)
+DECLARE_ART_SERVICE(LostMuonAction, LEGACY)
 #endif //LOSTMUONACTION_SERVICE_HH
 
