@@ -1,5 +1,12 @@
 # Build the libraries
-art_make( SERVICE_LIBRARIES "gm2ringsim_common_spin" "gm2ringsim_actions_muonStorageStatus" "artg4_util" "${XERCESCLIB}" "${allG4Libs}")
+art_make( LIB_LIBRARIES 
+	  artg4_pluginActions_physicalVolumeStore_physicalVolumeStore_service
+	  gm2ringsim_common_spin 
+	  gm2ringsim_actions_muonStorageStatus
+	  artg4_util
+	  ${XERCESCLIB}
+	  ${G4_LIB_LIST}
+	)
 
 # Copy the headers
 install_headers()

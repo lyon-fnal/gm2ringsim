@@ -39,6 +39,7 @@ cet_cmake_env()
 
 # Set compiler flags
 cet_set_compiler_flags( DIAGS VIGILANT WERROR
+#   NO_UNDEFINED
    EXTRA_FLAGS -pedantic
    EXTRA_CXX_FLAGS -std=c++11
 )
@@ -97,7 +98,7 @@ add_subdirectory( fiberHarp )
 add_subdirectory( station )
 add_subdirectory( calo )
 add_subdirectory( collimator )
-add_subdirectory (exampleAnalyses)
+#add_subdirectory (exampleAnalyses)
 
 # Packaging facility
 include(UseCPack)
