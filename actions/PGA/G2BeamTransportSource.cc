@@ -90,8 +90,7 @@ gm2ringsim::G2BeamTransportSource::G2BeamTransportSource() :
   PosOffset_(false),
   StartPerfect_(false),
   RotAngle_(0.0),
-  Kick_(0),
-  PerfectMatch_(false)
+  Kick_(0)
 {  
   beamTransportGun_ = new G4ParticleGun();
   g2GPS_ = new G2GeneralParticleSource();
@@ -187,9 +186,6 @@ gm2ringsim::G2BeamTransportSource::G2BeamTransportSource() :
   h_xp_cbo = new TH1F("hxp_cbo", "", 1000, -0.1, 0.1 );
   h_x = new TH1F("hx", "", 900, -45.0*mm, 45.0*mm);
   h_y = new TH1F("hy", "", 900, -45.0*mm, 45.0*mm);
-  h_xprimex = new TH2F("hxprimex", "", 90*4, -45.0*mm, 45.0*mm, 40*4, -20, 20);
-  h_yprimey = new TH2F("hyprimey", "", 90*4, -45.0*mm, 45.0*mm, 40*4, -20, 20);
-  h_xy = new TH2F("hxy", "", 90*4, -45.0*mm, 45.0*mm, 90*4, -45.0*mm, 45.0*mm);
   h_xp = new TH1F("hxp", "", 400, -20.0, 20.0);
   h_yp = new TH1F("hyp", "", 400, -20.0, 20.0);
   h_pz = new TH1F("hpz", "", 100, -1.0, 1.0);
@@ -248,9 +244,6 @@ gm2ringsim::G2BeamTransportSource::~G2BeamTransportSource()
     G4cout << "  Min/Max (time):   " << h_time->GetBinCenter(h_time->FindFirstBinAbove(1)) << " / " << h_time->GetBinCenter(h_time->FindLastBinAbove(1)) << " us." << G4endl;
   }
   if ( fill_ ) {
-    h_xy->Write();
-    h_xprimex->Write();
-    h_yprimey->Write();
     h_pol->Write();
     h_time_pol->Write();
     h_x_cbo->Write();
@@ -289,36 +282,7 @@ double gm2ringsim::G2BeamTransportSource::CBOValue(double time)
     double Amp = 0.0;
     double Freq = CBO_freq;
     double Phase = 0.0;
-    
-    if ( GetPerfectMatch() == false ) {
-  if ( kick == 100 ) { Offset=-0.863283; Amp=3.19097; Freq=0.493597; Phase=1.87518; }
-  if ( kick == 120 ) { Offset=0.963048; Amp=4.6429; Freq=0.474362; Phase=3.01721; }
-  if ( kick == 130 ) { Offset=2.05008; Amp=3.32141; Freq=0.482274; Phase=2.09992; }
-  if ( kick == 140 ) { Offset=2.38031; Amp=8.02494; Freq=0.47221; Phase=1.45854; }
-  if ( kick == 150 ) { Offset=3.22105; Amp=15.955; Freq=0.468924; Phase=1.29669; }
-  if ( kick == 160 ) { Offset=3.40819; Amp=16.9767; Freq=0.46908; Phase=1.2409; }
-  if ( kick == 170 ) { Offset=2.84233; Amp=14.5835; Freq=0.466374; Phase=1.23611; }
-  if ( kick == 180 ) { Offset=1.72915; Amp=12.0714; Freq=0.466684; Phase=1.1541; }
-  if ( kick == 185 ) { Offset=1.53076; Amp=10.8911; Freq=0.468203; Phase=1.02447; }
-  if ( kick == 190 ) { Offset=0.976601; Amp=9.73241; Freq=0.467773; Phase=0.952599; }
-  if ( kick == 195 ) { Offset=0.825743; Amp=8.5904; Freq=0.466902; Phase=0.859309; }
-  if ( kick == 200 ) { Offset=0.374067; Amp=7.37091; Freq=0.467832; Phase=0.703933; }
-  if ( kick == 205 ) { Offset=0.0553926; Amp=6.79289; Freq=0.470439; Phase=0.446784; }
-  if ( kick == 210 ) { Offset=-0.106909; Amp=5.85867; Freq=0.469457; Phase=0.233024; }
-  if ( kick == 215 ) { Offset=-0.618326; Amp=5.86339; Freq=0.470422; Phase=8.08288e-09; }
-  if ( kick == 220 ) { Offset=-1.114; Amp=5.67765; Freq=0.468789; Phase=6.05709; }
-  if ( kick == 230 ) { Offset=-1.76905; Amp=7.09223; Freq=0.468677; Phase=5.62431; }
-  if ( kick == 240 ) { Offset=-2.2504; Amp=8.52459; Freq=0.465594; Phase=5.40045; }
-  if ( kick == 250 ) { Offset=-3.01228; Amp=11.1666; Freq=0.466745; Phase=5.20321; }
-  if ( kick == 260 ) { Offset=-3.78796; Amp=13.5273; Freq=0.466116; Phase=5.0616; }
-  if ( kick == 270 ) { Offset=-4.74853; Amp=15.9312; Freq=0.466343; Phase=4.99025; }
-  if ( kick == 280 ) { Offset=-4.91804; Amp=18.6779; Freq=0.465883; Phase=4.90339; }
-  if ( kick == 300 ) { Offset=-6.259; Amp=23.2781; Freq=0.466018; Phase=4.78014; }
-  if ( kick == 325 ) { Offset=-6.72219; Amp=28.6802; Freq=0.467495; Phase=4.64041; }
-  if ( kick == 50 ) { Offset=-3.27338; Amp=21.5478; Freq=0.494207; Phase=8.66553e-09; }
-  if ( kick == 75 ) { Offset=-4.14856; Amp=20.6362; Freq=0.471929; Phase=0.731137; }
-    }
-    else {
+
     if ( kick == 100 ) { Offset=1.11176; Amp=8.50694; Freq=0.473353; Phase=1.78281; }
     if ( kick == 120 ) { Offset=1.47711; Amp=7.42592; Freq=0.47041; Phase=1.76787; }
     if ( kick == 130 ) { Offset=1.72311; Amp=7.40363; Freq=0.466544; Phase=1.72438; }
@@ -345,7 +309,7 @@ double gm2ringsim::G2BeamTransportSource::CBOValue(double time)
     if ( kick == 325 ) { Offset=-7.47563; Amp=24.5244; Freq=0.46646; Phase=4.74599; }
     if ( kick == 50 ) { Offset=-0.273382; Amp=24.3115; Freq=0.472365; Phase=1.43152; }
     if ( kick == 75 ) { Offset=0.545986; Amp=11.2287; Freq=0.478565; Phase=1.65677; }
-    }    
+    
 
     
     if ( Amp <= 0 ) {
@@ -1222,10 +1186,6 @@ void gm2ringsim::G2BeamTransportSource::GeneratePrimaryVertex(G4Event* evt) {
     rms_yprime += randYPrime*randYPrime;
 
     ngen++;
-
-    h_xy->Fill(randX, randY);
-    h_xprimex->Fill(randX, randXPrime/mrad);
-    h_yprimey->Fill(randY, randYPrime/mrad);
 
     h_x_cbo->Fill(x_cbo);
     h_xp_cbo->Fill(xp_cbo/mrad);

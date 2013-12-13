@@ -65,7 +65,6 @@ gm2ringsim::BeamTransportPGA::BeamTransportPGA(fhicl::ParameterSet const& p, art
   StartPerfect_ (p.get<bool>("StartPerfect", false)),
   RotAngle_ (p.get<double>("RotAngle", 0.0)),
   Kick_ (p.get<int>("Kick", 0)),
-  PerfectMatch_(p.get<bool>("PerfectMatch", true)),
   Debug_ (p.get<bool>("Debug", false))
 {
   if ( EmittanceX_ <= 0.0 ) { EmittanceX_ = 0.0; }
@@ -93,8 +92,7 @@ gm2ringsim::BeamTransportPGA::BeamTransportPGA(fhicl::ParameterSet const& p, art
     G4cout << "  PosOffset           " << PosOffset_ << G4endl;      
     G4cout << "  StartPerfect        " << StartPerfect_ << G4endl;    
     G4cout << "  RotAngle            " << RotAngle_ << G4endl;       
-    G4cout << "  Kick                " << Kick_ << G4endl;         
-    G4cout << "  PerfectMatch        " << PerfectMatch_ << G4endl;    
+    G4cout << "  Kick                " << Kick_ << G4endl;    
   }
 }
 
@@ -127,7 +125,6 @@ void gm2ringsim::BeamTransportPGA::initialize() {
   gps_ -> SetStartPerfect(StartPerfect_);
   gps_ -> SetRotAngle(RotAngle_);
   gps_ -> SetKick(Kick_);
-  gps_ -> SetPerfectMatch(PerfectMatch_);
   gps_ -> SetDebug(Debug_);
 }
 

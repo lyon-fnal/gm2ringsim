@@ -42,28 +42,6 @@ namespace gm2ringsim
     G2GPSSettings settings_;
     G2MuonGasSource* gps_;
     bool muonGasVerbosity_;
-    double EmittanceX_;
-    double EmittanceY_;
-    double BetaX_;
-    double BetaY_;
-    double AlphaX_;
-    double AlphaY_;
-    bool UseConstBeta_;
-    double Pmean_;
-    double dPOverP_;
-    double SigmaT_;
-    bool FlatDecayTime_;
-    double MaxDecayTime_;
-    std::string Particle_;
-    int NumParticles_;
-    int DecayScaleFactor_;
-    std::string Polarization_;
-    bool NoTransMom_;
-    bool PosOffset_;
-    bool StartPerfect_;
-    double RotAngle_;
-    int Kick_;
-    bool Debug_;
 
   }; // End MuonGasPGA class 
 }
