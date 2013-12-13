@@ -1,10 +1,10 @@
-#ifndef MUONGASPGA_SERVICE_HH
-#define MUONGASPGA_SERVICE_HH
+#ifndef BEAMTRANSPORTPGA_SERVICE_HH
+#define BEAMTRANSPORTPGA_SERVICE_HH
 
 /* 
   @author  Brendan Kiburg
   @date    March 2013
-  @comment Separating the MuonGas Gun into it's own service in ART
+  @comment Separating the BeamTransport Gun into it's own service in ART
 */
 
 // Boilerplate for ART Service
@@ -22,15 +22,15 @@
 // Get the helper files
 #include "gm2ringsim/actions/PGA/G2GeneralParticleSource.hh"
 #include "gm2ringsim/actions/PGA/G2GPSSettings.hh"
-#include "gm2ringsim/actions/PGA/G2MuonGasSource.hh"
+#include "gm2ringsim/actions/PGA/G2BeamTransportSource.hh"
 
 namespace gm2ringsim
 {
-  class MuonGasPGA : public artg4::PrimaryGeneratorActionBase
+  class BeamTransportPGA : public artg4::PrimaryGeneratorActionBase
   {
   public:
-    MuonGasPGA(fhicl::ParameterSet const&, art::ActivityRegistry&);
-    virtual ~MuonGasPGA();
+    BeamTransportPGA(fhicl::ParameterSet const&, art::ActivityRegistry&);
+    virtual ~BeamTransportPGA();
     
     void initialize() override;
     void generatePrimaries( G4Event* ) override;
@@ -40,8 +40,7 @@ namespace gm2ringsim
     
     // Replace these settings 
     G2GPSSettings settings_;
-    G2MuonGasSource* gps_;
-    bool muonGasVerbosity_;
+    G2BeamTransportSource* gps_;
     double EmittanceX_;
     double EmittanceY_;
     double BetaX_;
@@ -49,6 +48,8 @@ namespace gm2ringsim
     double AlphaX_;
     double AlphaY_;
     bool UseConstBeta_;
+    bool UseDispersion_;
+    bool UseFNALt0_;
     double Pmean_;
     double dPOverP_;
     double SigmaT_;
@@ -65,7 +66,7 @@ namespace gm2ringsim
     int Kick_;
     bool Debug_;
 
-  }; // End MuonGasPGA class 
+  }; // End BeamTransportPGA class 
 }
-#endif // MUONGASPGA_SERVICE_HH
+#endif // BEAMTRANSPORTPGA_SERVICE_HH
 

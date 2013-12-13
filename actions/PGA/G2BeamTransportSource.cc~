@@ -166,7 +166,7 @@ gm2ringsim::G2BeamTransportSource::G2BeamTransportSource() :
 
 
   fCBO = NULL;
-  fill_ = false;
+  fill_ = true;
 
   double timeperturn = 1/ComputeFrequencyCGivenMomRadius(P_magic(), R_magic())/microsecond;
   int maxturns_ = 101;

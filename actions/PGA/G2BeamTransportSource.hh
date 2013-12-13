@@ -109,6 +109,9 @@ namespace gm2ringsim
     
     void SetKick( double aInt ){ Kick_=aInt; }
     double GetKick( ){ return Kick_; }
+    
+    void SetPerfectMatch( bool aBool ){ PerfectMatch_=aBool; }
+    bool GetPerfectMatch( ){ return PerfectMatch_; }
 
     void TransportMatrix(double *M, int var, double arclength, double s0);
     void Transport(double *newX, double *newXprime, double *newdelta, int var, double arclength, double s0);
@@ -154,6 +157,7 @@ namespace gm2ringsim
     bool StartPerfect_;
     double RotAngle_;
     int Kick_;
+    bool PerfectMatch_;
 
     TF1 *fsz;
     TF1 *fsphi;
@@ -186,6 +190,9 @@ namespace gm2ringsim
     TH1F *h_x;
     TH1F *h_x_cbo;
     TH1F *h_xp_cbo;
+    TH2F *h_xprimex;
+    TH2F *h_yprimey;
+    TH2F *h_xy;
     TH1F *h_y;
     TH1F *h_xp;
     TH1F *h_yp;

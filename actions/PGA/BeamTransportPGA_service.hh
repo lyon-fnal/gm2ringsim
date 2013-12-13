@@ -64,6 +64,7 @@ namespace gm2ringsim
     bool StartPerfect_;
     double RotAngle_;
     int Kick_;
+    bool PerfectMatch_;
     bool Debug_;
 
   }; // End BeamTransportPGA class 
