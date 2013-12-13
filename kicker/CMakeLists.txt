@@ -1,5 +1,8 @@
 # Build the libraries
-art_make( LIB_LIBRARIES 
+art_make( SERVICE_LIBRARIES
+	  gm2geom_kicker
+	  gm2ringsim_kicker
+	  LIB_LIBRARIES 
 	  artg4_util
 	  artg4_material
 	  gm2geom_arc

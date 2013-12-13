@@ -971,6 +971,7 @@ void gm2ringsim::ringTrackerAnalyzer::endRun(art::Run const &r)
 
   
 gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &p) :
+  art::EDAnalyzer(p),
   ringtrackerhitModuleLabel_ ( p.get<std::string>("ringtrackerhitModuleLabel",  "artg4"   ) ),
   ringtrackerinstanceName_   ( p.get<std::string>("ringtrackerinstanceName",    "VirtualRingStation"     ) ),
   truthhitModuleLabel_       ( p.get<std::string>("truthhitModuleLabel",  "artg4"   ) ),

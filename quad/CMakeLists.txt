@@ -1,5 +1,8 @@
 # Build the libraries
-art_make( LIB_LIBRARIES 
+art_make( SERVICE_LIBRARIES
+	  gm2geom_quad
+	  gm2ringsim_quad
+	  LIB_LIBRARIES 
 	  artg4_util
 	  artg4_material
 	  gm2ringsim_common_spin

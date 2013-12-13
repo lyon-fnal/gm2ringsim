@@ -1,5 +1,7 @@
 # Build the libraries
-art_make( LIB_LIBRARIES 
+art_make( SERVICE_LIBRARIES
+	  gm2ringsim_arc
+	   LIB_LIBRARIES 
 	  gm2ringsim_arc
 	  gm2geom_arc
 	  gm2ringsim_inflector

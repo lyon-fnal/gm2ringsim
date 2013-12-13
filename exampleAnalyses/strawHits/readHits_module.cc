@@ -19,6 +19,7 @@
 #include "gm2ringsim/strawtracker/StrawArtRecord.hh"
 #include <map>
 #include <vector>
+#include <iostream>
 
 // Namespace
 namespace gm2ringsim {
@@ -87,6 +88,7 @@ private:
 
 
 gm2ringsim::readHits::readHits(fhicl::ParameterSet const &p) :
+  art::EDAnalyzer(p),
 hitModuleLabel_ ( p.get<std::string>("hitModuleLabel",  ""   ) ),
 instanceName_   ( p.get<std::string>("instanceName",    ""     ) ),
 hist_dir_       ( p.get<std::string>("hist_dir"         ) ),
