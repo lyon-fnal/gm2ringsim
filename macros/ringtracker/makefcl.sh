@@ -22,15 +22,28 @@ cat >> ${outfile} <<EOF
 #include "geom/g2GPS.fcl"
 EOF
 
-usecalo=1
+usecalo=0
+usestraw=0
 if [ ${beamtransport} == 1 ]; then
     usecalo=1
+    usestraw=1
+else
+    usestraw=1
 fi
+
+usecalo=1
+usestraw=1
 
 if [ ${usecalo} == 1 ]; then
 cat >> ${outfile} <<EOF
 #include "geom/station.fcl"
 #include "geom/calorimeter.fcl"
+EOF
+fi
+
+if [ ${usestraw} == 1 ]; then
+cat >> ${outfile} <<EOF
+#include "geom/strawtracker.fcl"
 EOF
 fi
 
@@ -90,6 +103,14 @@ cat >> ${outfile} <<EOF
       calorimeter: @local::calorimeter_geom
 EOF
 fi
+
+if [ ${usestraw} == 1 ]; then
+cat >> ${outfile} <<EOF      
+      strawtracker: @local::strawtracker_geom
+EOF
+fi
+
+
 cat >> ${outfile} <<EOF      
      }
 
@@ -311,11 +332,13 @@ cat >> ${outfile} <<EOF
 	RotAngle: 0.0
 EOF
 fi
+
 cat >> ${outfile} <<EOF
     }
-
 EOF
 fi
+
+
 
 #
 # Run muon gas gun
@@ -375,7 +398,14 @@ cat >> ${outfile} <<EOF
 	RotAngle: 0.0
 EOF
 fi
+
+perfectmatch="true"
+if [ ${match} == 0 ]; then
+    perfectmatch="false"
+fi
+
 cat >> ${outfile} <<EOF
+	PerfectMatch: ${perfectmatch}
     }
 
 EOF
@@ -402,8 +432,20 @@ cat >> ${outfile} <<EOF
 EOF
 fi
 
+if [ ${usestraw} == 1 ]; then
+cat >> ${outfile} <<EOF
+    StrawTracker: {}
+    Straws:{}
+EOF
+fi
+
 if [ ${muongas} == 0 ] || [ ${beamtransport} == 0 ]; then
 cat >> ${outfile} <<EOF
+
+    BeamScanAction: {
+      name: "BeamScanAction"
+      frequency: 1000
+    }
 
     LostMuonAction: {
       name: "LostMuonAction"
@@ -416,9 +458,9 @@ cat >> ${outfile} <<EOF
 EOF
 else
 cat >> ${outfile} <<EOF
-    stored_rmin: -300.0
-    stored_rmax: 300.0
-    stored_y: 50
+      stored_rmin: -300.0
+      stored_rmax: 300.0
+      stored_y: 50
 EOF
 fi
 
@@ -462,6 +504,7 @@ outputs: {
 out1: {
   module_type: RootOutput   
   fileName: "${fullDir}/${basename}.root"
+  outputCommands : [ "keep *_*_*_*", "drop gm2ringsim::Virtual*_artg4_*_*" ]
   }
 }
 
@@ -614,11 +657,16 @@ services.user.Geometry.vac.Frequency: 1
 EOF
     else
 cat >> ${outfile} <<EOF
-services.user.Geometry.vac.Frequency: 2
+services.user.Geometry.vac.Frequency: 1
 EOF
     fi
 fi
 
+if [ ${usestraw} == 1 ]; then
+cat >> ${outfile} <<EOF
+services.user.Geometry.strawtracker.whichScallopLocations: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]
+EOF
+fi
 
 echo "//kickhv=${kickhv}" >> ${outfile}
 echo "//kicksk=${kicksk}" >> ${outfile}
@@ -631,6 +679,7 @@ services.user.Geometry.kicker.kPlate1HV : ${kickhv} //kilovolt
 services.user.Geometry.kicker.kPlate2HV : ${kickhv} //kilovolt 
 services.user.Geometry.kicker.kPlate3HV : ${kickhv} //kilovolt 
 services.user.Geometry.kicker.kickerHV : [${kickhv} , ${kickhv} , ${kickhv} ] //kilovolt
+services.user.Geometry.kicker.kickerOffsetTime : [ 100.0 , 100.0 , 100.0 ] //ns
 EOF
 elif [ ${kicksk} -gt 0 ]; then
 cat >> ${outfile} <<EOF
@@ -652,13 +701,27 @@ fi
 #sleep 1000000000
 
 echo "cp ${outfile} ${fullDir}/runner.fcl"
-cp ${outfile} ${fullDir}/runner.fcl
+if [ -a ${fullDir}/runner.fcl ]; then
+    echo "Forcing overwrite of runner.fcl"
+    rm ${fullDir}/runner.fcl
+    cp ${outfile} ${fullDir}/runner.fcl
+else
+    cp ${outfile} ${fullDir}/runner.fcl    
+fi
+echo "Done copying."
 
 
 outfile="readRingTrackers.fcl"
 header_outfile="readRingTrackers_header.fcl"
 footer_outfile="readRingTrackers_footer.fcl"
 files_outfile="readRingTrackers_files.fcl"
+
+
+if [ -a ${fullDir}/footer_beamscan.fcl ] && [ -a ${fullDir}/header_beamscan.fcl ] && [ -a ${fullDir}/footer_reader.fcl ] && [ -a ${fullDir}/header_reader.fcl ]; then
+    echo "Reader/BeamScan files are already there."
+    exit;
+fi
+
 if [ -a ${outfile} ]; then
     rm ${outfile}
 fi
@@ -682,6 +745,16 @@ for file in ${fullDir}/*.root; do
 done
 
 cat >> ${header_outfile} <<EOF
+#include "geom/world.fcl"
+#include "geom/arc.fcl"
+#include "geom/vac.fcl"
+#include "geom/inflector.fcl"
+#include "geom/quad.fcl"
+#include "geom/kicker_nokick.fcl"
+#include "geom/collimator.fcl"
+#include "geom/PGA.fcl"
+#include "geom/g2GPS.fcl"
+
 services: {
 
   TFileService: {
@@ -705,8 +778,25 @@ services: {
   }
   
   user : {
-    physicalVolumeStore : {}
-    ActionHolder : {}
+  
+    // Mandatory ArtG4 services
+    DetectorHolder: {}
+    ActionHolder: {}
+    PhysicsListHolder: {}
+    RandomNumberGenerator: {}
+
+    // Geometry
+    Geometry: {
+      world: @local::world_geom
+      arc:   @local::arc_geom
+      vac:   @local::vac_geom
+      inflector: @local::inflector_geom
+      quad:   @local::quad_geom
+      kicker: @local::kicker_geom
+      collimator: @local::collimator_geom
+      pga: @local::PGA_geom
+    }
+
   }
 }
 
@@ -742,7 +832,9 @@ physics: {
       SaveInfHits: false
       SaveTruthHits: true
       SaveRingHits: false
+      SaveBeamScanHits: true
       SaveCaloHits: true
+      SaveStrawHits: true
       SaveVRingHits: true
       SaveVRing1PlaneHits: true
       debug: false
@@ -755,9 +847,132 @@ physics: {
 }
 EOF
 
-echo "cp ${footer_outfile} ${fullDir}/footer_reader.fcl"
-cp ${footer_outfile} ${fullDir}/footer_reader.fcl
-echo "cp ${header_outfile} ${fullDir}/header_reader.fcl"
-cp ${header_outfile} ${fullDir}/header_reader.fcl
-echo "cp ${files_outfile} ${fullDir}/files_reader.fcl"
-cp ${files_outfile} ${fullDir}/files_reader.fcl
+if ! [ -a ${fullDir}/footer_reader.fcl ] && ! [ -a ${fullDir}/header_reader.fcl ]; then
+    echo "cp ${footer_outfile} ${fullDir}/footer_reader.fcl"
+    cp ${footer_outfile} ${fullDir}/footer_reader.fcl
+    echo "cp ${header_outfile} ${fullDir}/header_reader.fcl"
+    cp ${header_outfile} ${fullDir}/header_reader.fcl
+    echo "cp ${files_outfile} ${fullDir}/files_reader.fcl"
+    cp ${files_outfile} ${fullDir}/files_reader.fcl
+fi
+
+
+
+
+
+outfile="beamScan.fcl"
+header_outfile="beamScan_header.fcl"
+footer_outfile="beamScan_footer.fcl"
+files_outfile="beamScan_files.fcl"
+if [ -a ${outfile} ]; then
+    rm ${outfile}
+fi
+if [ -a ${footer_outfile} ]; then
+    rm ${footer_outfile}
+fi
+if [ -a ${header_outfile} ]; then
+    rm ${header_outfile}
+fi
+if [ -a ${files_outfile} ]; then
+    rm ${files_outfile}
+fi
+
+files="${fullDir}/${basename}.root"
+for file in ${fullDir}/*.root; do
+    if [ -a ${file} ]; then
+	if ! [ ${file} == ${fullDir}/${basename}.root ]; then
+	    files="${files}, ${file}"
+	fi
+    fi
+done
+
+cat >> ${header_outfile} <<EOF
+#include "geom/world.fcl"
+#include "geom/arc.fcl"
+#include "geom/vac.fcl"
+#include "geom/inflector.fcl"
+#include "geom/quad.fcl"
+#include "geom/kicker_nokick.fcl"
+#include "geom/collimator.fcl"
+#include "geom/PGA.fcl"
+#include "geom/g2GPS.fcl"
+
+services: {
+
+  TFileService: {
+    fileName: "rootfiles/gm2ringsim_${basename}.root"
+  }
+
+  message : {
+     debugModules : ["*"]
+     suppressInfo : []
+     
+     destinations : {
+       LogToConsole : {
+         type : "cout"
+         threshold : "DEBUG"
+         
+         categories : {
+           default : { limit : 50 }
+         }
+       }
+     }
+  }
+  
+  user : {
+  
+    // Mandatory ArtG4 services
+    DetectorHolder: {}
+    ActionHolder: {}
+    PhysicsListHolder: {}
+    RandomNumberGenerator: {}
+
+    // Geometry
+    Geometry: {
+      world: @local::world_geom
+      arc:   @local::arc_geom
+      vac:   @local::vac_geom
+      inflector: @local::inflector_geom
+      quad:   @local::quad_geom
+      kicker: @local::kicker_geom
+      collimator: @local::collimator_geom
+      pga: @local::PGA_geom
+    }
+
+  }
+}
+
+process_name: beamScan
+
+source: {
+   module_type: RootInput
+   maxEvents:  -1
+EOF
+
+
+cat >> ${files_outfile} <<EOF
+    fileNames: [ "${fullDir}/${basename}.root" ]
+EOF
+
+cat >> ${footer_outfile} <<EOF
+}
+
+physics: {
+  analyzers: {
+    beamScan: {
+      module_type: beamScanAnalyzer
+    }
+  }
+  path1: [ beamScan ]
+  end_paths: [ path1 ]
+}
+EOF
+
+if ! [ -a ${fullDir}/footer_beamscan.fcl ] && ! [ -a ${fullDir}/header_beamscan.fcl ]; then
+    echo "cp ${footer_outfile} ${fullDir}/footer_beamscan.fcl"
+    cp ${footer_outfile} ${fullDir}/footer_beamscan.fcl
+    echo "cp ${header_outfile} ${fullDir}/header_beamscan.fcl"
+    cp ${header_outfile} ${fullDir}/header_beamscan.fcl
+    echo "cp ${files_outfile} ${fullDir}/files_beamscan.fcl"
+    cp ${files_outfile} ${fullDir}/files_beamscan.fcl
+fi

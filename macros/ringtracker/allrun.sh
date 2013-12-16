@@ -412,10 +412,10 @@ export collimator_status=1
 # Muon Decay
 #
 
-export flatdecay=0
+export flatdecay=1
 export muondecay="none"
 #export muondecay="iso"
-export muondecay="sm"
+#export muondecay="sm"
 muondecayname="decay ${muondecay}"
 if ! [ ${muondecay} == "none" ] && [ ${flatdecay} == 1 ]; then
     muondecayname="${muondecayname} flatdecay"
@@ -445,7 +445,7 @@ spintracking="spin"
 Polarizations="Full FullMixed E821 E821Mixed Random Mixed"
 polarization="Full"
 
-#spintracking=""
+spintracking=""
 edmsize="0"
 edmsizename="edmsize ${edmsize}"
 if ! [ -z ${gm2size} ]; then
@@ -510,7 +510,7 @@ bestkicks()
 		thebestkicks="0 10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200 210 230 240 250 260 270 280 290 300"
 		thebestkicks="150 180 190 200 210 220 230 240 250 260 270 280 290 300 350"
 #		thebestkicks="210 220 225 230 240 250"
-		thebestkicks="220"
+		thebestkicks="200"
 	    fi
 
 	    return;
@@ -518,7 +518,7 @@ bestkicks()
     fi
 
     if [ ${test} == 1 ]; then
-	thebestkicks="220"
+	thebestkicks="200"
     fi
 }
 
@@ -871,7 +871,7 @@ beamstarts="CO DM UC"
 #beamstarts="UC DM"
 #beamstarts="UC"
 beamstarts="CO"
-#beamstarts="DM"
+beamstarts="DM"
 
 fields="0 1"
 fields="0"
@@ -1015,8 +1015,8 @@ scrapings="OFF"
 beamtypes="Gaussian Uniform"
 beamtypes="Uniform"
 #beamtypes="Gaussian"
-beamtypes="MuonGas"
-beamtypes="BeamTransport"
+#beamtypes="MuonGas"
+#beamtypes="BeamTransport"
 
 #
 # Beta Functions
@@ -1064,16 +1064,26 @@ beamsizes="40"
 ####
 if [ ${beamtypes} == "MuonGas" ]; then
     numturns=50
-    numevets=10000
+    numevts=10000
     beamstarts="CO"
     beamstarts="DM"    
     inftypes="InfOpen"
     fields=0
     sigmats="0"
 fi
+if [ ${beamtypes} == "Gaussian" ] || [ ${beamtypes} == "Uniform" ]; then
+    numturns=5000
+    numevts=1000
+#    beamstarts="CO"
+    beamstarts="DM"    
+    inftypes="InfOpen"
+    fields=1
+    sigmats="0"
+#    moms="E821Match"
+fi
 if [ ${beamtypes} == "BeamTransport" ]; then
-    numturns=50
-    numevets=100
+    numturns=2
+    numevts=1000
     beamstarts="CO"
 #    beamstarts="DM"    
     inftypes="InfOpen"

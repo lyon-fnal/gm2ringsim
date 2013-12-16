@@ -9,12 +9,36 @@ fixfooter() {
     if [ -z ${2} ]; then
 	return;
     fi
-    if [ ${2} == "vp1" ] || [ ${2} == "vp" ] || [ ${2} == "novp1" ] || [ ${2} == "novp" ] || [ ${2} == "debug" ] || [ ${2} == "nodebug" ] || [ ${2} == "ring" ] || [ ${2} == "noring" ]; then	
+    if [ ${2} == "vp1" ] || [ ${2} == "vp" ] || [ ${2} == "novp1" ] || [ ${2} == "novp" ] || [ ${2} == "debug" ] || [ ${2} == "nodebug" ] || [ ${2} == "straw" ] || [ ${2} == "nostraw" ] || [ ${2} == "beamscan" ] || [ ${2} == "nobeamscan" ] || [ ${2} == "calo" ] || [ ${2} == "nocalo" ] || [ ${2} == "fill" ] || [ ${2} == "nofill" ] || [ ${2} == "truth" ] || [ ${2} == "notruth" ] || [ ${2} == "ring" ] || [ ${2} == "noring" ]; then	
 	if [ ${2} == "ring" ]; then
 	    sed "s/SaveRingHits: false/SaveRingHits: true/g" ${footer_fcl} > ${footer_fcl}.tmp
 	fi
 	if [ ${2} == "noring" ]; then
 	    sed "s/SaveRingHits: true/SaveRingHits: false/g" ${footer_fcl} > ${footer_fcl}.tmp
+	fi
+	if [ ${2} == "truth" ]; then
+	    sed "s/SaveTruthHits: false/SaveTruthHits: true/g" ${footer_fcl} > ${footer_fcl}.tmp
+	fi
+	if [ ${2} == "notruth" ]; then
+	    sed "s/SaveTruthHits: true/SaveTruthHits: false/g" ${footer_fcl} > ${footer_fcl}.tmp
+	fi
+	if [ ${2} == "straw" ]; then
+	    sed "s/SaveStrawHits: false/SaveStrawHits: true/g" ${footer_fcl} > ${footer_fcl}.tmp
+	fi
+	if [ ${2} == "nostraw" ]; then
+	    sed "s/SaveStrawHits: true/SaveStrawHits: false/g" ${footer_fcl} > ${footer_fcl}.tmp
+	fi
+	if [ ${2} == "beamscan" ]; then
+	    sed "s/SaveBeamScanHits: false/SaveBeamScanHits: true/g" ${footer_fcl} > ${footer_fcl}.tmp
+	fi
+	if [ ${2} == "nobeamscan" ]; then
+	    sed "s/SaveBeamScanHits: true/SaveBeamScanHits: false/g" ${footer_fcl} > ${footer_fcl}.tmp
+	fi
+	if [ ${2} == "calo" ]; then
+	    sed "s/SaveCaloHits: false/SaveCaloHits: true/g" ${footer_fcl} > ${footer_fcl}.tmp
+	fi
+	if [ ${2} == "nocalo" ]; then
+	    sed "s/SaveCaloHits: true/SaveCaloHits: false/g" ${footer_fcl} > ${footer_fcl}.tmp
 	fi
 	if [ ${2} == "vp" ]; then
 	    sed "s/SaveVRingHits: false/SaveVRingHits: true/g" ${footer_fcl} > ${footer_fcl}.tmp
@@ -37,6 +61,12 @@ fixfooter() {
 	fi	    
 	if [ ${2} == "nodebug" ]; then
 	    sed "s/debug: true/debug: false/g" ${footer_fcl} > ${footer_fcl}.tmp
+	fi
+	if [ ${2} == "fill" ]; then
+	    sed "s/fill: false/fill: true/g" ${footer_fcl} > ${footer_fcl}.tmp
+	fi	    
+	if [ ${2} == "nofill" ]; then
+	    sed "s/fill: true/fill: false/g" ${footer_fcl} > ${footer_fcl}.tmp
 	fi	    
 	if [ ${2} == "truth" ]; then
 	    sed "s/SaveTruthHits: false/SaveTruthHits: true/g" ${footer_fcl} > ${footer_fcl}.tmp
@@ -135,7 +165,10 @@ if [ -z ${1} ]; then
     exit;
 fi
 
+
 output="/gm2/data/users/tgadfort/gm2ringsim/output/"
+subout=""
+subout="older/"
 if [ -a input.dat ]; then
     rm input.dat
 fi
@@ -222,6 +255,7 @@ else
 	ls ${output}/*${input}*/*${suffix}*.root > input.dat
     elif [ ${2} == "html" ]; then
 	runplot=3
+
     elif [ ${2} == "frac" ]; then
 	extra_suffix=${3}
 	if [ ${extra_suffix} == "0-1" ]; then
@@ -254,8 +288,8 @@ else
 #	    echo "Extra Suffix = ${extra_suffix}"
 	    if [ ${extra_suffix} == "test" ]; then
 		ls ${output}/*${input}/*${suffix}*_0.root > input.dat
-		maxfiles=1
-		numevts=100
+		maxfiles=5
+		numevts=10000
 	    elif [ ${extra_suffix} == "test2" ]; then
 		ls ${output}/*${input}/*${suffix}*_0.root > input.dat
 		maxfiles=100
@@ -276,9 +310,15 @@ else
 		#
 		# 0  = 10 jobs
 		# -3 = 20 jobs
+		# -30 = 20 jobs (w/ subdir)
+		# -4 = 50 jobs
 		#
-		manyfiles=-3
-		if [ ${manyfiles} == -4 ]; then
+		manyfiles=-4
+		if [ ${manyfiles} == -4 ] || [ ${manyfiles} == -40 ]; then
+		    subout=""
+		    if [ ${manyfiles} == -40 ]; then
+			subout="older/"
+		    fi
 		    if [ ${extra_suffix} -lt 10 ]; then
 			ls ${output}/*${input}/*${suffix}*0_${extra_suffix}.root > input.dat
 			ls ${output}/*${input}/*${suffix}*1_${extra_suffix}.root >> input.dat
@@ -308,6 +348,7 @@ else
 #		    wc -l input.dat
 #		    exit;
 		elif [ ${manyfiles} == -3 ]; then
+		    subout=""
 		    if [ ${extra_suffix} -lt 10 ]; then
 			ls ${output}/*${input}/*${suffix}*0_${extra_suffix}.root > input.dat
 			ls ${output}/*${input}/*${suffix}*1_${extra_suffix}.root >> input.dat
@@ -322,6 +363,22 @@ else
 			ls ${output}/*${input}/*${suffix}*7_${extra_suffix2}.root >> input.dat
 			ls ${output}/*${input}/*${suffix}*8_${extra_suffix2}.root >> input.dat
 			ls ${output}/*${input}/*${suffix}*9_${extra_suffix2}.root >> input.dat
+		    fi
+		elif [ ${manyfiles} == -30 ]; then
+		    if [ ${extra_suffix} -lt 10 ]; then
+			ls ${output}/*${input}/${subout}*${suffix}*0_${extra_suffix}.root > input.dat
+			ls ${output}/*${input}/${subout}*${suffix}*1_${extra_suffix}.root >> input.dat
+			ls ${output}/*${input}/${subout}*${suffix}*2_${extra_suffix}.root >> input.dat
+			ls ${output}/*${input}/${subout}*${suffix}*3_${extra_suffix}.root >> input.dat
+			ls ${output}/*${input}/${subout}*${suffix}*4_${extra_suffix}.root >> input.dat
+		    else
+			loc_extra_suffix=`echo " ${extra_suffix} - 10" | bc`
+			extra_suffix2=${loc_extra_suffix}
+			ls ${output}/*${input}/${subout}*${suffix}*5_${extra_suffix2}.root > input.dat
+			ls ${output}/*${input}/${subout}*${suffix}*6_${extra_suffix2}.root >> input.dat
+			ls ${output}/*${input}/${subout}*${suffix}*7_${extra_suffix2}.root >> input.dat
+			ls ${output}/*${input}/${subout}*${suffix}*8_${extra_suffix2}.root >> input.dat
+			ls ${output}/*${input}/${subout}*${suffix}*9_${extra_suffix2}.root >> input.dat
 		    fi
 		elif [ ${manyfiles} == -2 ]; then
 		    ls ${output}/*${input}/*${suffix}*_*${extra_suffix}.root > input.dat
@@ -381,7 +438,19 @@ else
 	fi
 
 	footer_fcl=`ls ${output}/*${input}*/footer_reader.fcl`
-	fixfooter ${footer_fcl} ${4}
+	if ! [ -z ${4} ]; then
+	    cmd=${4}
+	    if [ ${cmd} == "tree" ]; then
+		fixfooter ${footer_fcl} nostraw
+		fixfooter ${footer_fcl} calo
+		fixfooter ${footer_fcl} nobeamscan
+		fixfooter ${footer_fcl} truth
+		fixfooter ${footer_fcl} nofill
+	    else
+		fixfooter ${footer_fcl} ${4}
+	    fi
+	fi
+
 	if ! [ -z ${4} ]; then
 	    if [ ${4} == "sub" ]; then
 		local=0
@@ -405,8 +474,9 @@ else
 	footer_fcl=`ls ${output}/*${input}*/footer_reader.fcl`
 	fixfooter ${footer_fcl} ${3}	
 	ls ${output}/*${input}/*${suffix}*.root > input.dat
-    elif [ ${2} == "vp1" ] || [ ${2} == "vp" ] || [ ${2} == "novp1" ] || [ ${2} == "novp" ] || [ ${2} == "debug" ] || [ ${2} == "nodebug" ] || [ ${2} == "truth" ] || [ ${2} == "notruth" ] || [ ${2} == "fill" ] || [ ${2} == "nofill" ] || [ ${2} == "ring" ] || [ ${2} == "noring" ]; then	
+    elif [ ${2} == "vp1" ] || [ ${2} == "vp" ] || [ ${2} == "novp1" ] || [ ${2} == "novp" ] || [ ${2} == "debug" ] || [ ${2} == "nodebug" ] || [ ${2} == "straw" ] || [ ${2} == "nostraw" ] || [ ${2} == "beamscan" ] || [ ${2} == "nobeamscan" ] || [ ${2} == "calo" ] || [ ${2} == "nocalo" ] || [ ${2} == "fill" ] || [ ${2} == "nofill" ] || [ ${2} == "truth" ] || [ ${2} == "notruth" ] || [ ${2} == "ring" ] || [ ${2} == "noring" ]; then	
 	footer_fcl=`ls ${output}/*${input}*/footer_reader.fcl`
+	
 	fixfooter ${footer_fcl} ${2}
 	if ! [ -z ${3} ]; then
 	    if [ ${3} == "n" ]; then
@@ -553,6 +623,10 @@ files_fcl=`ls ${output}/*${input}*/files_reader.fcl`
 header_fcl=`ls ${output}/*${input}*/header_reader.fcl`
 footer_fcl=`ls ${output}/*${input}*/footer_reader.fcl`
 
+files_beamscan_fcl=`ls ${output}/*${input}*/files_beamscan.fcl`
+header_beamscan_fcl=`ls ${output}/*${input}*/header_beamscan.fcl`
+footer_beamscan_fcl=`ls ${output}/*${input}*/footer_beamscan.fcl`
+
 #echo "Footer"
 #cat ${footer_fcl}
 #echo "Files"
@@ -561,13 +635,22 @@ footer_fcl=`ls ${output}/*${input}*/footer_reader.fcl`
 #header_fcl=`ls ${output}/*${input}*/header_truthreader.fcl`
 #footer_fcl=`ls ${output}/*${input}*/footer_truthreader.fcl`
 fcl="${output}/${input}/reader.fcl"
+beamscan_fcl="${output}/${input}/beamScan.fcl"
 if [ -a ${fcl} ]; then
     rm ${fcl}
+fi
+if [ -a ${beamscan_fcl} ]; then
+    rm ${beamscan_fcl}
 fi
 echo "  fileNames: [ ${inputs} ]" > ${files_fcl}
 cat ${header_fcl} >> ${fcl}
 #cat ${files_fcl} >> ${fcl}
 cat ${footer_fcl} >> ${fcl}
+
+echo "  fileNames: [ ${inputs} ]" > ${files_beamscan_fcl}
+cat ${header_beamscan_fcl} >> ${beamscan_fcl}
+#cat ${files_beamscan_fcl} >> ${beamscan_fcl}
+cat ${footer_beamscan_fcl} >> ${beamscan_fcl}
 
 basedir=""
 
@@ -613,6 +696,29 @@ fi
 #
 fcl=`ls ${output}/*${input}*/reader.fcl`
 file1=`ls ${output}/*${input}*/reader.fcl`
+if ! [ -z ${extra_suffix} ]; then
+    file2=rootfiles/${subdir}/gm2ringsim_${input}_${extra_suffix}.root
+else
+    file2=rootfiles/${subdir}/gm2ringsim_${input}.root
+fi
+if [ -a ${file2} ]; then
+    if [ -a ${file1} ]; then
+	if nt -c ${file1} ${file2}; then
+	    echo "I found newer root files in [${output}/${input}]. I will regenerate the histogram file."
+	    if [ ${runplot} == 2 ]; then
+		runplot=1
+	    fi
+	fi
+    fi
+fi
+
+
+
+#
+# Check that file is up-to-date
+#
+#fcl=`ls ${output}/*${input}*/beamScan.fcl`
+file1=`ls ${output}/*${input}*/beamScan.fcl`
 if ! [ -z ${extra_suffix} ]; then
     file2=rootfiles/${subdir}/gm2ringsim_${input}_${extra_suffix}.root
 else
