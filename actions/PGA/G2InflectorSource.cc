@@ -83,6 +83,46 @@ gm2ringsim::G2InflectorSource::G2InflectorSource() :
 
   fsz   = new TF1("fsz", "-(3.68923)+(1.48959*x)", 3.06, 3.13);
   fsphi = new TF1("fsphi", "(((1788.72-(196.394*cos(x)))-(321.191*cos(2*x)))+(68.1887*cos(3*x)))+(((587.76*cos(4*x))-(94.1914*cos(5*x)))-(106.777*cos(6*x)))", -3.14159, 3.14159);
+  fill_ = false;
+  //fill_ = true;
+
+  double microsecond = 1e3;
+  double timeperturn = 1/ComputeFrequencyCGivenMomRadius(P_magic(), R_magic())/microsecond;
+  int maxturns_ = 101;
+  double maxt = maxturns_* timeperturn;
+  int numhitsperturn = 150;
+
+
+  if ( fill_ ) {
+    f = new TFile("inflectorgun.root", "RECREATE");
+  }
+  h_Ax = new TH1F("hAx", "", 450, 0, 45.0*mm);
+  h_Ay = new TH1F("hAy", "", 450, 0, 45.0*mm);
+  h_xe = new TH1F("hx", "", 900, -45.0*mm, 45.0*mm);
+  h_mom_rand = new TH2F("hmom_rand", "", 120, 0.97, 1.03, 100, 0.0, 1.0);
+  h_pol = new TH1F("hpol", "", 100, -1, 1);
+  h_time_pol = new TH2F("htime_pol", "", maxturns_*numhitsperturn, 0.0, maxt, 100, -1, 1);
+  h_x_cbo = new TH1F("hx_cbo", "", 900, -45.0*mm, 45.0*mm);
+  h_xp_cbo = new TH1F("hxp_cbo", "", 1000, -0.1, 0.1 );
+  h_x = new TH1F("hx", "", 900, -45.0*mm, 45.0*mm);
+  h_y = new TH1F("hy", "", 900, -45.0*mm, 45.0*mm);
+  h_xprimex = new TH2F("hxprimex", "", 90*4, -45.0*mm, 45.0*mm, 40*4, -20, 20);
+  h_yprimey = new TH2F("hyprimey", "", 90*4, -45.0*mm, 45.0*mm, 40*4, -20, 20);
+  h_xy = new TH2F("hxy", "", 90*4, -45.0*mm, 45.0*mm, 90*4, -45.0*mm, 45.0*mm);
+  h_xp = new TH1F("hxp", "", 400, -20.0, 20.0);
+  h_yp = new TH1F("hyp", "", 400, -20.0, 20.0);
+  h_pz = new TH1F("hpz", "", 100, -1.0, 1.0);
+  h_pr = new TH1F("hpz", "", 100, -1.0, 1.0);
+  h_emitX = new TH1F("hemitX", "", 50, 0, 50);
+  h_emitY = new TH1F("hemitY", "", 50, 0, 50);
+  h_turn = new TH1F("hturn", "", 10000, 0.0, 10000.0);
+  h_t0 = new TH1F("ht0", "", 400, -100.0, 300.0);
+  h_t0off = new TH1F("ht0off", "", 400, -100.0, 300.0);
+  h_time = new TH1F("htime", "", maxturns_*numhitsperturn, 0.0, maxt);
+  h_time_tmod = new TH1F("htime_tmod", "", maxturns_*numhitsperturn, 0.0, maxt);
+  h_time_decay_tmod = new TH1F("htime_decay_tmod", "", maxturns_*numhitsperturn, 0.0, maxt);
+  h_time_m_t0 = new TH1F("htime_m_t0", "", maxturns_*numhitsperturn, 0.0, maxt);
+  h_time_VS0 = new TH1F("htime_VS0", "", maxturns_*numhitsperturn, 0.0, maxt);
 }
 
 gm2ringsim::G2InflectorSource::~G2InflectorSource() 
@@ -98,6 +138,25 @@ gm2ringsim::G2InflectorSource::~G2InflectorSource()
     G4cout << "  <y>  = " << sum_y / ngen << G4endl;;
     G4cout << "  <x'> = " << sum_xprime / ngen << G4endl;;
     G4cout << "  <y'> = " << sum_yprime / ngen << G4endl;
+  }
+
+  if ( fill_ ) {
+    h_xy->Write();
+    h_xprimex->Write();
+    h_yprimey->Write();
+    h_pol->Write();
+    h_time_pol->Write();
+    h_x_cbo->Write();
+    h_xp_cbo->Write();
+    h_xe->Write();
+    h_time->Write();
+    h_time_VS0->Write();
+    h_time_tmod->Write();
+    h_time_decay_tmod->Write();
+    h_time_m_t0->Write();
+    h_t0->Write();
+    f->Write();
+    f->Close();
   }
 }
 
@@ -225,8 +284,8 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
 
   betaX = GetBetaX()*m;
   betaY = GetBetaY()*m;
-  alphaX = GetAlphaX()*m;
-  alphaY = GetAlphaY()*m;
+  alphaX = GetAlphaX();
+  alphaY = GetAlphaY();
 
 
 
@@ -284,11 +343,21 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
   G4ThreeVector dir = (downstream - upstream).unit();
 
 
+  //G4cout << "BetaX: " << betaX << G4endl;
+  //G4cout << "BetaY: " << betaY << G4endl;
 
   //  First, calculate gamma from the user's parameters using the fact that beta*gamma - alpha^2 = 1 is invariant
   gammaX = ( 1+alphaX*alphaX )/betaX;
   gammaY = ( 1+alphaY*alphaY )/betaY;
 
+  if ( 0 ) {
+  G4cout << "BetaX: " << betaX << G4endl;
+  G4cout << "BetaY: " << betaY << G4endl;
+  G4cout << "alphaX: " << alphaX << G4endl;
+  G4cout << "alphaY: " << alphaY << G4endl;
+  G4cout << "gammaX: " << gammaX << G4endl;
+  G4cout << "gammaY: " << gammaY << G4endl;
+  }
     
   double new_alphaX, new_betaX, new_gammaX;
   double new_alphaY, new_betaY, new_gammaY;
@@ -322,7 +391,14 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
     gammaY = new_gammaY;
   }
 
-
+  if ( 0 ) {
+  G4cout << "alphaX: " << alphaX << G4endl;
+  G4cout << "alphaY: " << alphaY << G4endl;
+  G4cout << "gammaX: " << gammaX << G4endl;
+  G4cout << "gammaY: " << gammaY << G4endl;
+  G4cout << "BetaX: " << betaX << G4endl;
+  G4cout << "BetaY: " << betaY << G4endl;
+  }
 
   //  Next, use the above parameters to determine the point s{X,Y} at which the phase-space ellipses have alpha{X,Y} = 0.
   //  This serves to define what I will call the "naught" positions, i.e. the positions at which the phase-space ellipses
@@ -331,11 +407,25 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
   G4double sX = -alphaX/gammaX;
   G4double sY = -alphaY/gammaY;
 
+  if ( 0 ) {
+    G4cout << "sX: " << sX << G4endl;
+    G4cout << "sY: " << sY << G4endl;
+  }
 
   //  Calculate beta{X,Y}0
   G4double betaX0 = betaX + 2*alphaX*sX + gammaX*sX*sX;
   G4double betaY0 = betaY + 2*alphaY*sY + gammaY*sY*sY;
 
+  if ( 0 ) {
+  G4cout << "BetaX0: " << betaX0 << G4endl;
+  G4cout << "BetaY0: " << betaY0 << G4endl;
+
+  G4cout << "BetaX: " << betaX << G4endl;
+  G4cout << "BetaY: " << betaY << G4endl;
+
+  G4cout << "BetaX0: " << betaX0 << G4endl;
+  G4cout << "BetaY0: " << betaY0 << G4endl;
+  }
 
   //  Calculate gamma{X,Y}0 given that alpha{X,Y}=0 using the invariant (see above).
   G4double gammaX0 = 1/betaX0;
@@ -346,6 +436,25 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
   G4double sigmaY0 = 0.0;
   G4double sigmaX0Prime = 0.0;
   G4double sigmaY0Prime = 0.0;   
+  
+  G4double MaxX = std::sqrt( epsilonX*betaX0 );
+  G4double MaxY = std::sqrt( epsilonY*betaY0 );
+
+  if ( 0 ) {
+  G4cout << "BetaX: " << betaX << G4endl;
+  G4cout << "BetaY: " << betaY << G4endl;
+  G4cout << "emitX0: " << epsilonX << G4endl;
+  G4cout << "emitY0: " << epsilonY << G4endl;
+  G4cout << "BetaX0: " << betaX0 << G4endl;
+  G4cout << "BetaY0: " << betaY0 << G4endl;
+  G4cout << "GammaX0: " << gammaX0 << G4endl;
+  G4cout << "GammaY0: " << gammaY0 << G4endl;
+  G4cout << "MaxX:  " << std::sqrt( epsilonX*betaX0 ) << G4endl;
+  G4cout << "MaxY:  " << std::sqrt( epsilonY*betaY0 ) << G4endl;
+  G4cout << "MaxX': " << std::sqrt( epsilonX*gammaX0 ) << G4endl;
+  G4cout << "MaxY': " << std::sqrt( epsilonY*gammaY0 ) << G4endl;
+  }
+
   if ( GetGenGaussian() ) {
     //  Again, we'll generate random positions/momenta by shooting 99% Gaussians, whice I've
     //  assumed represent the bounding ellipse in phase space.  The user is free to change
@@ -659,6 +768,48 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
   inflectorGun_->SetParticlePolarization( s );
 
 
+  double mrad = 0.001;
+  double x_cbo = 0.0;
+  double xp_cbo = 0.0;
+  h_xy->Fill(randX, randY);
+  h_xprimex->Fill(randX, randXPrime/mrad);
+  h_yprimey->Fill(randY, randYPrime/mrad);
+  
+  h_x_cbo->Fill(x_cbo);
+  h_xp_cbo->Fill(xp_cbo/mrad);
+  
+  h_Ax->Fill(MaxX);
+  h_Ay->Fill(MaxY);
+  
+  //h_pol->Fill(polV.dot(momV)/momV.mag());
+  //h_time_pol->Fill(decaytime/microsecond, polV.dot(momV)/momV.mag());
+  
+  double xe = 0.0;
+  h_xe->Fill(xe);
+  h_x->Fill(randX);
+  h_xp->Fill(randXPrime/mrad);
+  h_y->Fill(randY);
+  h_yp->Fill(randYPrime/mrad);
+
+  double t0 = randT;
+  double decaytime = 0.0;
+  double totaltime = randT;
+  double microsecond = 1e3;
+  h_t0->Fill(t0);
+  h_time->Fill(totaltime/microsecond);
+  h_time_m_t0->Fill((decaytime-t0)/microsecond);
+  
+  double radianlength = 0.0;
+  int counter = (int)150*(radianlength/TMath::TwoPi());
+  G4double tmod = 0.14915*((float)counter/150);
+  h_time_tmod->Fill((totaltime-tmod)/microsecond);
+  h_time_decay_tmod->Fill((decaytime-tmod)/microsecond);
+  
+  double arc0 = std::fmod(radianlength, TMath::TwoPi());
+  if ( fabs(arc0) < TMath::TwoPi()/150 ) {
+    h_time_VS0->Fill((totaltime)/microsecond);
+  }
+
   //G4cout << "x,x' = " << 
 
   //  FIRE
@@ -727,10 +878,11 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
 
     if ( GetFlatDecayTime() ) {
       G4double maxtau = GetMaxDecayTime();
-      if ( maxtau < 2000 ) {
+      if ( maxtau <= 15000 ) {
 	// assume this is actually the number of turns
 	maxtau *= (0.16  * 190.0/231.0); // tau in microseconds
       }
+      G4cout.precision(4);
       G4cout << "Decay time is flat between [0, " << maxtau << "] microseconds." << G4endl;
     }
     else {
@@ -757,10 +909,11 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
       G4cout << "sigma(y') = " << sigmaY0Prime << G4endl;
     }
     else {
-      G4cout << "sqrt(emit*betaX) = " << std::sqrt( epsilonX*betaX0 ) << G4endl;
-      G4cout << "sqrt(emit*gamX)  = " << std::sqrt( epsilonX*gammaX0 ) << G4endl;
-      G4cout << "sqrt(emit*betaY) = " << std::sqrt( epsilonY*betaY0 ) << G4endl;
-      G4cout << "sqrt(emit*gamY)  = " << std::sqrt( epsilonY*gammaY0 ) << G4endl;
+      G4cout.precision(3);
+      G4cout << "sqrt(emit*betaX) = " << std::sqrt( epsilonX*betaX0 ) << " mm." << G4endl;
+      G4cout << "sqrt(emit*gamX)  = " << std::sqrt( epsilonX*gammaX0 )*1000 << " mrad." << G4endl;
+      G4cout << "sqrt(emit*betaY) = " << std::sqrt( epsilonY*betaY0 ) << " mm." << G4endl;
+      G4cout << "sqrt(emit*gamY)  = " << std::sqrt( epsilonY*gammaY0 )*1000 << " mrad." << G4endl;
     }
     G4cout << "Particle  = " << Particle_ << G4endl;
     G4cout << "<P>       = " << Pmean << " +/- " << Pmean * dP_over_P << " MeV" << G4endl;
@@ -851,7 +1004,7 @@ void gm2ringsim::G2InflectorSource::GeneratePrimaryVertex(G4Event* evt)
       // Lab time is gamma * tau (tau = 2.2 microseconds)
       // Decay Length = gamma * beta * c * tau
 
-      if ( maxtau < 2000 ) {
+      if ( maxtau <= 15000 ) {
 	// assume this is actually the number of turns
 	maxtau /= (gm2ringsim::omegaCMagic()/TMath::TwoPi());
 	//G4cout << maxtau << G4endl;

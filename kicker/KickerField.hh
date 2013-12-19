@@ -93,7 +93,8 @@ namespace gm2ringsim {
     G4double const L;
     G4double const R;
     
-    G4double const omega, X, i0;
+    G4double const omega, X;
+    G4double i0;
 
     int Charge_;
   };
