@@ -26,8 +26,14 @@
 #include "Geant4/G4RotationMatrix.hh"
 //#include "Geant4/G4VPrimaryVertex.hh"
 
+
+
 #include "TF1.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "TFile.h"
 #include "TRandom3.h"
+
 
 // Inflector
 #include "gm2geom/inflector/InflectorGeom.hh"
@@ -165,6 +171,37 @@ namespace gm2ringsim
     TF1 *fsz;
     TF1 *fsphi;
     TRandom3 *gRandom_;
+
+    bool fill_;
+
+    TFile *f;
+    TH1F *h_Ax;
+    TH1F *h_Ay;
+    TH1F *h_xe;
+    TH1F *h_pol;
+    TH2F *h_mom_rand;
+    TH2F *h_time_pol;
+    TH1F *h_x;
+    TH1F *h_x_cbo;
+    TH1F *h_xp_cbo;
+    TH2F *h_xprimex;
+    TH2F *h_yprimey;
+    TH2F *h_xy;
+    TH1F *h_y;
+    TH1F *h_xp;
+    TH1F *h_yp;
+    TH1F *h_pz;
+    TH1F *h_pr;
+    TH1F *h_emitX;
+    TH1F *h_emitY;
+    TH1F *h_turn;
+    TH1F *h_t0;
+    TH1F *h_t0off;
+    TH1F *h_time;
+    TH1F *h_time_m_t0;
+    TH1F *h_time_tmod;
+    TH1F *h_time_decay_tmod;
+    TH1F *h_time_VS0;
     
   }; // End G2InflectorSource class
 } //namespace gm2ringsim

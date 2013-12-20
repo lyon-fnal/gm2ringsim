@@ -1788,7 +1788,10 @@ for o in ${offsets}; do
 #			echo "jobsub -e fullDir -e basename -e MYREL -N ${njobs} -g condor2.sh"
 		    fi
 		    
+		    echo "Making FCL file...."
 		    ./makefcl.sh "inflector" 
+		    echo "Making FCL file.... Done"
+
 #		    continue;
 		    if [ ${submit} == 1 ]; then
 			if [ -a cmd.sh ]; then
@@ -1827,12 +1830,27 @@ for o in ${offsets}; do
 			    else
 				touch ${fullDir}/START
 #				echo ${fullDir}/runner.fcl}
-				gm2 -c ${fullDir}/runner.fcl -o output_0.root  | tee ${fullDir}/output.dat
+				c=0
+				while [ ${c} -ge 0 ]; do
+				    if [ -a output_${c}.root ]; then
+					((c++))
+					continue;
+				    else
+					outputname="output_${c}.root"
+					break;
+				    fi
+				done
+					
+				echo "============"
+				echo "Output is ${outputname}"
+				echo "============"
+
+				gm2 -c ${fullDir}/runner.fcl -o ${outputname}  | tee ${fullDir}/output.dat
 				c=0
 				while [ ${c} -ge 0 ]; do
 				    if ! [ -a ${fullDir}/output_${c}.root ]; then
 					echo "mv output_0.root ${fullDir}/output_${c}.root"
-					mv output_0.root ${fullDir}/output_${c}.root
+					mv ${outputname} ${fullDir}/output_${c}.root
 					break;
 				    fi
 				    ((c++))

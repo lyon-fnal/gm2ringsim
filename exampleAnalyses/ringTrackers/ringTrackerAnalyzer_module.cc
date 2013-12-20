@@ -39,6 +39,16 @@
 #include "gm2ringsim/inflector/InflectorArtRecord.hh"
 #include "gm2ringsim/calo/CaloArtRecord.hh"
 
+#include "gm2geom/inflector/InflectorGeom.hh"
+
+#include "gm2dataproducts/strawtracker/WireID.hh"
+
+using gm2strawtracker::WireID;
+using gm2strawtracker::StrawView;
+using gm2strawtracker::u_view;
+using gm2strawtracker::v_view;
+using gm2strawtracker::na_view;
+
 
 #include <map>
 #include <vector>
@@ -99,10 +109,10 @@
 #define Rmin_Ring -9000.5
 #define Rmax_Ring 9000.5
 
-#define YPrimetimebin_Ring 21
+#define YPrimetimebin_Ring 63
 #define YPrimetimemin_Ring -10.5
 #define YPrimetimemax_Ring 10.5
-#define XPrimetimebin_Ring 21
+#define XPrimetimebin_Ring 63
 #define XPrimetimemin_Ring -10.5
 #define XPrimetimemax_Ring 10.5
 
@@ -119,6 +129,41 @@
 #define XPrimebin_Decay_Ring 251
 #define XPrimemin_Decay_Ring -500.5
 #define XPrimemax_Decay_Ring 500.5
+
+#define Rbin_Beam 361
+#define Rmin_Beam -45.5
+#define Rmax_Beam 45.5
+#define Xbin_Beam 361
+#define Xmin_Beam -45.5
+#define Xmax_Beam 45.5
+#define Ybin_Beam 361
+#define Ymin_Beam -45.5
+#define Ymax_Beam 45.5
+
+#define YPrimebin_Beam 201
+#define YPrimemin_Beam -20.5
+#define YPrimemax_Beam 20.5
+#define XPrimebin_Beam 201
+#define XPrimemin_Beam -20.5
+#define XPrimemax_Beam 20.5
+
+#define Rbin_Decay 501
+#define Rmin_Decay -400.5
+#define Rmax_Decay 100.5
+#define Xbin_Decay 501
+#define Xmin_Decay -400.5
+#define Xmax_Decay 100.5
+#define Ybin_Decay 200
+#define Ymin_Decay -100.5
+#define Ymax_Decay 100.5
+
+#define YPrimebin_Decay 101
+#define YPrimemin_Decay -50.5
+#define YPrimemax_Decay 50.5
+#define XPrimebin_Decay 101
+#define XPrimemin_Decay -50.5
+#define XPrimemax_Decay 50.5
+
 
 #define SpinPhasebin 101
 #define SpinPhasemin 0
@@ -148,7 +193,7 @@
 #define MuMommin 0.98
 #define MuMommax 1.02
 
-#define Momtimebin 40
+#define Momtimebin 100
 #define Momtimemin 0.98
 #define Momtimemax 1.02
 
@@ -172,7 +217,7 @@
 #define Rhatmin -60.5
 #define Rhatmax 60.5
 
-#define Rhattimebin 31
+#define Rhattimebin 61
 #define Rhattimemin -45.0
 #define Rhattimemax 45.0
 
@@ -195,12 +240,15 @@
 #define vring1p 11
 #define vring2p 8
 
+#define konestraw 17
+#define ktwostraw 23
+
 #define Nstations 12*1
 #define Nstations_spin 72*1
 #define Nstations_nospin 12
 
 #define Nringtimestamps 5
-#define Ntruthtimestamps 5
+#define Ntruthtimestamps 4
 
 #define MaxNparticles 20
 
@@ -216,10 +264,12 @@ enum {kBegin, kFinal};
 
 enum {kXe, kRhat, kVhat, kXprime, kYprime, kP, kX, kZ, kTheta, kt0, kTime, ktDecay, kPol_azimuth, kPol_radial, kPol_vertical, kPolarization, kSystemHit, kSpinPhase};
 
-enum {kPerTurn, kPerTimeSingleHit, kPerTimeOncePerTurn, kPerTimeTwicePerTurn};
+enum {kAllTime, kPerTimeSingleHit, kPerTimeOncePerTurn, kPerTimeTwicePerTurn};
 
 enum {kEarly, kMiddle, kLate, kAll};
 enum {k1tracker, k2trackers};
+
+enum {kAllStations, kAllStationsNoTimeOffset, kAllStationsNoFastRotation, kAllStationsNoTimeOffsetNoFastRotation, kQuadStations, kKickerStations, kOtherStations, kEmptyStations};
 
 // Namespace
 namespace gm2ringsim {
@@ -244,12 +294,14 @@ public:
 private:
   
   
+  std::string strawtrackerhitModuleLabel_;
+  std::string strawtrackerinstanceName_;
   std::string ringtrackerhitModuleLabel_;
   std::string ringtrackerinstanceName_;
   std::string truthhitModuleLabel_;
   std::string truthinstanceName_;
-  std::string truthfinishedhitModuleLabel_;
-  std::string truthfinishedinstanceName_;
+  std::string truthbeamscanhitModuleLabel_;
+  std::string truthbeamscaninstanceName_;
   std::string inflectorhitModuleLabel_;
   std::string inflectorinstanceName_;
   std::string ringhitModuleLabel_;
@@ -278,7 +330,9 @@ private:
   bool SaveInfHits_;
   bool SaveRingHits_;
   bool SaveCaloHits_;
+  bool SaveStrawHits_;
   bool SaveTruthHits_;
+  bool SaveBeamScanHits_;
   bool SaveVRingHits_;
   bool SaveVRing1PlaneHits_;
   
@@ -287,7 +341,12 @@ private:
   bool muongas_;
 
   bool SavePhaseSpace_;
+
+  gm2geom::InflectorGeom infGeom_;
   
+  bool IsCaloElectron(int particle);
+  bool IsStrawElectron(int particle);
+
   int IsSomething(string name);
   bool IsSomething(string name, int comp);
   bool IsKicker(string name);
@@ -295,6 +354,7 @@ private:
   bool IsCryostat(string name);
   bool IsCollimator(string name);
   bool IsInflector(string name);
+  bool IsStrawTracker(string name);
   bool IsVacuumChamber(string name);
   bool IsVirtualRingStation(string name);
   bool IsVirtualRingStation(double theta, int *num);
@@ -314,6 +374,7 @@ private:
   void ComputeMomentum(double *pol_azimuth, double *pol_radial, double *pol_vertical, double polx, double poly, double polz, double theta);
   void ComputeMomentum(double *pol_azimuth, double *pol_radial, double *pol_vertical, double polx, double poly, double polz, double x, double z);
 
+  double CaloSection(int calonum);
 
   bool FillByVRingHist();
   bool FillByVRingHist(int timestamp);
@@ -333,8 +394,11 @@ private:
 
 
   void FillTruthData(double *data, double xe, double r_truth, double y_truth, double rprime_truth, double yprime_truth, double p, double x, double z, double theta, double t0, double time, double tDecay, double polz, double polx, double poly, double Polarization, int syshit, double spinphase);
-  void FillTruthTracker(int hist, int particle, int counter, double *data);
-  void FillTruthTracker(int hist, int particle, int counter, int calonum, double *data);
+  void FillTruthTracker(int hist, int particle, int counter, double *data, double *data_decay);
+  void FillTruthTracker(int hist, int particle, int counter, int calonum, double *data, double *data_decay);
+
+  void FillBeamScan(double time, double rhat, double y, double xprime, double yprime, double theta, double mom, double polx, double poly, double polz);
+  void FillBeamScan(int hist, double xval, double rhat, double y, double xprime, double yprime, double theta, double mom, double polx, double poly, double polz);
 
   void FillTruthTurnTime(int particle, int calonum, double *data);
   void FillTruthTurnTime(double dT, int counter, int status, int pdgid, double time, double xe, double rhat, double y, double prhat, double pvhat, double mom, double theta, double polz, double polx, double poly, double e);
@@ -367,6 +431,10 @@ private:
   int Nlostdecayed = 0;
   int Ndecayed = 0;
   int Npositrons = 0;
+  int Nstrawpositrons = 0;
+  int Ngoodstrawpositrons = 0;
+  int Nstrawcalopositrons = 0;
+  int Ngoodstrawcalopositrons = 0;
   int Ncalopositrons = 0;
   int NcalopositronsEgtEth = 0;
   int Nstart_inflector = 0;
@@ -394,6 +462,34 @@ private:
   bool spin_decay;
   bool keep_edm_plots;
   int Nstat;
+
+  
+  TTree *tree_, *bs_tree_;
+
+  float bs_time;
+  float bs_rhat;
+  float bs_vhat;
+  float bs_pol;
+  float bs_mom;
+
+  float mu_rhat;
+  float mu_vhat;
+  float mu_pol;
+  float mu_mom;  
+  float pt_time;
+  float pt_tmod;
+  float pt_faoff;
+  float pt_energy;
+  float pt_vhat;
+  int pt_calo;
+
+  int Npart[MaxNparticles];
+  double Npart_Rhat[MaxNparticles];
+  double Npart_Yhat[MaxNparticles];
+  double Npart_Mom[MaxNparticles];
+  double Npart_Time[MaxNparticles];
+  double Npart_PDGID[MaxNparticles];
+  double Npart_Status[MaxNparticles];
   
   //-------------------------------
   // Kicker/Quad/Launch Information
@@ -511,12 +607,20 @@ private:
 
 
   //------------------
+  // Straw Information
+  //------------------
+  TH2F *h_StrawTracker_XZ;
+  TH1F *h_StrawTracker_NumStations;
+
+
+  //------------------
   // Truth Information
   //------------------
   int Ntruthtimes;
   int Nparticles;
   map<string, int> truth_particle_nums;
   string truth_particle_names[20];
+  map<int, int> truth_particle_multiplicity;
   TH1F *h_G4Tracker_Xe[Ntruthtimestamps][24][MaxNparticles];
   TH1F *h_G4Tracker_Rhat[Ntruthtimestamps][24][MaxNparticles];
   TH2F *h_G4Tracker_ThetaRhat[Ntruthtimestamps][24][MaxNparticles];
@@ -545,25 +649,41 @@ private:
   TH2F *h_G4Tracker_dYprimedY[Ntruthtimestamps][24][MaxNparticles];
   TH2F *h_G4Tracker_dXprimedX[Ntruthtimestamps][24][MaxNparticles];
   
+  // Straw Electron Specific Histograms
+  TH1F *h_G4Tracker_NumStrawStations[Ntruthtimestamps][24][MaxNparticles];
+  TH1F *h_G4Tracker_NumStraw[Ntruthtimestamps][24][MaxNparticles];
+  TH1F *h_G4Tracker_NumStraw_with_SystemHits[Ntruthtimestamps][24][MaxNparticles];
+  TH1F *h_G4Tracker_NumStraw_without_SystemHits[Ntruthtimestamps][24][MaxNparticles];
+  TH1F *h_G4Tracker_NumStraw_with_Mom[Ntruthtimestamps][24][MaxNparticles];
+  TH2F *h_G4Tracker_StrawNum_vs_Energy[Ntruthtimestamps][24][MaxNparticles];
+  TH2F *h_G4Tracker_StrawNum_vs_Theta[Ntruthtimestamps][24][MaxNparticles];
+  TH2F *h_G4Tracker_StrawNum_vs_DeltaP[Ntruthtimestamps][24][MaxNparticles];
+  TH2F *h_G4Tracker_NumStrawStations_vs_Energy[Ntruthtimestamps][24][MaxNparticles];
+
+
   // Decay Electron Specific Histograms
   TH1F *h_G4Tracker_NumCalo[Ntruthtimestamps][24][MaxNparticles];
   TH1F *h_G4Tracker_NumCalo_with_SystemHits[Ntruthtimestamps][24][MaxNparticles];
   TH1F *h_G4Tracker_NumCalo_without_SystemHits[Ntruthtimestamps][24][MaxNparticles];
   TH1F *h_G4Tracker_NumCalo_with_Mom[Ntruthtimestamps][24][MaxNparticles];
+  TH2F *h_G4Tracker_CaloNum_vs_Energy[Ntruthtimestamps][24][MaxNparticles];
+  TH2F *h_G4Tracker_CaloNum_vs_Theta[Ntruthtimestamps][24][MaxNparticles];
+  TH2F *h_G4Tracker_CaloNum_vs_DeltaP[Ntruthtimestamps][24][MaxNparticles];
+
+  // Decay & Straw Electron Specific Histograms
   TH1F *h_G4Tracker_DriftTime[Ntruthtimestamps][24][MaxNparticles];
   TH2F *h_G4Tracker_DriftTime_vs_DeltaR[Ntruthtimestamps][24][MaxNparticles];
   TH1F *h_G4Tracker_DeltaR[Ntruthtimestamps][24][MaxNparticles];
   TH2F *h_G4Tracker_DeltaR_vs_Energy[Ntruthtimestamps][24][MaxNparticles];
-  TH2F *h_G4Tracker_CaloNum_vs_Energy[Ntruthtimestamps][24][MaxNparticles];
-  TH2F *h_G4Tracker_CaloNum_vs_Theta[Ntruthtimestamps][24][MaxNparticles];
   TH1F *h_G4Tracker_Theta_with_SystemHits[Ntruthtimestamps][24][MaxNparticles];
   TH1F *h_G4Tracker_Theta_without_SystemHits[Ntruthtimestamps][24][MaxNparticles];
   TH1F *h_G4Tracker_DeltaTheta[Ntruthtimestamps][24][MaxNparticles];
   TH2F *h_G4Tracker_DeltaTheta_vs_Energy[Ntruthtimestamps][24][MaxNparticles];
   TH2F *h_G4Tracker_DeltaR_vs_DeltaP[Ntruthtimestamps][24][MaxNparticles];
-  TH2F *h_G4Tracker_CaloNum_vs_DeltaP[Ntruthtimestamps][24][MaxNparticles];
   TH1F *h_G4Tracker_DeltaP[Ntruthtimestamps][24][MaxNparticles];
   TH2F *h_G4Tracker_Rhat_vs_DeltaP[Ntruthtimestamps][24][MaxNparticles];
+
+
 
   TH2F *h_G4Tracker_R_vs_Time[Ntruthtimestamps][MaxNparticles];
   TH2F *h_G4Tracker_Rhat_vs_Time[Ntruthtimestamps][MaxNparticles];
@@ -581,6 +701,7 @@ private:
   TH2F *h_G4Tracker_Theta_vs_Time[Ntruthtimestamps][MaxNparticles];
   TH2F *h_G4Tracker_E_vs_Time[Ntruthtimestamps][MaxNparticles];
   TH2F *h_G4Tracker_NumCalo_vs_Time[Ntruthtimestamps][MaxNparticles];
+  TH2F *h_G4Tracker_NumStraw_vs_Time[Ntruthtimestamps][MaxNparticles];
   
   TH1F *h_G4Tracker_TimeOffset_vs_Time[Ntruthtimestamps][MaxNparticles];
   TH1F *h_G4Tracker_NwghtE_vs_Time[Ntruthtimestamps][26][MaxNparticles];
@@ -595,6 +716,21 @@ private:
   TH1F *h_G4Tracker_IntDiffNud_vs_Time[Ntruthtimestamps][26][MaxNparticles];
   int G4Tracker_Nu[MaxNparticles];
   int G4Tracker_Nd[MaxNparticles];
+
+
+
+  TH2F *h_BeamScan_R_vs_Time[Ntruthtimestamps][4];
+  TH2F *h_BeamScan_Rhat_vs_Time[Ntruthtimestamps][4];
+  TH2F *h_BeamScan_Xprime_vs_Time[Ntruthtimestamps][4];
+  TH2F *h_BeamScan_Yprime_vs_Time[Ntruthtimestamps][4];
+  TH2F *h_BeamScan_Mom_vs_Time[Ntruthtimestamps][4];
+  TH2F *h_BeamScan_Y_vs_Time[Ntruthtimestamps][4];
+  TH2F *h_BeamScan_Y2_vs_Time[Ntruthtimestamps][4];
+  TH2F *h_BeamScan_SpinPhase_vs_Time[Ntruthtimestamps][4];
+  TH2F *h_BeamScan_PolX_vs_Time[Ntruthtimestamps][4];
+  TH2F *h_BeamScan_PolY_vs_Time[Ntruthtimestamps][4];
+  TH2F *h_BeamScan_Theta_vs_Time[Ntruthtimestamps][4];
+
 
 
   //--------------------------
@@ -657,6 +793,7 @@ private:
   TVector3 xAxis_beam_, yAxis_beam_, zAxis_beam_;
   TVector3 beamStart_;
   double rhat_offset, yhat_offset;
+  bool start_perfect_;
   TLorentzVector firstdecay;  
   TLorentzVector firstdecay_spin;  
   TLorentzVector firstdecay_spin_500ns; 
@@ -664,10 +801,22 @@ private:
   TLorentzVector firstdecay_spin_2us;  
   TLorentzVector firstdecay_spin_3us;  
 
+  int calosyshits[24][6];
+
 
   double BirthElectronData[20];
   double BirthElectronEgtEthData[20];
+  double StrawElectronData[20];
+  double StrawCaloElectronData[20];
+  double GoodStrawElectronData[20];
+  double GoodStrawCaloElectronData[20];
+  double GoodOneStrawCaloElectronData[20];
+  double GoodTwoStrawCaloElectronData[20];
   double DecayElectronData[20];
+  double DecayElectronQuadSectionData[20];
+  double DecayElectronKickerSectionData[20];
+  double DecayElectronOtherSectionData[20];
+  double DecayElectronEmptySectionData[20];
   double DecayElectronEltEthData[20];
   double DecayElectronEgtEthData[20];
   double DecayElectronEgtHghEthData[20];
@@ -708,23 +857,29 @@ void gm2ringsim::ringTrackerAnalyzer::endRun(art::Run const &r)
   cout << "Lost-Decayed              : " << Nlostdecayed << endl;
   cout << "Decayed                   : " << Ndecayed << endl;
   cout << "Positrons                 : " << Npositrons << endl;
+  cout << "Positrons (Straw)         : " << Nstrawpositrons << endl;
+  cout << "Positrons (Straw/calo)    : " << Nstrawcalopositrons << endl;
+  cout << "Positrons (Straw+5)       : " << Ngoodstrawpositrons << endl;
+  cout << "Positrons (Straw+5/calo)  : " << Ngoodstrawcalopositrons << endl;
   cout << "Positrons (Calo)          : " << Ncalopositrons << endl;
   cout << "Positrons (Calo, E>1.8)   : " << NcalopositronsEgtEth << endl;
-  h_Nparticles->Fill(truth_particle_nums["BirthMuon"], Ngen);
-  h_Nparticles->Fill(truth_particle_nums["StoredMuon"], Nstored);
-  h_Nparticles->Fill(truth_particle_nums["LostMuon"], Nlost);
-  h_Nparticles->Fill(truth_particle_nums["LostDecayMuon"], Nlostdecayed);
-  h_Nparticles->Fill(truth_particle_nums["DecayMuon"], Ndecayed);
-  h_Nparticles->Fill(truth_particle_nums["BirthElectron"], Npositrons);
-  h_Nparticles->Fill(truth_particle_nums["DecayElectron"], Ncalopositrons);
-  h_Nparticles->Fill(truth_particle_nums["DecayElectornEgtEth"], NcalopositronsEgtEth);
+  for ( int i = 0; i < Nparticles; i++ ) {
+    string name = truth_particle_names[i];
+    int particle = truth_particle_nums[name];
+    h_Nparticles->Fill(particle, truth_particle_multiplicity[particle]);
+  }
 
   if ( debug_ ) {
     cout << "Filling Nparticles." << endl;
   }
+  cout << "---------------------------------" << endl;
   for ( int i = 0; i < Nparticles; i++ ) {
-    h_Nparticles->GetXaxis()->SetBinLabel(i+1, truth_particle_names[i].c_str());
+    string name = truth_particle_names[i];
+    int particle = truth_particle_nums[name];
+    h_Nparticles->GetXaxis()->SetBinLabel(i+1, name.c_str());
+    cout << "| " << truth_particle_multiplicity[particle] << " \t" << name << endl;
   }
+  cout << "---------------------------------" << endl;
   if ( debug_ ) {
     cout << "Filling Nparticles. - Done" << endl;
   }
@@ -841,7 +996,8 @@ void gm2ringsim::ringTrackerAnalyzer::endRun(art::Run const &r)
   }
   }
 
-  
+
+  if ( fill_ ) {
   cout << "============ TRUTH INFORMATION ============" << endl;
 
   int tmp_particle = truth_particle_nums["DecayMuon"];
@@ -891,7 +1047,7 @@ void gm2ringsim::ringTrackerAnalyzer::endRun(art::Run const &r)
   ComputePolarization(&pol_azimuth, &pol_radial, &pol_vertical, firstdecay_spin_3us.X(), firstdecay_spin_3us.Y(), firstdecay_spin_3us.Z());
   G4cout << "  sZ (3us)   = " << pol_azimuth << "  (t=" << firstdecay_spin_3us.T() << ")" << G4endl;
   G4cout << G4endl;
-
+  }
 
 
   if ( FillByVRingHist() ) {	    
@@ -943,28 +1099,27 @@ void gm2ringsim::ringTrackerAnalyzer::endRun(art::Run const &r)
 
 
   cout << "======================" << endl;
-  if ( maxturnsreal_ >= 5 ) {
-    cout << "Pass 5 turns:   " << Npass_Nturns[0][1] << endl;
-    if ( maxturnsreal_ >= 10 ) {
-      cout << "Pass 10 turns:  " << Npass_Nturns[1][1] << endl;
-      if ( maxturnsreal_ >= 50 ) {
-	cout << "Pass 50 turns:  " << Npass_Nturns[2][1] << endl;
-	if ( maxturnsreal_ >= 100 ) {
-	  cout << "Pass 100 turns: " << Npass_Nturns[3][1] << endl;
-	}
-      }
+  for ( int i = 0; i <= maxturnsreal_; i++ ) {
+    if ( i == 5 || i == 10 || i == 50 || i == 100 || i == 500 || i == 1000 || i == maxturnsreal_ ) {
+      if ( Nsurvived[i] == 0 ) { break; }
+      if ( i < 10 ) { cout << "Muons Surviving " << i << " turns:    " << Nsurvived[i] << endl; }
+      else if ( i < 100 ) { cout << "Muons Surviving " << i << " turns:   " << Nsurvived[i] << endl; }
+      else if ( i < 1000 ) { cout << "Muons Surviving " << i << " turns:  " << Nsurvived[i] << endl; }
+      else if ( i < 10000 ) { cout << "Muons Surviving " << i << " turns: " << Nsurvived[i] << endl; }
     }
-  }
-  
-  if ( maxturnsreal_ < 100 ) {
-    cout << "Pass " << maxturnsreal_ << " turns:  " << Npass_final << endl;
-  }
-  else {
-    cout << "Pass " << maxturnsreal_ << " turns: " << Npass_final << endl;
   }
   cout << "======================" << endl;
   cout << endl;
+
   
+  cout << "Calo\tQuad\tKicker\tColl\tVac\tOther\tNothing" << endl;
+  for ( int i = 0; i < 24; i++ ) {
+    int sum = 0;
+    for ( int j = 0; j < 6; j++ ) { sum += calosyshits[i][j]; }
+    if ( sum > 0 ) {
+      cout << i << "\t" << calosyshits[i][0] << "\t" << calosyshits[i][1] << "\t" << calosyshits[i][2] << "\t" << calosyshits[i][3] << "\t" << calosyshits[i][4] << "\t" << calosyshits[i][5] << endl;    
+    }
+  }
 
   if ( debug_ ) { cout << "Done with the job." << endl; }
 }
@@ -972,12 +1127,14 @@ void gm2ringsim::ringTrackerAnalyzer::endRun(art::Run const &r)
   
 gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &p) :
   art::EDAnalyzer(p),
+  strawtrackerhitModuleLabel_ ( p.get<std::string>("strawtrackerhitModuleLabel",  "artg4"   ) ),
+  strawtrackerinstanceName_   ( p.get<std::string>("strawtrackerinstanceName",    "straws"     ) ),
   ringtrackerhitModuleLabel_ ( p.get<std::string>("ringtrackerhitModuleLabel",  "artg4"   ) ),
   ringtrackerinstanceName_   ( p.get<std::string>("ringtrackerinstanceName",    "VirtualRingStation"     ) ),
   truthhitModuleLabel_       ( p.get<std::string>("truthhitModuleLabel",  "artg4"   ) ),
   truthinstanceName_         ( p.get<std::string>("truthinstanceName",    ""     ) ),
-  truthfinishedhitModuleLabel_       ( p.get<std::string>("truthfinishedhitModuleLabel",  "artg4"   ) ),
-  truthfinishedinstanceName_         ( p.get<std::string>("truthfinishedinstanceName",    "FinishedTracks"     ) ),
+  truthbeamscanhitModuleLabel_       ( p.get<std::string>("truthbeamscanhitModuleLabel",  "artg4"   ) ),
+  truthbeamscaninstanceName_         ( p.get<std::string>("truthbeamscaninstanceName",    "BeamScanTracks"     ) ),
   inflectorhitModuleLabel_   ( p.get<std::string>("inflectorhitModuleLabel",  "artg4"   ) ),
   inflectorinstanceName_     ( p.get<std::string>("inflectorinstanceName",    "inflector"     ) ),
   ringhitModuleLabel_        ( p.get<std::string>("ringhitModuleLabel",  "artg4"   ) ),
@@ -998,13 +1155,15 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
   SaveInfHits_      ( p.get<bool>("SaveInfHits", false)),
   SaveRingHits_      ( p.get<bool>("SaveRingHits", false)),
   SaveCaloHits_      ( p.get<bool>("SaveCaloHits", false)),
+  SaveStrawHits_      ( p.get<bool>("SaveStrawHits", false)),
   SaveTruthHits_      ( p.get<bool>("SaveTruthHits", false)),
+  SaveBeamScanHits_      ( p.get<bool>("SaveBeamScanHits", false)),
   SaveVRingHits_      ( p.get<bool>("SaveVRingHits", false)),
   SaveVRing1PlaneHits_      ( p.get<bool>("SaveVRing1PlaneHits", false)),
   debug_                    ( p.get<bool>("debug", false)),
   fill_                    ( p.get<bool>("fill", true)),	
   muongas_                    ( p.get<bool>("muongas", true)),	
-  SavePhaseSpace_                    ( p.get<bool>("SavePhaseSpace", false))	
+  SavePhaseSpace_                    ( p.get<bool>("SavePhaseSpace", false))
 {
   //truthinstanceName_   ( p.get<std::string>("truthinstanceName",    "TrackingAction"     ) ),
   // You could require that hist_dir and tree_dir have some real strings, but what if the
@@ -1024,6 +1183,7 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
 //     SaveVRing1PlaneHits_ = true;
 //     SaveVRingHits_ = true;
 //   }
+  //SaveVRingHits_ = false;
 
   cout << "==========================================" << endl;
   cout << "ringTrackerAnalyzer::ringTrackerAnalyzer()" << endl;
@@ -1035,11 +1195,14 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
   cout << "  -> Launch:    " << LaunchAngle_ << " mrad." << endl;
   cout << "  -> Inflector: " << InflectorAngle_ << " mrad." << endl;
   cout << "  -> Offset:    " << StorageOffset_ << " mm." << endl;
+  if ( fill_ ) { cout << "  -> Filling histograms." << endl; }
   if ( SavePhaseSpace_ ) { cout << "  -> Saving Phase Space." << endl; }
   if ( SaveInfHits_ ) { cout << "  -> Saving inflector hits." << endl; }
   if ( SaveRingHits_ ) { cout << "  -> Saving ring hits." << endl; }
   if ( SaveCaloHits_ ) { cout << "  -> Saving calo hits." << endl; }
+  if ( SaveStrawHits_ ) { cout << "  -> Saving straw hits." << endl; }
   if ( SaveTruthHits_ ) { cout << "  -> Saving truth hits." << endl; }
+  if ( SaveBeamScanHits_ ) { cout << "  -> Saving beam scan hits." << endl; }
   if ( SaveVRingHits_ ) { cout << "  -> Saving virtual ring hits." << endl; }
   if ( SaveVRing1PlaneHits_ ) { cout << "  -> Saving virtual ring (1 plane) hits." << endl; }  
   cout << "==========================================" << endl;
@@ -1060,6 +1223,15 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
   // Create the histogram objects
 
   //debug_ = false;
+
+  for ( int i = 0; i < 24; i++ ) {
+    for ( int j = 0; j < 6; j++ ) {
+      calosyshits[i][j] = 0;
+    }
+  }
+
+
+  gm2geom::InflectorGeom infGeom_("inflector");
 
   firstdecay.SetT(9999.9);
   maxturns_ = maxturnsreal_;
@@ -1176,8 +1348,8 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
 
   Ntimestamps = 0;
 
-  timestamp_map[Ntimestamps] = kPerTurn;
-  timestamps[Ntimestamps++] = "Turn";
+  timestamp_map[Ntimestamps] = kAllTime;
+  timestamps[Ntimestamps++] = "Time";
 
   timestamp_map[Ntimestamps] = kPerTimeSingleHit;
   timestamps[Ntimestamps++] = "TimeSingleHit";
@@ -1198,6 +1370,16 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
   truth_particle_nums["BirthElectron"] = -1;
   truth_particle_nums["BirthElectronEgtEth"] = -1;
   truth_particle_nums["DecayElectron"] = -1;
+  truth_particle_nums["StrawElectron"] = -1;
+  truth_particle_nums["StrawCaloElectron"] = -1;
+  truth_particle_nums["GoodStrawElectron"] = -1;
+  truth_particle_nums["GoodStrawCaloElectron"] = -1;
+  truth_particle_nums["GoodOneStrawCaloElectron"] = -1;
+  truth_particle_nums["GoodTwoStrawCaloElectron"] = -1;
+  truth_particle_nums["DecayElectronQuadSection"] = -1;
+  truth_particle_nums["DecayElectronOtherSection"] = -1;
+  truth_particle_nums["DecayElectronKickerSection"] = -1;
+  truth_particle_nums["DecayElectronEmptySection"] = -1;
   truth_particle_nums["DecayElectronEltEth"] = -1;
   truth_particle_nums["DecayElectronEgtEth"] = -1;
   truth_particle_nums["DecayElectronEgtHghEth"] = -1;
@@ -1205,6 +1387,7 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
   truth_particle_nums["DecayElectronShortDriftTime"] = -1;
   for ( int i = 0; i < MaxNparticles; i++ ) { 
     truth_particle_names[i] = "";
+    truth_particle_multiplicity[i] = 0;
   }
 
   
@@ -1236,8 +1419,14 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
     if ( muongas_ ) {
       truth_particle_names[Nparticles++] = "BirthMuon";
       truth_particle_names[Nparticles++] = "DecayMuon";
-      truth_particle_names[Nparticles++] = "BirthElectron";
+      //truth_particle_names[Nparticles++] = "BirthElectron";
       truth_particle_names[Nparticles++] = "BirthElectronEgtEth";
+      //truth_particle_names[Nparticles++] = "StrawElectron";
+      //truth_particle_names[Nparticles++] = "GoodStrawElectron";
+      //truth_particle_names[Nparticles++] = "StrawCaloElectron";
+      truth_particle_names[Nparticles++] = "GoodStrawCaloElectron";
+      //truth_particle_names[Nparticles++] = "GoodOneStrawCaloElectron";
+      //truth_particle_names[Nparticles++] = "GoodTwoStrawCaloElectron";
       truth_particle_names[Nparticles++] = "DecayElectron";
       truth_particle_names[Nparticles++] = "DecayElectronEgtEth";
     }
@@ -1245,15 +1434,29 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
       Nparticles = 0;
       truth_particle_names[Nparticles++] = "BirthMuon";
       truth_particle_names[Nparticles++] = "DecayMuon";
+      truth_particle_names[Nparticles++] = "BirthElectron";
       truth_particle_names[Nparticles++] = "BirthElectronEgtEth";
+      //truth_particle_names[Nparticles++] = "StrawElectron";
+      //truth_particle_names[Nparticles++] = "GoodStrawElectron";
+      //truth_particle_names[Nparticles++] = "StrawCaloElectron";
+      truth_particle_names[Nparticles++] = "GoodStrawCaloElectron";
+      //truth_particle_names[Nparticles++] = "GoodOneStrawCaloElectron";
+      //truth_particle_names[Nparticles++] = "GoodTwoStrawCaloElectron";
+      truth_particle_names[Nparticles++] = "DecayElectron";
+      truth_particle_names[Nparticles++] = "DecayElectronEgtEth";
+
       if ( 0 ) {
 	truth_particle_names[Nparticles++] = "LostDecayMuon";
 	truth_particle_names[Nparticles++] = "LostMuon";
 	truth_particle_names[Nparticles++] = "StoredMuon";
-	truth_particle_names[Nparticles++] = "BirthElectron";
       }
-      truth_particle_names[Nparticles++] = "DecayElectron";
-      truth_particle_names[Nparticles++] = "DecayElectronEgtEth";
+
+      if ( 0 ) {
+	truth_particle_names[Nparticles++] = "DecayElectronQuadSection";
+	truth_particle_names[Nparticles++] = "DecayElectronKickerSection";
+	truth_particle_names[Nparticles++] = "DecayElectronOtherSection";
+	truth_particle_names[Nparticles++] = "DecayElectronEmptySection";
+      }
       //truth_particle_names[Nparticles++] = "DecayElectronEltEth";
       //truth_particle_names[Nparticles++] = "DecayElectronEgtHghEth";
       //truth_particle_names[Nparticles++] = "DecayElectronLongDriftTime";
@@ -1285,6 +1488,25 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
   fill = fill_;
 
 
+  tree_ = histDir.make<TTree>("positrons", "Tree of hits");
+  tree_->Branch("time", &pt_time, "time/F");
+  tree_->Branch("tmod", &pt_tmod, "tmod/F");
+  tree_->Branch("faoff", &pt_faoff, "faoff/F");
+  tree_->Branch("energy", &pt_energy, "energy/F");
+  tree_->Branch("vhat", &pt_vhat, "vhat/F");
+  tree_->Branch("calo", &pt_calo, "calo/I");
+  tree_->Branch("mu_vhat", &mu_vhat, "mu_vhat/F");
+  tree_->Branch("mu_rhat", &mu_rhat, "mu_rhat/F");
+  tree_->Branch("mu_pol", &mu_pol, "mu_pol/F");
+  tree_->Branch("mu_mom", &mu_mom, "mu_mom/F");
+
+
+  bs_tree_ = histDir.make<TTree>("beamscan", "Tree of hits");
+  bs_tree_->Branch("bs_time", &bs_time, "bs_time/F");
+  bs_tree_->Branch("bs_vhat", &bs_vhat, "bs_vhat/F");
+  bs_tree_->Branch("bs_rhat", &bs_rhat, "bs_rhat/F");
+  bs_tree_->Branch("bs_pol", &bs_pol, "bs_pol/F");
+  bs_tree_->Branch("bs_mom", &bs_mom, "bs_mom/F");
  
   stringstream hname;
 
@@ -1666,6 +1888,20 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
   } // if ( SaveVRingHits_ )
 
 
+  if ( SaveStrawHits_ ) {
+    stringstream hname;
+    hname << "StrawTracker_XZ";
+    h_StrawTracker_XZ = histDir.make<TH2F>(hname.str().c_str(), "", Rbin_Ring, Rmin_Ring, Rmax_Ring, Rbin_Ring, Rmin_Ring, Rmax_Ring);
+    h_StrawTracker_XZ->SetXTitle("z_{ring} [mm]");
+    h_StrawTracker_XZ->SetYTitle("x_{ring} [mm]");    
+    hname.str("");
+
+    hname << "StrawTracker_NumStations";
+    h_StrawTracker_NumStations = histDir.make<TH1F>(hname.str().c_str(), "", 30, -0.5, 29.5);
+    h_StrawTracker_NumStations->SetXTitle("Number of Stations w/ 4+ Hits");
+    hname.str("");
+  }
+
 
   if ( FillByVRingHist() ) {
 
@@ -1677,7 +1913,7 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
 	
 	if ( !FillByVRingHist(t) ) { continue; }
 
-	if ( timestamp_map[t] == kPerTurn ) { xtitle = "Turn"; }
+	if ( timestamp_map[t] == kAllTime ) { xtitle = "Time [#mus]"; }
 	if ( timestamp_map[t] == kPerTimeSingleHit ) { xtitle = "Time [#mus]"; }
 	if ( timestamp_map[t] == kPerTimeOncePerTurn ||
 	     timestamp_map[t] == kPerTimeTwicePerTurn ) { xtitle = "Time [#mus]"; }
@@ -1697,9 +1933,9 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
 	double timebinning = 0.005; // microseconds
 
 	double maxt = maxturns_;
-	if ( timestamp_map[t] == kPerTurn ) {
-	  maxt = maxturns_;
-	  timebinning = timebinning; // microseconds
+	if ( timestamp_map[t] == kAllTime ) {
+	  maxt = maxturns_* timeperturn;
+	  timebinning = 0.16; // microseconds
 	}
 	if ( timestamp_map[t] == kPerTimeOncePerTurn || timestamp_map[t] == kPerTimeSingleHit ) {
 	  maxt = maxturns_* timeperturn;
@@ -1882,7 +2118,148 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
   if ( debug_ ) { cout << "Created ring tracker histograms." << endl; }
 
   
+  if ( SaveBeamScanHits_ && fill_ ) {
+
+	  
+    int rbin  = Rhattimebin;
+    int rmin  = Rhattimemin;
+    int rmax  = Rhattimemax;
+    int xbin  = Rhattimebin;
+    int xmin  = Rhattimemin;
+    int xmax  = Rhattimemax;
+    int ybin  = Rhattimebin;
+    int ymin  = Rhattimemin;
+    int ymax  = Rhattimemax;
+    int xpbin = XPrimetimebin_Ring;
+    int xpmin = XPrimetimemin_Ring;
+    int xpmax = XPrimetimemax_Ring;
+    int ypbin = YPrimetimebin_Ring;
+    int ypmin = YPrimetimemin_Ring;
+    int ypmax = YPrimetimemax_Ring;
+
+
+    for ( int t = 0; t < Ntruthtimestamps; t++ ) {
+      
+      if ( !FillByTimestamp(t) ) { continue; }
+
+      string timename, xtitle;
+      if ( timestamp_map[t] == kAllTime ) { xtitle = "Time [#mus]"; }
+      if ( timestamp_map[t] == kPerTimeOncePerTurn ||
+	   timestamp_map[t] == kPerTimeSingleHit || 
+	   timestamp_map[t] == kPerTimeTwicePerTurn ) { xtitle = "Time [#mus]"; }
+      timename = timestamps[t];
+      
+
+      double timeperturn = 0.14915;
+      int hitsperturn = 12;
+      double maxt = maxturns_;
+      double timebinning = 0.005;
+      if ( timestamp_map[t] == kAllTime ) {
+	timebinning = timeperturn;
+	maxt = maxturns_* timeperturn;
+      }
+      if ( timestamp_map[t] == kPerTimeSingleHit ) {
+	maxt = maxturns_* timeperturn;
+	timebinning = 0.14915;
+	//timebinning = 0.0025;
+      }
+      if ( timestamp_map[t] == kPerTimeOncePerTurn ) {
+	maxt = maxturns_* timeperturn;
+	timebinning = timeperturn / 4;
+      }
+      if ( timestamp_map[t] == kPerTimeTwicePerTurn ) { 
+	maxt = maxturns_* timeperturn;
+	timebinning = timeperturn / 4;
+      }
+      
+      if ( maxturns_ > 200 ) { timebinning = TMath::Max(0.14915/4, timebinning); }
+      
+      
+      int binsperturn = (int)(timeperturn/timebinning);
+      int Nbins = maxturns_ * binsperturn;
+
+      for ( int m = 0; m < 4; m++ ) {
+	string momname = "";
+	if ( m == 1 ) { momname = "_HighMom"; }
+	if ( m == 2 ) { momname = "_LowMom"; }
+	if ( m == 3 ) { momname = "_MagicMom"; }
+      
+      stringstream hname;
+      hname << "BeamScan_Rhat_vs_" << timename << momname;
+    h_BeamScan_Rhat_vs_Time[t][m] = histDir.make<TH2F>(hname.str().c_str(), "", Nbins, 0.0, maxt, rbin, rmin, rmax);
+    h_BeamScan_Rhat_vs_Time[t][m]->SetYTitle("x_{ring} #equiv R - R_{m} [mm]");
+    h_BeamScan_Rhat_vs_Time[t][m]->SetXTitle(xtitle.c_str());
+    hname.str("");
+    
+    hname << "BeamScan_Y_vs_" << timename << momname;
+    h_BeamScan_Y_vs_Time[t][m] = histDir.make<TH2F>(hname.str().c_str(), "", Nbins, 0.0, maxt, rbin, rmin, rmax);
+    h_BeamScan_Y_vs_Time[t][m]->SetYTitle("y_{ring} [mm]");
+    h_BeamScan_Y_vs_Time[t][m]->SetXTitle(xtitle.c_str());
+    hname.str("");
+    
+    hname << "BeamScan_Y2_vs_" << timename << momname;
+    h_BeamScan_Y2_vs_Time[t][m] = histDir.make<TH2F>(hname.str().c_str(), "", Nbins, 0.0, maxt, rbin, 0.0, rmax*rmax);
+    h_BeamScan_Y2_vs_Time[t][m]->SetYTitle("y^{2}_{ring} [mm]");
+    h_BeamScan_Y2_vs_Time[t][m]->SetXTitle(xtitle.c_str());
+    hname.str("");
+    
+    hname << "BeamScan_R_vs_" << timename << momname;
+    h_BeamScan_R_vs_Time[t][m] = histDir.make<TH2F>(hname.str().c_str(), "", Nbins, 0.0, maxt, rbin, 0.0, rmax);
+    h_BeamScan_R_vs_Time[t][m]->SetYTitle("R = |#hat{r} + #hat{y}| [mm]");
+    h_BeamScan_R_vs_Time[t][m]->SetXTitle(xtitle.c_str());
+    hname.str("");   
+      
+    hname << "BeamScan_Xprime_vs_" << timename << momname;
+    h_BeamScan_Xprime_vs_Time[t][m] = histDir.make<TH2F>(hname.str().c_str(), "", Nbins, 0.0, maxt, xpbin, xpmin, xpmax);
+    h_BeamScan_Xprime_vs_Time[t][m]->SetYTitle("x'_{gen} #equiv P_{x}/P_{z} [mrad]");
+    h_BeamScan_Xprime_vs_Time[t][m]->SetXTitle(xtitle.c_str());
+    hname.str("");
+    
+    hname << "BeamScan_Yprime_vs_" << timename << momname;
+    h_BeamScan_Yprime_vs_Time[t][m] = histDir.make<TH2F>(hname.str().c_str(), "", Nbins, 0.0, maxt, ypbin, ypmin, ypmax);
+    h_BeamScan_Yprime_vs_Time[t][m]->SetYTitle("y'_{gen} #equiv P_{y}/P_{z} [mrad]");
+    h_BeamScan_Yprime_vs_Time[t][m]->SetXTitle(xtitle.c_str());
+    hname.str("");	  
+    
+    hname << "BeamScan_Mom_vs_" << timename << momname;
+    h_BeamScan_Mom_vs_Time[t][m] = histDir.make<TH2F>(hname.str().c_str(), "", Nbins, 0.0, maxt, Momtimebin, Momtimemin, Momtimemax);
+    h_BeamScan_Mom_vs_Time[t][m]->SetYTitle("P_{#mu} / P_{m}");
+    h_BeamScan_Mom_vs_Time[t][m]->SetXTitle(xtitle.c_str());
+    hname.str("");
+    
+    hname << "BeamScan_SpinPhase_vs_" << timename << momname;
+    h_BeamScan_SpinPhase_vs_Time[t][m] = histDir.make<TH2F>(hname.str().c_str(), "", Nbins, 0.0, maxt, SpinPhasebin/5+1, SpinPhasemin, SpinPhasemax);
+    h_BeamScan_SpinPhase_vs_Time[t][m]->SetYTitle("cos^{-1}(#hat{s}#bullet#hat{p}_{z})");
+    h_BeamScan_SpinPhase_vs_Time[t][m]->SetXTitle(xtitle.c_str());
+    hname.str("");
+    
+    hname << "BeamScan_PolX_vs_" << timename << momname;
+    h_BeamScan_PolX_vs_Time[t][m] = histDir.make<TH2F>(hname.str().c_str(), "", Nbins, 0.0, maxt, Poltimebin, Poltimemin, Poltimemax);
+    h_BeamScan_PolX_vs_Time[t][m]->SetYTitle("#hat{s}#bullet#hat{p}_{r}");
+    h_BeamScan_PolX_vs_Time[t][m]->SetXTitle(xtitle.c_str());
+    hname.str("");
+    
+    hname << "BeamScan_PolY_vs_" << timename << momname;
+    h_BeamScan_PolY_vs_Time[t][m] = histDir.make<TH2F>(hname.str().c_str(), "", Nbins, 0.0, maxt, PoltimeYbin, PoltimeYmin, PoltimeYmax);
+    h_BeamScan_PolY_vs_Time[t][m]->SetYTitle("#hat{s}#bullet#hat{p}_{y}");
+    h_BeamScan_PolY_vs_Time[t][m]->SetXTitle(xtitle.c_str());
+    hname.str("");
+    
+    hname << "BeamScan_Theta_vs_" << timename << momname;
+    h_BeamScan_Theta_vs_Time[t][m] = histDir.make<TH2F>(hname.str().c_str(), "", Nbins, 0.0, maxt, Thetatimebin, Thetatimemin, Thetatimemax);
+    h_BeamScan_Theta_vs_Time[t][m]->SetYTitle("#theta = tan^{-1}(#frac{x}{z}) [rad]");
+    h_BeamScan_Theta_vs_Time[t][m]->SetXTitle(xtitle.c_str());
+    hname.str("");
+  }
+  }
+  }
+
+
+
   if ( SaveTruthHits_ ) {
+
+    stringstream hname;
+
     for ( int part = 0; part < Nparticles; part++ ) {
       string truth_part_name = truth_particle_names[part];
 
@@ -1900,284 +2277,365 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
 	    statname_ss << "_CaloStation" << s-1;
 	    statname = statname_ss.str();
 	  }
-	
-	  int rbin  = Rhatbin;
-	int rmin  = Rhatmin;
-	int rmax  = Rhatmax;
-	int xpbin = XPrimebin_Ring;
-	int xpmin = XPrimemin_Ring;
-	int xpmax = XPrimemax_Ring;
-	int ypbin = YPrimebin_Ring;
-	int ypmin = YPrimemin_Ring;
-	int ypmax = YPrimemax_Ring;
-	if ( part >= 2 ) {
-	  rbin  = Rhatbin_Ring;
-	  rmin  = Rhatmin_Ring;
-	  rmax  = Rhatmax_Ring;
-	  xpbin = XPrimebin_Decay_Ring;
-	  xpmin = XPrimemin_Decay_Ring;
-	  xpmax = XPrimemax_Decay_Ring;
-	  ypbin = YPrimebin_Decay_Ring;
-	  ypmin = YPrimemin_Decay_Ring;
-	  ypmax = YPrimemax_Decay_Ring;
-	}
 
-	if ( fill ) {
-	  hname << "G4Track_Polarization_" << truth_part_name << "_" << truth_time_name << statname;
-	  h_G4Tracker_Polarization[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", Polbin, Polmin, Polmax);
-	  h_G4Tracker_Polarization[t][s][part]->SetXTitle("#hat{s}_{#mu}#bullet#hat{p}_{el}");
-	  hname.str("");
-	
-	  hname << "G4Track_dXprimedX_" << truth_part_name << "_" << truth_time_name << statname;
-	  h_G4Tracker_dXprimedX[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", rbin, rmin, rmax, xpbin, xpmin, xpmax);
-	  h_G4Tracker_dXprimedX[t][s][part]->SetXTitle("x_{gen} [mm]");
-	  h_G4Tracker_dXprimedX[t][s][part]->SetYTitle("x'_{gen} #equiv P_{x}/P_{z} (p_{#mu}=0) [mrad]");
-	  hname.str("");
-	
-	  hname << "G4Track_dYprimedY_" << truth_part_name << "_" << truth_time_name << statname;
-	  h_G4Tracker_dYprimedY[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", rbin, rmin, rmax, ypbin, ypmin, ypmax);
-	  h_G4Tracker_dYprimedY[t][s][part]->SetYTitle("y_{gen} [mm]");
-	  h_G4Tracker_dYprimedY[t][s][part]->SetYTitle("y'_{gen} #equiv P_{y}/P_{z} (p_{#mu}=0) [mrad]");
-	  hname.str("");      
-      
-	  hname << "G4Track_XprimeX_" << truth_part_name << "_" << truth_time_name << statname;
-	  h_G4Tracker_XprimeX[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", rbin, rmin, rmax, xpbin, xpmin, xpmax);
-	  h_G4Tracker_XprimeX[t][s][part]->SetXTitle("x_{gen} [mm]");
-	  h_G4Tracker_XprimeX[t][s][part]->SetYTitle("x'_{gen} #equiv P_{x}/P_{z} [mrad]");
-	  hname.str("");
-      
-	  hname << "G4Track_YprimeY_" << truth_part_name << "_" << truth_time_name << statname;
-	  h_G4Tracker_YprimeY[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", rbin, rmin, rmax, ypbin, ypmin, ypmax);
-	  h_G4Tracker_YprimeY[t][s][part]->SetXTitle("y_{gen} [mm]");
-	  h_G4Tracker_YprimeY[t][s][part]->SetYTitle("y'_{gen} #equiv P_{y}/P_{z} [mrad]");
-	  hname.str("");
+	  
+	  int rbin  = Rbin_Beam;
+	  double rmin  = Rmin_Beam;
+	  double rmax  = Rmax_Beam;
+	  int xbin  = Xbin_Beam;
+	  double xmin  = Xmin_Beam;
+	  double xmax  = Xmax_Beam;
+	  int ybin  = Ybin_Beam;
+	  double ymin  = Ymin_Beam;
+	  double ymax  = Ymax_Beam;
+	  int xpbin = XPrimebin_Beam;
+	  double xpmin = XPrimemin_Beam;
+	  double xpmax = XPrimemax_Beam;
+	  int ypbin = YPrimebin_Beam;
+	  double ypmin = YPrimemin_Beam;
+	  double ypmax = YPrimemax_Beam;
 
-	  hname << "G4Track_Rhat_" << truth_part_name << "_" << truth_time_name << statname;
-	  h_G4Tracker_Rhat[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", rbin, rmin, rmax);
-	  h_G4Tracker_Rhat[t][s][part]->SetXTitle("x_{gen} #equiv R - R_{m} [mm]");
-	  hname.str("");
-
-	  hname << "G4Track_ThetaRhat_" << truth_part_name << "_" << truth_time_name << statname;
-	  h_G4Tracker_ThetaRhat[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", Thetabin, Thetamin, Thetamax, rbin, rmin, rmax);
-	  h_G4Tracker_ThetaRhat[t][s][part]->SetXTitle("#theta = tan^{-1}(#frac{x}{z}) [rad]");
-	  h_G4Tracker_ThetaRhat[t][s][part]->SetYTitle("x_{gen} #equiv R - R_{m} [mm]");
-	  hname.str("");
-
-	  hname << "G4Track_Xe_" << truth_part_name << "_" << truth_time_name << statname;
-	  h_G4Tracker_Xe[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", rbin, rmin, rmax);
-	  h_G4Tracker_Xe[t][s][part]->SetXTitle("x_{e} #equiv #frac{(p - p_{m})R_{m}}{p_{m}(1-n)} [mm]");
-	  hname.str("");
-
-	  hname << "G4Track_Vhat_" << truth_part_name << "_" << truth_time_name << statname;
-	  h_G4Tracker_Vhat[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", rbin, rmin, rmax);
-	  h_G4Tracker_Vhat[t][s][part]->SetXTitle("y_{gen} [mm]");
-	  hname.str("");
-
-	  hname << "G4Track_R_" << truth_part_name << "_" << truth_time_name << statname;
-	  h_G4Tracker_R[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", rbin/2+1, 0.0, rmax);
-	  h_G4Tracker_R[t][s][part]->SetXTitle("R = |#hat{r} + #hat{y}| [mm]");
-	  hname.str("");
-      
-	  hname << "G4Track_Pol_" << truth_part_name << "_" << truth_time_name << statname;
-	  h_G4Tracker_Pol[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", Polbin, Polmin, Polmax);
-	  h_G4Tracker_Pol[t][s][part]->SetXTitle("#hat{s}#bullet#hat{p}_{z}");
-	  hname.str("");
-      
-	  hname << "G4Track_SpinPhase_" << truth_part_name << "_" << truth_time_name << statname;
-	  h_G4Tracker_SpinPhase[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", SpinPhasebin, SpinPhasemin, SpinPhasemax);
-	  h_G4Tracker_SpinPhase[t][s][part]->SetXTitle("cos^{-1}(#hat{s}#bullet#hat{p}_{z})");
-	  hname.str("");
-      
-	  hname << "G4Track_PolX_" << truth_part_name << "_" << truth_time_name << statname;
-	  h_G4Tracker_PolX[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", Polbin, Polmin, Polmax);
-	  h_G4Tracker_PolX[t][s][part]->SetXTitle("#hat{s}#bullet#hat{p}_{r}");
-	  hname.str("");
-      
-	  hname << "G4Track_PolY_" << truth_part_name << "_" << truth_time_name << statname;
-	  h_G4Tracker_PolY[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", PolYbin, PolYmin, PolYmax);
-	  h_G4Tracker_PolY[t][s][part]->SetXTitle("#hat{s}#bullet#hat{p}_{y}");
-	  hname.str("");
-      
-	  hname << "G4Track_PolXY_" << truth_part_name << "_" << truth_time_name << statname;
-	  h_G4Tracker_PolXY[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", Polbin, Polmin, Polmax, Polbin, Polmin, Polmax);
-	  h_G4Tracker_PolXY[t][s][part]->SetXTitle("#hat{s}#bullet#hat{p}_{r}");
-	  h_G4Tracker_PolXY[t][s][part]->SetYTitle("#hat{s}#bullet#hat{p}_{y}");
-	  hname.str("");
-      
-	  hname << "G4Track_Polt0_" << truth_part_name << "_" << truth_time_name << statname;
-	  h_G4Tracker_Polt0[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", Polbin, Polmin, Polmax, 300, -100, 200);
-	  h_G4Tracker_Polt0[t][s][part]->SetXTitle("#hat{s}#bullet#hat{p}_{z}");
-	  h_G4Tracker_Polt0[t][s][part]->SetYTitle("t_{0} [ns]");
-	  hname.str("");
-      
-	  hname << "G4Track_Theta_" << truth_part_name << "_" << truth_time_name << statname;
-	  h_G4Tracker_Theta[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", Thetabin, Thetamin, Thetamax);
-	  h_G4Tracker_Theta[t][s][part]->SetXTitle("#theta = tan^{-1}(#frac{x}{z}) [rad]");
-	  hname.str("");
-      
-	  hname << "G4Track_ThetaR_" << truth_part_name << "_" << truth_time_name << statname;
-	  h_G4Tracker_ThetaR[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", Thetabin, Thetamin, Thetamax, rbin/2+1, 0.0, rmax);
-	  h_G4Tracker_ThetaR[t][s][part]->SetXTitle("#theta = tan^{-1}(#frac{x}{z}) [rad]");
-	  h_G4Tracker_ThetaR[t][s][part]->SetYTitle("R = |#hat{r} + #hat{y}| [mm]");
-	  hname.str("");
-
-	  hname << "G4Track_Xprime_" << truth_part_name << "_" << truth_time_name << statname;
-	  h_G4Tracker_Xprime[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", xpbin, xpmin, xpmax);      
-	  h_G4Tracker_Xprime[t][s][part]->SetXTitle("x'_{gen} #equiv P_{x}/P_{z} [mrad]");
-	  hname.str("");
-    
-	  hname << "G4Track_Yprime_" << truth_part_name << "_" << truth_time_name << statname;
-	  h_G4Tracker_Yprime[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", ypbin, ypmin, ypmax);
-	  h_G4Tracker_Yprime[t][s][part]->SetXTitle("y'_{gen} #equiv P_{y}/P_{z} [mrad]");
-	  hname.str("");
-    
-	  hname << "G4Track_Mom_" << truth_part_name << "_" << truth_time_name << statname;
-	  if ( truth_part_name.find("Muon") != string::npos ) {
-	    h_G4Tracker_Mom[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", MuMombin, MuMommin, MuMommax);
+	  int particle = truth_particle_nums[truth_part_name];
+	  if ( IsCaloElectron(particle) || IsStrawElectron(particle) ) {
+	    if ( truth_time_name == "GeneratedDist" ) {
+	      rbin  = Rbin_Decay;
+	      rmin  = Rmin_Decay;
+	      rmax  = Rmax_Decay;
+	      xbin  = Xbin_Decay;
+	      xmin  = Xmin_Decay;
+	      xmax  = Xmax_Decay;
+	      ybin  = Ybin_Decay;
+	      ymin  = Ymin_Decay;
+	      ymax  = Ymax_Decay;
+	      xpbin = XPrimebin_Decay;
+	      xpmin = XPrimemin_Decay;
+	      xpmax = XPrimemax_Decay;
+	      ypbin = YPrimebin_Decay;
+	      ypmin = YPrimemin_Decay;
+	      ypmax = YPrimemax_Decay;
+	    }
 	  }
-	  else {
-	    h_G4Tracker_Mom[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", Mombin, Mommin, Mommax);
-	  }
-	  h_G4Tracker_Mom[t][s][part]->SetXTitle("P / P_{magic}");
-	  hname.str("");
-    
-	  hname << "G4Track_Energy_" << truth_part_name << "_" << truth_time_name << statname;
-	  h_G4Tracker_Energy[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", Ebin, Emin, Emax);
-	  h_G4Tracker_Energy[t][s][part]->SetXTitle("Energy [GeV]");
-	  hname.str("");
-    
-	  hname << "G4Track_t0_" << truth_part_name << "_" << truth_time_name << statname;
-	  h_G4Tracker_t0[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", 300, -100, 200);
-	  h_G4Tracker_t0[t][s][part]->SetXTitle("t_{0} [ns]");
-	  hname.str("");
-    
-	  hname << "G4Track_SystemHits_" << truth_part_name << "_" << truth_time_name << statname;
-	  h_G4Tracker_SystemHits[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", 10, -0.5, 9.5);
-	  h_G4Tracker_SystemHits[t][s][part]->SetXTitle("System Hits");
-	  hname.str("");
-    
-	  hname << "G4Track_Time_" << truth_part_name << "_" << truth_time_name << statname;
-	  h_G4Tracker_Time[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", (int)(maxturns_*0.2)*150, 0.0, maxturns_*0.2);
-	  h_G4Tracker_Time[t][s][part]->SetXTitle("t_{Birth/Lost/Decay/Store} [#mus]");
-	  hname.str("");
-    
-	  if ( truth_part_name.find("DecayElectron") != string::npos ) {
-	    hname << "G4Track_DriftTime_" << truth_part_name << "_" << truth_time_name << statname;
-	    h_G4Tracker_DriftTime[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", 101, -0.5, 100.5);
-	    h_G4Tracker_DriftTime[t][s][part]->SetXTitle("t_{Meas} - t_{Decay/Store} [ns]");
-	    hname.str("");
-    
-	    hname << "G4Track_NumCalo_" << truth_part_name << "_" << truth_time_name << statname;
-	    h_G4Tracker_NumCalo[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", 26, -0.5, 25.5);
-	    h_G4Tracker_NumCalo[t][s][part]->SetXTitle("Calo Station");
-	    hname.str("");
-    
-	    hname << "G4Track_DeltaTheta_" << truth_part_name << "_" << truth_time_name << statname;
-	    h_G4Tracker_DeltaTheta[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", Thetabin, -Thetamax/2.0, Thetamax/2.0);
-	    h_G4Tracker_DeltaTheta[t][s][part]->SetXTitle("#theta_{calo} - #theta_{ring}");
-	    hname.str("");
-    
-	    hname << "G4Track_DeltaTheta_vs_Energy_" << truth_part_name << "_" << truth_time_name << statname;
-	    h_G4Tracker_DeltaTheta_vs_Energy[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", Thetabin/10+1, -Thetamax/2.0, Thetamax/2.0, Ebin/5+1, Emin, Emax);
-	    h_G4Tracker_DeltaTheta_vs_Energy[t][s][part]->SetXTitle("#theta_{calo} - #theta_{ring}");
-	    h_G4Tracker_DeltaTheta_vs_Energy[t][s][part]->SetYTitle("|P_{e^{+}}| [GeV]");
-	    hname.str("");
-    
-	    hname << "G4Track_Theta_with_SystemHits_" << truth_part_name << "_" << truth_time_name << statname;
-	    h_G4Tracker_Theta_with_SystemHits[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", Thetabin, Thetamin, Thetamax);
-	    h_G4Tracker_Theta_with_SystemHits[t][s][part]->SetYTitle("#theta_{ring} = tan^{-1}(#frac{x}{z}) (w/ System Hit) [rad]");
-	    hname.str("");
-    
-	    hname << "G4Track_Theta_without_SystemHits_" << truth_part_name << "_" << truth_time_name << statname;
-	    h_G4Tracker_Theta_without_SystemHits[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", Thetabin, Thetamin, Thetamax);
-	    h_G4Tracker_Theta_without_SystemHits[t][s][part]->SetYTitle("#theta_{ring} = tan^{-1}(#frac{x}{z}) (w/o System Hit) [rad]");
-	    hname.str("");
-    
-	    hname << "G4Track_NumCalo_with_SystemHits_" << truth_part_name << "_" << truth_time_name << statname;
-	    h_G4Tracker_NumCalo_with_SystemHits[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", 26, -0.5, 25.5);
-	    h_G4Tracker_NumCalo_with_SystemHits[t][s][part]->SetXTitle("Calo Station (w/ System Hit)");
-	    hname.str("");
-    
-	    hname << "G4Track_NumCalo_without_SystemHits_" << truth_part_name << "_" << truth_time_name << statname;
-	    h_G4Tracker_NumCalo_without_SystemHits[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", 26, -0.5, 25.5);
-	    h_G4Tracker_NumCalo_without_SystemHits[t][s][part]->SetXTitle("Calo Station (w/o System Hit)");
-	    hname.str("");
-    	    
-	    hname << "G4Track_NumCalo_with_Mom_" << truth_part_name << "_" << truth_time_name << statname;
-	    h_G4Tracker_NumCalo_with_Mom[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", 26, -0.5, 25.5);
-	    h_G4Tracker_NumCalo_with_Mom[t][s][part]->SetXTitle("Calo Station (w/ |p| weight)");
-	    hname.str("");
-    
-	    hname << "G4Track_CaloNum_vs_Energy_" << truth_part_name << "_" << truth_time_name << statname;
-	    h_G4Tracker_CaloNum_vs_Energy[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", 26, -0.5, 25.5, Ebin/5+1, Emin, Emax);
-	    h_G4Tracker_CaloNum_vs_Energy[t][s][part]->SetXTitle("Calo Station");
-	    h_G4Tracker_CaloNum_vs_Energy[t][s][part]->SetYTitle("|P_{e^{+}}| [GeV]");
-	    hname.str("");
-    
-	    //Double_t dPbins[14]={-1500, -1000, -500, -250, -150, -100, -50, -40, -30, -20, -15, -10, -5, 0.1};	    
-	    hname << "G4Track_CaloNum_vs_DeltaP_" << truth_part_name << "_" << truth_time_name << statname;
-	    h_G4Tracker_CaloNum_vs_DeltaP[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", 26, -0.5, 25.5, 50, -500, 0.1);
-	    h_G4Tracker_CaloNum_vs_DeltaP[t][s][part]->SetXTitle("Calo Station");
-	    h_G4Tracker_CaloNum_vs_DeltaP[t][s][part]->SetYTitle("#DeltaP_{e^{+}} [GeV]");
-	    hname.str("");
-    
-	    hname << "G4Track_DeltaP_" << truth_part_name << "_" << truth_time_name << statname;
-	    h_G4Tracker_DeltaP[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", 50, -500, 0.1);
-	    h_G4Tracker_DeltaP[t][s][part]->SetXTitle("#DeltaP_{e^{+}} [GeV]");
-	    hname.str("");
-    
-	    hname << "G4Track_DeltaR_vs_DeltaP_" << truth_part_name << "_" << truth_time_name << statname;
-	    h_G4Tracker_DeltaR_vs_DeltaP[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", DeltaRbin/10+1, DeltaRmin, DeltaRmax, 50, -500, 0.1);	 
-	    h_G4Tracker_DeltaR_vs_DeltaP[t][s][part]->SetXTitle("|r_{calo} - r_{ring}| [mm]");
-	    h_G4Tracker_DeltaR_vs_DeltaP[t][s][part]->SetYTitle("#DeltaP_{e^{+}} [GeV]");
-	    hname.str("");
-    
-	    hname << "G4Track_Rhat_vs_DeltaP_" << truth_part_name << "_" << truth_time_name << statname;
-	    h_G4Tracker_Rhat_vs_DeltaP[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", 60, -300, 0, 50, -500, 0.1);
-	    h_G4Tracker_Rhat_vs_DeltaP[t][s][part]->SetXTitle("x_{gen} #equiv R - R_{m} [mm]");	 
-	    h_G4Tracker_Rhat_vs_DeltaP[t][s][part]->SetYTitle("#DeltaP_{e^{+}} [GeV]");
-	    hname.str("");
-    
-	    hname << "G4Track_CaloNum_vs_Theta_" << truth_part_name << "_" << truth_time_name << statname;
-	    h_G4Tracker_CaloNum_vs_Theta[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", 26, -0.5, 25.5, Thetabin, Thetamin, Thetamax);
-	    h_G4Tracker_CaloNum_vs_Theta[t][s][part]->SetXTitle("Calo Station");
-	    h_G4Tracker_CaloNum_vs_Theta[t][s][part]->SetYTitle("#theta_{ring} = tan^{-1}(#frac{x}{z}) [rad]");
-	    hname.str("");
 
-	    hname << "G4Track_DriftTime_vs_DeltaR_" << truth_part_name << "_" << truth_time_name << statname;
-	    h_G4Tracker_DriftTime_vs_DeltaR[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", 101, -0.5, 100.5, DeltaRbin/10+1, DeltaRmin, DeltaRmax);
-	    h_G4Tracker_DriftTime_vs_DeltaR[t][s][part]->SetXTitle("t_{Meas} - t_{Decay/Store} [#mus]");
-	    h_G4Tracker_DriftTime_vs_DeltaR[t][s][part]->SetYTitle("|r_{calo} - r_{ring}| [mm]");
-	    hname.str("");    
-
-	    hname << "G4Track_DeltaR_" << truth_part_name << "_" << truth_time_name << statname;
-	    h_G4Tracker_DeltaR[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", DeltaRbin, DeltaRmin, DeltaRmax);	    
-	    h_G4Tracker_DeltaR[t][s][part]->SetXTitle("|r_{calo} - r_{ring}| [mm]");
+	  if ( fill ) {
+	    hname << "G4Track_Polarization_" << truth_part_name << "_" << truth_time_name << statname;
+	    h_G4Tracker_Polarization[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", SpinPhasebin, SpinPhasemin, SpinPhasemax);
+	    h_G4Tracker_Polarization[t][s][part]->SetXTitle("cos^{-1}(#hat{s}_{#mu}#bullet#hat{p}_{#mu}) [rad]");
+	    hname.str("");
+	
+	    hname << "G4Track_dXprimedX_" << truth_part_name << "_" << truth_time_name << statname;
+	    h_G4Tracker_dXprimedX[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", xbin, xmin, xmax, xpbin, xpmin, xpmax);
+	    h_G4Tracker_dXprimedX[t][s][part]->SetXTitle("x_{gen} [mm]");
+	    h_G4Tracker_dXprimedX[t][s][part]->SetYTitle("x'_{gen} #equiv P_{x}/P_{z} (p_{#mu}=0) [mrad]");
+	    hname.str("");
+	
+	    hname << "G4Track_dYprimedY_" << truth_part_name << "_" << truth_time_name << statname;
+	    h_G4Tracker_dYprimedY[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", ybin, ymin, ymax, ypbin, ypmin, ypmax);
+	    h_G4Tracker_dYprimedY[t][s][part]->SetYTitle("y_{gen} [mm]");
+	    h_G4Tracker_dYprimedY[t][s][part]->SetYTitle("y'_{gen} #equiv P_{y}/P_{z} (p_{#mu}=0) [mrad]");
 	    hname.str("");      
+      
+	    hname << "G4Track_XprimeX_" << truth_part_name << "_" << truth_time_name << statname;
+	    h_G4Tracker_XprimeX[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", xbin, xmin, xmax, xpbin, xpmin, xpmax);
+	    h_G4Tracker_XprimeX[t][s][part]->SetXTitle("x_{gen} [mm]");
+	    h_G4Tracker_XprimeX[t][s][part]->SetYTitle("x'_{gen} #equiv P_{x}/P_{z} [mrad]");
+	    hname.str("");
+      
+	    hname << "G4Track_YprimeY_" << truth_part_name << "_" << truth_time_name << statname;
+	    h_G4Tracker_YprimeY[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", ybin, ymin, ymax, ypbin, ypmin, ypmax);
+	    h_G4Tracker_YprimeY[t][s][part]->SetXTitle("y_{gen} [mm]");
+	    h_G4Tracker_YprimeY[t][s][part]->SetYTitle("y'_{gen} #equiv P_{y}/P_{z} [mrad]");
+	    hname.str("");
 
-	    hname << "G4Track_DeltaR_vs_Energy_" << truth_part_name << "_" << truth_time_name << statname;
-	    h_G4Tracker_DeltaR_vs_Energy[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", DeltaRbin/10+1, DeltaRmin, DeltaRmax, Ebin/5+1, Emin, Emax);
-	    h_G4Tracker_DeltaR_vs_Energy[t][s][part]->SetXTitle("|r_{calo} - r_{ring}| [mm]");
-	    h_G4Tracker_DeltaR_vs_Energy[t][s][part]->SetYTitle("|P_{e^{+}}| [GeV]");
-	    hname.str("");    
-	  }
-	  else {
-	    h_G4Tracker_DriftTime[t][s][part] = NULL;
-	    h_G4Tracker_NumCalo[t][s][part] = NULL;
-	  }
+	    hname << "G4Track_Rhat_" << truth_part_name << "_" << truth_time_name << statname;
+	    h_G4Tracker_Rhat[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", rbin, rmin, rmax);
+	    h_G4Tracker_Rhat[t][s][part]->SetXTitle("x_{gen} #equiv R - R_{m} [mm]");
+	    hname.str("");
+
+	    hname << "G4Track_ThetaRhat_" << truth_part_name << "_" << truth_time_name << statname;
+	    h_G4Tracker_ThetaRhat[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", Thetabin, Thetamin, Thetamax, rbin, rmin, rmax);
+	    h_G4Tracker_ThetaRhat[t][s][part]->SetXTitle("#theta = tan^{-1}(#frac{x}{z}) [rad]");
+	    h_G4Tracker_ThetaRhat[t][s][part]->SetYTitle("x_{gen} #equiv R - R_{m} [mm]");
+	    hname.str("");
+
+	    hname << "G4Track_Xe_" << truth_part_name << "_" << truth_time_name << statname;
+	    h_G4Tracker_Xe[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", rbin, rmin, rmax);
+	    h_G4Tracker_Xe[t][s][part]->SetXTitle("x_{e} #equiv #frac{(p - p_{m})R_{m}}{p_{m}(1-n)} [mm]");
+	    hname.str("");
+
+	    hname << "G4Track_Vhat_" << truth_part_name << "_" << truth_time_name << statname;
+	    h_G4Tracker_Vhat[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", rbin, rmin, rmax);
+	    h_G4Tracker_Vhat[t][s][part]->SetXTitle("y_{gen} [mm]");
+	    hname.str("");
+
+	    hname << "G4Track_R_" << truth_part_name << "_" << truth_time_name << statname;
+	    h_G4Tracker_R[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", rbin/2+1, 0.0, rmax);
+	    h_G4Tracker_R[t][s][part]->SetXTitle("R = |#hat{r} + #hat{y}| [mm]");
+	    hname.str("");
+      
+	    hname << "G4Track_Pol_" << truth_part_name << "_" << truth_time_name << statname;
+	    h_G4Tracker_Pol[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", Polbin, Polmin, Polmax);
+	    h_G4Tracker_Pol[t][s][part]->SetXTitle("#hat{s}#bullet#hat{p}_{z}");
+	    hname.str("");
+      
+	    hname << "G4Track_SpinPhase_" << truth_part_name << "_" << truth_time_name << statname;
+	    h_G4Tracker_SpinPhase[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", SpinPhasebin, SpinPhasemin, SpinPhasemax);
+	    h_G4Tracker_SpinPhase[t][s][part]->SetXTitle("cos^{-1}(#hat{s}_{#mu}#bullet#hat{p}_{#mu}) [rad]");	   
+	    hname.str("");
+      
+	    hname << "G4Track_PolX_" << truth_part_name << "_" << truth_time_name << statname;
+	    h_G4Tracker_PolX[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", Polbin, Polmin, Polmax);
+	    h_G4Tracker_PolX[t][s][part]->SetXTitle("#hat{s}#bullet#hat{p}_{r}");
+	    hname.str("");
+      
+	    hname << "G4Track_PolY_" << truth_part_name << "_" << truth_time_name << statname;
+	    h_G4Tracker_PolY[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", PolYbin, PolYmin, PolYmax);
+	    h_G4Tracker_PolY[t][s][part]->SetXTitle("#hat{s}#bullet#hat{p}_{y}");
+	    hname.str("");
+      
+	    hname << "G4Track_PolXY_" << truth_part_name << "_" << truth_time_name << statname;
+	    h_G4Tracker_PolXY[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", Polbin, Polmin, Polmax, Polbin, Polmin, Polmax);
+	    h_G4Tracker_PolXY[t][s][part]->SetXTitle("#hat{s}#bullet#hat{p}_{r}");
+	    h_G4Tracker_PolXY[t][s][part]->SetYTitle("#hat{s}#bullet#hat{p}_{y}");
+	    hname.str("");
+      
+	    hname << "G4Track_Polt0_" << truth_part_name << "_" << truth_time_name << statname;
+	    h_G4Tracker_Polt0[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", Polbin, Polmin, Polmax, 300, -100, 200);
+	    h_G4Tracker_Polt0[t][s][part]->SetXTitle("#hat{s}#bullet#hat{p}_{z}");
+	    h_G4Tracker_Polt0[t][s][part]->SetYTitle("t_{0} [ns]");
+	    hname.str("");
+      
+	    hname << "G4Track_Theta_" << truth_part_name << "_" << truth_time_name << statname;
+	    h_G4Tracker_Theta[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", Thetabin, Thetamin, Thetamax);
+	    h_G4Tracker_Theta[t][s][part]->SetXTitle("#theta = tan^{-1}(#frac{x}{z}) [rad]");
+	    hname.str("");
+      
+	    hname << "G4Track_ThetaR_" << truth_part_name << "_" << truth_time_name << statname;
+	    h_G4Tracker_ThetaR[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", Thetabin, Thetamin, Thetamax, rbin/2+1, 0.0, rmax);
+	    h_G4Tracker_ThetaR[t][s][part]->SetXTitle("#theta = tan^{-1}(#frac{x}{z}) [rad]");
+	    h_G4Tracker_ThetaR[t][s][part]->SetYTitle("R = |#hat{r} + #hat{y}| [mm]");
+	    hname.str("");
+
+	    hname << "G4Track_Xprime_" << truth_part_name << "_" << truth_time_name << statname;
+	    h_G4Tracker_Xprime[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", xpbin, xpmin, xpmax);      
+	    h_G4Tracker_Xprime[t][s][part]->SetXTitle("x'_{gen} #equiv P_{x}/P_{z} [mrad]");
+	    hname.str("");
     
-	  hname << "G4Track_RhatY_" << truth_part_name << "_" << truth_time_name << statname;
-	  h_G4Tracker_RhatY[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", rbin, rmin, rmax, rbin, rmin, rmax);
-	  h_G4Tracker_RhatY[t][s][part]->SetXTitle("x - x_{gen} [mm]");
-	  h_G4Tracker_RhatY[t][s][part]->SetYTitle("y - y_{gen} [mm]");
-	  hname.str("");
+	    hname << "G4Track_Yprime_" << truth_part_name << "_" << truth_time_name << statname;
+	    h_G4Tracker_Yprime[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", ypbin, ypmin, ypmax);
+	    h_G4Tracker_Yprime[t][s][part]->SetXTitle("y'_{gen} #equiv P_{y}/P_{z} [mrad]");
+	    hname.str("");
     
-	  hname << "G4Track_XZ_" << truth_part_name << "_" << truth_time_name << statname;
-	  h_G4Tracker_XZ[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", Rbin_Ring/10, Rmin_Ring, Rmax_Ring, Rbin_Ring/10, Rmin_Ring, Rmax_Ring);
-	  h_G4Tracker_XZ[t][s][part]->SetXTitle("z_{ring} [mm]");
-	  h_G4Tracker_XZ[t][s][part]->SetYTitle("x_{ring} [mm]");    
-	  hname.str("");
-	} // fill
+	    hname << "G4Track_Mom_" << truth_part_name << "_" << truth_time_name << statname;
+	    if ( truth_part_name.find("Muon") != string::npos ) {
+	      h_G4Tracker_Mom[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", MuMombin, MuMommin, MuMommax);
+	    }
+	    else {
+	      h_G4Tracker_Mom[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", Mombin, Mommin, Mommax);
+	    }
+	    h_G4Tracker_Mom[t][s][part]->SetXTitle("P / P_{magic}");
+	    hname.str("");
+    
+	    hname << "G4Track_Energy_" << truth_part_name << "_" << truth_time_name << statname;
+	    h_G4Tracker_Energy[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", Ebin, Emin, Emax);
+	    h_G4Tracker_Energy[t][s][part]->SetXTitle("Energy [GeV]");
+	    hname.str("");
+    
+	    hname << "G4Track_t0_" << truth_part_name << "_" << truth_time_name << statname;
+	    h_G4Tracker_t0[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", 300, -100, 200);
+	    h_G4Tracker_t0[t][s][part]->SetXTitle("t_{0} [ns]");
+	    hname.str("");
+    
+	    hname << "G4Track_SystemHits_" << truth_part_name << "_" << truth_time_name << statname;
+	    h_G4Tracker_SystemHits[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", 10, -0.5, 9.5);
+	    h_G4Tracker_SystemHits[t][s][part]->SetXTitle("System Hits");
+	    hname.str("");
+    
+	    hname << "G4Track_Time_" << truth_part_name << "_" << truth_time_name << statname;
+	    h_G4Tracker_Time[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", (int)(maxturns_*0.2)*150, 0.0, maxturns_*0.2);
+	    h_G4Tracker_Time[t][s][part]->SetXTitle("t_{Birth/Lost/Decay/Store} [#mus]");
+	    hname.str("");
+    
+
+	    //-----------------
+	    // Straw Electrons
+	    //-----------------
+	    if ( IsStrawElectron(particle) ) {
+	      hname << "G4Track_NumStrawStations_" << truth_part_name << "_" << truth_time_name << statname;
+	      h_G4Tracker_NumStrawStations[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", 10, -0.5, 9.5);
+	      h_G4Tracker_NumStrawStations[t][s][part]->SetXTitle("Number of Straw Station  Hits");
+	      hname.str("");
+    
+	      hname << "G4Track_NumStraw_" << truth_part_name << "_" << truth_time_name << statname;
+	      h_G4Tracker_NumStraw[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", 26, -0.5, 25.5);
+	      h_G4Tracker_NumStraw[t][s][part]->SetXTitle("Straw Station");
+	      hname.str("");
+    
+	      hname << "G4Track_NumStraw_with_SystemHits_" << truth_part_name << "_" << truth_time_name << statname;
+	      h_G4Tracker_NumStraw_with_SystemHits[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", 26, -0.5, 25.5);
+	      h_G4Tracker_NumStraw_with_SystemHits[t][s][part]->SetXTitle("Straw Station (w/ System Hit)");
+	      hname.str("");
+    
+	      hname << "G4Track_NumStraw_without_SystemHits_" << truth_part_name << "_" << truth_time_name << statname;
+	      h_G4Tracker_NumStraw_without_SystemHits[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", 26, -0.5, 25.5);
+	      h_G4Tracker_NumStraw_without_SystemHits[t][s][part]->SetXTitle("Straw Station (w/o System Hit)");
+	      hname.str("");
+    	    
+	      hname << "G4Track_NumStraw_with_Mom_" << truth_part_name << "_" << truth_time_name << statname;
+	      h_G4Tracker_NumStraw_with_Mom[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", 26, -0.5, 25.5);
+	      h_G4Tracker_NumStraw_with_Mom[t][s][part]->SetXTitle("Straw Station (w/ |p| weight)");
+	      hname.str("");
+    
+	      hname << "G4Track_NumStrawStations_vs_Energy_" << truth_part_name << "_" << truth_time_name << statname;
+	      h_G4Tracker_NumStrawStations_vs_Energy[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", 10, -0.5, 9.5, Ebin/5+1, Emin, Emax);
+	      h_G4Tracker_NumStrawStations_vs_Energy[t][s][part]->SetXTitle("Number of Straw Station Hits");
+	      h_G4Tracker_NumStrawStations_vs_Energy[t][s][part]->SetYTitle("|P_{e^{+}}| [GeV]");
+	      hname.str("");
+    
+	      hname << "G4Track_StrawNum_vs_Energy_" << truth_part_name << "_" << truth_time_name << statname;
+	      h_G4Tracker_StrawNum_vs_Energy[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", 26, -0.5, 25.5, Ebin/5+1, Emin, Emax);
+	      h_G4Tracker_StrawNum_vs_Energy[t][s][part]->SetXTitle("Straw Station");
+	      h_G4Tracker_StrawNum_vs_Energy[t][s][part]->SetYTitle("|P_{e^{+}}| [GeV]");
+	      hname.str("");
+    
+	      //Double_t dPbins[14]={-1500, -1000, -500, -250, -150, -100, -50, -40, -30, -20, -15, -10, -5, 0.1};	    
+	      hname << "G4Track_StrawNum_vs_DeltaP_" << truth_part_name << "_" << truth_time_name << statname;
+	      h_G4Tracker_StrawNum_vs_DeltaP[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", 26, -0.5, 25.5, 50, -500, 0.1);
+	      h_G4Tracker_StrawNum_vs_DeltaP[t][s][part]->SetXTitle("Straw Station");
+	      h_G4Tracker_StrawNum_vs_DeltaP[t][s][part]->SetYTitle("#DeltaP_{e^{+}} [GeV]");
+	      hname.str("");
+    
+	      hname << "G4Track_StrawNum_vs_Theta_" << truth_part_name << "_" << truth_time_name << statname;
+	      h_G4Tracker_StrawNum_vs_Theta[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", 26, -0.5, 25.5, Thetabin, Thetamin, Thetamax);
+	      h_G4Tracker_StrawNum_vs_Theta[t][s][part]->SetXTitle("Straw Station");
+	      h_G4Tracker_StrawNum_vs_Theta[t][s][part]->SetYTitle("#theta_{ring} = tan^{-1}(#frac{x}{z}) [rad]");
+	      hname.str("");
+	    }
+
+	    //-----------------
+	    // Decay Electrons
+	    //-----------------    
+	    if ( IsCaloElectron(particle) ) {
+	      hname << "G4Track_NumCalo_" << truth_part_name << "_" << truth_time_name << statname;
+	      h_G4Tracker_NumCalo[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", 26, -0.5, 25.5);
+	      h_G4Tracker_NumCalo[t][s][part]->SetXTitle("Calo Station");
+	      hname.str("");
+    
+	      hname << "G4Track_NumCalo_with_SystemHits_" << truth_part_name << "_" << truth_time_name << statname;
+	      h_G4Tracker_NumCalo_with_SystemHits[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", 26, -0.5, 25.5);
+	      h_G4Tracker_NumCalo_with_SystemHits[t][s][part]->SetXTitle("Calo Station (w/ System Hit)");
+	      hname.str("");
+    
+	      hname << "G4Track_NumCalo_without_SystemHits_" << truth_part_name << "_" << truth_time_name << statname;
+	      h_G4Tracker_NumCalo_without_SystemHits[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", 26, -0.5, 25.5);
+	      h_G4Tracker_NumCalo_without_SystemHits[t][s][part]->SetXTitle("Calo Station (w/o System Hit)");
+	      hname.str("");
+    	    
+	      hname << "G4Track_NumCalo_with_Mom_" << truth_part_name << "_" << truth_time_name << statname;
+	      h_G4Tracker_NumCalo_with_Mom[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", 26, -0.5, 25.5);
+	      h_G4Tracker_NumCalo_with_Mom[t][s][part]->SetXTitle("Calo Station (w/ |p| weight)");
+	      hname.str("");
+    
+	      hname << "G4Track_CaloNum_vs_Energy_" << truth_part_name << "_" << truth_time_name << statname;
+	      h_G4Tracker_CaloNum_vs_Energy[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", 26, -0.5, 25.5, Ebin/5+1, Emin, Emax);
+	      h_G4Tracker_CaloNum_vs_Energy[t][s][part]->SetXTitle("Calo Station");
+	      h_G4Tracker_CaloNum_vs_Energy[t][s][part]->SetYTitle("|P_{e^{+}}| [GeV]");
+	      hname.str("");
+    
+	      //Double_t dPbins[14]={-1500, -1000, -500, -250, -150, -100, -50, -40, -30, -20, -15, -10, -5, 0.1};	    
+	      hname << "G4Track_CaloNum_vs_DeltaP_" << truth_part_name << "_" << truth_time_name << statname;
+	      h_G4Tracker_CaloNum_vs_DeltaP[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", 26, -0.5, 25.5, 50, -500, 0.1);
+	      h_G4Tracker_CaloNum_vs_DeltaP[t][s][part]->SetXTitle("Calo Station");
+	      h_G4Tracker_CaloNum_vs_DeltaP[t][s][part]->SetYTitle("#DeltaP_{e^{+}} [GeV]");
+	      hname.str("");
+    
+	      hname << "G4Track_CaloNum_vs_Theta_" << truth_part_name << "_" << truth_time_name << statname;
+	      h_G4Tracker_CaloNum_vs_Theta[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", 26, -0.5, 25.5, Thetabin, Thetamin, Thetamax);
+	      h_G4Tracker_CaloNum_vs_Theta[t][s][part]->SetXTitle("Calo Station");
+	      h_G4Tracker_CaloNum_vs_Theta[t][s][part]->SetYTitle("#theta_{ring} = tan^{-1}(#frac{x}{z}) [rad]");
+	      hname.str("");
+	    }
+
+
+	    //-----------------
+	    // Decay or Straw Electrons
+	    //-----------------
+	    if ( IsCaloElectron(particle) || IsStrawElectron(particle) ) {
+	      hname << "G4Track_DriftTime_" << truth_part_name << "_" << truth_time_name << statname;
+	      h_G4Tracker_DriftTime[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", 101, -0.5, 100.5);
+	      h_G4Tracker_DriftTime[t][s][part]->SetXTitle("t_{Meas} - t_{Decay/Store} [ns]");
+	      hname.str("");
+    
+	      hname << "G4Track_DeltaTheta_" << truth_part_name << "_" << truth_time_name << statname;
+	      h_G4Tracker_DeltaTheta[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", Thetabin, -Thetamax/2.0, Thetamax/2.0);
+	      h_G4Tracker_DeltaTheta[t][s][part]->SetXTitle("#theta_{calo} - #theta_{ring}");
+	      hname.str("");
+    
+	      hname << "G4Track_DeltaTheta_vs_Energy_" << truth_part_name << "_" << truth_time_name << statname;
+	      h_G4Tracker_DeltaTheta_vs_Energy[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", Thetabin/10+1, -Thetamax/2.0, Thetamax/2.0, Ebin/5+1, Emin, Emax);
+	      h_G4Tracker_DeltaTheta_vs_Energy[t][s][part]->SetXTitle("#theta_{calo} - #theta_{ring}");
+	      h_G4Tracker_DeltaTheta_vs_Energy[t][s][part]->SetYTitle("|P_{e^{+}}| [GeV]");
+	      hname.str("");
+    
+	      hname << "G4Track_Theta_with_SystemHits_" << truth_part_name << "_" << truth_time_name << statname;
+	      h_G4Tracker_Theta_with_SystemHits[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", Thetabin, Thetamin, Thetamax);
+	      h_G4Tracker_Theta_with_SystemHits[t][s][part]->SetYTitle("#theta_{ring} = tan^{-1}(#frac{x}{z}) (w/ System Hit) [rad]");
+	      hname.str("");
+    
+	      hname << "G4Track_Theta_without_SystemHits_" << truth_part_name << "_" << truth_time_name << statname;
+	      h_G4Tracker_Theta_without_SystemHits[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", Thetabin, Thetamin, Thetamax);
+	      h_G4Tracker_Theta_without_SystemHits[t][s][part]->SetYTitle("#theta_{ring} = tan^{-1}(#frac{x}{z}) (w/o System Hit) [rad]");
+	      hname.str("");
+    
+	      hname << "G4Track_DeltaP_" << truth_part_name << "_" << truth_time_name << statname;
+	      h_G4Tracker_DeltaP[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", 50, -500, 0.1);
+	      h_G4Tracker_DeltaP[t][s][part]->SetXTitle("#DeltaP_{e^{+}} [GeV]");
+	      hname.str("");
+    
+	      hname << "G4Track_DeltaR_vs_DeltaP_" << truth_part_name << "_" << truth_time_name << statname;
+	      h_G4Tracker_DeltaR_vs_DeltaP[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", DeltaRbin/10+1, DeltaRmin, DeltaRmax, 50, -500, 0.1);	 
+	      h_G4Tracker_DeltaR_vs_DeltaP[t][s][part]->SetXTitle("|r_{calo} - r_{ring}| [mm]");
+	      h_G4Tracker_DeltaR_vs_DeltaP[t][s][part]->SetYTitle("#DeltaP_{e^{+}} [GeV]");
+	      hname.str("");
+	      
+	      hname << "G4Track_Rhat_vs_DeltaP_" << truth_part_name << "_" << truth_time_name << statname;
+	      h_G4Tracker_Rhat_vs_DeltaP[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", rbin, rmin, rmax, 50, -500, 0.1);
+	      h_G4Tracker_Rhat_vs_DeltaP[t][s][part]->SetXTitle("x_{gen} #equiv R - R_{m} [mm]");	 
+	      h_G4Tracker_Rhat_vs_DeltaP[t][s][part]->SetYTitle("#DeltaP_{e^{+}} [GeV]");
+	      hname.str("");
+
+	      hname << "G4Track_DriftTime_vs_DeltaR_" << truth_part_name << "_" << truth_time_name << statname;
+	      h_G4Tracker_DriftTime_vs_DeltaR[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", 101, -0.5, 100.5, DeltaRbin/10+1, DeltaRmin, DeltaRmax);
+	      h_G4Tracker_DriftTime_vs_DeltaR[t][s][part]->SetXTitle("t_{Meas} - t_{Decay/Store} [#mus]");
+	      h_G4Tracker_DriftTime_vs_DeltaR[t][s][part]->SetYTitle("|r_{calo} - r_{ring}| [mm]");
+	      hname.str("");    
+
+	      hname << "G4Track_DeltaR_" << truth_part_name << "_" << truth_time_name << statname;
+	      h_G4Tracker_DeltaR[t][s][part] = histDir.make<TH1F>(hname.str().c_str(), "", DeltaRbin, DeltaRmin, DeltaRmax);	    
+	      h_G4Tracker_DeltaR[t][s][part]->SetXTitle("|r_{calo} - r_{ring}| [mm]");
+	      hname.str("");      
+
+	      hname << "G4Track_DeltaR_vs_Energy_" << truth_part_name << "_" << truth_time_name << statname;
+	      h_G4Tracker_DeltaR_vs_Energy[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", DeltaRbin/10+1, DeltaRmin, DeltaRmax, Ebin/5+1, Emin, Emax);
+	      h_G4Tracker_DeltaR_vs_Energy[t][s][part]->SetXTitle("|r_{calo} - r_{ring}| [mm]");
+	      h_G4Tracker_DeltaR_vs_Energy[t][s][part]->SetYTitle("|P_{e^{+}}| [GeV]");
+	      hname.str("");    
+	    }
+	    else {
+	      h_G4Tracker_DriftTime[t][s][part] = NULL;
+	    }
+    
+	    hname << "G4Track_RhatY_" << truth_part_name << "_" << truth_time_name << statname;
+	    h_G4Tracker_RhatY[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", xbin, xmin, xmax, ybin, ymin, ymax);
+	    h_G4Tracker_RhatY[t][s][part]->SetXTitle("x - x_{gen} [mm]");
+	    h_G4Tracker_RhatY[t][s][part]->SetYTitle("y - y_{gen} [mm]");
+	    hname.str("");
+    
+	    hname << "G4Track_XZ_" << truth_part_name << "_" << truth_time_name << statname;
+	    h_G4Tracker_XZ[t][s][part] = histDir.make<TH2F>(hname.str().c_str(), "", Rbin_Ring, Rmin_Ring, Rmax_Ring, Rbin_Ring, Rmin_Ring, Rmax_Ring);
+	    h_G4Tracker_XZ[t][s][part]->SetXTitle("z_{ring} [mm]");
+	    h_G4Tracker_XZ[t][s][part]->SetYTitle("x_{ring} [mm]");    
+	    hname.str("");
+	  } // fill
 	} // Nstat
 
 	if ( debug_ ) { cout << "Creating " << truth_part_name << " histograms for time " << truth_time_name << " -- Done." << endl; }
@@ -2200,7 +2658,7 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
 	
 
 	  string timename, xtitle;
-	  if ( timestamp_map[t] == kPerTurn ) { xtitle = "Turn"; }
+	  if ( timestamp_map[t] == kAllTime ) { xtitle = "Time [#mus]"; }
 	  if ( timestamp_map[t] == kPerTimeOncePerTurn ||
 	       timestamp_map[t] == kPerTimeSingleHit || 
 	       timestamp_map[t] == kPerTimeTwicePerTurn ) { xtitle = "Time [#mus]"; }
@@ -2225,9 +2683,9 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
 	  int hitsperturn = 12;
 	  double maxt = maxturns_;
 	  double timebinning = 0.005;
-	  if ( timestamp_map[t] == kPerTurn ) {
-	    maxt = maxturns_;
+	  if ( timestamp_map[t] == kAllTime ) {
 	    timebinning = timeperturn;
+	    maxt = maxturns_* timeperturn;
 	  }
 	  if ( timestamp_map[t] == kPerTimeSingleHit ) {
 	    maxt = maxturns_* timeperturn;
@@ -2244,16 +2702,16 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
 	  }
 
 	  if ( maxturns_ > 200 ) { timebinning = TMath::Max(0.14915/4, timebinning); }
-// 	  if ( truth_part_name == "DecayMuon" ) { 
-// 	    if ( timestamp_map[t] != kPerTimeSingleHit ) {	      
-// 	      timebinning = TMath::Min(timeperturn / Nstations, timebinning);
-// 	    }
-// 	  }
-// 	  if ( truth_part_name.find("DecayElectron") != string::npos ) { 
-// 	    if ( timestamp_map[t] != kPerTimeSingleHit ) {
-// 	      timebinning = 0.14915/24;
-// 	    }
-// 	  }
+	  // 	  if ( truth_part_name == "DecayMuon" ) { 
+	  // 	    if ( timestamp_map[t] != kPerTimeSingleHit ) {	      
+	  // 	      timebinning = TMath::Min(timeperturn / Nstations, timebinning);
+	  // 	    }
+	  // 	  }
+	  // 	  if ( truth_part_name.find("DecayElectron") != string::npos ) { 
+	  // 	    if ( timestamp_map[t] != kPerTimeSingleHit ) {
+	  // 	      timebinning = 0.14915/24;
+	  // 	    }
+	  // 	  }
 	  
 	  
 	  int binsperturn = (int)(timeperturn/timebinning);
@@ -2355,11 +2813,22 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
 	  h_G4Tracker_Theta_vs_Time[t][part]->SetXTitle(xtitle.c_str());
 	  hname.str("");
       
-	  if ( truth_part_name.find("DecayElectron") != string::npos ) {
+
+	  int particle = truth_particle_nums[truth_part_name];
+
+	  if ( IsCaloElectron(particle) ) {
 	    hname << "G4Track_NumCalo" << "_" << truth_part_name << "_vs_" << timename;
 	    h_G4Tracker_NumCalo_vs_Time[t][part] = histDir.make<TH2F>(hname.str().c_str(), "", Nbins, 0.0, maxt, 24, -0.5, 23.5);
 	    h_G4Tracker_NumCalo_vs_Time[t][part]->SetYTitle("Calo Station");
 	    h_G4Tracker_NumCalo_vs_Time[t][part]->SetXTitle(xtitle.c_str());
+	    hname.str("");
+	  }
+	  
+	  if ( IsStrawElectron(particle) ) {
+	    hname << "G4Track_NumStraw" << "_" << truth_part_name << "_vs_" << timename;
+	    h_G4Tracker_NumStraw_vs_Time[t][part] = histDir.make<TH2F>(hname.str().c_str(), "", Nbins, 0.0, maxt, 24, -0.5, 23.5);
+	    h_G4Tracker_NumStraw_vs_Time[t][part]->SetYTitle("Straw Station");
+	    h_G4Tracker_NumStraw_vs_Time[t][part]->SetXTitle(xtitle.c_str());
 	    hname.str("");
 	  }
 	        
@@ -2372,31 +2841,37 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
 
 
 	  if ( debug_ ) { cout << "Creating " << truth_part_name << " histograms for (vs) time " << timename << " for Num Counts." << endl; }
-
-
-	  int NstatHist = 6;
-	  if ( truth_part_name.find("DecayElectron") != string::npos ) { NstatHist = 24 + 4; }
+	  
+	  
+	  int NstatHist = 4;
+	  if ( IsStrawElectron(particle) || IsCaloElectron(particle) ) { NstatHist += 3; }
+	  else { NstatHist += 0; }
+	  
 	  for ( int s = 0; s < NstatHist; s++ ) {
 	    string statname = "";
+	    
+	    //
+	    // Everyone has thsese
+	    // 
 	    if ( s == 0 ) { statname = "AllStations"; }
 	    else if ( s == 1 ) { statname = "AllStationsNoTimeOffset"; }
 	    else if ( s == 2 ) { statname = "AllStationsNoFastRotation"; }
 	    else if ( s == 3 ) { statname = "AllStationsNoTimeOffsetNoFastRotation"; }
 	    else {
-	      if ( truth_part_name.find("DecayElectron") == string::npos ) {
-		if ( s == 4 ) { statname = "VirtualStation0"; }
-		else if ( s == 5 ) { statname = "VirtualStation0NoTimeOffset"; }
+	      
+	      //
+	      // If not Decay electron
+	      //
+	      if ( IsCaloElectron(particle) ) { 
+		if ( s == 4 ) { statname = "QuadStations"; }
+		else if ( s == 5 ) { statname = "KickerStations"; }
+		else if ( s == 6 ) { statname = "EmptyStations"; }
 		else {
-		  stringstream statname_ss;
-		  statname_ss << "VirtualStation" << s/2-4;
-		  if ( s % 2 != 0 ) { statname_ss << "NoTimeOffset"; }
-		  statname = statname_ss.str();
+		  continue; 
 		}
 	      }
 	      else {
-		stringstream statname_ss;
-		statname_ss << "CaloStation" << s-4;
-		statname = statname_ss.str();
+		continue;
 	      }
 	    }
 
@@ -2682,7 +3157,17 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
   if ( debug_ ) { cout << "Creating ring histograms." << endl; }
 
 
-
+  gm2geom::inflectorGeometry const& ig = infGeom_.ig ;//inflectorGeometry::getInstance();
+  G4ThreeVector upstream(0., 0., -ig.mandrel_length());  
+  upstream.rotateX(-infGeom_.tiltAngle); // why negative?  WTF?
+  upstream.rotateY(infGeom_.swingAngle);
+  upstream += G4ThreeVector(R_magic()+ig.aperture_off(),0.,0.);
+  upstream.rotateY(infGeom_.rotAngle);
+  G4ThreeVector downstream(R_magic()+ig.aperture_off(), 0., 0.);
+  downstream.rotateY(infGeom_.rotAngle);
+  G4ThreeVector dir = (downstream - upstream).unit();
+  
+  start_perfect_ = false;
   if ( beamstart_ == "UC" || beamstart_ == "upstream_cryo" ) {
     xAxis.SetXYZ(0.9952 , 0 , -0.09736);
     yAxis.SetXYZ(0 , 1 , 0);
@@ -2702,8 +3187,11 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
   if ( beamstart_ == "DM" || beamstart_ == "downstream" ) {
     xAxis.SetXYZ(0.9952 , 0 , -0.09736);
     yAxis.SetXYZ(0 , 1 , 0);
-    zAxis.SetXYZ(0.09736 , 0 , 0.9952);
-    beamStart_.SetXYZ(7155 , 0 , -699.9);
+    //zAxis.SetXYZ(0.09736 , 0 , 0.9952);
+    zAxis.SetXYZ(dir.x(), dir.y(), dir.z());
+    xAxis = yAxis.Cross(zAxis);
+    beamStart_.SetXYZ(downstream.x(), downstream.y(), downstream.z());
+    //beamStart_.SetXYZ(7155 , 0 , -699.9);
     rhat_offset = 77;
     yhat_offset = 0;
   }
@@ -2714,6 +3202,7 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
     beamStart_.SetXYZ(7112 + StorageOffset_ , 0 , 0);
     rhat_offset = StorageOffset_;
     yhat_offset = 0;
+    start_perfect_ = true;
   }
   if ( beamstart_ == "CO_Offset77" ) {
     xAxis.SetXYZ(1 , 0 , 0);
@@ -2841,6 +3330,15 @@ void gm2ringsim::ringTrackerAnalyzer::RotateRingToBeamCoordinates(double theta)
   zAxis_beam_.RotateY(-theta);
 }
 
+double gm2ringsim::ringTrackerAnalyzer::CaloSection(int calonum)
+{
+  if ( calonum == 21 || calonum == 22 || calonum == 23 ) { return( kQuadStations ); }
+  if ( calonum == 15 || calonum == 16 || calonum == 17 ) { return( kQuadStations ); }
+  if ( calonum == 9 || calonum == 10 || calonum == 11 ) { return( kQuadStations ); }
+  if ( calonum == 3 || calonum == 4 || calonum == 5 ) { return( kKickerStations ); }
+
+  return( kEmptyStations );
+}
 
 void gm2ringsim::ringTrackerAnalyzer::FillInflector(int hist, double x_inf, double y_inf, double z_inf, double r_inf, double prhat_ring, double pvhat_ring, double xprime_inf, double yprime_inf)
 {
@@ -2889,6 +3387,7 @@ double gm2ringsim::ringTrackerAnalyzer::TimeOffset(int timestamp, int counter)
 
 bool gm2ringsim::ringTrackerAnalyzer::FillByVRingHist()
 {
+  if ( !fill_ ) { return( false ); }
   if ( SaveVRingHits_ || SaveVRing1PlaneHits_ ) { return( true ); }
 
   return( false );
@@ -2896,13 +3395,14 @@ bool gm2ringsim::ringTrackerAnalyzer::FillByVRingHist()
 
 bool gm2ringsim::ringTrackerAnalyzer::FillByVRingHist(int timestamp)
 {
+  if ( !fill_ ) { return( false ); }
   if ( debug_ ) { cout << "    FillByVRingHist(timestamp=" << timestamp << ")" << endl; }
   
   bool retval = true;
 
   if ( SaveVRingHits_ == false ) { retval = false; }
   if ( SaveVRing1PlaneHits_ == true ) {
-    if ( timestamp_map[timestamp] == kPerTurn ) { retval = false; }
+    if ( timestamp_map[timestamp] == kAllTime ) { retval = false; }
     else if ( timestamp_map[timestamp] == kPerTimeSingleHit ) { retval = true; }
     else if ( timestamp_map[timestamp] == kPerTimeOncePerTurn ) { retval = true; }
     else if ( timestamp_map[timestamp] == kPerTimeTwicePerTurn ) { retval = false; }
@@ -2916,15 +3416,15 @@ bool gm2ringsim::ringTrackerAnalyzer::FillByVRingHist(int timestamp)
 
 bool gm2ringsim::ringTrackerAnalyzer::FillByVRingHist(int timestamp, int counter)
 {
+  if ( !fill_ ) { return( false ); }
   if ( debug_ ) { cout << "    FillByVRingHist(timestamp=" << timestamp << " , counter=" << counter << ")" << endl; }
 
   bool retval = true;
 
   if ( SaveVRingHits_ == false ) { retval = false; }
   if ( SaveVRing1PlaneHits_ == true ) {
-    if ( timestamp_map[timestamp] == kPerTurn ) { 
-      if ( counter != vring1p ) { retval = false; }
-      else { retval = true; }
+    if ( timestamp_map[timestamp] == kAllTime ) { 
+      retval = false;
     }
     else if ( timestamp_map[timestamp] == kPerTimeOncePerTurn ) { 
       if ( counter != vring1p ) { retval = false; }
@@ -2950,7 +3450,7 @@ bool gm2ringsim::ringTrackerAnalyzer::FillByVRingHist(int timestamp, int counter
 
 string gm2ringsim::ringTrackerAnalyzer::TimestampName(int timestamp)
 {
-  if ( timestamp_map[timestamp] == kPerTurn ) { return( "PerTurn" ); }
+  if ( timestamp_map[timestamp] == kAllTime ) { return( "PerTime" ); }
   if ( timestamp_map[timestamp] == kPerTimeTwicePerTurn ) { return( "PerTimeTwicePerTurn" ); }
   if ( timestamp_map[timestamp] == kPerTimeOncePerTurn ) { return( "PerTimeOncePerTurn" ); }
   if ( timestamp_map[timestamp] == kPerTimeSingleHit ) { return( "PerTimeSingleHit" ); }
@@ -2973,7 +3473,7 @@ bool gm2ringsim::ringTrackerAnalyzer::FillByTimestamp(int timestamp)
   
   bool retval = true;
 
-  if ( timestamp_map[hist] == kPerTurn ) { return( false ); }
+  if ( timestamp_map[hist] == kAllTime ) { return( false ); }
   if ( timestamp_map[hist] == kPerTimeTwicePerTurn ) { retval = false; }
 
   if ( debug_ ) { cout << "    FillByTimestamp(timestamp=" << timestamp << ") --> " << retval << endl; }
@@ -2990,8 +3490,7 @@ bool gm2ringsim::ringTrackerAnalyzer::FillByTimestamp(int timestamp, int counter
 
   if ( !FillByTimestamp(timestamp) ) { return( false ); }
   
-  if ( timestamp_map[hist] == kPerTurn ) {
-    if ( counter == vring1p || counter == vring1p-1 || counter == vring1p+1 ) { return( false ); }
+  if ( timestamp_map[hist] == kAllTime ) {
     return( false );
   }
   if ( timestamp_map[hist] == kPerTimeSingleHit ) {
@@ -3019,6 +3518,7 @@ void gm2ringsim::ringTrackerAnalyzer::FillTimeRingTracker(int hist, double time,
   if ( debug_ ) { cout << "FillTimeRingTracker(" << hist << ")" << endl; }
   if ( SaveVRingHits_ == false ) { return; }
   if ( hist < 0 ) { return; }
+  if ( !fill_ ) { return; }
 
   if ( hist < Nringtrackers ) {
     h_RingTracker_Snapshot_Time[hist]->Fill(time);
@@ -3059,14 +3559,14 @@ void gm2ringsim::ringTrackerAnalyzer::FillTruthData(double *data, double xe_trut
   data[kSpinPhase] = spinphase;
 }
   
-void gm2ringsim::ringTrackerAnalyzer::FillTruthTracker(int hist, int particle, int counter, double *data)
+void gm2ringsim::ringTrackerAnalyzer::FillTruthTracker(int hist, int particle, int counter, double *data, double *data_decay)
 {
   if ( debug_ ) { cout << "FillTruthTracker(hist=" << TrackerTimestampName(hist) << ", " << truth_particle_names[particle] << ", counter=" << counter << ")" << endl; }
   if ( SaveTruthHits_ == false ) { return; }
   if ( particle == -1 ) { return; }
   
   int calonum = 0;
-  if ( particle == truth_particle_nums["DecayElectron"] || particle == truth_particle_nums["DecayElectronEgtEth"] || particle == truth_particle_nums["DecayElectronEltEth"] || particle == truth_particle_nums["DecayElectronEgtHghEth"] || particle == truth_particle_nums["DecayElectronLongDriftTime"] || particle == truth_particle_nums["DecayElectronShortDriftTime"] ) {
+  if ( IsCaloElectron(particle) || IsStrawElectron(particle) ) { 
     calonum = counter;
     counter = 0;
   }
@@ -3075,62 +3575,103 @@ void gm2ringsim::ringTrackerAnalyzer::FillTruthTracker(int hist, int particle, i
     counter = 0;
   }
 
-  FillTruthTracker(hist, particle, counter, calonum, data);
+  FillTruthTracker(hist, particle, counter, calonum, data, data_decay);
   if ( debug_ ) { cout << "FillTruthTracker(hist=" << TrackerTimestampName(hist) << ", " << truth_particle_names[particle] << ", counter=" << counter << ") - Done" << endl; }
 
 }
 
-void gm2ringsim::ringTrackerAnalyzer::FillTruthTracker(int hist, int particle, int counter, int calonum, double *data)
+void gm2ringsim::ringTrackerAnalyzer::FillTruthTracker(int hist, int particle, int counter, int calonum, double *data, double *data_decay)
 {
   if ( debug_ ) { cout << "FillTruthTracker(hist=" << TrackerTimestampName(hist) << " , " << truth_particle_names[particle] << ", counter=" << counter << ", calonum" << calonum << ")" << endl; }
   if ( hist >= Ntruthtimes ) { return; }
   if ( particle >= Nparticles ) { return; }
   if ( hist < 0 || particle < 0 ) { return; }
+  if ( !fill_ ) { return; }
   if ( counter < 0 ) {
     cout << "FillTruthTracker(hist=" << hist << " , " << truth_particle_names[particle] << ", counter=" << counter << ", calonum" << calonum << ")::: Counter is less than zero!!!!!" << endl;
     return;
   }
 
+  if ( debug_ ) {
+    if ( data_decay ) { cout << "More particles." << endl; }
+  }
+
+  //-----------------
+  // Decay Particle
+  //-----------------
+  double rhat = data[kRhat];
+  double vhat = data[kVhat];
+  double xprime = 1000*data[kXprime];
+  double yprime = 1000*data[kYprime];
+  double R = std::sqrt(data[kRhat]*data[kRhat] + data[kVhat]*data[kVhat]);
+  double xe = data[kXe];
+  double mom = data[kP]/Pmagic();
+  double theta = data[kTheta];
+  double pol_azimuth = data[kPol_azimuth];
+  double pol_vertical = data[kPol_vertical];
+  double pol_radial = data[kPol_radial];
+  double spinphase = data[kSpinPhase];
+  if ( 0 ) {
+    if ( truth_particle_names[particle].find("StrawElectron") != string::npos ) {
+      cout << truth_particle_names[particle] << "\t";
+      cout << data[kP] << "\t";
+      if ( data_decay ) {
+	cout << data_decay[kP];
+      }
+      cout << endl;
+    }
+  }
+
+
+  if ( data_decay ) {
+    rhat = data_decay[kRhat];
+    vhat = data_decay[kVhat];
+    xprime = 1000*data_decay[kXprime];
+    yprime = 1000*data_decay[kYprime];
+    R = std::sqrt(rhat*rhat + vhat*vhat);
+    xe = data_decay[kXe];
+    mom = data_decay[kP]/Pmagic();
+    theta = data_decay[kTheta];
+    pol_azimuth = data_decay[kPol_azimuth];
+    pol_vertical = data_decay[kPol_vertical];
+    pol_radial = data_decay[kPol_radial];
+    spinphase = data_decay[kSpinPhase];
+  }
+  
 
   //if ( particle == truth_particle_nums["StoredMuon"] ) {
 //     cout << "==> (HIST=" << hist << ") , Found stored muon: " << "rhat=" << r_truth << "\ty=" << y_truth << "\t" << "p=" << p << endl;
 //   }
 
-  double R = std::sqrt(data[kRhat]*data[kRhat] + data[kVhat]*data[kVhat]);
-  double xp = 1000*data[kXprime];
-  double yp = 1000*data[kYprime];
-  h_G4Tracker_Xe[hist][counter][particle]->Fill(data[kXe]);
-  h_G4Tracker_Rhat[hist][counter][particle]->Fill(data[kRhat]);
-  h_G4Tracker_Vhat[hist][counter][particle]->Fill(data[kVhat]);
+ 
+
+  h_G4Tracker_Xe[hist][counter][particle]->Fill(xe);
+  h_G4Tracker_Rhat[hist][counter][particle]->Fill(rhat);
+  h_G4Tracker_Vhat[hist][counter][particle]->Fill(vhat);
   h_G4Tracker_R[hist][counter][particle]->Fill(R);
-  h_G4Tracker_Xprime[hist][counter][particle]->Fill(xp);
-  h_G4Tracker_Yprime[hist][counter][particle]->Fill(yp);
-  h_G4Tracker_XprimeX[hist][counter][particle]->Fill(data[kRhat], xp);
-  h_G4Tracker_YprimeY[hist][counter][particle]->Fill(data[kVhat], yp);
-  h_G4Tracker_Mom[hist][counter][particle]->Fill(data[kP]/Pmagic());
+  h_G4Tracker_Xprime[hist][counter][particle]->Fill(xprime);
+  h_G4Tracker_Yprime[hist][counter][particle]->Fill(yprime);
+  h_G4Tracker_XprimeX[hist][counter][particle]->Fill(rhat, xprime);
+  h_G4Tracker_YprimeY[hist][counter][particle]->Fill(vhat, yprime);
+  h_G4Tracker_Mom[hist][counter][particle]->Fill(mom);
   h_G4Tracker_Energy[hist][counter][particle]->Fill(data[kP]/GeV);
-  h_G4Tracker_RhatY[hist][counter][particle]->Fill(data[kRhat], data[kVhat]);
+  h_G4Tracker_RhatY[hist][counter][particle]->Fill(rhat, vhat);
   h_G4Tracker_XZ[hist][counter][particle]->Fill(data[kZ], data[kX]);
   h_G4Tracker_t0[hist][counter][particle]->Fill(data[kt0]);
   h_G4Tracker_Time[hist][counter][particle]->Fill((data[kTime])/1000);
   h_G4Tracker_Pol[hist][counter][particle]->Fill(data[kPol_azimuth]);
-  h_G4Tracker_SpinPhase[hist][counter][particle]->Fill(data[kSpinPhase]);
-  h_G4Tracker_PolX[hist][counter][particle]->Fill(data[kPol_radial]);
-  h_G4Tracker_PolY[hist][counter][particle]->Fill(data[kPol_vertical]);
-  h_G4Tracker_PolXY[hist][counter][particle]->Fill(data[kPol_radial], data[kPol_vertical]);
-  h_G4Tracker_Polt0[hist][counter][particle]->Fill(data[kPol_azimuth], data[kt0]);
-  h_G4Tracker_Theta[hist][counter][particle]->Fill(data[kTheta]);
-  h_G4Tracker_ThetaR[hist][counter][particle]->Fill(data[kTheta], R);
-  h_G4Tracker_ThetaRhat[hist][counter][particle]->Fill(data[kTheta], data[kRhat]);
-  h_G4Tracker_Polarization[hist][counter][particle]->Fill(data[kPolarization]);
+  h_G4Tracker_SpinPhase[hist][counter][particle]->Fill(spinphase);
+  h_G4Tracker_PolX[hist][counter][particle]->Fill(pol_radial);
+  h_G4Tracker_PolY[hist][counter][particle]->Fill(pol_vertical);
+  h_G4Tracker_PolXY[hist][counter][particle]->Fill(pol_radial, pol_vertical);
+  h_G4Tracker_Polt0[hist][counter][particle]->Fill(pol_azimuth, data[kt0]);
+  h_G4Tracker_Theta[hist][counter][particle]->Fill(theta);
+  h_G4Tracker_ThetaR[hist][counter][particle]->Fill(theta, R);
+  h_G4Tracker_ThetaRhat[hist][counter][particle]->Fill(theta, rhat);
+  h_G4Tracker_Polarization[hist][counter][particle]->Fill(spinphase);
   h_G4Tracker_SystemHits[hist][counter][particle]->Fill(data[kSystemHit]);
 
-  if ( particle == truth_particle_nums["DecayElectron"] ||
-       particle == truth_particle_nums["DecayElectronEgtEth"] ||
-       particle == truth_particle_nums["DecayElectronEltEth"] ||
-       particle == truth_particle_nums["DecayElectronEgtHghEth"] ||
-       particle == truth_particle_nums["DecayElectronLongDriftTime"] ||
-       particle == truth_particle_nums["DecayElectronShortDriftTime"] ) {
+  if ( IsCaloElectron(particle) ) {
     double DeltaR = std::sqrt( (data[kX]-BirthElectronData[kX])*(data[kX]-BirthElectronData[kX]) + 
 			       (data[kVhat]-BirthElectronData[kVhat])*(data[kVhat]-BirthElectronData[kVhat]) +
 			       (data[kZ]-BirthElectronData[kZ])*(data[kZ]-BirthElectronData[kZ]) );    
@@ -3173,6 +3714,55 @@ void gm2ringsim::ringTrackerAnalyzer::FillTruthTracker(int hist, int particle, i
     }
   }
 
+
+
+  if ( IsStrawElectron(particle) ) {
+    int strawnum = calonum;
+    //cout << "STnum = " << strawnum << endl;
+    double DeltaR = std::sqrt( (data[kX]-BirthElectronData[kX])*(data[kX]-BirthElectronData[kX]) + 
+			       (data[kVhat]-BirthElectronData[kVhat])*(data[kVhat]-BirthElectronData[kVhat]) +
+			       (data[kZ]-BirthElectronData[kZ])*(data[kZ]-BirthElectronData[kZ]) );    
+    double drift_time = data[kTime]-BirthElectronData[kTime];
+    double DeltaP = data[kP] - BirthElectronData[kP];
+
+    double dTheta = data[kTheta]-BirthElectronData[kTheta];
+    if ( dTheta > TMath::Pi() )  { dTheta -= TMath::TwoPi(); }
+    if ( dTheta < -TMath::Pi() ) { dTheta += TMath::TwoPi(); }
+    h_G4Tracker_NumStraw[hist][counter][particle]->Fill(strawnum);
+    h_G4Tracker_NumStraw_with_Mom[hist][counter][particle]->Fill(strawnum, data[kP]/GeV);
+    h_G4Tracker_NumStrawStations[hist][counter][particle]->Fill(data[kSystemHit]);
+    if ( data[kSystemHit] > 0 ) {
+      h_G4Tracker_NumStraw_with_SystemHits[hist][counter][particle]->Fill(strawnum);
+      h_G4Tracker_Theta_with_SystemHits[hist][counter][particle]->Fill(data[kTheta]);
+    }
+    else {
+      h_G4Tracker_NumStraw_without_SystemHits[hist][counter][particle]->Fill(strawnum);
+      h_G4Tracker_Theta_without_SystemHits[hist][counter][particle]->Fill(data[kTheta]);
+    }
+
+    h_G4Tracker_NumStrawStations_vs_Energy[hist][counter][particle]->Fill(data[kSystemHit], data[kP]/GeV);
+    h_G4Tracker_StrawNum_vs_DeltaP[hist][counter][particle]->Fill(strawnum, DeltaP);
+    h_G4Tracker_DeltaP[hist][counter][particle]->Fill(DeltaP);
+    h_G4Tracker_DeltaR_vs_DeltaP[hist][counter][particle]->Fill(DeltaR, DeltaP);
+    h_G4Tracker_Rhat_vs_DeltaP[hist][counter][particle]->Fill(data[kRhat], DeltaP);
+
+    h_G4Tracker_StrawNum_vs_Energy[hist][counter][particle]->Fill(strawnum, data[kP]/GeV);
+    h_G4Tracker_StrawNum_vs_Theta[hist][counter][particle]->Fill(strawnum, BirthElectronData[kTheta]);
+
+    h_G4Tracker_DriftTime[hist][counter][particle]->Fill(drift_time);
+    h_G4Tracker_DriftTime_vs_DeltaR[hist][counter][particle]->Fill(drift_time, DeltaR);
+    h_G4Tracker_DeltaR[hist][counter][particle]->Fill(DeltaR);
+    h_G4Tracker_DeltaR_vs_Energy[hist][counter][particle]->Fill(DeltaR, data[kP]/GeV);
+    h_G4Tracker_DeltaTheta[hist][counter][particle]->Fill(dTheta);
+    h_G4Tracker_DeltaTheta_vs_Energy[hist][counter][particle]->Fill(dTheta, data[kP]/GeV);
+   
+    if ( debug_ ) {
+      if ( hist == kGeneratedDist ) {
+	cout << truth_particle_names[particle] << "\t" << hist << "\t" << data[kP] << "\t" << drift_time << "\t" << DeltaR << "\t" << dTheta << endl;
+      }
+    }
+  }
+
   if ( debug_ ) { cout << "FillTruthTracker(hist=" << TrackerTimestampName(hist) << " , " << truth_particle_names[particle] << ", counter=" << counter << ", calonum" << calonum << ") - Done" << endl; }
 }
 
@@ -3184,17 +3774,17 @@ void gm2ringsim::ringTrackerAnalyzer::FillRingTrackerPhaseSpace(double time, int
     if ( time < 1*microsecond ) { FillRingTrackerPhaseSpace(kEarly, k1tracker, x, y, xprime, yprime); }
     if ( time < 5*microsecond ) { FillRingTrackerPhaseSpace(kMiddle, k1tracker, x, y, xprime, yprime); }
     if ( time < 20*microsecond ) { FillRingTrackerPhaseSpace(kLate, k1tracker, x, y, xprime, yprime); }
-
+    
     if ( SavePhaseSpace_ ) {
       if ( time < 25*microsecond ) {
 	out_ << time << "\t" << k1tracker << "\t" << x << "\t" << y << endl;
       }
     }
-//     if ( time < 1*microsecond ) { FillRingTrackerPhaseSpace(kEarly, k1tracker, time, x, y); }
-//     if ( time < 5*microsecond ) { FillRingTrackerPhaseSpace(kMiddle, k1tracker, time, x, y); }
-//     if ( time < 20*microsecond ) { FillRingTrackerPhaseSpace(kLate, k1tracker, time, x, y); }
+    //     if ( time < 1*microsecond ) { FillRingTrackerPhaseSpace(kEarly, k1tracker, time, x, y); }
+    //     if ( time < 5*microsecond ) { FillRingTrackerPhaseSpace(kMiddle, k1tracker, time, x, y); }
+    //     if ( time < 20*microsecond ) { FillRingTrackerPhaseSpace(kLate, k1tracker, time, x, y); }
   }
-
+  
   if ( counter == vring1p || counter == vring2p ) {
     FillRingTrackerPhaseSpace(kAll, k2trackers, x, y, xprime, yprime);
     if ( time < 1*microsecond ) { FillRingTrackerPhaseSpace(kEarly, k2trackers, x, y, xprime, yprime); }
@@ -3215,6 +3805,7 @@ void gm2ringsim::ringTrackerAnalyzer::FillRingTrackerPhaseSpace(double time, int
 
 void gm2ringsim::ringTrackerAnalyzer::FillRingTrackerPhaseSpace(int timehist, int trackerhist, double time, double x, double y)
 {
+  if ( !fill_ ) { return; }
   return;
   int npx = g_VirtualRingTracker_X_PhaseSpace_vs_Time[timehist][trackerhist]->GetN();
   g_VirtualRingTracker_X_PhaseSpace_vs_Time[timehist][trackerhist]->SetPoint(npx, time, x);
@@ -3225,6 +3816,7 @@ void gm2ringsim::ringTrackerAnalyzer::FillRingTrackerPhaseSpace(int timehist, in
 
 void gm2ringsim::ringTrackerAnalyzer::FillRingTrackerPhaseSpace(int timehist, int trackerhist, double x, double y, double xprime, double yprime)
 {
+  if ( !fill_ ) { return; }
   h_VirtualRingTracker_X_PhaseSpace_vs_Time[timehist][trackerhist]->Fill(x);  
   h_VirtualRingTracker_Xprime_PhaseSpace_vs_Time[timehist][trackerhist]->Fill(xprime*1000);  
   h_VirtualRingTracker_Y_PhaseSpace_vs_Time[timehist][trackerhist]->Fill(y);  
@@ -3241,6 +3833,8 @@ void gm2ringsim::ringTrackerAnalyzer::FillRingTracker(int hist, int type, double
   if ( hist >= Nringtrackertimes ) { return; }
   if ( type >= Ntimevals ) { return; }
   if ( hist < 0 || type < 0 ) { return; }
+  if ( !fill_ ) { return; }
+
   // hist [] ; 0 <=> Begin (t0) , 1 <=> End (t_{inf})
   // type [] ; 0 <=> GeneratedDist , 1 <=> RemainingDist
   
@@ -3273,6 +3867,93 @@ void gm2ringsim::ringTrackerAnalyzer::FillRingTracker(int hist, int type, double
   if ( debug_ ) { cout << "FillRingTracker(hist=" << hist << " , type=" << type << ") - Done" << endl; }
 }
 
+
+void gm2ringsim::ringTrackerAnalyzer::FillBeamScan(double time, double rhat, double vhat, double prhat, double pvhat, double theta, double p, double polx, double poly, double polz)
+{
+  if ( !fill_ ) { return; }
+  int counter = 0;
+  counter = (int)(Nstat*(theta/TMath::TwoPi()));
+  int turn = (int)(time)/(149.15*ns);
+  double dT = turn + theta/TMath::TwoPi();
+  
+  double xval = time/1000;
+  for ( int hist = 0; hist < Ntruthtimestamps; hist++ ) {
+    if ( !FillByTimestamp(hist) ) { continue; }
+    
+    if ( timestamp_map[hist] == kAllTime ||
+	 timestamp_map[hist] == kPerTimeOncePerTurn ||
+	 timestamp_map[hist] == kPerTimeSingleHit ||
+	 timestamp_map[hist] == kPerTimeTwicePerTurn ) {
+      xval = time/1000;
+    }
+
+    if ( FillByTimestamp(hist, counter) ) {
+      FillBeamScan(hist, xval, rhat, vhat, prhat, pvhat, theta, p, polx, poly, polz);
+    }
+  }
+}
+
+void gm2ringsim::ringTrackerAnalyzer::FillBeamScan(int hist, double xval, double rhat, double y, double xprime, double yprime, double theta, double mom, double polx, double poly, double polz)
+{
+  if ( timestamp_map[hist] == kPerTimeSingleHit && Npart[truth_particle_nums["DecayMuon"]] > 0 && bs_tree_ ) {
+    bs_time = xval;
+    bs_vhat = y;
+    bs_pol  = polz;
+    bs_mom  = mom/Pmagic();
+    bs_rhat = rhat;
+    bs_tree_->Fill();
+  }
+
+
+
+  if ( !fill_ ) { return; }
+  int m = 0;
+  //cout << "Filling BeamScan: " << hist << endl;
+  h_BeamScan_R_vs_Time[hist][m]->Fill(xval, TMath::Sqrt(rhat*rhat + y*y));
+  h_BeamScan_Rhat_vs_Time[hist][m]->Fill(xval, rhat);
+  h_BeamScan_Y_vs_Time[hist][m]->Fill(xval, y);
+  h_BeamScan_Y2_vs_Time[hist][m]->Fill(xval, y*y);
+  h_BeamScan_SpinPhase_vs_Time[hist][m]->Fill(xval, polz);
+  h_BeamScan_PolX_vs_Time[hist][m]->Fill(xval, polx);
+  h_BeamScan_PolY_vs_Time[hist][m]->Fill(xval, poly);
+  h_BeamScan_Theta_vs_Time[hist][m]->Fill(xval, theta);
+  h_BeamScan_Xprime_vs_Time[hist][m]->Fill(xval, 1000*xprime);
+  h_BeamScan_Yprime_vs_Time[hist][m]->Fill(xval, 1000*yprime);
+  h_BeamScan_Mom_vs_Time[hist][m]->Fill(xval, mom/Pmagic());
+
+  if ( mom/Pmagic() > 1 ) { m = 1; }
+  else { m = 2; }
+
+  h_BeamScan_R_vs_Time[hist][m]->Fill(xval, TMath::Sqrt(rhat*rhat + y*y));
+  h_BeamScan_Rhat_vs_Time[hist][m]->Fill(xval, rhat);
+  h_BeamScan_Y_vs_Time[hist][m]->Fill(xval, y);
+  h_BeamScan_Y2_vs_Time[hist][m]->Fill(xval, y*y);
+  h_BeamScan_SpinPhase_vs_Time[hist][m]->Fill(xval, polz);
+  h_BeamScan_PolX_vs_Time[hist][m]->Fill(xval, polx);
+  h_BeamScan_PolY_vs_Time[hist][m]->Fill(xval, poly);
+  h_BeamScan_Theta_vs_Time[hist][m]->Fill(xval, theta);
+  h_BeamScan_Xprime_vs_Time[hist][m]->Fill(xval, 1000*xprime);
+  h_BeamScan_Yprime_vs_Time[hist][m]->Fill(xval, 1000*yprime);
+  h_BeamScan_Mom_vs_Time[hist][m]->Fill(xval, mom/Pmagic());
+
+  if ( fabs(mom/Pmagic() - 1) < 0.0015 / 100 ) {
+    m = 3;
+    h_BeamScan_R_vs_Time[hist][m]->Fill(xval, TMath::Sqrt(rhat*rhat + y*y));
+    h_BeamScan_Rhat_vs_Time[hist][m]->Fill(xval, rhat);
+    h_BeamScan_Y_vs_Time[hist][m]->Fill(xval, y);
+    h_BeamScan_Y2_vs_Time[hist][m]->Fill(xval, y*y);
+    h_BeamScan_SpinPhase_vs_Time[hist][m]->Fill(xval, polz);
+    h_BeamScan_PolX_vs_Time[hist][m]->Fill(xval, polx);
+    h_BeamScan_PolY_vs_Time[hist][m]->Fill(xval, poly);
+    h_BeamScan_Theta_vs_Time[hist][m]->Fill(xval, theta);
+    h_BeamScan_Xprime_vs_Time[hist][m]->Fill(xval, 1000*xprime);
+    h_BeamScan_Yprime_vs_Time[hist][m]->Fill(xval, 1000*yprime);
+    h_BeamScan_Mom_vs_Time[hist][m]->Fill(xval, mom/Pmagic());
+  }
+
+}
+
+
 void gm2ringsim::ringTrackerAnalyzer::FillTruthTurnTime(int particle, int calonum, double *data)
 {
   bool debug = debug_;
@@ -3288,10 +3969,14 @@ void gm2ringsim::ringTrackerAnalyzer::FillTruthTurnTime(int particle, int calonu
   
   double xval;
   for ( int hist = 0; hist < Ntruthtimestamps; hist++ ) {
+    //if ( truth_particle_names[particle] == "DecayMuon" ) {
+    //  cout << "  Trying hist: " << hist << endl;
+    //}
     if ( !FillByTimestamp(hist) ) { continue; }
     
     xval = dT;
-    if ( timestamp_map[hist] == kPerTimeOncePerTurn ||
+    if ( timestamp_map[hist] == kAllTime ||
+	 timestamp_map[hist] == kPerTimeOncePerTurn ||
 	 timestamp_map[hist] == kPerTimeSingleHit ||
 	 timestamp_map[hist] == kPerTimeTwicePerTurn ) {
       xval = (data[kTime])/1000;
@@ -3331,6 +4016,7 @@ void gm2ringsim::ringTrackerAnalyzer::FillTruthTurnTime(double xval, int hist, i
   if ( debug ) { cout << "  FillTruthTurnTime(hist=" << hist << " , particle=" << particle << ")" << endl; }
   if ( hist < 0 ) { return; }
   if ( particle < 0 ) { return; }
+  if ( !fill_ ) { return; }
 
   if ( h_G4Tracker_Xe_vs_Time[hist][particle] == NULL ) {
     if ( debug ) { cout << "h_G4Tracker_Xe_vs_Time is NULL for " << truth_particle_names[particle] << " and hist=" << hist << endl; }
@@ -3339,6 +4025,12 @@ void gm2ringsim::ringTrackerAnalyzer::FillTruthTurnTime(double xval, int hist, i
 
   // Fix timestamp so it looks like we are looking at a single point in time
   //xval -= TimeOffset(timestamp_map[hist], counter);
+
+  if ( 0 ) {
+    if ( truth_particle_names[particle] == "DecayMuon" ) {
+      cout << "Filling DecayMuon: " << hist << endl;
+    }
+  }
 
   h_G4Tracker_Xe_vs_Time[hist][particle]->Fill(xval, xe);
   h_G4Tracker_R_vs_Time[hist][particle]->Fill(xval, TMath::Sqrt(rhat*rhat + y*y));
@@ -3364,7 +4056,7 @@ void gm2ringsim::ringTrackerAnalyzer::FillNumTruthTurnTime(double xval, int hist
   if ( particle < 0 ) { return; }
 
   double tmod = 0.0;
-  if ( particle == truth_particle_nums["DecayElectron"] || particle == truth_particle_nums["DecayElectronEgtEth"] || particle == truth_particle_nums["DecayElectronEltEth"] || particle == truth_particle_nums["DecayElectronEgtHghEth"] || particle == truth_particle_nums["DecayElectronLongDriftTime"] || particle == truth_particle_nums["DecayElectronShortDriftTime"] ) {
+  if ( IsStrawElectron(particle) || IsCaloElectron(particle) ) {
     tmod = TimeOffset(timestamp_map[hist]*10, counter);
   }
   else {
@@ -3374,11 +4066,28 @@ void gm2ringsim::ringTrackerAnalyzer::FillNumTruthTurnTime(double xval, int hist
   if ( debug ) { cout << "    tmod=" << tmod << endl; }
 
   double xvals[4];
-  xvals[0] = xval - tmod;
-  xvals[1] = xval;
+  xvals[kAllStations] = xval - tmod;
+  xvals[kAllStationsNoTimeOffset] = xval;
   double fa_offset = (2*G4UniformRand()-1) * 0.1492;
-  xvals[2] = xvals[0] + fa_offset;
-  xvals[3] = xvals[1] + fa_offset;
+  xvals[kAllStationsNoFastRotation] = xvals[kAllStations] + fa_offset;
+  xvals[kAllStationsNoTimeOffsetNoFastRotation] = xvals[kAllStationsNoTimeOffset] + fa_offset;
+
+  if ( particle == truth_particle_nums["DecayElectron"] && timestamp_map[hist] == kPerTimeSingleHit && Npart[truth_particle_nums["DecayMuon"]] > 0 && tree_ ) {    
+    pt_time = xval;
+    pt_tmod = tmod;
+    pt_faoff = fa_offset;
+    pt_energy = e;
+    pt_calo = counter;
+    pt_vhat = DecayElectronData[kVhat];
+
+    mu_vhat = DecayMuonData[kVhat];
+    mu_pol  = DecayMuonData[kPol_azimuth];
+    mu_mom  = DecayMuonData[kP];
+    mu_rhat = DecayMuonData[kRhat];
+    tree_->Fill();
+  }
+
+  if ( !fill_ ) { return; }
 
   if ( h_G4Tracker_TimeOffset_vs_Time[hist][particle] ) {
     h_G4Tracker_TimeOffset_vs_Time[hist][particle]->Fill(xvals[1] - xvals[0]);
@@ -3386,6 +4095,9 @@ void gm2ringsim::ringTrackerAnalyzer::FillNumTruthTurnTime(double xval, int hist
   if ( debug ) { cout << "    Filled toff." << endl; }
   if ( h_G4Tracker_NumCalo_vs_Time[hist][particle] ) {
     h_G4Tracker_NumCalo_vs_Time[hist][particle]->Fill(xval, counter);
+  }
+  if ( h_G4Tracker_NumStraw_vs_Time[hist][particle] ) {
+    h_G4Tracker_NumStraw_vs_Time[hist][particle]->Fill(xval, counter);
   }
   if ( debug ) { cout << "    NumCalos." << endl; }
   
@@ -3416,57 +4128,39 @@ void gm2ringsim::ringTrackerAnalyzer::FillNumTruthTurnTime(double xval, int hist
 
 
   // Do this for 1 station
-  if ( particle == truth_particle_nums["DecayElectron"] ) {
-    ;//cout << truth_particle_names[particle] << "\t" << counter << "\t" << vring1p << endl;
-  }
-  int stationcomp = vring1p + 1;
-  if ( counter == stationcomp ) {
+  if ( IsStrawElectron(particle) || IsCaloElectron(particle) ) {
+    int s = CaloSection(counter);
     if ( debug ) { cout << "Filling single station [" << counter << "]" << endl; }
-    for ( int s = 4; s < 6; s++ ) {
-      if ( debug_ ) { cout <<"    s=" << s << endl; }
-      if ( h_G4Tracker_Num_vs_Time[hist][s][particle] ) {
-	h_G4Tracker_Num_vs_Time[hist][s][particle]->Fill(xvals[s-2]);
+    if ( debug_ ) { cout <<"    s=" << s << endl; }
+    if ( h_G4Tracker_Num_vs_Time[hist][s][particle] ) {
+      h_G4Tracker_Num_vs_Time[hist][s][particle]->Fill(xvals[s-2]);
+    }
+    
+    if ( keep_edm_plots ) {
+      if ( debug ) { cout << "Filling single station EDM plots." << endl; }
+      if ( y > 0 ) { 
+	h_G4Tracker_Nup_vs_Time[hist][s][particle]->Fill(xvals[s-2], 1);
+	h_G4Tracker_Nud_vs_Time[hist][s][particle]->Fill(xvals[s-2], 1);
+      }
+      else if ( y < 0 ) { 
+	h_G4Tracker_Ndown_vs_Time[hist][s][particle]->Fill(xvals[s-2], -1);
+	h_G4Tracker_Nud_vs_Time[hist][s][particle]->Fill(xvals[s-2], -1);
       }
       
-      if ( keep_edm_plots ) {
-	if ( debug ) { cout << "Filling single station EDM plots." << endl; }
-	if ( y > 0 ) { 
-	  h_G4Tracker_Nup_vs_Time[hist][s][particle]->Fill(xvals[s-2], 1);
-	  h_G4Tracker_Nud_vs_Time[hist][s][particle]->Fill(xvals[s-2], 1);
-	}
-	else if ( y < 0 ) { 
-	  h_G4Tracker_Ndown_vs_Time[hist][s][particle]->Fill(xvals[s-2], -1);
-	  h_G4Tracker_Nud_vs_Time[hist][s][particle]->Fill(xvals[s-2], -1);
-	}
-	
-	h_G4Tracker_NwghtE_vs_Time[hist][s][particle]->Fill(xvals[s-2], e/Pmagic());
-      }
+      h_G4Tracker_NwghtE_vs_Time[hist][s][particle]->Fill(xvals[s-2], e/Pmagic());
     }
 
     if ( debug ) { cout << "Filling single station. - Done" << endl; }
   }
 
-  if ( 0 ) {
-  // Do something special for calo-specific stuff
-  if ( particle == truth_particle_nums["DecayElectron"] || particle == truth_particle_nums["DecayElectronEgtEth"] || particle == truth_particle_nums["DecayElectronEltEth"] || particle == truth_particle_nums["DecayElectronEgtHghEth"] || particle == truth_particle_nums["DecayElectronLongDriftTime"] || particle == truth_particle_nums["DecayElectronShortDriftTime"] ) {
-    int s = counter + 4;
-    //cout << "Counter = " << s << endl;
-    //double tmod = TimeOffset(3, counter);
-    double tmpxval = xval;// - tmod;
-    if ( h_G4Tracker_Num_vs_Time[hist][s][particle] ) {
-      if ( s < 2 ) { 
-	cout << "Counter = " << s << endl;
-      }
-      h_G4Tracker_Num_vs_Time[hist][s][particle]->Fill(tmpxval);
-    }
-  }
-  }
   if ( debug ) { cout << "  FillNumTruthTurnTime(hist=" << hist << " , particle=" << truth_particle_names[particle] << ") - Done" << endl; }
 }
 
 void gm2ringsim::ringTrackerAnalyzer::FillTurnTime(double dT, double time, double t0, int counter, int trackID, double theta, double zhat, double xe, double xe_rms, double rhat, double y, double prhat, double pvhat, double mom, double polz, double polx, double poly, double e, double spinphase)
 {
   bool debug = debug_;
+
+  if ( !fill_ ) { return; }
 
 
   if ( debug ) { cout << "FillTurnTime(trackID=" << trackID << " , counter=" << counter << ")" << endl; }
@@ -3532,6 +4226,9 @@ void gm2ringsim::ringTrackerAnalyzer::FillTurnTime(double dT, double time, doubl
 void gm2ringsim::ringTrackerAnalyzer::FillKickDegree(int histtype, double degree_at_r0, double kick_at_r0, double mom)
 {
   if ( !FillByVRingHist() ) { return; }
+
+  if ( !fill_ ) { return; }
+
 
   int hist1 = -1;
   int hist2 = -1;
@@ -3721,6 +4418,38 @@ int gm2ringsim::ringTrackerAnalyzer::Rbin(double rhat)
   return( bin );
 }
 
+bool gm2ringsim::ringTrackerAnalyzer::IsCaloElectron(int particle)
+{
+  if ( particle < 0 ) { return( false ); }
+
+  if ( particle == truth_particle_nums["DecayElectron"] ) { return( true ); }
+  if ( particle == truth_particle_nums["DecayElectronQuadSection"] ) { return( true ); }
+  if ( particle == truth_particle_nums["DecayElectronOtherSection"] ) { return( true ); }
+  if ( particle == truth_particle_nums["DecayElectronKickerSection"] ) { return( true ); }
+  if ( particle == truth_particle_nums["DecayElectronEmptySection"] ) { return( true ); }
+  if ( particle == truth_particle_nums["DecayElectronEltEth"] ) { return( true ); }
+  if ( particle == truth_particle_nums["DecayElectronEgtEth"] ) { return( true ); }
+  if ( particle == truth_particle_nums["DecayElectronEgtHghEth"] ) { return( true ); }
+  if ( particle == truth_particle_nums["DecayElectronLongDriftTime"] ) { return( true ); }
+  if ( particle == truth_particle_nums["DecayElectronShortDriftTime"] ) { return( true ); }
+
+  return( false );
+}
+
+bool gm2ringsim::ringTrackerAnalyzer::IsStrawElectron(int particle)
+{
+  if ( particle < 0 ) { return( false ); }
+
+  if ( particle == truth_particle_nums["StrawElectron"] ) { return( true ); }
+  if ( particle == truth_particle_nums["StrawCaloElectron"] ) { return( true ); }
+  if ( particle == truth_particle_nums["GoodStrawElectron"] ) { return( true ); }
+  if ( particle == truth_particle_nums["GoodStrawCaloElectron"] ) { return( true ); }
+  if ( particle == truth_particle_nums["GoodOneStrawCaloElectron"] ) { return( true ); }
+  if ( particle == truth_particle_nums["GoodTwoStrawCaloElectron"] ) { return( true ); }
+
+  return( false );
+}
+
 int gm2ringsim::ringTrackerAnalyzer::IsSomething(string name)
 {
   if ( gm2ringsim::ringTrackerAnalyzer::IsKicker(name) ) { return( kKickerHit ); }
@@ -3729,6 +4458,7 @@ int gm2ringsim::ringTrackerAnalyzer::IsSomething(string name)
   if ( gm2ringsim::ringTrackerAnalyzer::IsCryostat(name) ) { return( kCryostatHit ); }
   if ( gm2ringsim::ringTrackerAnalyzer::IsInflector(name) ) { return( kInflectorHit ); }
   if ( gm2ringsim::ringTrackerAnalyzer::IsVacuumChamber(name) ) { return( kVacuumHit ); }
+  if ( gm2ringsim::ringTrackerAnalyzer::IsStrawTracker(name) ) { return( kStrawSystemHit ); }
   if ( gm2ringsim::ringTrackerAnalyzer::IsVirtualRingStation(name) ) { return( kVirtualRingStationHit ); }
 
   return( -1 );
@@ -3743,6 +4473,7 @@ bool gm2ringsim::ringTrackerAnalyzer::IsSomething(string name, int comp)
   if ( gm2ringsim::ringTrackerAnalyzer::IsQuad(name) && comp == kQuadHit ) { return( true ); }
   if ( gm2ringsim::ringTrackerAnalyzer::IsCryostat(name) && comp == kCryostatHit ) { return( true ); }
   if ( gm2ringsim::ringTrackerAnalyzer::IsInflector(name) && comp == kInflectorHit ) { return( true ); }
+  if ( gm2ringsim::ringTrackerAnalyzer::IsStrawTracker(name) && comp == kStrawSystemHit ) { return( true ); }
   if ( gm2ringsim::ringTrackerAnalyzer::IsVacuumChamber(name) && comp == kVacuumHit ) { return( true ); }
   return( false );
 }
@@ -3750,7 +4481,6 @@ bool gm2ringsim::ringTrackerAnalyzer::IsSomething(string name, int comp)
 
 bool gm2ringsim::ringTrackerAnalyzer::IsVirtualRingStation(string name)
 {
-  
   if ( name.find("VirtualRingStationPV") != string::npos ) { return( true ); }
   if ( name.find("turnCounterPV") != string::npos ) { return( true ); }
   return( false );
@@ -3846,6 +4576,13 @@ bool gm2ringsim::ringTrackerAnalyzer::IsVirtualRingStation(string name, int *num
   return ( false );
 }
 
+bool gm2ringsim::ringTrackerAnalyzer::IsStrawTracker(string name)
+{
+  if ( name.find("SingleStraw") != string::npos ) { return( true ); }
+
+  return( false );
+}
+
 bool gm2ringsim::ringTrackerAnalyzer::IsInflector(string name)
 {
   if ( name.find("Inflector") != string::npos ) { return( true ); }
@@ -3888,10 +4625,10 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
   // Extract the hits
   
   // Make the handle
-  //art::Handle< StrawArtRecordCollection > hitDataHandle;
+  art::Handle< StrawArtRecordCollection > strawtrackerhitDataHandle;
   art::Handle< VirtualRingStationArtRecordCollection > ringtrackerhitDataHandle;
   art::Handle< TrackingActionArtRecordCollection > truthhitDataHandle;
-  //art::Handle< TrackingActionArtRecordCollection > truthfinishedhitDataHandle;
+  art::Handle< TrackingActionArtRecordCollection > truthbeamscanhitDataHandle;
   art::Handle< InflectorArtRecordCollection > inflectorhitDataHandle;
   art::Handle< RingArtRecordCollection > ringhitDataHandle;
   art::Handle< CaloArtRecordCollection > calohitDataHandle;
@@ -3900,12 +4637,17 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
   if ( debug_ ) { std::cout<<"Ngen: " << Ngen << " \t" << "Event ID: "<<e.id()<<std::endl; }
   
   //e.getByLabel(hitModuleLabel_, instanceName_, hitDataHandle);
-  if ( SaveVRingHits_ || 1 ) {
+  if ( SaveStrawHits_ ) {
+    e.getByLabel(strawtrackerhitModuleLabel_, strawtrackerinstanceName_, strawtrackerhitDataHandle);
+  }
+  if ( SaveVRingHits_  ) {
     e.getByLabel(ringtrackerhitModuleLabel_, ringtrackerinstanceName_, ringtrackerhitDataHandle);
   }
   if ( SaveTruthHits_ || 1 ) {
     e.getByLabel(truthhitModuleLabel_, truthinstanceName_, truthhitDataHandle);
-    //e.getByLabel(truthfinishedhitModuleLabel_, truthfinishedinstanceName_, truthfinishedhitDataHandle);
+  }
+  if ( SaveBeamScanHits_ ) {
+    e.getByLabel(truthbeamscanhitModuleLabel_, truthbeamscaninstanceName_, truthbeamscanhitDataHandle);
   }
   if ( SaveInfHits_ || 1 ) {
     e.getByLabel(inflectorhitModuleLabel_, inflectorinstanceName_, inflectorhitDataHandle);
@@ -3913,7 +4655,7 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
   if ( SaveRingHits_ || 1 ) {
     e.getByLabel(ringhitModuleLabel_, ringinstanceName_, ringhitDataHandle);
   }
-  if ( SaveCaloHits_ || 1 ) {
+  if ( SaveCaloHits_ ) {
     e.getByLabel(calohitModuleLabel_, caloinstanceName_, calohitDataHandle);
   }
 
@@ -3921,49 +4663,14 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
   
   // Resolve the handle
 
-  //StrawArtRecordCollection const & hits = *hitDataHandle;
+  StrawArtRecordCollection const & strawhits = *strawtrackerhitDataHandle;
   VirtualRingStationArtRecordCollection const & ringtrackerhits = *ringtrackerhitDataHandle;
   TrackingActionArtRecordCollection const & truthhits = *truthhitDataHandle;
-  //TrackingActionArtRecordCollection const & truthfinishedhits = *truthfinishedhitDataHandle;
+  TrackingActionArtRecordCollection const & truthbeamscanhits = *truthbeamscanhitDataHandle;
   InflectorArtRecordCollection const & inflectorhits = *inflectorhitDataHandle;
   RingArtRecordCollection const & ringhits = *ringhitDataHandle;
   CaloArtRecordCollection const & calohits = *calohitDataHandle;
 
-//   VirtualRingStationArtRecordCollection ringtrackerhits;
-//   if ( SaveVRingHits_ ) { ringtrackerhits = *ringtrackerhitDataHandle; }
-
-//   if ( debug_ ) { cout << "Got vring collections." << endl; }
-
-//   TrackingActionArtRecordCollection const& truthhits(*truthhitDataHandle);
-//   //TrackingActionArtRecordCollection truthfinishedhits;
-//   if ( SaveTruthHits_ ) {;
-//     //if ( truthhitDataHandle ) {
-//     //truthhits = *truthhitDataHandle;
-//     //}
-//     //if ( truthfinishedhitDataHandle ) {
-//     ;//truthfinishedhits = *truthfinishedhitDataHandle;
-//     //}
-//   }
-
-//   if ( debug_ ) { cout << "Got truth collections." << endl; }
-
-
-//   InflectorArtRecordCollection inflectorhits;
-//   if ( SaveInfHits_ ) { inflectorhits = *inflectorhitDataHandle; }
-
-//   if ( debug_ ) { cout << "Got inflector collections." << endl; }
-
-
-//   RingArtRecordCollection ringhits;
-//   if ( SaveRingHits_ ) { ringhits = *ringhitDataHandle; }
-
-//   if ( debug_ ) { cout << "Got ringhit collections." << endl; }
-
-
-//   CaloArtRecordCollection calohits;
-//   if ( SaveCaloHits_ ) { calohits = *calohitDataHandle; }
-
-//   if ( debug_ ) { cout << "Got calo collections." << endl; }
 
 
   if ( debug_ ) { cout << "Got all collections." << endl; }
@@ -3980,13 +4687,17 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
     cout << "  ringTrackerAnalyzer: " << "There are " << pvs.size() << " entries in the PVS" << endl;
     cout << "  ringTrackerAnalyzer: " << "There are " << ringhits.size() << " ring hits in this event." << endl;
     cout << "  ringTrackerAnalyzer: " << "There are " << calohits.size() << " calo hits in this event." << endl;
+    cout << "  ringTrackerAnalyzer: " << "There are " << strawhits.size() << " straw hits in this event." << endl;
     cout << "  ringTrackerAnalyzer: " << "There are " << inflectorhits.size() << " inflector hits in this event." << endl;
     cout << "  ringTrackerAnalyzer: " << "There are " << truthhits.size() << " truth hits in this event." << endl;
-    //cout << "  ringTrackerAnalyzer: " << "There are " << truthfinishedhits.size() << " truth hits in this event." << endl;
-    cout << "  ringTrackerAnalyzer: " << "There are " << ringtrackerhits.size() << " virtual ring station hits in this event." << endl;
+    cout << "  ringTrackerAnalyzer: " << "There are " << truthbeamscanhits.size() << " truth hits in this event." << endl;
+    if ( SaveVRingHits_  ) {
+      cout << "  ringTrackerAnalyzer: " << "There are " << ringtrackerhits.size() << " virtual ring station hits in this event." << endl;
+    }
   }
 
-  h_RingTracker_Nhits->Fill(vringhits);
+
+  //h_RingTracker_Nhits->Fill(vringhits);
   if ( vringhits > 0.98 * maxturns_ ) { 
     //cout << "Ring Hits[" << vringhits << "] more than allowed [" << 0.98*maxturns_ << "]." << endl;
     //return;
@@ -3997,9 +4708,18 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
 
   for ( int i = 0; i < 20; i++ ) {
     BirthElectronData[i] = -9999.9;
+    StrawElectronData[i] = -9999.9;
+    StrawCaloElectronData[i] = -9999.9;
+    GoodStrawElectronData[i] = -9999.9;
+    GoodStrawCaloElectronData[i] = -9999.9;
+    GoodOneStrawCaloElectronData[i] = -9999.9;
+    GoodTwoStrawCaloElectronData[i] = -9999.9;
     DecayElectronData[i] = -9999.9;
+    DecayElectronOtherSectionData[i] = -9999.9;
+    DecayElectronQuadSectionData[i] = -9999.9;
+    DecayElectronKickerSectionData[i] = -9999.9;
+    DecayElectronEmptySectionData[i] = -9999.9;
     BirthElectronEgtEthData[i] = -9999.9;
-    DecayElectronEgtEthData[i] = -9999.9;
     DecayElectronEltEthData[i] = -9999.9;
     DecayElectronEgtHghEthData[i] = -9999.9;
     DecayElectronLongDriftTimeData[i] = -9999.9;
@@ -4077,7 +4797,7 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
 	  else { volname << "InflectorTracker[0" << vol-9 << "]"; }
 	
 	  if ( inflector_volume_name == volname.str() ) {
-	    if ( fill ) {
+	    if ( fill_ ) {
 	      FillInflector(vol, x_inf, y_inf, z_inf, r_inf, prhat_ring, pvhat_ring, xprime_inf, yprime_inf);
 	    }
 	  }
@@ -4091,7 +4811,6 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
 
 
   
-
 
 
 
@@ -4286,10 +5005,12 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
 	//cout << "Rhat,Bin,Tau_{c} = " << rhat << "\t" << radbin << "\t" << tauc << endl;
 	if ( debug_ ) { cout << "  Fill OmegaC-Radbin" << endl; }
 	if ( TMath::Abs(mom/Pmagic()-1) < 0.001 || 1 ) {
-	  h_RingTracker_OmegaC_Radbin->Fill(tauc, rhat_init);
-	  h_RingTracker_OmegaC_Mombin->Fill(tauc, mom_init/Pmagic());
-	  if ( radbin >= 0 && radbin < 10 ) {
-	    h_RingTracker_OmegaC[radbin]->Fill(tauc);
+	  if ( fill_ ) {
+	    h_RingTracker_OmegaC_Radbin->Fill(tauc, rhat_init);
+	    h_RingTracker_OmegaC_Mombin->Fill(tauc, mom_init/Pmagic());
+	    if ( radbin >= 0 && radbin < 10 ) {
+	      h_RingTracker_OmegaC[radbin]->Fill(tauc);
+	    }
 	  }
 	  
 	  if ( debug_ ) { cout << "  Fill OmegaC-Radbin - Done" << endl; }
@@ -4300,7 +5021,7 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
 
       double pol_azimuth, pol_radial, pol_vertical;
       ComputePolarization(&pol_azimuth, &pol_radial, &pol_vertical, polx, poly, polz, theta);
-      double spinphase = ComputeSpinPhase(polx, poly, polz, px, py, pz);
+      double spinphase = TMath::ACos(pol_azimuth); //ComputeSpinPhase(polx, poly, polz, px, py, pz);
 
       if ( track_ID == 1 ) {      
 	if ( t0 <= 0.0 ) { 
@@ -4609,18 +5330,11 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
   double zDecay = 0.0;
   t0 = 0.0;
   //double CosTheta = -99.9;
-  int Npart[MaxNparticles];
-  double Npart_Rhat[MaxNparticles];
-  double Npart_Yhat[MaxNparticles];
-  double Npart_Mom[MaxNparticles];
-  double Npart_Time[MaxNparticles];
-  double Npart_PDGID[MaxNparticles];
-  double Npart_Status[MaxNparticles];
+  int positron_trackID = -1;
   for ( int i = 0; i < Nparticles; i++ ) { Npart[i] = 0; Npart_Rhat[i] = -99.9; Npart_Yhat[i] = -99.9; Npart_Mom[i] = -99.9; Npart_Time[i] = 0.0; Npart_PDGID[i] = 0.0; Npart_Status[i] = -1.0; }
   if ( SaveTruthHits_ ) {
     
     //TrackingActionArtRecordCollection const & truthhits = *truthhitDataHandle;
-    //TrackingActionArtRecordCollection const & truthfinishedhits = *truthfinishedhitDataHandle;
     TrackingActionArtRecordCollection thits;
 
     bool plot_birth_muon = true;
@@ -4629,9 +5343,7 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
       if ( i == 0 ) {
 	thits = *truthhitDataHandle;
       }
-      else {
-	;//thits = *truthfinishedhitDataHandle;
-      }
+
       //cout << i << "\t" << thits.size() << endl;
 
       //for ( auto htruthdata : truthhits) { 
@@ -4686,7 +5398,8 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
 	double polz = pol_pre.Dot(zAxis);
 	double pol_azimuth_truth, pol_radial_truth, pol_vertical_truth;
 	ComputePolarization(&pol_azimuth_truth, &pol_radial_truth, &pol_vertical_truth, polx_pre, poly_pre, polz_pre, theta);
-	double spinphase = ComputeSpinPhase(polx_pre, poly_pre, polz_pre, px, py, pz);
+	double spinphase = TMath::ACos(pol_azimuth_truth); //ComputeSpinPhase(polx, poly, polz, px, py, pz);
+	//double spinphase = ComputeSpinPhase(polx_pre, poly_pre, polz_pre, px, py, pz);
 	
 
 	if ( trackType == "mu+" ) { pdgid = kAntiMuonID; }
@@ -4795,14 +5508,79 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
 	double rprime_truth = TMath::Sqrt(xprime_truth*xprime_truth + zprime_truth*zprime_truth);
 
 	
-    
-	rhat_truth = rhat;
-	rprime_truth = prhat;
-	yprime_truth = pvhat;
-	y_truth = y;
-	x_truth = x;
-	z_truth = z;
 	
+	if ( 0 ) {
+	  if ( particle == truth_particle_nums["DecayMuon"] ) {
+	    double spinphase2 = ComputeSpinPhase(polx_pre, poly_pre, polz_pre, px, py, pz);
+	    cout << "Spin Phase = " << spinphase2 << "\t" << pol_azimuth_truth << "\t" << TMath::ACos(pol_azimuth_truth) << endl;
+	  }
+	}
+
+	//	cout << start_perfect_ << endl;
+	if ( particle == truth_particle_nums["BirthMuon"] && !start_perfect_ ) {
+
+	  TVector3 pol_ring_inf(polx_pre, poly_pre, polz_pre);
+	  TVector3 mom_ring_inf(px, py, pz);
+	  TVector3 pos_ring_inf(x, y, z);
+	  pos_ring_inf -= beamStart_;
+    
+	  double x_inf = pos_ring_inf.Dot(xAxis);
+	  double y_inf = pos_ring_inf.Dot(yAxis);
+	  double r_inf = TMath::Sqrt(x_inf*x_inf + y_inf*y_inf);
+	  double z_inf = pos_ring_inf.Dot(zAxis);
+    
+      //cout << inum << "\t" << x_acc << "\t" << y_acc << "\t" << z_acc << endl;
+
+	  if ( 0 ) {
+	    cout.precision(3);
+	    cout << "px,py,pz = " << mom_ring_inf.X() << "\t" << mom_ring_inf.Y() << "\t" << mom_ring_inf.Z() << endl;
+	    cout << "[x]   = " << xAxis.x() << "\t" << xAxis.y() << "\t" << xAxis.z() << endl;
+	    cout << "[y]   = " << "0" << "\t1\t" << "0" << endl;
+	    cout << "[z]   = " << zAxis.x() << "\t" << zAxis.y() << "\t" << zAxis.z() << endl;
+	  }
+    
+	  double px_inf = mom_ring_inf.Dot(xAxis);
+	  double py_inf = mom_ring_inf.Dot(yAxis);
+	  double pz_inf = mom_ring_inf.Dot(zAxis);
+	  //cout << "px',py',pz' = " << px_inf << "\t" << py_inf << "\t" << pz_inf << endl;
+
+	  double xprime_inf = px_inf / pz_inf;
+	  double yprime_inf = py_inf / pz_inf;
+	  double zprime_inf = pz_inf / pz_inf;
+
+	  pol_vertical_truth = pol_ring_inf.Dot(yAxis)/pol_ring_inf.Mag();
+	  pol_radial_truth   = pol_ring_inf.Dot(xAxis)/pol_ring_inf.Mag();
+	  pol_azimuth_truth  = pol_ring_inf.Dot(zAxis)/pol_ring_inf.Mag();
+
+
+	  //cout << x_inf << "\t" << y_inf << endl;
+	  //cout << xprime_inf << "\t" << yprime_inf << endl;
+
+	  rhat_truth   = x_inf;
+	  rprime_truth = xprime_inf;
+	  if ( 0 ) {
+	    cout << "[x', 1000*x'] = [" << xprime_inf << " , " << 1000*xprime_inf << "]" << endl;
+	    cout << "[y', 1000*y'] = [" << yprime_inf << " , " << 1000*yprime_inf << "]" << endl;
+	    cout << "[z', 1000*z'] = [" << zprime_inf << " , " << 1000*zprime_inf << "]" << endl;
+	  }
+	  y_truth      = y_inf;
+	  yprime_truth = yprime_inf;
+	  x_truth = x;
+	  z_truth = z;
+	}	  
+	else {
+	  //G4cout << "\tRhat = " << rhat << "\tRt = " << rhat_truth << "\tR = " << r << "\t" << y << "\t" << y_truth << "\t" << rprime_truth << "\t" << yprime_truth << G4endl;
+	  rhat_truth = rhat;
+	  rprime_truth = prhat;
+	  yprime_truth = pvhat;
+	  y_truth = y;
+	  x_truth = x;
+	  z_truth = z;
+	  //TVector3 pol_ring(polx_pre, poly_pre, polz_pre);
+	  //pol_vertical_truth = pol_ring.Dot(yAxis)/pol_ring.Mag();
+	  //pol_radial_truth   = pol_ring.Dot(xAxis)/pol_ring.Mag();
+	  //pol_azimuth_truth  = pol_ring.Dot(zAxis)/pol_ring.Mag();
+	}	
 	
 	
 	if ( part == 1 && 0 ) {
@@ -4878,6 +5656,8 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
 
 	
 	int syshits = 0;
+	//bool kickerhit = false;
+	//bool quadhit = false;
 	if ( particle == truth_particle_nums["LostMuon"] ) {
 	  //cout << "Found lost mu+, looking for ring hit from col size = " << ringhits.size() << "." << endl;
 	  for ( unsigned int i = 0; i < ringhits.size(); ++i ) {
@@ -4887,7 +5667,10 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
 	    if ( ringtrackID == trackID && syshits == 0 ) {
 	      int ringvolumeUID = ringhit.volumeUID;
 	      string ringname = pvs.stringGivenID(ringvolumeUID);
-	      syshits = IsSomething(ringname)+1;
+	      int syshit = IsSomething(ringname);
+	      //if ( syshit == kKickerHit ) { kickerhit = true; }
+	      //if ( syshit == kQuadHit ) { quadhit = true; }	      
+	      syshits = syshit + 1;
 	    }
 	  }
 	}
@@ -4928,6 +5711,8 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
 	    Npart_Time[tmp_particle] = time;
 	    FillTruthData(BirthElectronEgtEthData, xe_truth, rhat_truth, y_truth, rprime_truth, yprime_truth, p, x, z, theta, t0, time, tDecay, pol_azimuth_truth, pol_radial_truth, pol_vertical_truth, Polarization, syshits, spinphase);	 
 	  }
+
+	  positron_trackID = trackID;
 	}
 
 	if ( debug_ ) { cout << "Filling Truth data for " << truth_particle_names[particle] << " --- Done. " << endl; }
@@ -5054,6 +5839,16 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
   if ( debug_ ) { cout << "Made it past truth polarization hits." << endl; }
 
 
+
+
+
+
+
+  //-------------------
+  //
+  // Calo Hits
+  //
+  //-------------------
   int calonum = -1;
   int ncalomuhits = 0;
   if ( SaveCaloHits_ ) {
@@ -5114,21 +5909,68 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
 
       if ( debug_ ) { cout << "  Checking for e+ or mu+. Done." << endl; }
 
+      bool kickerhit = false;
+      bool quadhit = false;
+      bool collhit = false;
+      bool vachit = false;
+      bool otherhit = false;
+      bool nohit = true;
       if ( found_positron_trk ) {
+	int pvsize = (int)pvs.size();
 	if ( debug_ ) {
-	  cout << "Found e+, looking for ring hit from col size = " << ringhits.size() << "." << endl;
+	  cout << "Found e+, looking for ring hit from col size = " << ringhits.size() << ". PVs = " << pvsize << endl;
 	}
 	if ( 1 ) {
 	  for ( unsigned int i = 0; i < ringhits.size(); ++i ) {
 	    RingArtRecord ringhit = ringhits[i];
 	    int ringtrackID   = ringhit.trackID;
-	    if ( debug_ ) { cout << "        " << ringtrackID << "  ?  " << trackID << endl; }
+	    double deltaE = ringhit.deltaE;
+	    if ( deltaE < 0 ) { deltaE = -1*ringhit.deltaE; }
+	    if ( deltaE <= 0.0 ) { deltaE = 1e-10; }
+	    if ( deltaE < 0.1 ) { continue; }
+
+	    if ( debug_ ) { cout << "        RingTrack=" << ringtrackID << "  ?  CaloTrack=" << trackID << endl; }
 	    if ( ringtrackID == trackID ) {
-	      //int ringvolumeUID = ringhit.volumeUID;    
+	      if ( debug_ ) { cout << "          Found ring track." << endl; }
+	      int ringvolumeUID = ringhit.volumeUID;
+	      if ( ringvolumeUID >= pvsize ) { continue; }
+	      if ( debug_ ) { cout << "          Found ring track w/ UID = " << ringvolumeUID << endl; }
+	      string ringname = pvs.stringGivenID(ringvolumeUID);
+	      if ( debug_ ) { cout << "          Found ring track w/ ringname = " << ringname << " and dE = " << deltaE << endl; }
+	      int syshit = IsSomething(ringname);
+	      if ( syshit == kKickerHit ) { kickerhit = true; nohit = false; }
+	      if ( syshit == kQuadHit ) { quadhit = true; nohit = false; }
+	      if ( syshit == kCollimatorHit ) { collhit = true; otherhit = true; nohit = false; }
+	      if ( syshit == kVacuumHit ) { vachit = true; otherhit = true; nohit = false; }	    
+	      if ( syshit == kCryostatHit ) { otherhit = true; nohit = false; }	 	    	    
+	      if ( syshit == kStrawSystemHit ) { otherhit = true; nohit = false; }		    	    
+	      if ( syshit == kCaloSystemHit ) { otherhit = true; nohit = false; }	 	    
+	      if ( syshit == kInflectorHit ) { otherhit = true; nohit = false; }
+	      //if ( nohit && deltaE > 1 ) { otherhit = true; 
 	      syshits++;
+	      
+	      if ( nohit ) {
+		if ( debug_ ) { cout << "          Found ring track w/ ringname = " << ringname << " and dE = " << deltaE << endl; }
+	      }
 	    }
 	  }
+
+	  if ( debug_ ) {
+	    if ( quadhit ) { cout << "  Found e+ in quads." << endl; }
+	    if ( kickerhit ) { cout << "  Found e+ in kicker." << endl; }
+	    if ( collhit ) { cout << "  Found e+ in collimator." << endl; }
+	  }
+
+
 	}
+
+
+	if ( quadhit ) { calosyshits[(int)num][0]++; }
+	if ( kickerhit ) { calosyshits[(int)num][1]++; }
+	if ( collhit ) { calosyshits[(int)num][2]++; }
+	if ( vachit ) { calosyshits[(int)num][3]++; }
+	if ( otherhit ) { calosyshits[(int)num][4]++; }
+	if ( nohit ) { calosyshits[(int)num][5]++; }
       }
       
       //TrackingActionArtRecord thit = (*truthhitDataHandle)[trackID];
@@ -5151,7 +5993,8 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
 	double rprime_truth = prhat;
 	double yprime_truth = pvhat;
 	double e = p;
-	double spinphase = ComputeSpinPhase(0, 0, 0, px, py, pz);
+	double spinphase = TMath::ACos(pol_azimuth_truth); //ComputeSpinPhase(polx, poly, polz, px, py, pz);
+	//double spinphase = ComputeSpinPhase(0, 0, 0, px, py, pz);
 	FillTruthData(LostDecayMuonData, xe_truth, rhat_truth, y_truth, rprime_truth, yprime_truth, p, x, z, theta, t0, time, tDecay, pol_azimuth_truth, pol_radial_truth, pol_vertical_truth, Polarization, syshits, spinphase);
 	
 	Npart[particle]++;
@@ -5186,7 +6029,8 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
 	double rprime_truth = prhat;
 	double yprime_truth = pvhat;
 	double e = p;
-	double spinphase = ComputeSpinPhase(0, 0, 0, px, py, pz);
+	double spinphase = TMath::ACos(pol_azimuth_truth); //ComputeSpinPhase(polx, poly, polz, px, py, pz);
+	//double spinphase = ComputeSpinPhase(0, 0, 0, px, py, pz);
 	  
 	
 	if ( particle >= 0 ) {
@@ -5273,6 +6117,59 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
 	    Npart_Time[particle] = time;
 	  }
 	}
+
+	if ( kickerhit ) {
+	  int tmp_particle = truth_particle_nums["DecayElectronKickerSection"];	
+	  if ( tmp_particle >= 0 ) {
+	    Npart[tmp_particle]++;
+	    Npart_Rhat[tmp_particle] = rhat_truth;
+	    Npart_Yhat[tmp_particle] = y_truth;
+	    Npart_Mom[tmp_particle] = p;
+	    Npart_PDGID[tmp_particle] = pdgid;
+	    Npart_Status[tmp_particle] = status;
+	    Npart_Time[tmp_particle] = time;
+	    FillTruthData(DecayElectronKickerSectionData, xe_truth, rhat_truth, y_truth, rprime_truth, yprime_truth, p, x, z, theta, t0, time, tDecay, pol_azimuth_truth, pol_radial_truth, pol_vertical_truth, Polarization, syshits, spinphase);	 
+	  }
+	}
+	if ( otherhit ) {
+	  int tmp_particle = truth_particle_nums["DecayElectronOtherSection"];	
+	  if ( tmp_particle >= 0 ) {
+	    Npart[tmp_particle]++;
+	    Npart_Rhat[tmp_particle] = rhat_truth;
+	    Npart_Yhat[tmp_particle] = y_truth;
+	    Npart_Mom[tmp_particle] = p;
+	    Npart_PDGID[tmp_particle] = pdgid;
+	    Npart_Status[tmp_particle] = status;
+	    Npart_Time[tmp_particle] = time;
+	    FillTruthData(DecayElectronOtherSectionData, xe_truth, rhat_truth, y_truth, rprime_truth, yprime_truth, p, x, z, theta, t0, time, tDecay, pol_azimuth_truth, pol_radial_truth, pol_vertical_truth, Polarization, syshits, spinphase);	 
+	  }
+	}
+	if ( quadhit ) {
+	  int tmp_particle = truth_particle_nums["DecayElectronQuadSection"];	
+	  if ( tmp_particle >= 0 ) {
+	    Npart[tmp_particle]++;
+	    Npart_Rhat[tmp_particle] = rhat_truth;
+	    Npart_Yhat[tmp_particle] = y_truth;
+	    Npart_Mom[tmp_particle] = p;
+	    Npart_PDGID[tmp_particle] = pdgid;
+	    Npart_Status[tmp_particle] = status;
+	    Npart_Time[tmp_particle] = time;
+	    FillTruthData(DecayElectronQuadSectionData, xe_truth, rhat_truth, y_truth, rprime_truth, yprime_truth, p, x, z, theta, t0, time, tDecay, pol_azimuth_truth, pol_radial_truth, pol_vertical_truth, Polarization, syshits, spinphase);	 
+	  }
+	}
+	if ( nohit ) {
+	  int tmp_particle = truth_particle_nums["DecayElectronEmptySection"];	
+	  if ( tmp_particle >= 0 ) {
+	    Npart[tmp_particle]++;
+	    Npart_Rhat[tmp_particle] = rhat_truth;
+	    Npart_Yhat[tmp_particle] = y_truth;
+	    Npart_Mom[tmp_particle] = p;
+	    Npart_PDGID[tmp_particle] = pdgid;
+	    Npart_Status[tmp_particle] = status;
+	    Npart_Time[tmp_particle] = time;
+	    FillTruthData(DecayElectronEmptySectionData, xe_truth, rhat_truth, y_truth, rprime_truth, yprime_truth, p, x, z, theta, t0, time, tDecay, pol_azimuth_truth, pol_radial_truth, pol_vertical_truth, Polarization, syshits, spinphase);	 
+	  }
+	}
       }
 
       if ( debug_ ) { cout << "  Got Calo Hit [" << i << "] - Done" << endl; }
@@ -5281,7 +6178,338 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
 
   if ( debug_ ) { cout << "Made it past calo hits." << endl; }
 
-  h_CaloStation_Nhits->Fill(ncalomuhits);
+
+
+
+  //-------------------
+  //
+  // Straw Hits
+  //
+  //-------------------
+  int trackernum = -1;
+  int nstrawmuhits = 0;
+  if ( SaveStrawHits_ ) {
+    if ( debug_ ) { cout << "Getting straw hits" << endl; }
+    if ( debug_ ) { cout << "  Straw Hits Size = " << strawhits.size() << endl; }
+
+    int Nplanes = 0;
+    int lastplane = -1;
+    vector<int> stations;
+    int uv_layers[30];
+    for ( int s = 0; s < 30; s++ ) {
+      uv_layers[s] = 0;
+    }
+    double lastPos[3] = {0, 0, 0};
+    double lastMom[3] = {0, 0, 0};
+    double lastTime = 0.0;   
+    //cout << "Straw Hits Size = " << strawhits.size() << endl;
+    for ( unsigned int i = 0; i < strawhits.size(); ++i ) {
+      StrawArtRecord strawhit = strawhits[i];
+
+      int trackID = strawhit.trackID;
+      int volumeUID = strawhit.volumeUID;      
+      string strawname = "dummy";
+      if ( volumeUID < (int)pvs.size() ) {
+	strawname = pvs.stringGivenID(volumeUID);
+      }
+
+      if ( debug_ ) { cout << "     Strawname: " << strawname << "\t" << "Track: " << trackID << "\t" << positron_trackID << endl; }
+      if ( trackID != positron_trackID ) { continue; }
+      
+      //gm2strawtracker::WireID id = gm2strawtracker::wireIDfromString(strawname);
+
+      Nplanes++;
+      
+      //       // Tracker number should range from 0-1 and describes which of the
+      //       // tracking stations contains this wire: 0 for the one directly opposite
+      //       // the inflector, and 1 for the 270 degree one.
+      //       short trackerNumber = id.getTrackerNumber();
+      
+      //       // Station number (describes which of the straw station/boxes this wire
+      //       // is in) should range from 0 to around 20 at most.
+      //       short station = id.getStation();
+      
+      //       // View is a member of the StrawView enum and describes whether the
+      //       // wire in question is a u-view or a v-view wire. We still need to
+      //       // figure out or define which direction is u-view.
+      //       StrawView view = id.getView();
+      
+      //       // Layer describes which of the two layers of that view this wire is in
+      //       // (see the 3d model). It should range from 0-1.
+      //       short layer = id.getLayer();
+      
+      //       // Wire gives the wire number within the previously-specified layer. It
+      //       // will range from 0-n, depending on the size of the station in
+      //       // question, and wire 0 is (I think?) the one closest to the scallop
+      //       // edge.
+      //       short wire = id.getWire();
+
+      
+      //cout << "  " << Nplanes << "\t" << trackerNumber << "\t" << station << "\t" << view << "\t" << layer << "\t" << wire << endl;
+
+
+      float x_global = strawhit.x_global;
+      float y_global = strawhit.y_global;
+      float z_global = strawhit.z_global;
+      float r_global = strawhit.r_global;
+      float px_global = strawhit.px_global;
+      float py_global = strawhit.py_global;
+      float pz_global = strawhit.pz_global;
+
+      lastPos[0] = x_global;
+      lastPos[1] = y_global;
+      lastPos[2] = z_global;
+      lastMom[0] = px_global;
+      lastMom[1] = py_global;
+      lastMom[2] = pz_global;
+
+      if ( h_StrawTracker_XZ && fill_ ) {
+	h_StrawTracker_XZ->Fill(x_global, z_global);
+      }
+
+      float x_local = strawhit.x_local;
+      float y_local = strawhit.y_local;
+      float z_local = strawhit.z_local;
+      float px_local = strawhit.px_local;
+      float py_local = strawhit.py_local;
+      float pz_local = strawhit.pz_local;
+
+      float x_station = strawhit.x_station;
+      float y_station = strawhit.y_station;
+      float z_station = strawhit.z_station;
+
+      float x_scallop = strawhit.x_scallop;
+      float y_scallop = strawhit.y_scallop;
+      float z_scallop = strawhit.z_scallop;
+
+      float time = strawhit.time;
+      lastTime = time;
+
+      int strawInRow = strawhit.strawInRow;
+      int layerNumber = strawhit.layerNumber;
+      int viewNumber = strawhit.viewNumber;
+      int stationNumber = strawhit.stationNumber;
+      int strawNumber = strawhit.strawNumber;
+      int trackerNumber = strawhit.trackerNumber;
+      trackernum = trackerNumber;
+      //cout << "  Got Tnum: " << trackernum << endl;
+      //cout << stationNumber << endl;
+
+      uv_layers[stationNumber]++;
+
+      if ( debug_ ) { cout << "    " << Nplanes << "\t" << strawNumber << "\t" << stationNumber << "\t" << viewNumber << "\t" << layerNumber << "\t" << strawInRow << endl; }
+    }
+
+    int Nstrawstations = 0;
+    for ( int s = 0; s < 30; s++ ) {
+      if ( uv_layers[s] >= 4 ) { Nstrawstations++; }
+    }
+
+    if ( debug_ ) { 
+      cout << "  Particle in straws hit " << Nplanes << " planes." << endl;
+      cout << "  Particle in straws hit " << Nstrawstations << " stations." << endl;
+    }
+
+    if ( fill_ ) {
+      h_StrawTracker_NumStations->Fill(Nstrawstations);
+    }
+    if ( Nstrawstations >= 1 ) {
+      int pdgid = kPositronID;
+      int particle = truth_particle_nums["StrawElectron"];
+      int status = gm2ringsim::kDecay;
+
+      double x = lastPos[0];
+      double y = lastPos[1];
+      double z = lastPos[2];
+      double px = lastMom[0];
+      double py = lastMom[1];
+      double pz = lastMom[2];
+
+      double pol_azimuth_truth = 0.0;
+      double pol_radial_truth = 0.0;
+      double pol_vertical_truth = 0.0;
+      double Polarization = 0.0;
+      double xe_truth = 0.0;      
+      double spinphase = TMath::ACos(pol_azimuth_truth); //ComputeSpinPhase(polx, poly, polz, px, py, pz);
+      //double spinphase = ComputeSpinPhase(0, 0, 0, px, py, pz);
+      int syshits = Nstrawstations;
+
+      TVector3 mom_straw(px, py, pz);
+      double mom = mom_straw.Mag();
+      double p = mom;
+      TVector3 pos_straw(x, y, z);
+      double rhat_truth = ComputeRhat(&pos_straw);
+      double y_truth = ComputeVhat(&pos_straw);
+      G4double rprime_truth = ComputePrhat(&pos_straw, &mom_straw);
+      G4double yprime_truth = ComputePvhat(&pos_straw, &mom_straw);
+      double theta = ComputeTheta(x, z);
+      double time = lastTime;
+
+
+      if ( particle >= 0 ) {
+	if ( particle == truth_particle_nums["StrawElectron"] ) {
+	  Nstrawpositrons++;
+	  FillTruthData(StrawElectronData, xe_truth, rhat_truth, y_truth, rprime_truth, yprime_truth, p, x, z, theta, t0, time, tDecay, pol_azimuth_truth, pol_radial_truth, pol_vertical_truth, Polarization, syshits, spinphase);
+	  Npart[particle]++;
+	  Npart_Rhat[particle] = rhat_truth;
+	  Npart_Yhat[particle] = y_truth;
+	  Npart_Mom[particle] = p;
+	  Npart_PDGID[particle] = pdgid;
+	  Npart_Status[particle] = status;
+	  Npart_Time[particle] = time;
+	}
+      }
+
+      if ( Nstrawstations >= 5 ) {
+	int particle = truth_particle_nums["GoodStrawElectron"];
+	if ( particle >= 0 ) {
+	  Ngoodstrawpositrons++;
+	  FillTruthData(GoodStrawElectronData, xe_truth, rhat_truth, y_truth, rprime_truth, yprime_truth, p, x, z, theta, t0, time, tDecay, pol_azimuth_truth, pol_radial_truth, pol_vertical_truth, Polarization, syshits, spinphase);
+	  Npart[particle]++;
+	  Npart_Rhat[particle] = rhat_truth;
+	  Npart_Yhat[particle] = y_truth;
+	  Npart_Mom[particle] = p;
+	  Npart_PDGID[particle] = pdgid;
+	  Npart_Status[particle] = status;
+	  Npart_Time[particle] = time;
+	}
+      }
+
+      int tmp_particle = truth_particle_nums["DecayElectron"];
+      if ( tmp_particle >= 0 ) {
+	if ( Npart[tmp_particle] > 0 ) {	  
+	  int particle_straw_calo = truth_particle_nums["StrawCaloElectron"];
+	  if ( particle_straw_calo >= 0 ) {
+	    Nstrawcalopositrons++;
+	    FillTruthData(StrawCaloElectronData, xe_truth, rhat_truth, y_truth, rprime_truth, yprime_truth, p, x, z, theta, t0, time, tDecay, pol_azimuth_truth, pol_radial_truth, pol_vertical_truth, Polarization, syshits, spinphase);
+	    Npart[particle_straw_calo]++;
+	    Npart_Rhat[particle_straw_calo] = rhat_truth;
+	    Npart_Yhat[particle_straw_calo] = y_truth;
+	    Npart_Mom[particle_straw_calo] = p;
+	    Npart_PDGID[particle_straw_calo] = pdgid;
+	    Npart_Status[particle_straw_calo] = status;
+	    Npart_Time[particle_straw_calo] = time;
+	  }
+
+	  if ( Nstrawstations >= 5 ) {
+	    int particle = truth_particle_nums["GoodStrawCaloElectron"];
+	    if ( particle >= 0 ) {
+	      Ngoodstrawcalopositrons++;
+	      FillTruthData(GoodStrawCaloElectronData, xe_truth, rhat_truth, y_truth, rprime_truth, yprime_truth, p, x, z, theta, t0, time, tDecay, pol_azimuth_truth, pol_radial_truth, pol_vertical_truth, Polarization, syshits, spinphase);
+	      Npart[particle]++;
+	      Npart_Rhat[particle] = rhat_truth;
+	      Npart_Yhat[particle] = y_truth;
+	      Npart_Mom[particle] = p;
+	      Npart_PDGID[particle] = pdgid;
+	      Npart_Status[particle] = status;
+	      Npart_Time[particle] = time;
+	    }
+
+	    if ( trackernum == konestraw ) {
+	      particle = truth_particle_nums["GoodOneStrawCaloElectron"];
+	      if ( particle >= 0 ) {
+		FillTruthData(GoodOneStrawCaloElectronData, xe_truth, rhat_truth, y_truth, rprime_truth, yprime_truth, p, x, z, theta, t0, time, tDecay, pol_azimuth_truth, pol_radial_truth, pol_vertical_truth, Polarization, syshits, spinphase);
+		Npart[particle]++;
+		Npart_Rhat[particle] = rhat_truth;
+		Npart_Yhat[particle] = y_truth;
+		Npart_Mom[particle] = p;
+		Npart_PDGID[particle] = pdgid;
+		Npart_Status[particle] = status;
+		Npart_Time[particle] = time;
+	      }
+	    }
+
+	    if ( trackernum == konestraw || trackernum == ktwostraw ) {
+	      particle = truth_particle_nums["GoodTwoStrawCaloElectron"];
+	      if ( particle >= 0 ) {
+		FillTruthData(GoodTwoStrawCaloElectronData, xe_truth, rhat_truth, y_truth, rprime_truth, yprime_truth, p, x, z, theta, t0, time, tDecay, pol_azimuth_truth, pol_radial_truth, pol_vertical_truth, Polarization, syshits, spinphase);
+		Npart[particle]++;
+		Npart_Rhat[particle] = rhat_truth;
+		Npart_Yhat[particle] = y_truth;
+		Npart_Mom[particle] = p;
+		Npart_PDGID[particle] = pdgid;
+		Npart_Status[particle] = status;
+		Npart_Time[particle] = time;
+	      }
+	    }
+	  }
+	}
+      }
+    }
+  }
+  if ( debug_ ) { cout << "Made it past straw hits." << endl; }
+
+
+  if ( fill_ ) {
+    h_CaloStation_Nhits->Fill(ncalomuhits);
+  }
+
+
+
+  //-------------------
+  // Beam Scan
+  //-------------------
+  if ( SaveBeamScanHits_ ) {
+    int particle = truth_particle_nums["DecayMuon"];
+    if ( particle >= 0 ) {
+      if ( Npart[particle] > 0 ) {
+	double maxvhat=0;
+	double maxrhat=0;
+	int randbs = (int)truthbeamscanhits.size()*G4UniformRand();
+	if ( randbs == (int)truthbeamscanhits.size() ) { randbs--; }       
+	
+	int c = 0;
+	for ( auto hbeamscandata : truthbeamscanhits ) {
+	  if ( c != randbs && 0 ) { continue; }
+	  int trackID = hbeamscandata.trackID;
+	  double rhat = hbeamscandata.rhat;
+	  double vhat = hbeamscandata.vhat;
+	  double time = hbeamscandata.time;
+	  double p = hbeamscandata.p;
+	  double prhat = hbeamscandata.prhat;
+	  double pvhat = hbeamscandata.pvhat;
+	  double polx_pre = hbeamscandata.polx;
+	  double poly_pre = hbeamscandata.poly;
+	  double polz_pre = hbeamscandata.polz;
+	  double xe_truth = ComputeXe(p, 0.137);
+	  double theta = hbeamscandata.theta;
+	  
+	  TVector3 pol_pre(polx_pre, poly_pre, polz_pre);
+	  double polx = pol_pre.Dot(xAxis);      
+	  double poly = pol_pre.Dot(yAxis);
+	  double polz = pol_pre.Dot(zAxis);    
+	  double pol_azimuth_truth, pol_radial_truth, pol_vertical_truth;
+	  ComputePolarization(&pol_azimuth_truth, &pol_radial_truth, &pol_vertical_truth, polx, poly, polz);
+	  
+
+	  if ( fabs(vhat) > maxvhat ) { maxvhat = fabs(vhat); }
+	  if ( fabs(rhat) > maxrhat ) { maxrhat = fabs(rhat); }
+
+	  FillBeamScan(time, rhat, vhat, prhat, pvhat, theta, p, pol_radial_truth, pol_vertical_truth, pol_azimuth_truth);
+	}
+
+	if ( 0 ) {
+	  double decay_vhat = DecayMuonData[kVhat];
+	  double decay_time = DecayMuonData[kTime];
+	  double decay_rhat = DecayMuonData[kRhat];
+	  if ( fabs(decay_rhat) > maxrhat ) {
+	    cout << "Decay outside of BeamScan: " << truthbeamscanhits.size() << endl;
+	    if ( truthbeamscanhits.size() > 20 ) {
+	      for ( auto hbeamscandata : truthbeamscanhits ) {
+		int trackID = hbeamscandata.trackID;
+		double rhat = hbeamscandata.rhat;
+		double time = hbeamscandata.time;
+		//cout << "BeamScan:  " << rhat << " @ time = " << time << endl;
+	      }
+	    }
+	    cout << "MuonDecay: " << decay_rhat << " @ time = " << decay_time << endl;
+
+	  }
+	}
+      }
+    }
+  }
+
 
 
   //-----------------------------
@@ -5314,6 +6542,8 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
   if ( debug_ ) { cout << "Made it past particle dump." << endl; }
   
   
+
+  
   //
   // Birth Muon
   //
@@ -5322,7 +6552,8 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
     if ( debug_truthtracker || debug_ ) { cout << "Part=" << particle << "\tname=" << truth_particle_names[particle] << " : " << Npart[particle] << endl; }
     if ( Npart[particle] > 0 ) {
       if ( debug_truthtracker || debug_ ) { cout << "BirthMuon: " << BirthMuonData[kP] << endl; }
-      FillTruthTracker(kGeneratedDist, particle, calostation, BirthMuonData);
+      truth_particle_multiplicity[particle]++;
+      FillTruthTracker(kGeneratedDist, particle, calostation, BirthMuonData, NULL);
       bool fillremain = false;
       if ( truth_particle_nums["DecayMuon"] >= 0 ) {
 	if ( Npart[truth_particle_nums["DecayMuon"]] > 0 ) { fillremain = true; }
@@ -5331,7 +6562,7 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
 	if ( Npart[truth_particle_nums["StoredMuon"]] > 0 ) { fillremain = true; }
       }
       if ( fillremain ) {
-	FillTruthTracker(kRemainingDist, particle, calostation, BirthMuonData);
+	FillTruthTracker(kRemainingDist, particle, calostation, BirthMuonData, NULL);
 
 	if ( FillByVRingHist() ) {
 	  if ( debug_ ) { cout << t0_init << "\t" << quadtime - t0_init << "\t" << kicktime - t0_init << endl; }
@@ -5354,8 +6585,9 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
     if ( debug_truthtracker || debug_ ) { cout << "Part=" << particle << "\tname=" << truth_particle_names[particle] << " : " << Npart[particle] << endl; }
     if ( Npart[particle] > 0 ) {
       if ( debug_truthtracker || debug_ ) { cout << "StoredMuon: " << StoredMuonData[kP] << endl; }
-      FillTruthTracker(kGeneratedDist, particle, calostation, StoredMuonData);
-      FillTruthTracker(kRemainingDist, particle, calostation, BirthMuonData);
+      truth_particle_multiplicity[particle]++;
+      FillTruthTracker(kGeneratedDist, particle, calostation, StoredMuonData, NULL);
+      FillTruthTracker(kRemainingDist, particle, calostation, BirthMuonData, NULL);
       FillTruthTurnTime(particle, calostation, StoredMuonData);
     }
   }
@@ -5368,8 +6600,9 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
     if ( debug_truthtracker || debug_ ) { cout << "Part=" << particle << "\tname=" << truth_particle_names[particle] << " : " << Npart[particle] << endl; }
     if ( Npart[particle] > 0 ) {
       if ( debug_truthtracker || debug_ ) { cout << "LostMuon: " << LostMuonData[kP] << endl; }
-      FillTruthTracker(kGeneratedDist, particle, calostation, LostMuonData);
-      FillTruthTracker(kRemainingDist, particle, calostation, BirthMuonData);
+      truth_particle_multiplicity[particle]++;
+      FillTruthTracker(kGeneratedDist, particle, calostation, LostMuonData, NULL);
+      FillTruthTracker(kRemainingDist, particle, calostation, BirthMuonData, NULL);
       FillTruthTurnTime(particle, calostation, LostMuonData);
     }
   }
@@ -5382,8 +6615,9 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
     if ( debug_truthtracker || debug_ ) { cout << "Part=" << particle << "\tname=" << truth_particle_names[particle] << " : " << Npart[particle] << endl; }
     if ( Npart[particle] > 0 ) {
       if ( debug_truthtracker || debug_ ) { cout << "LostDecayMuon: " << LostDecayMuonData[kP] << endl; }
-      FillTruthTracker(kGeneratedDist, particle, calostation, LostDecayMuonData);
-      FillTruthTracker(kRemainingDist, particle, calostation, BirthMuonData);
+      truth_particle_multiplicity[particle]++;
+      FillTruthTracker(kGeneratedDist, particle, calostation, LostDecayMuonData, NULL);
+      FillTruthTracker(kRemainingDist, particle, calostation, BirthMuonData, NULL);
       FillTruthTurnTime(particle, calostation, LostDecayMuonData);
     }
   }
@@ -5396,8 +6630,10 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
     if ( debug_truthtracker || debug_ ) { cout << "Part=" << particle << "\tname=" << truth_particle_names[particle] << " : " << Npart[particle] << endl; }
     if ( Npart[particle] > 0 ) {
       if ( debug_truthtracker || debug_ ) { cout << "DecayMuon: " << DecayMuonData[kP] << endl; }
-      FillTruthTracker(kGeneratedDist, particle, calostation, DecayMuonData);
-      FillTruthTracker(kRemainingDist, particle, calostation, BirthMuonData);
+      truth_particle_multiplicity[particle]++;
+      FillTruthTracker(kGeneratedDist, particle, calostation, DecayMuonData, NULL);
+      FillTruthTracker(kRemainingDist, particle, calostation, BirthMuonData, NULL);
+      //cout << "Filling All DecayMuon" << endl;
       FillTruthTurnTime(particle, calostation, DecayMuonData);
       if ( DecayMuonData[kTime] < firstdecay.T() ) {
 	double x = (DecayMuonData[kRhat]+R_magic())*TMath::Cos(DecayMuonData[kTheta]);
@@ -5449,9 +6685,10 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
   if ( particle >= 0 ) {
     if ( Npart[particle] > 0 ) {
       if ( debug_truthtracker || debug_ ) { cout << "BirthElectron: " << BirthElectronData[kP] << endl; }
-      FillTruthTracker(kGeneratedDist, particle, calostation, BirthElectronData);
+      truth_particle_multiplicity[particle]++;
+      FillTruthTracker(kGeneratedDist, particle, calostation, BirthElectronData, NULL);
       if ( Npart[truth_particle_nums["DecayElectron"]] > 0 ) {
-	FillTruthTracker(kRemainingDist, particle, calostation, BirthElectronData);
+	FillTruthTracker(kRemainingDist, particle, calostation, BirthElectronData, NULL);
       }
       FillTruthTurnTime(particle, calostation, BirthElectronData);
     }
@@ -5465,11 +6702,114 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
   if ( particle >= 0 ) {
     if ( Npart[particle] > 0 ) {
       if ( debug_truthtracker || debug_ ) { cout << "BirthElectronEgtEth: " << BirthElectronData[kP] << endl; }
-      FillTruthTracker(kGeneratedDist, particle, calostation, BirthElectronData);
+      truth_particle_multiplicity[particle]++;
+      FillTruthTracker(kGeneratedDist, particle, calostation, BirthElectronData, NULL);
       if ( Npart[truth_particle_nums["DecayElectron"]] > 0 ) {
-	FillTruthTracker(kRemainingDist, particle, calostation, BirthElectronData);
+	FillTruthTracker(kRemainingDist, particle, calostation, BirthElectronData, NULL);
       }
       FillTruthTurnTime(particle, calostation, BirthElectronEgtEthData);
+    }
+  }
+
+
+  //
+  // Straw Electron
+  //
+  particle = truth_particle_nums["StrawElectron"];
+  if ( particle >= 0 ) {
+    calostation = trackernum;
+    //cout << "TrackerNum = " << trackernum << endl;
+    if ( Npart[particle] > 0 ) {
+      if ( debug_truthtracker || debug_ ) { cout << "StrawElectron: " << StrawElectronData[kP] << endl; }
+      truth_particle_multiplicity[particle]++;
+      FillTruthTracker(kGeneratedDist, particle, trackernum, StrawElectronData, NULL);
+      FillTruthTracker(kRemainingDist, particle, trackernum, BirthElectronData, DecayMuonData);
+      FillTruthTurnTime(particle, trackernum, StrawElectronData);
+    }
+  }
+
+
+  //
+  // Straw Electron + 5 station hits
+  //
+  particle = truth_particle_nums["GoodStrawElectron"];
+  if ( particle >= 0 ) {
+    calostation = trackernum;
+    //cout << "TrackerNum = " << trackernum << endl;
+    if ( Npart[particle] > 0 ) {
+      if ( debug_truthtracker || debug_ ) { cout << "GoodStrawElectron: " << GoodStrawElectronData[kP] << endl; }
+      truth_particle_multiplicity[particle]++;
+      FillTruthTracker(kGeneratedDist, particle, trackernum, GoodStrawElectronData, NULL);
+      FillTruthTracker(kRemainingDist, particle, trackernum, BirthElectronData, DecayMuonData);
+      FillTruthTurnTime(particle, trackernum, GoodStrawElectronData);
+    }
+  }
+
+
+  //
+  // Straw Electron w/ Calo
+  //
+  particle = truth_particle_nums["StrawCaloElectron"];
+  if ( particle >= 0 ) {
+    calostation = trackernum;
+    //cout << "TrackerNum = " << trackernum << endl;
+    if ( Npart[particle] > 0 ) {
+      if ( debug_truthtracker || debug_ ) { cout << "StrawCaloElectron: " << StrawCaloElectronData[kP] << endl; }
+      truth_particle_multiplicity[particle]++;
+      FillTruthTracker(kGeneratedDist, particle, trackernum, StrawCaloElectronData, NULL);
+      FillTruthTracker(kRemainingDist, particle, trackernum, BirthElectronData, DecayMuonData);
+      FillTruthTurnTime(particle, trackernum, StrawCaloElectronData);
+    }
+  }
+
+
+  //
+  // Straw Electron w/ Calo + 5 station hits
+  //
+  particle = truth_particle_nums["GoodStrawCaloElectron"];
+  if ( particle >= 0 ) {
+    calostation = trackernum;
+    //cout << "TrackerNum = " << trackernum << endl;
+    if ( Npart[particle] > 0 ) {
+      if ( debug_truthtracker || debug_ ) { cout << "GoodStrawCaloElectron: " << GoodStrawCaloElectronData[kP] << endl; }
+      truth_particle_multiplicity[particle]++;
+      FillTruthTracker(kGeneratedDist, particle, trackernum, GoodStrawCaloElectronData, NULL);
+      FillTruthTracker(kRemainingDist, particle, trackernum, BirthElectronData, DecayMuonData);
+      FillTruthTurnTime(particle, trackernum, GoodStrawCaloElectronData);
+    }
+  }
+
+
+  //
+  // Straw Electron w/ Calo + 5 station hits w/ 1 station
+  //
+  particle = truth_particle_nums["GoodOneStrawCaloElectron"];
+  if ( particle >= 0 ) {
+    calostation = trackernum;
+    //cout << "TrackerNum = " << trackernum << endl;
+    if ( Npart[particle] > 0 ) {
+      if ( debug_truthtracker || debug_ ) { cout << "StrawElectron: " << StrawElectronData[kP] << endl; }
+      truth_particle_multiplicity[particle]++;
+      FillTruthTracker(kGeneratedDist, particle, trackernum, GoodOneStrawCaloElectronData, NULL);
+      FillTruthTracker(kRemainingDist, particle, trackernum, BirthElectronData, DecayMuonData);
+      FillTruthTurnTime(particle, trackernum, GoodOneStrawCaloElectronData);
+    }
+  }
+
+
+  //
+  // Straw Electron w/ Calo + 5 station hits w/ 2 stations
+  //
+  particle = truth_particle_nums["GoodTwoStrawCaloElectron"];
+  if ( particle >= 0 ) {
+    calostation = trackernum;
+    //cout << "TrackerNum = " << trackernum << endl;
+    if ( Npart[particle] > 0 ) {
+      if ( debug_truthtracker || debug_ ) { cout << "StrawElectron: " << StrawElectronData[kP] << endl; }
+      truth_particle_multiplicity[particle]++;
+      FillTruthTracker(kGeneratedDist, particle, trackernum, GoodTwoStrawCaloElectronData, NULL);
+      FillTruthTracker(kRemainingDist, particle, trackernum, BirthElectronData, DecayMuonData);
+      FillTruthTurnTime(particle, trackernum, GoodTwoStrawCaloElectronData);
     }
   }
 
@@ -5482,8 +6822,9 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
     calostation = calonum;
     if ( Npart[particle] > 0 ) {
       if ( debug_truthtracker || debug_ ) { cout << "DecayElectron: " << DecayElectronData[kP] << endl; }
-      FillTruthTracker(kGeneratedDist, particle, calostation, DecayElectronData);
-      FillTruthTracker(kRemainingDist, particle, calostation, BirthElectronData);
+      truth_particle_multiplicity[particle]++;
+      FillTruthTracker(kGeneratedDist, particle, calostation, DecayElectronData, NULL);
+      FillTruthTracker(kRemainingDist, particle, calostation, BirthElectronData, DecayMuonData);
       FillTruthTurnTime(particle, calostation, DecayElectronData);
     }
   }
@@ -5497,8 +6838,9 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
     calostation = calonum;
     if ( Npart[particle] > 0 ) {
       if ( debug_truthtracker || debug_ ) { cout << "DecayElectronEgtEth: " << DecayElectronEgtEthData[kP] << endl; }
-      FillTruthTracker(kGeneratedDist, particle, calostation, DecayElectronEgtEthData);
-      FillTruthTracker(kRemainingDist, particle, calostation, BirthElectronData);
+      truth_particle_multiplicity[particle]++;
+      FillTruthTracker(kGeneratedDist, particle, calostation, DecayElectronEgtEthData, NULL);
+      FillTruthTracker(kRemainingDist, particle, calostation, BirthElectronData, DecayMuonData);
       FillTruthTurnTime(particle, calostation, DecayElectronEgtEthData);
     }
   }
@@ -5512,8 +6854,9 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
     calostation = calonum;
     if ( Npart[particle] > 0 ) {
       if ( debug_truthtracker || debug_ ) { cout << "DecayElectronEltEth: " << DecayElectronEltEthData[kP] << endl; }
-      FillTruthTracker(kGeneratedDist, particle, calostation, DecayElectronEltEthData);
-      FillTruthTracker(kRemainingDist, particle, calostation, BirthElectronData);
+      truth_particle_multiplicity[particle]++;
+      FillTruthTracker(kGeneratedDist, particle, calostation, DecayElectronEltEthData, NULL);
+      FillTruthTracker(kRemainingDist, particle, calostation, BirthElectronData, DecayMuonData);
       FillTruthTurnTime(particle, calostation, DecayElectronEltEthData);
     }
   }
@@ -5527,8 +6870,9 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
     calostation = calonum;
     if ( Npart[particle] > 0 ) {
       if ( debug_truthtracker || debug_ ) { cout << "DecayElectronEgtHghEth: " << DecayElectronEgtHghEthData[kP] << endl; }
-      FillTruthTracker(kGeneratedDist, particle, calostation, DecayElectronEgtHghEthData);
-      FillTruthTracker(kRemainingDist, particle, calostation, BirthElectronData);
+      truth_particle_multiplicity[particle]++;
+      FillTruthTracker(kGeneratedDist, particle, calostation, DecayElectronEgtHghEthData, NULL);
+      FillTruthTracker(kRemainingDist, particle, calostation, BirthElectronData, DecayMuonData);
       FillTruthTurnTime(particle, calostation, DecayElectronEgtHghEthData);
     }
   }
@@ -5542,8 +6886,9 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
     calostation = calonum;
     if ( Npart[particle] > 0 ) {
       if ( debug_truthtracker || debug_ ) { cout << "DecayElectronLongDriftTime: " << DecayElectronLongDriftTimeData[kP] << endl; }
-      FillTruthTracker(kGeneratedDist, particle, calostation, DecayElectronLongDriftTimeData);
-      FillTruthTracker(kRemainingDist, particle, calostation, BirthElectronData);
+      truth_particle_multiplicity[particle]++;
+      FillTruthTracker(kGeneratedDist, particle, calostation, DecayElectronLongDriftTimeData, NULL);
+      FillTruthTracker(kRemainingDist, particle, calostation, BirthElectronData, DecayMuonData);
       FillTruthTurnTime(particle, calostation, DecayElectronLongDriftTimeData);
     }
   }
@@ -5557,9 +6902,74 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
     calostation = calonum;
     if ( Npart[particle] > 0 ) {
       if ( debug_truthtracker || debug_ ) { cout << "DecayElectronShortDriftTime: " << DecayElectronShortDriftTimeData[kP] << endl; }
-      FillTruthTracker(kGeneratedDist, particle, calostation, DecayElectronShortDriftTimeData);
-      FillTruthTracker(kRemainingDist, particle, calostation, BirthElectronData);
+      truth_particle_multiplicity[particle]++;
+      FillTruthTracker(kGeneratedDist, particle, calostation, DecayElectronShortDriftTimeData, NULL);
+      FillTruthTracker(kRemainingDist, particle, calostation, BirthElectronData, DecayMuonData);
       FillTruthTurnTime(particle, calostation, DecayElectronShortDriftTimeData);
+    }
+  }
+
+
+  //
+  // Decay Electron, Quad Section
+  //
+  particle = truth_particle_nums["DecayElectronQuadSection"];
+  if ( particle >= 0 ) {
+    calostation = calonum;
+    if ( Npart[particle] > 0 ) {
+      if ( debug_truthtracker || debug_ ) { cout << "DecayElectronQuadSection: " << DecayElectronQuadSectionData[kP] << endl; }
+      truth_particle_multiplicity[particle]++;
+      FillTruthTracker(kGeneratedDist, particle, calostation, DecayElectronQuadSectionData, NULL);
+      FillTruthTracker(kRemainingDist, particle, calostation, BirthElectronData, DecayMuonData);
+      FillTruthTurnTime(particle, calostation, DecayElectronQuadSectionData);
+    }
+  }
+
+
+  //
+  // Decay Electron, Kicker Section
+  //
+  particle = truth_particle_nums["DecayElectronKickerSection"];
+  if ( particle >= 0 ) {
+    calostation = calonum;
+    if ( Npart[particle] > 0 ) {
+      if ( debug_truthtracker || debug_ ) { cout << "DecayElectronKickerSection: " << DecayElectronKickerSectionData[kP] << endl; }
+      truth_particle_multiplicity[particle]++;
+      FillTruthTracker(kGeneratedDist, particle, calostation, DecayElectronKickerSectionData, NULL);
+      FillTruthTracker(kRemainingDist, particle, calostation, BirthElectronData, DecayMuonData);
+      FillTruthTurnTime(particle, calostation, DecayElectronKickerSectionData);
+    }
+  }
+
+
+  //
+  // Decay Electron, Other Section
+  //
+  particle = truth_particle_nums["DecayElectronOtherSection"];
+  if ( particle >= 0 ) {
+    calostation = calonum;
+    if ( Npart[particle] > 0 ) {
+      if ( debug_truthtracker || debug_ ) { cout << "DecayElectronOtherSection: " << DecayElectronOtherSectionData[kP] << endl; }
+      truth_particle_multiplicity[particle]++;
+      FillTruthTracker(kGeneratedDist, particle, calostation, DecayElectronOtherSectionData, NULL);
+      FillTruthTracker(kRemainingDist, particle, calostation, BirthElectronData, DecayMuonData);
+      FillTruthTurnTime(particle, calostation, DecayElectronOtherSectionData);
+    }
+  }
+
+
+  //
+  // Decay Electron, Empty Section
+  //
+  particle = truth_particle_nums["DecayElectronEmptySection"];
+  if ( particle >= 0 ) {
+    calostation = calonum;
+    if ( Npart[particle] > 0 ) {
+      if ( debug_truthtracker || debug_ ) { cout << "DecayElectronEmptySection: " << DecayElectronEmptySectionData[kP] << endl; }
+      truth_particle_multiplicity[particle]++;
+      FillTruthTracker(kGeneratedDist, particle, calostation, DecayElectronEmptySectionData, NULL);
+      FillTruthTracker(kRemainingDist, particle, calostation, BirthElectronData, DecayMuonData);
+      FillTruthTurnTime(particle, calostation, DecayElectronEmptySectionData);
     }
   }
 
