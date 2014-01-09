@@ -19,7 +19,7 @@ defaultqual e4
 
 product          version
 artg4            v0_0_1
-art              v1_08_09
+art              v1_08_10
 g4emlow          v6_32
 g4photon         v2_3
 g4neutron        v4_2
@@ -33,7 +33,7 @@ only_for_build  cetbuildtools v3_07_00
 # Make a table by adding columns before "notes". 
 #
 qualifier        artg4       art       g4emlow  g4photon g4neutron g4neutronxs notes
-e4:debug         e4:mu2e:debug    e4:mu2e:debug   -nq-     -nq-      -nq-      -nq-  
-e4:opt           e4:mu2e:opt      e4:mu2e:opt     -nq-     -nq-      -nq-      -nq-
-e4:prof          e4:mu2e:prof     e4:mu2e:prof    -nq-     -nq-      -nq-      -nq-
+e4:debug         e4:debug    e4:debug   -nq-     -nq-      -nq-      -nq-  
+e4:opt           e4:opt      e4:opt     -nq-     -nq-      -nq-      -nq-
+e4:prof          e4:prof     e4:prof    -nq-     -nq-      -nq-      -nq-
 
