@@ -54,7 +54,7 @@ cet_report_compiler_flags()
 # Locate some UPS areas (the versions are just minimum required) and setup include paths
 # These are needed for Art stuff
 #find_ups_product(artg4 v0_0_1)   ADD THIS WHEN ARTG4 IS RELEASED
-find_ups_product(cetbuildtools v3_06_02)
+find_ups_product(cetbuildtools v3_07_03)
 find_ups_product(xerces_c v3_1_1)
 find_ups_geant4( v4_9_6_p02)
 find_ups_product(cpp0x v1_03_23)
