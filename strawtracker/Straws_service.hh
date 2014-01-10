@@ -50,5 +50,6 @@ namespace gm2ringsim {
 
     };
 }
-
+using gm2ringsim::Straws;
+DECLARE_ART_SERVICE(Straws,LEGACY)
 #endif

@@ -47,4 +47,6 @@ namespace gm2ringsim {
     };
 }
 
+using gm2ringsim::World;
+DECLARE_ART_SERVICE(World,LEGACY)
 #endif

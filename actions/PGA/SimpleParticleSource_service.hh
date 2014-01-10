@@ -34,5 +34,8 @@ namespace gm2ringsim
     std::vector<double> position_;
   };
 }
+
+using gm2ringsim::SimpleParticleSource;
+DECLARE_ART_SERVICE(SimpleParticleSource,LEGACY)
 #endif
 

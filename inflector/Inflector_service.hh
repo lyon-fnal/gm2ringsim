@@ -246,4 +246,7 @@ namespace gm2ringsim {
 
 }
 
+using gm2ringsim::Inflector;
+DECLARE_ART_SERVICE(Inflector, LEGACY)
+
 #endif

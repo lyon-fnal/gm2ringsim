@@ -41,6 +41,7 @@ private:
 
 
 gm2ringsim_ex::particleTrackAnalyzer::particleTrackAnalyzer(fhicl::ParameterSet const & p) :
+  art::EDAnalyzer(p),
   pvsProducerLabel_( p.get<std::string>("pvsProducerLabel", "artg4")),
   pvsInstanceLabel_( p.get<std::string>("pvsInstanceLabel", ""))
 { }
@@ -66,5 +67,5 @@ void gm2ringsim_ex::particleTrackAnalyzer::analyze(art::Event const & e)
   
 }
 
-
-DEFINE_ART_MODULE(gm2ringsim_ex::particleTrackAnalyzer)
+using gm2ringsim_ex::particleTrackAnalyzer;
+DEFINE_ART_MODULE(particleTrackAnalyzer)

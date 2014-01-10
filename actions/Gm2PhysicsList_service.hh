@@ -82,5 +82,6 @@ namespace gm2ringsim {
     G4OpBoundaryProcess* theBoundaryProcess;
   };  
 }
-
+using gm2ringsim::Gm2PhysicsListService;
+DECLARE_ART_SERVICE(Gm2PhysicsListService,LEGACY)
 #endif

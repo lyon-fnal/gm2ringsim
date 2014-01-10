@@ -59,5 +59,8 @@ namespace gm2ringsim
 
   }; // End PrimaryGeneratorAction class 
 }
+using gm2ringsim::PrimaryGeneratorAction;
+DECLARE_ART_SERVICE(PrimaryGeneratorAction,LEGACY)
+
 #endif
 

@@ -50,5 +50,7 @@ namespace gm2ringsim
     
 } // gm2ringsim namespace
 
+using gm2ringsim::CaloHitPGA;
+DECLARE_ART_SERVICE(CaloHitPGA,LEGACY)
 #endif // CALOHITPGA_SERVICE_HH
 

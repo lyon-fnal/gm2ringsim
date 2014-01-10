@@ -1126,6 +1126,7 @@ void gm2ringsim::ringTrackerAnalyzer::endRun(art::Run const &r)
 
   
 gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &p) :
+  art::EDAnalyzer(p),
   strawtrackerhitModuleLabel_ ( p.get<std::string>("strawtrackerhitModuleLabel",  "artg4"   ) ),
   strawtrackerinstanceName_   ( p.get<std::string>("strawtrackerinstanceName",    "straws"     ) ),
   ringtrackerhitModuleLabel_ ( p.get<std::string>("ringtrackerhitModuleLabel",  "artg4"   ) ),

@@ -1,5 +1,5 @@
 # Build libraries
-art_make( LIBRARIES "artg4_util" "artg4_material" "gm2geom_world" "${XERCESCLIB}" "${allG4Libs}")
+art_make( SERVICE_LIBRARIES "artg4_util" "artg4_material" "gm2geom_world" "${XERCESCLIB}" "${G4_LIB_LIST}")
 
 # Copy headers
 install_headers()

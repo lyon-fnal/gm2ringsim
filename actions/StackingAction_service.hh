@@ -44,5 +44,7 @@ namespace gm2ringsim
 
   }; // End StackingAction class 
 }
+using gm2ringsim::StackingAction;
+DECLARE_ART_SERVICE(StackingAction,LEGACY)
 #endif
 

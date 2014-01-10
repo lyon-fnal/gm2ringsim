@@ -51,5 +51,9 @@ namespace gm2ringsim
 
   }; // End G2PGA class 
 }
+
+using::gm2ringsim::G2PGA;
+DECLARE_ART_SERVICE(G2PGA,LEGACY)
+
 #endif // G2PGA_SERVICE_HH
 
