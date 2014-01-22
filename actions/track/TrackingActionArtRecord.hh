@@ -84,8 +84,11 @@ namespace gm2ringsim {
     // Fraction of the particle's momentum oriented vertically at birth
     double pvhat;
 
+    // Energy of Particle - presumably at birth
     double e;
 
+    // Spin "polarization" - again presumably at birth
+    // which for muon gas muons is also death
     double polx, poly, polz;
   };
 
