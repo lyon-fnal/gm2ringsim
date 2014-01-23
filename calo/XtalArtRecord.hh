@@ -22,6 +22,17 @@
 namespace gm2ringsim {
     struct XtalArtRecord {
         
+        /** There is one xtalArtRecord for each crystal in the calorimeter with
+         any activity in it. The hit is created when the first charged particle 
+         enters the crystal. 
+         
+         trackID, r, t, v, time, pr, pt, pv, e and pdgID are for the the first
+         charged particle that entered the xtal, thereby initiating the xtal hit
+         
+         edep, trackLength, nphoton and ephoton are incremented for each charged
+         particle step taken within that crystal.
+         */
+        
         /** Current value of turn counter for the @b primary that caused
          this hit. */
         int turn;
@@ -29,7 +40,16 @@ namespace gm2ringsim {
         /** Which calorimeter was hit. */
         int caloNum;
         
-        /** Which XTAL was hit. */
+        /** Which XTAL was hit. 
+         From perspective of beam (looking at the front face of the calorimeter)
+         numbering starts at bottom right and increases along the row toward the
+         storage ring.
+         For the standard 54-crystal calorimeter:
+            xtal 0 = bottom right corner
+            xtal 8 = bottom left corner
+            xtal 45 = top right corner
+            xtal 53 = top left corner
+         */
         int xtalNum;
         
         /** The ID of the impinging particle; obtain particle information
@@ -68,22 +88,27 @@ namespace gm2ringsim {
         /** Momentum along the @v direction, MeV. Charged track at entrance to xtal. */
         float pv;
         
-        /** Total energy of charged track */
+        /** Total energy of charged track ( = total energy of first charged 
+         particle to enter xtal), MeV. */
         float e;
         
-        /** Total energy deposited by charged track in xtal */
+        /** Total energy deposited by charged track in xtal 
+         ( = sum of energy deposits by all charged particle steps in this xtal), 
+         MeV. */
         float edep;
         
-        /** Total path length of charged track in xtal */
+        /** Total path length of charged track in xtal 
+         ( = sum of step lengths taken by charged particles in this xtal), mm. */
         float trackLength;
         
         /** PDG ID of charged track */
         int pdgID ;
         
-        /** Number of Cerenkov photons emitted by this track */
+        /** Number of Cerenkov photons emitted by this track
+         ( = number of Cerenkov photons emitted by all charged particles in this xtal) */
         int nphoton ;
         
-        /** Total energy of Cerenkov photons */
+        /** Total energy of Cerenkov photons, MeV */
         float ephoton ;
                 
         XtalArtRecord() :

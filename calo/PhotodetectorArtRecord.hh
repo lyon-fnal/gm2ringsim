@@ -22,6 +22,17 @@
 namespace gm2ringsim {
     struct PhotodetectorArtRecord {
         
+        /** There is one photodetectorArtRecord for each photodetector with any 
+         activity in it. The hit is created when the first photon enters the
+         photodetector volume.
+         
+         trackID, r, t, v, and time are for the the first photon that entered 
+         the photodetector, thereby initiating the photodetector hit.
+         
+         nphoton and e are incremented for each additional photon detected by
+         that photodetector.
+         */
+        
         /** Current value of turn counter for the @b primary that caused
          this hit. */
         int turn;
@@ -29,11 +40,19 @@ namespace gm2ringsim {
         /** Which calorimeter was hit. */
         int caloNum;
         
-        /** Which photodetector was hit. */
+        /** Which photodetector was hit.
+         From perspective of beam (looking at the front face of the calorimeter)
+         numbering starts at bottom right and increases along the row toward the
+         storage ring.
+         For the standard 54-crystal calorimeter:
+         xtal 0 = bottom right corner
+         xtal 8 = bottom left corner
+         xtal 45 = top right corner
+         xtal 53 = top left corner
+         */
         int photodetectorNum;
         
-        /** The ID of the impinging particle; obtain particle information
-         from the trackRecord. */
+        /** Track ID of the first photon to enter the photodetector volume */
         int trackID;
         
         /** Local photodetector coordinate, mm; this is the position along the
@@ -57,7 +76,7 @@ namespace gm2ringsim {
         /** Number of photons with photon detection efficiency applied */
         int nphoton ;
         
-        /** Photon energy, summed over detected photons */
+        /** Photon energy, summed over detected photons, MeV */
         float e;
         
         PhotodetectorArtRecord() :
