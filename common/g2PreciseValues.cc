@@ -105,9 +105,10 @@ double gm2ringsim::omegaCMagic()
 double gm2ringsim::omegaAMagic()
 {
   static double const omegaAMagic_ = aMuon()*gammaMagic()*betaMagic()*c_light/R_magic();
-//   G4cout.precision(12); // the 10th sig fig is ppb level
-//   G4cout << "omegaAMagic = " << omegaAMagic_ << " rad/ns" << G4endl;
-//   G4cout.precision(3);
+  //   wa = 0.00143931050593737214389 // current value
+  //   G4cout.precision(12); // the 10th sig fig is ppb level
+  //   G4cout << "omegaAMagic = " << omegaAMagic_ << " rad/ns" << G4endl;
+  //   G4cout.precision(3);
   return omegaAMagic_;
 }
 
