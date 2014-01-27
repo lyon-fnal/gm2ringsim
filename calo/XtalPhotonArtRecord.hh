@@ -22,29 +22,44 @@
 namespace gm2ringsim {
     struct XtalPhotonArtRecord {
         
+        /** 
+         There is one xtalPhotonArtRecord for each Cerenkov photon that is 
+         generated within the PbF2 crystals
+         */
+        
         /** Which calorimeter was hit. */
         int caloNum;
         
-        /** Which crystal was hit. */
+        /** Which crystal was hit. 
+         From perspective of beam (looking at the front face of the calorimeter)
+         numbering starts at bottom right and increases along the row toward the
+         storage ring.
+         For the standard 54-crystal calorimeter:
+         xtal 0 = bottom right corner
+         xtal 8 = bottom left corner
+         xtal 45 = top right corner
+         xtal 53 = top left corner
+         */
         int xtalNum;
         
-        /** The ID of the impinging particle; obtain particle information
-         from the trackRecord. */
+        /** The track ID of the photon */
         int trackID;
         
         /** Local (xtal) photon production coordinate, mm; this is the
          horizontal direction transverse to the crystal long dimension.
-         Zero in the crystal center */
+         Zero in the crystal center, positive direction is radially out (toward 
+         storage region of the ring). */
         float x;
         
         /** Local (xtal) photon production coordinate, mm; this is the
          vertical direction transverse to the crystal long dimension.
-         Zero in the crystal center */
+         Zero in the crystal center, positive direction is up. */
         float y;
         
         /** Local (xtal) photon production coordinate, mm; this is the
          depth into the crystal along the crystal long dimension.
-         Zero in the crystal center */
+         Zero in the crystal center, positive direction is into the crystal,
+         toward the photodetectors. */
         float depth;
         
         /** cos(angle), flight angle measured relative the crystal longitudinal axis */
@@ -53,7 +68,7 @@ namespace gm2ringsim {
         /** flight azimuthal angle around the crystal longitudinal axis*/
         float phi;
         
-        /** Photon energy */
+        /** Photon energy, MeV */
         float e;
         
         /** whether this photon was transmitted to photodetector */

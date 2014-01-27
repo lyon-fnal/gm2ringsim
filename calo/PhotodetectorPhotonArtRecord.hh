@@ -22,6 +22,12 @@
 namespace gm2ringsim {
     struct PhotodetectorPhotonArtRecord {
         
+        /**
+         There is one photodetectorPhotonArtRecord for each photon that enters
+         a photodetector volume, whether or not it passes the detection 
+         efficiency test.
+         */
+        
         /** Current value of turn counter for the @b primary that caused
          this hit. */
         int turn;
@@ -29,11 +35,19 @@ namespace gm2ringsim {
         /** Which calorimeter was hit. */
         int caloNum;
         
-        /** Which photodetector was hit. */
+        /** Which photodetector was hit. 
+         From perspective of beam (looking at the front face of the calorimeter)
+         numbering starts at bottom right and increases along the row toward the
+         storage ring.
+         For the standard 54-crystal calorimeter:
+         xtal 0 = bottom right corner
+         xtal 8 = bottom left corner
+         xtal 45 = top right corner
+         xtal 53 = top left corner
+         */
         int photodetectorNum;
         
-        /** The ID of the impinging particle; obtain particle information
-         from the trackRecord. */
+        /** The ID of the photon */
         int trackID;
         
         /** Local photodetector coordinate, mm; this is the position along the
@@ -63,7 +77,7 @@ namespace gm2ringsim {
         /** Momentum along the @v direction, MeV. */
         float pv;
         
-        /** Photon energy */
+        /** Photon energy, MeV */
         float e;
         
         /** Does photon pass efficiency simulation? */
