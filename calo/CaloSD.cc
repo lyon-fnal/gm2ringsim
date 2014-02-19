@@ -75,27 +75,13 @@ G4bool gm2ringsim::CaloSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){
 	ShowerListManager::particleStatus status = ShowerListManager::instance().addToList( thisID, parentID );
 	if( status == ShowerListManager::kInitiatedShower || status == ShowerListManager::kAddedToShower ) {generateCaloHit=true;}
 
-      } else { G4cout << " we ignore a " << track->GetDefinition()->GetParticleName() << G4endl;}
+      }
     
     
     
     // insert information only for particles that are entering the volume (and would initiate a shower or interaction)
     if ( generateCaloHit ) {
       thisHC->insert(new CaloHit(thisStep));
-      G4cout << " calo hit generated " 
-	     << " particle type " << track->GetDefinition()->GetParticleName() << " " << pdg
-	     << " track ID " << thisID 
-	     << " parent ID " << parentID 
-	     << " energy " << thisStep->GetPreStepPoint()->GetTotalEnergy() 
-	     << G4endl;
-    }
-    else {
-      G4cout << " no calo hit generated " 
-	     << " particle type " << track->GetDefinition()->GetParticleName() << " " << pdg
-	     << " track ID " << thisID 
-	     << " parent ID " << parentID 
-	     << " energy " << thisStep->GetPreStepPoint()->GetTotalEnergy() 
-	     << G4endl;
     }
     
     // If killShowers = true, kill track when it enters the calo volume (i.e., turn the calo into a black box)
