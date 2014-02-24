@@ -86,6 +86,8 @@ namespace gm2ringsim
     //       vertically from a centered path to still be considered stored.
     //       Default is 0.074 m.
 
+    double dist_from_ring_;
+
     int Nexposed_;
     int Nkilled_;
     
