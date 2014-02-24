@@ -1,5 +1,18 @@
 # Build the libraries
-art_make( LIBRARIES "artg4_util" "artg4_material" "gm2ringsim_common_spin" "gm2ringsim_quad" "gm2geom_quad" "gm2ringsim_common" "gm2ringsim_common_ring" "${XERCESCLIB}" "${allG4Libs}")
+art_make( SERVICE_LIBRARIES
+	  gm2geom_quad
+	  gm2ringsim_quad
+	  LIB_LIBRARIES 
+	  artg4_util
+	  artg4_material
+	  gm2ringsim_common_spin
+	  gm2ringsim_quad
+	  gm2geom_quad
+	  gm2ringsim_common
+	  gm2ringsim_common_ring
+	  ${XERCESCLIB}
+	  ${G4_LIB_LIST}
+	)
 
 # Copy the headers
 install_headers()

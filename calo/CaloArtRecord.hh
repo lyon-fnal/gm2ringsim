@@ -46,14 +46,20 @@ namespace gm2ringsim {
         float py;
         float pz;
         
+        /** Total energy of particle, MeV. */
         float energy;
 				
-    		std::string particle_name;
-    		int parent_ID;
+        /** Particle name. */
+        std::string particle_name;
+        
+        /** Parent ID of track*/
+        int parent_ID;
 
         CaloArtRecord() :
         turn(0), caloNum(0), trackID(0),
-        x(0.), y(0.), z(0.), time(0.), px(0.), py(0.), pz(0.), energy(0.), particle_name(), parent_ID(0) 
+        x(0.), y(0.), z(0.), time(0.),
+        px(0.), py(0.), pz(0.), energy(0.),
+        particle_name(), parent_ID(0)
         {}
         
         virtual ~CaloArtRecord(){};
@@ -62,13 +68,12 @@ namespace gm2ringsim {
 #ifndef __GCCXML__
         CaloArtRecord(int n, int cn, int id,
                       float x, float y, float z, float time,
-                      float px, float py, float pz, float e, std::string particleName, int parentID ) :
+                      float px, float py, float pz, float e,
+                      std::string particleName, int parentID ) :
         turn(n), caloNum(cn), trackID(id),
         x(x), y(y), z(z), time(time),
-        px(px), py(py), pz(pz), 
-				energy(e),
-    		particle_name(particleName),
-    		parent_ID(parentID)
+        px(px), py(py), pz(pz), energy(e),
+        particle_name(particleName), parent_ID(parentID)
         {}
         
 #endif // __GCCXML__

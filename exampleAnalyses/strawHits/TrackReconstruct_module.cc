@@ -23,7 +23,7 @@
 #include "gm2ringsim/strawtracker/StrawArtRecord.hh"
 #include <map>
 #include <vector>
-
+#include <iostream>
 
 namespace gm2ringsim {
   class TrackReconstruct;
@@ -59,6 +59,7 @@ private:
 
 
 gm2ringsim::TrackReconstruct::TrackReconstruct(fhicl::ParameterSet const & p) :
+  art::EDAnalyzer(p),
   trackModuleLabel_ ( p.get<std::string>("trackModuleLabel",  ""   ) ),
   trackInstanceName_   ( p.get<std::string>("trackInstanceName",    ""     ) ),
   tree_dir_       ( p.get<std::string>("tree_dir", ""         ) )

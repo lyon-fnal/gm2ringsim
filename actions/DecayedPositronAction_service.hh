@@ -88,5 +88,8 @@ namespace gm2ringsim
   }; //end of EventAction class definition 
 } //namespace gm2ringsim
 
+using gm2ringsim::DecayedPositronAction;
+DECLARE_ART_SERVICE(DecayedPositronAction,LEGACY)
+
 #endif //DECAYEDPOSITRONACTION_SERVICE_HH
 

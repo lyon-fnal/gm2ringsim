@@ -62,4 +62,6 @@ namespace gm2ringsim {
   };
 }
 
+using gm2ringsim::FiberHarp;
+DECLARE_ART_SERVICE(FiberHarp,LEGACY)
 #endif

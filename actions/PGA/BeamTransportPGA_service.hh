@@ -68,5 +68,8 @@ namespace gm2ringsim
 
   }; // End BeamTransportPGA class 
 }
+
+using gm2ringsim::BeamTransportPGA;
+DECLARE_ART_SERVICE(BeamTransportPGA,LEGACY)
 #endif // BEAMTRANSPORTPGA_SERVICE_HH
 

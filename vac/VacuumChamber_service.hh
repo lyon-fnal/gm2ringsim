@@ -76,5 +76,6 @@ namespace gm2ringsim {
     
     };
 }
-
+using gm2ringsim::VacuumChamber;
+DECLARE_ART_SERVICE(VacuumChamber,LEGACY)
 #endif

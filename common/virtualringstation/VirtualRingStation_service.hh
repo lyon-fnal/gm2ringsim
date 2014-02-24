@@ -60,5 +60,6 @@ namespace gm2ringsim {
   };
   
 }//namespace gm2ringsim
-
+using gm2ringsim::VirtualRingStation;
+DECLARE_ART_SERVICE(VirtualRingStation,LEGACY)
 #endif //VIRTUALRINGSTATION_SERVICE_HH

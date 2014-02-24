@@ -165,5 +165,7 @@ namespace gm2ringsim
   }; //end of EventAction class definition 
 } //namespace gm2ringsim
 
+using gm2ringsim::MuonStorageStatusAction;
+DECLARE_ART_SERVICE(MuonStorageStatusAction,LEGACY)
 #endif //MUONSTORAGESTATUSACTION_SERVICE_HH
 

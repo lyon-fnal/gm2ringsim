@@ -1,4 +1,5 @@
-art_make( LIBRARIES "gm2ringsim_fields")
+#art_make( LIB_LIBRARIES gm2ringsim_fields)
+art_make( )
 install_headers()
 
 # Copy the fcl

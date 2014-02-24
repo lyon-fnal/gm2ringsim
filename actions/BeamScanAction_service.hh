@@ -13,8 +13,8 @@
 // </pre>
 
 // Include guards
-#ifndef MUONSTORAGESTATUSACTION_SERVICE_HH
-#define MUONSTORAGESTATUSACTION_SERVICE_HH
+#ifndef BEAMSCANACTION_SERVICE_HH
+#define BEAMSCANACTION_SERVICE_HH
 
 /** @file EventAction_service.hh
     Combines the functionality of the sevral g2MIGTRACE classes:
@@ -109,5 +109,10 @@ namespace gm2ringsim
   }; //end of EventAction class definition 
 } //namespace gm2ringsim
 
-#endif //MUONSTORAGESTATUSACTION_SERVICE_HH
+
+using gm2ringsim::BeamScanAction;
+DECLARE_ART_SERVICE(BeamScanAction, LEGACY)
+
+
+#endif //BEAMSCANACTION_SERVICE_HH
 

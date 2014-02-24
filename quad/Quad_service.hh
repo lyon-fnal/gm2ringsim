@@ -194,5 +194,6 @@ namespace gm2ringsim {
   };
 
 }
-
+using gm2ringsim::Quad;
+DECLARE_ART_SERVICE(Quad,LEGACY)
 #endif

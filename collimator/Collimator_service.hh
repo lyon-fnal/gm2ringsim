@@ -52,4 +52,7 @@ namespace gm2ringsim {
     virtual std::vector<G4VPhysicalVolume*> doPlaceToPVs( std::vector<G4LogicalVolume*>) override;
   };
 }
+
+using gm2ringsim::Collimator;
+DECLARE_ART_SERVICE(Collimator,LEGACY)
 #endif

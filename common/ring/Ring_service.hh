@@ -60,4 +60,6 @@ namespace gm2ringsim {
 
 }//namespace gm2ringsim
 
+using gm2ringsim::Ring;
+DECLARE_ART_SERVICE(Ring,LEGACY)
 #endif //RING_SERVICE_HH

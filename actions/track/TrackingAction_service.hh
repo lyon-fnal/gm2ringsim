@@ -96,5 +96,6 @@ namespace gm2ringsim {
     int PrimaryTrackCharge_;
   };
 }
-
+using gm2ringsim::TrackingAction;
+DECLARE_ART_SERVICE(TrackingAction,LEGACY)
 #endif

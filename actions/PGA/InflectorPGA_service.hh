@@ -70,5 +70,9 @@ namespace gm2ringsim
 
   }; // End InflectorPGA class 
 }
+
+using gm2ringsim::InflectorPGA;
+DECLARE_ART_SERVICE(InflectorPGA,LEGACY)
+
 #endif // INFLECTORPGA_SERVICE_HH
 

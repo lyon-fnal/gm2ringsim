@@ -150,5 +150,6 @@ namespace gm2ringsim {
 
     };
 }
-
+using gm2ringsim::Kicker;
+DECLARE_ART_SERVICE(Kicker, LEGACY)
 #endif

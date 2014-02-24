@@ -98,5 +98,7 @@ namespace gm2ringsim
   }; //end of EventAction class definition 
 } //namespace gm2ringsim
 
+using gm2ringsim::LostMuonAction;
+DECLARE_ART_SERVICE(LostMuonAction, LEGACY)
 #endif //LOSTMUONACTION_SERVICE_HH
 

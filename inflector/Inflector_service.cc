@@ -1188,9 +1188,10 @@ void gm2ringsim::Inflector::generateGPSMacros(){
 }
 
 // Declare to Art what we are producing
-void gm2ringsim::Inflector::doCallArtProduces(art::EDProducer * producer) {
+void gm2ringsim::Inflector::doCallArtProduces(art::EDProducer *producer
+  ) {
 
-  producer->produces<InflectorArtRecordCollection>(category());
+    producer->produces<InflectorArtRecordCollection>(category());
 
 }
 

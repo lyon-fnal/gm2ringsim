@@ -5,7 +5,7 @@
 parent gm2ringsim v0_0_1
 
 # The defaultqual should correspond to Art's default qualifier (e.g. a7)
-defaultqual e2
+defaultqual e4
 
 # These optional lines define where headers, libraries, and executables go and should
 # be used only if your product does not conform to the defaults.
@@ -19,21 +19,21 @@ defaultqual e2
 
 product          version
 artg4            v0_0_1
-art              v1_02_04
-g4emlow          v6_23
-g4photon         v2_2
-g4neutron        v4_0
-g4neutronxs      v1_1
-gm2geom          v0_0_1
+art              v1_08_10
+g4emlow          v6_32
+g4photon         v2_3
+g4neutron        v4_2
+g4neutronxs      v1_2
+#gm2geom          v0_0_1
 
-only_for_build  cetbuildtools v2_03_03
-only_for_build  gm2softwaretools v201211
+only_for_build  cetbuildtools v3_07_03
+
 
 # We now define allowed qualifiers and the corresponding qualifiers for the depdencies.
 # Make a table by adding columns before "notes". 
 #
 qualifier        artg4       art       g4emlow  g4photon g4neutron g4neutronxs notes
-e2:debug         e2:debug    e2:debug   -nq-     -nq-      -nq-      -nq-  
-e2:opt           e2:opt      e2:opt     -nq-     -nq-      -nq-      -nq-
-e2:prof          e2:prof     e2:prof    -nq-     -nq-      -nq-      -nq-
+e4:debug         e4:debug    e4:debug   -nq-     -nq-      -nq-      -nq-  
+e4:opt           e4:opt      e4:opt     -nq-     -nq-      -nq-      -nq-
+e4:prof          e4:prof     e4:prof    -nq-     -nq-      -nq-      -nq-
 

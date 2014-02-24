@@ -111,4 +111,7 @@ namespace gm2ringsim {
     };
 }
 
+using gm2ringsim::Calorimeter;
+DECLARE_ART_SERVICE(Calorimeter,LEGACY)
+
 #endif /* defined(__g2ringsim__Calorimeter_service__) */
