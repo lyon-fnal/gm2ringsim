@@ -70,8 +70,8 @@ void gm2ringsim::XtalSD::Initialize(G4HCofThisEvent* HCoTE){
         xtalID_[i] = -1 ;
     }
     
-    photonTracks.clear();
-    photonTracks.resize( kInitialListSize, false );
+    photonTracks_.clear();
+    photonTracks_.resize( kInitialListSize, false );
     
     ShowerListManager::instance().resetList();
     nShowerElectrons_ = 0;
@@ -123,8 +123,8 @@ G4bool gm2ringsim::XtalSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){
     //     Note: this mosly applies to non-optical photons (pdg id = 22)
     // really not sure that we want to do this!
     if( pdg != 11 && // electron
-       pdg != 13 && // muon
-       pdg != 0 ) // optical photon
+        pdg != 13 && // muon
+        pdg != 0 )   // optical photon
     {
         return false ;
     }
@@ -145,7 +145,7 @@ G4bool gm2ringsim::XtalSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){
     G4double edep = thisStep->GetTotalEnergyDeposit();
     if(edep<=0. && ( pdg == 11 || pdg == 13 ) ) return false;
     
-    if(xtalID_[copyID]==-1)
+    if(xtalID_[copyID]==-1) // this crystal does not have an xtal hit yet
     {
         // Only count optical photons if a track has already been seen, so don't make
         // new hits only for photons.
@@ -155,7 +155,7 @@ G4bool gm2ringsim::XtalSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){
         
         // ****!!!*** this needs to be generalized to allow any particle except for optical
         // ****!!!*** photons to be the particle that initiates a shower
-        if( pdg == 11 || pdg == 13 )
+        if( chargedParticle )
         {
             int initiateId = ShowerListManager::instance().showerParentList()[thisID];
             XtalHit* xHit = new XtalHit( thisStep, initiateId );
@@ -211,14 +211,14 @@ G4bool gm2ringsim::XtalSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){
         }
         else if ( pdg == 0 ) // optical photon
         {
-            int opListSize = photonTracks.size();
+            int opListSize = photonTracks_.size();
             if ( thisID >= opListSize ) {
-                photonTracks.resize( thisID+kSizeIncrement, false ); // increase the size of the list
+                photonTracks_.resize( thisID+kSizeIncrement, false ); // increase the size of the list
             }
             // Check if this photon has already been counted
-            if ( !photonTracks[thisID] ) {
+            if ( !photonTracks_[thisID] ) {
                 
-                photonTracks[thisID] = true; // we've seen this track before
+                photonTracks_[thisID] = true; // we've seen this track before
                 
                 // increment the energy deposited
                 ++( ( *thisHC )[ hitIndex ]->nphoton ) ; // increment the photon counter

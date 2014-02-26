@@ -54,7 +54,7 @@ private:
     
     bool killOpticalPhotons_;
             
-    std::vector<bool> photonTracks;
+    std::vector<bool> photonTracks_;
     
     G4ThreeVector m_parentPosition;
     int nShowerElectrons_;
