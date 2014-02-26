@@ -27,7 +27,21 @@
 #include "Geant4/G4EqEMFieldWithSpin.hh"
 #include "Geant4/G4ChordFinder.hh"
 #include "Geant4/G4MagIntegratorStepper.hh"
-#include "Geant4/G4ClassicalRK4.hh"
+//#include "Geant4/G4ClassicalRK4.hh"
+
+#include "Geant4/G4NystromRK4.hh"	
+#include "Geant4/G4CashKarpRKF45.hh"	
+#include "Geant4/G4ClassicalRK4.hh"	
+#include "Geant4/G4ConstRK4.hh"	
+#include "Geant4/G4ExplicitEuler.hh"	
+#include "Geant4/G4ImplicitEuler.hh"	
+#include "Geant4/G4SimpleHeum.hh"	
+#include "Geant4/G4SimpleRunge.hh"	
+#include "Geant4/G4HelixExplicitEuler.hh"	
+#include "Geant4/G4HelixHeum.hh"	
+#include "Geant4/G4HelixImplicitEuler.hh"	
+#include "Geant4/G4HelixSimpleRunge.hh"
+
 #include "gm2ringsim/arc/StorageRingField.hh"
 
 #include "gm2ringsim/fields/g2FieldEqRhs.hh"
@@ -39,9 +53,9 @@
 // Constructor for the service 
 gm2ringsim::Arc::Arc(fhicl::ParameterSet const & p, art::ActivityRegistry & ) :
   DetectorBase(p,
-		 p.get<std::string>("name", "arc"),
-		 p.get<std::string>("category", "arc"),
-		 p.get<std::string>("mother_category", "world")),
+	       p.get<std::string>("name", "arc"),
+	       p.get<std::string>("category", "arc"),
+	       p.get<std::string>("mother_category", "world")),
   sts_("SpinTracking"), //This is a shortcut to get the SpinTracking par list from the fhicl
   nospin_tracking_(true),
   spin_tracking_(sts_.spinTrackingEnabled),
@@ -50,36 +64,81 @@ gm2ringsim::Arc::Arc(fhicl::ParameterSet const & p, art::ActivityRegistry & ) :
   withSpin_(0),        //will set in the constructor function
   withEDM_(0)
 {
-
-
   G4cout << "=========== Arc (Storage Ring Field) ===========" << G4endl;
   G4cout << "| Beam Charge        = " << sts_.GetCharge() << G4endl;
   G4cout << "| Spin Tracking      = " << spin_tracking_ << G4endl;
   G4cout << "| EDM Tracking       = " << edm_tracking_ << G4endl;
+  G4cout << "| Storage Field      = " << sts_.GetStorageFieldType() << G4endl;
   G4cout << "================================================" << G4endl;
 
 
   bool myspin = false;
   bool myedm = false;
 
-  storageRingField *storageField = new storageRingField(sts_.GetCharge());
-  storageRingEMField *storageEMField = new storageRingEMField(sts_.GetCharge());
-
-
+  storageRingField *storageField = new storageRingField(sts_.GetCharge(), sts_.GetStorageFieldType());
+  storageRingEMField *storageEMField = new storageRingEMField(sts_.GetCharge(), sts_.GetStorageFieldType());
+  
+  
   //----------------------------------------
   // build the spin ignoring field equations
   //----------------------------------------
   G4Mag_EqRhs *equation = new G4Mag_UsualEqRhs(storageField);
-  G4ClassicalRK4 *stepper = new G4ClassicalRK4(equation);
-  G4ChordFinder *iChordFinder = new G4ChordFinder(storageField, 0.01*mm, stepper);
+  G4MagIntegratorStepper *mag_stepper = NULL;
+  if ( sts_.GetStepperType() == kNystromRK4 ) {
+    mag_stepper = new G4NystromRK4(equation);
+  }
+  else if ( sts_.GetStepperType() == kCashKarpRKF45 ) {
+    mag_stepper = new G4CashKarpRKF45(equation);
+  }
+  else if ( sts_.GetStepperType() == kClassicalRK4) {
+    mag_stepper = new G4ClassicalRK4(equation);
+  }
+  else if ( sts_.GetStepperType() == kConstRK4) {   
+    mag_stepper = new G4ConstRK4(equation);
+  }
+  else if ( sts_.GetStepperType() == kExplicitEuler) {
+    mag_stepper = new G4ExplicitEuler(equation);
+  }
+  else if ( sts_.GetStepperType() == kImplicitEuler) {
+    mag_stepper = new G4ImplicitEuler(equation);
+  }
+  else if ( sts_.GetStepperType() == kSimpleHeum) {
+    mag_stepper = new G4SimpleHeum(equation);
+  }
+  else if ( sts_.GetStepperType() == kSimpleRunge) {
+    mag_stepper = new G4SimpleRunge(equation);
+  }
+  else if ( sts_.GetStepperType() == kHelixExplicitEuler) {
+    mag_stepper = new G4HelixExplicitEuler(equation);
+  }
+  else if ( sts_.GetStepperType() == kHelixHeum) {
+    mag_stepper = new G4HelixHeum(equation);
+  }
+  else if ( sts_.GetStepperType() == kHelixImplicitEuler) {
+    mag_stepper = new G4HelixImplicitEuler(equation);
+  }
+  else if ( sts_.GetStepperType() == kHelixSimpleRunge ) {
+    mag_stepper = new G4HelixSimpleRunge(equation);
+  }
+  else {
+    G4cout << "Could not set up Mag Stepper: " << sts_.GetStepperName() << "." << G4endl; exit(1);
+    mag_stepper = new G4ClassicalRK4(equation);
+  }
+  if ( mag_stepper ) { G4cout << "Set up Mag Stepper: " << sts_.GetStepperName() << "." << G4endl; }
+  //G4double stepsize = 0.01*mm;
+  G4double stepsize = sts_.GetStepSize();
+  G4cout << "Using StepSize: " << stepsize/mm << " mm." << G4endl;
+  
+  G4MagIntegratorStepper *stepper = mag_stepper;
+  //G4ClassicalRK4 *stepper = new G4ClassicalRK4(equation);
+  G4ChordFinder *iChordFinder = new G4ChordFinder(storageField, stepsize, stepper);
   withoutSpin_ = new G4FieldManager(storageField, iChordFinder);
 
 
 
   //----------------------------------------
   // build the spin evolving field equations
-  //----------------------------------------
-  
+  //----------------------------------------  
   // build the spin evolving field equations
   if ( edm_tracking_ ) {
     if ( myedm ) {
@@ -92,6 +151,7 @@ gm2ringsim::Arc::Arc(fhicl::ParameterSet const & p, art::ActivityRegistry & ) :
       G4EqEMFieldWithEDM *equation2 = new G4EqEMFieldWithEDM(storageEMField);
       equation2->SetEta(sts_.GetEta());
       if ( sts_.GetGm2() >= 0 ) { equation2->SetAnomaly(sts_.GetGm2()); }
+      
       stepper = new G4ClassicalRK4(equation2,12);
     }
     G4MagInt_Driver *driver = new G4MagInt_Driver(0.01*mm, stepper, stepper->GetNumberOfVariables());
@@ -99,15 +159,66 @@ gm2ringsim::Arc::Arc(fhicl::ParameterSet const & p, art::ActivityRegistry & ) :
     withEDM_ = new G4FieldManager(storageEMField, iChordFinder);
   }
   if ( spin_tracking_ ) {
+    //G4double stepsize = 0.01*mm;
+    G4double stepsize = sts_.GetStepSize();
+    G4cout << "Using StepSize: " << stepsize/mm << " mm." << G4endl;
     if ( myspin ) {
-      g2EqEMFieldWithSpin *equation2 = new g2EqEMFieldWithSpin(storageEMField);        
-      stepper = new G4ClassicalRK4(equation2,12);
+      g2EqEMFieldWithSpin *equation2 = new g2EqEMFieldWithSpin(storageEMField);   
+      if ( sts_.GetStepperType() == kCashKarpRKF45 ) {
+	stepper = new G4CashKarpRKF45(equation2, 12);
+      }
+      else if ( sts_.GetStepperType() == kClassicalRK4) {
+	stepper = new G4ClassicalRK4(equation2, 12);
+      }
+      else if ( sts_.GetStepperType() == kImplicitEuler) {
+	stepper = new G4ImplicitEuler(equation2, 12);
+      }
+      else if ( sts_.GetStepperType() == kSimpleHeum) {
+	stepper = new G4SimpleHeum(equation2, 12);
+      }
+      else if ( sts_.GetStepperType() == kSimpleRunge) {
+	stepper = new G4SimpleRunge(equation2, 12);
+      }
+      else {
+	G4cout << "Could not set up Mag Stepper: " << sts_.GetStepperName() << " w/ spin." << G4endl; exit(1);
+	stepper = new G4ClassicalRK4(equation2, 12);
+      }
+      if ( stepper ) { G4cout << "Set up Mag Stepper: " << sts_.GetStepperName() << " w/ spin." << G4endl; }
+      
+      //G4MagIntegratorStepper *stepper = mag_stepper;     
+      //stepper = new G4ClassicalRK4(equation2,12);
     }
     else {
       equation = new G4Mag_SpinEqRhs(storageField);    
-      stepper = new G4ClassicalRK4(equation,12);
+      if ( sts_.GetStepperType() == kNystromRK4 ) {
+	stepper = new G4NystromRK4(equation, 12);
+      }
+      else if ( sts_.GetStepperType() == kCashKarpRKF45 ) {
+	stepper = new G4CashKarpRKF45(equation, 12);
+      }
+      else if ( sts_.GetStepperType() == kClassicalRK4) {
+	stepper = new G4ClassicalRK4(equation, 12);
+      }
+      else if ( sts_.GetStepperType() == kConstRK4) {   
+	stepper = new G4ConstRK4(equation, 12);
+      }
+      else if ( sts_.GetStepperType() == kImplicitEuler) {
+	stepper = new G4ImplicitEuler(equation, 12);
+      }
+      else if ( sts_.GetStepperType() == kSimpleHeum) {
+	stepper = new G4SimpleHeum(equation, 12);
+      }
+      else if ( sts_.GetStepperType() == kSimpleRunge) {
+	stepper = new G4SimpleRunge(equation, 12);
+      }
+      else {
+	G4cout << "Could not set up Mag Stepper: " << sts_.GetStepperName() << " w/ spin." << G4endl; exit(1);
+	stepper = new G4ClassicalRK4(equation, 12);
+      }
+      if ( stepper ) { G4cout << "Set up Mag Stepper: " << sts_.GetStepperName() << " w/ spin." << G4endl; }
+      //stepper = new G4ClassicalRK4(equation,12);
     }
-    iChordFinder = new G4ChordFinder(storageField, 0.01*mm, stepper);
+    iChordFinder = new G4ChordFinder(storageField, stepsize, stepper);
     withSpin_ = new G4FieldManager(storageField, iChordFinder);
   }
 }
@@ -176,7 +287,7 @@ G4LogicalVolume* gm2ringsim::Arc::makeAnArcLV(gm2geom::ArcGeometry const & g, un
 std::vector<G4LogicalVolume *> gm2ringsim::Arc::doBuildLVs() {
   
   // Get the geometry
-    gm2geom::ArcGeometry g(myName());
+  gm2geom::ArcGeometry g(myName());
   
   g.print();
   

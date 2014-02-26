@@ -64,15 +64,15 @@ gm2ringsim::Kicker::Kicker(fhicl::ParameterSet const & p, art::ActivityRegistry 
   if ( kg_.TypeOfKick == "Square" || kg_.TypeOfKick == "Perfect" ||
        kg_.TypeOfKick == "SQUARE" || kg_.TypeOfKick == "PERFECT" ) { KickType_ = KICK_SQUARE; }
 
-  if ( KickType_ == KICK_LCR ) {
-    G4cout << "| B(y) = " << kg_.kickerHV[0] << " , " << kg_.kickerHV[1] << " , " << kg_.kickerHV[2] << " Gauss" << G4endl;
-    if ( kg_.kickerHV[0] <= 0.0 && kg_.kickerHV[1] <= 0.0 && kg_.kickerHV[2] <= 0.0 ) {
+  if ( KickType_ == KICK_SQUARE ) {
+    G4cout << "| B(y) = " << kg_.squareMag[0] << " , " << kg_.squareMag[1] << " , " << kg_.squareMag[2] << " Gauss" << G4endl;
+    if ( kg_.squareMag[0] <= 0.0 && kg_.squareMag[1] <= 0.0 && kg_.squareMag[2] <= 0.0 ) {
       KickType_ = KICK_OTHER;
     }
   }
-  else if ( KickType_ == KICK_SQUARE ) {
-    G4cout << "| HV = " << kg_.squareMag[0] << " , " << kg_.squareMag[1] << kg_.squareMag[2] << G4endl;
-    if ( kg_.squareMag[0] <= 0.0 && kg_.squareMag[1] <= 0.0 && kg_.squareMag[2] <= 0.0 ) {
+  else if ( KickType_ == KICK_LCR ) {
+    G4cout << "| HV   = " << kg_.kickerHV[0]/kilovolt << " , " << kg_.kickerHV[1]/kilovolt << " , " << kg_.kickerHV[2]/kilovolt << " kV" << G4endl;
+    if ( kg_.kickerHV[0] <= 0.0 && kg_.kickerHV[1] <= 0.0 && kg_.kickerHV[2] <= 0.0 ) {
       KickType_ = KICK_OTHER;
     }
   }
@@ -265,7 +265,8 @@ void gm2ringsim::Kicker::buildKickerFields(){
 					    kg_.circuitL[i],
 					    kg_.circuitR[i],
 					    modifier_[i],
-					    sts_.GetCharge());
+					    sts_.GetCharge(),
+					    sts_.GetStorageFieldType());
       if( nospin_tracking_ ){
         iEquation_[i] = new g2TimeDepMagField_EqRhs(kickerMagField_[i]);
         iStepper_[i] = new G4ClassicalRK4(iEquation_[i], 8);
@@ -299,7 +300,8 @@ void gm2ringsim::Kicker::buildKickerFields(){
       kickerMagField_[i] = new SquareKickField(kg_.squareMag[i]*
 					       kg_.kickPercent[i]/100.,
 					       modifier_[i],
-					       sts_.GetCharge());
+					       sts_.GetCharge(),
+					       sts_.GetStorageFieldType());
 
       if( nospin_tracking_ ){
 	iEquation_[i] = new g2TimeDepMagField_EqRhs(kickerMagField_[i]);
@@ -330,7 +332,8 @@ void gm2ringsim::Kicker::buildKickerFields(){
     } else {
       G4cout << "Invalid kick type specified!  Not going to kick!\n";
       kickerMagField_[i] = new NoKickField(modifier_[i], 
-					   sts_.GetCharge());
+					   sts_.GetCharge(),
+					   sts_.GetStorageFieldType());
       if( nospin_tracking_ ){
         iEquation_[i] = new G4Mag_UsualEqRhs(kickerMagField_[i]);
 	iStepper_[i] = new G4ClassicalRK4(iEquation_[i]);

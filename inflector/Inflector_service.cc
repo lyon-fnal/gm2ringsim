@@ -958,10 +958,10 @@ void gm2ringsim::Inflector::rebuildFieldImpl(){
     inflectorMagField_ = new VanishingInflectorField;
     break;
   case SIMPLE_FIELD:
-    inflectorMagField_ = new SimpleInflectorField(fieldNormConst_, sts_.GetCharge(), infGeom_.rotAngle, infGeom_.swingAngle, infGeom_.tiltAngle);
+    inflectorMagField_ = new SimpleInflectorField(fieldNormConst_, sts_.GetCharge(), sts_.GetStorageFieldType(), infGeom_.rotAngle, infGeom_.swingAngle, infGeom_.tiltAngle);
     break;
   case MAPPED_FIELD:
-    inflectorMagField_ = new MappedInflectorField(sts_.GetCharge(), infGeom_.rotAngle, infGeom_.swingAngle, infGeom_.tiltAngle);
+    inflectorMagField_ = new MappedInflectorField(sts_.GetCharge(), sts_.GetStorageFieldType(), infGeom_.rotAngle, infGeom_.swingAngle, infGeom_.tiltAngle);
     break;
   default:
     G4cout << "An improper Inflector Field was set in Inflector::rebuildFieldImpl()!!\n";
