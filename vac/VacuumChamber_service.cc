@@ -64,11 +64,13 @@ G4UnionSolid* gm2ringsim::VacuumChamber::buildUnionSolid(const VacGeometry& g, V
              pDy, pDx12, pDx12, pAlp,
              pDy, pDx34, pDx34, pAlp
              );
-  
+  double scallop_ext_L = 1054.1;
+  double scallop_ext_W = 101.6; 
+  G4Box *scallop_extension = new G4Box("scallop_extension",scallop_ext_W/2,scallop_ext_L/2,pDy);
   G4double
   dz = -g.z[which]/2.,
   dx = -dz*std::tan( (g.phi_b-g.phi_a)/2. ) + g.xS[which]/2.;
-  
+ 
   // The little rotation is in the coordinates of the trapezoid,
   Hep2Vector fixup(dz,dx);
   fixup.rotate( -g.phi_a );
@@ -80,12 +82,15 @@ G4UnionSolid* gm2ringsim::VacuumChamber::buildUnionSolid(const VacGeometry& g, V
   out_transform_1(G4RotationMatrix( 0., 90.*degree, -g.phi_a-90.*degree ),
                   G4ThreeVector( fixup.x(), fixup.y(), 0. ) );
   
+  G4Transform3D out_transform_scallop_ext_1(G4RotationMatrix( 0., 0, -g.phi_a ),
+                  G4ThreeVector( 6760, 840, 0. ) );
   fixup.rotate(15.*degree);
   
   G4Transform3D
   out_transform_2(G4RotationMatrix( 0., 90.*degree, -g.phi_a+(-15.-90.)*degree ),
                   G4ThreeVector( fixup.x(), fixup.y(), 0. ) );
   
+
   pPhi = pAlp = 0.;
   pTheta = g.phi_q/2;
   pDz = g.zz[which]/2.;
@@ -120,8 +125,10 @@ G4UnionSolid* gm2ringsim::VacuumChamber::buildUnionSolid(const VacGeometry& g, V
                                   -g.phi_q+(-30.-90.)*degree ),
                  G4ThreeVector( fixup.x(), fixup.y(), 0. ) );
   
+
   G4UnionSolid *us =
   new G4UnionSolid("union1", torus, out_scallop, out_transform_1);
+  us = new G4UnionSolid("union1_5",us, scallop_extension,out_transform_scallop_ext_1);
   us = new G4UnionSolid("union2", us, out_scallop, out_transform_2);
   us = new G4UnionSolid("union3", us, in_scallop, in_transform_1);
   us = new G4UnionSolid("union4", us, in_scallop, in_transform_2);
