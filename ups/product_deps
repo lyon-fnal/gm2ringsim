@@ -19,21 +19,20 @@ defaultqual e4
 
 product          version
 artg4            v0_0_1
-art              v1_08_10
+gm2geom          v0_0_1
+gm2dataproducts  v0_0_1
 g4emlow          v6_32
 g4photon         v2_3
 g4neutron        v4_2
 g4neutronxs      v1_2
-#gm2geom          v0_0_1
 
-only_for_build  cetbuildtools v3_07_03
-
+only_for_build  cetbuildtools v3_07_08
 
 # We now define allowed qualifiers and the corresponding qualifiers for the depdencies.
 # Make a table by adding columns before "notes". 
 #
-qualifier        artg4       art       g4emlow  g4photon g4neutron g4neutronxs notes
-e4:debug         e4:debug    e4:debug   -nq-     -nq-      -nq-      -nq-  
-e4:opt           e4:opt      e4:opt     -nq-     -nq-      -nq-      -nq-
-e4:prof          e4:prof     e4:prof    -nq-     -nq-      -nq-      -nq-
+qualifier        artg4       gm2geom   gm2dataproducts  g4emlow  g4photon g4neutron g4neutronxs notes
+e4:debug         e4:debug    e4:debug   e4:debug         -nq-     -nq-      -nq-      -nq-  
+e4:opt           e4:opt      e4:opt     e4:opt           -nq-     -nq-      -nq-      -nq-
+e4:prof          e4:prof     e4:prof    e4:prof          -nq-     -nq-      -nq-      -nq-
 

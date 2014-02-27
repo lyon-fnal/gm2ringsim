@@ -253,8 +253,11 @@ void gm2ringsim::Kicker::buildKickerFields(){
   for(int i=0; i!=numKickers_; ++i){
     if( which_modifier_ == NO_MODIFIER )
       modifier_[i] = new NoModifier;
-    else
-      modifier_[i] = new MorseModifier("g2RunTimeFiles/Morse-profile.dat");
+    else {
+      std::string basePath = artg4::basePath("GM2RINGSIM_DIR", "gm2ringsim");   
+      std::string path = basePath + "/runTimeFiles/Morse-profile.dat";
+      modifier_[i] = new MorseModifier(path.c_str());
+    }
 
     if( KickType_ == KICK_LCR ){
       kickerMagField_[i] = new LCRKickField(kg_.kickerHV[i]*

@@ -28,6 +28,8 @@ using gm2geom::inflectorGeometry;
 #include "Geant4/G4PhysicalConstants.hh"
 #include "Geant4/G4ThreeVector.hh"
 
+#include "artg4/util/util.hh"
+
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
@@ -290,9 +292,11 @@ void gm2ringsim::uniformStorageImpl::GetFieldValue(const double * /*Point[3]*/,
 /** @bug This needs to use the error returns from the called members. */
 gm2ringsim::fringeStorageImpl::fringeStorageImpl(double central) :
   storageFieldImpl(central),
-  fringe_map_name_("g2RunTimeFiles/g2StorageFringeFieldMap.dat"),
   mess_(new fringeStorageMessenger(this))
 {
+  // Determine the fringe map
+  std::string basePath = artg4::basePath("GM2RINGSIM_DIR", "gm2ringsim");
+  fringe_map_name_ = basePath + "/runTimeFiles/g2StorageFringeFieldMap.dat";
   load_fringe_map();
 }
 
@@ -473,6 +477,9 @@ gm2ringsim::detailedMultipoleStorageImpl::detailedMultipoleStorageImpl(double ce
   data_(), theta_offset_(inflectorGeometry::getInstance().delta()),
   mess_(new detailedMultipoleMessenger(this))
 {
+
+  std::string basePath = artg4::basePath("GM2RINGSIM_DIR", "gm2ringsim");
+  multipole_map_name_ = basePath + "/runTimeFiles/detailedMultipoleField.dat";
   load_multipole_map();
   //  std::cout << "theta_offset: " << theta_offset_ << '\n';
 }
