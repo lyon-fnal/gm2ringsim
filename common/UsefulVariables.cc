@@ -20,6 +20,12 @@ void gm2ringsim::ComputeXZFromRhatTheta(G4double *x, G4double *z, G4double rhat,
   *z = (rhat + R_magic())*TMath::Sin(theta);
 }
 
+void gm2ringsim::ComputeRhatThetaFromXZ(G4double *rhat, G4double *theta, G4double x, G4double z)
+{
+  *rhat  = ComputeRhat(x, z);
+  *theta = ComputeTheta(x, z);
+}
+
 G4double gm2ringsim::ComputeZhat(double dt, int turn)
 {
   // Net angle around the ring (should probably be theta-hat)
@@ -69,6 +75,12 @@ G4double gm2ringsim::ComputeRho(const G4ThreeVector *pos)
   G4double rho = std::sqrt(pos->x()*pos->x() + pos->z()*pos->z());
 
   return( rho );
+}
+
+G4double gm2ringsim::ComputeRhat(G4double x, G4double z)
+{
+  G4double r = std::sqrt(x*x + z*z);
+  return( ComputeRhat(r) );
 }
 
 G4double gm2ringsim::ComputeRhat(G4double r)
@@ -160,11 +172,23 @@ G4double gm2ringsim::ComputeTheta(double x, double z)
 {
   // Theta starts at in `up` direction and moves clockwise
   // Otherwise it's a right-handed coordinate system
+  // "x" is the "y" coordinate here and "z" is the "x" coordiante for atan2
   G4double theta = std::atan2(x,z);
   theta = TMath::Pi()/2.0 - theta;
   if( theta < 0 )
     theta+= 2.*M_PI;
 
+
+  return( theta );
+}
+
+G4double gm2ringsim::ComputeFieldTheta(double x, double y)
+{
+  // Theta starts at in `out` direction (i.e., +x, y=0)
+  // x and y are treated in the usual coordinates here
+  G4double theta = std::atan2(y,x);
+  if( theta < 0 )
+    theta+= 2.*M_PI;  
 
   return( theta );
 }

@@ -8,6 +8,7 @@
 */
 
 #include "gm2ringsim/arc/StorageRingField.hh"
+#include "gm2ringsim/actions/SpinTrackingSettings.hh"
 
 #include <cmath>
 #include <iostream>
@@ -19,9 +20,10 @@
 #include <boost/tokenizer.hpp>
 #include <cstdlib>
 
-#include "gm2geom/inflector/inflectorGeometry.hh"
+#include "gm2geom/inflector/InflectorGeom.hh"
 using gm2geom::inflectorGeometry;
 #include "gm2ringsim/common/g2PreciseValues.hh"
+#include "gm2ringsim/common/UsefulVariables.hh"
 
 #include "Geant4/G4PhysicalConstants.hh"
 #include "Geant4/G4ThreeVector.hh"
@@ -35,10 +37,25 @@ using gm2geom::inflectorGeometry;
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 
-gm2ringsim::storageRingField::storageRingField(int Charge) :
-  Charge_(Charge)
+namespace gm2ringsim {
+  
+  // Cos -> B_{n} w/ [1,4]
+  // Sin -> A_{n} w/ [1,4]
+  // B_{0} = 1.4513
+  // Measured @ r0 = 4.5 cm
+  double const ppm = 1e-6;
+  double const AzimuthalAveragedCos[4] = {0.24*tesla*ppm, -0.53*tesla*ppm, -0.10*tesla*ppm, 0.82*tesla*ppm};
+  double const AzimuthalAveragedSin[4] = {0.29*tesla*ppm, -1.06*tesla*ppm, -0.15*tesla*ppm, 0.54*tesla*ppm};  
+  double const B0 = -1.4513 * tesla;
+  double const R0 = 4.5*cm;
+}
+
+
+gm2ringsim::storageRingField::storageRingField(int Charge, int FieldType) :
+  Charge_(Charge), FieldType_(FieldType)
 {
   G4cout << "============= storageRingField =============" << G4endl;
+  G4cout << "| Field Type    = " << FieldType_ << G4endl;
   G4cout << "| Beam Charge   = " << Charge_ << G4endl;
   G4ThreeVector pnt(gm2ringsim::R_magic(), 0, 0);
   G4ThreeVector v(0, 0, 1);
@@ -47,7 +64,7 @@ gm2ringsim::storageRingField::storageRingField(int Charge) :
   Point[0] = pnt.x();
   Point[1] = pnt.y();
   Point[2] = pnt.z();
-  storageFieldController::getInstance().GetFieldValue(Point, Bfield, Charge_);
+  storageFieldController::getInstance().GetFieldValue(Point, Bfield, Charge_, FieldType_);
   G4ThreeVector B(Bfield[0], Bfield[1], Bfield[2]);
   G4cout << "| v(R,0,0)      = " << v << G4endl;
   G4cout << "| B(R,0,0)      = " << B << G4endl;
@@ -61,7 +78,7 @@ gm2ringsim::storageRingField::storageRingField(int Charge) :
 
 void gm2ringsim::storageRingField::GetFieldValue( const double Point[3],
 				      double *Bfield ) const {
-  storageFieldController::getInstance().GetFieldValue(Point, Bfield, Charge_);
+  storageFieldController::getInstance().GetFieldValue(Point, Bfield, Charge_, FieldType_);
 
 
 
@@ -82,13 +99,34 @@ void gm2ringsim::storageRingField::GetFieldValue( const double Point[3],
   }
 }
 
-gm2ringsim::storageRingEMField::storageRingEMField(int Charge) :
-  Charge_(Charge)
-{}
+gm2ringsim::storageRingEMField::storageRingEMField(int Charge, int FieldType) :
+  Charge_(Charge), FieldType_(FieldType)
+{
+  G4cout << "============= storageRingField =============" << G4endl;
+  G4cout << "| Field Type    = " << FieldType_ << G4endl;
+  G4cout << "| Beam Charge   = " << Charge_ << G4endl;
+  G4ThreeVector pnt(gm2ringsim::R_magic(), 0, 0);
+  G4ThreeVector v(0, 0, 1);
+  double Bfield[3];
+  double Point[3];
+  Point[0] = pnt.x();
+  Point[1] = pnt.y();
+  Point[2] = pnt.z();
+  storageFieldController::getInstance().GetFieldValue(Point, Bfield, Charge_, FieldType_);
+  G4ThreeVector B(Bfield[0], Bfield[1], Bfield[2]);
+  G4cout << "| v(R,0,0)      = " << v << G4endl;
+  G4cout << "| B(R,0,0)      = " << B << G4endl;
+  G4ThreeVector F = v.cross(B)/(v.mag()*B.mag());
+  G4cout << "| q(v x B)      = " << Charge_ * F << G4endl;
+  if ( Charge_ * F.x() < 0 ) { G4cout << "| Force is toward to the center." << G4endl; }
+  else { G4cout << "| Force is outward." << G4endl; }
+
+  G4cout << "===========================================" << G4endl;
+}
 
 void gm2ringsim::storageRingEMField::GetFieldValue( const double Point[3],
 				      double *field ) const {
-  storageFieldController::getInstance().GetFieldValue(Point, field, Charge_);
+  storageFieldController::getInstance().GetFieldValue(Point, field, Charge_, FieldType_);
   
   //-------------------------------
   // Set E-field to zero. (For EDM)
@@ -126,14 +164,45 @@ gm2ringsim::storageFieldController const& gm2ringsim::storageFieldController::ge
 /** @bug Fix the hard coded constants in this member. */
 void gm2ringsim::storageFieldController::GetFieldValue( const double Point[3],
 							double *Bfield,
-							int Charge) const {
-
-  double const xc = sqrt(Point[0]*Point[0]+Point[2]*Point[2])-gm2ringsim::R_magic();
-  double const rc = std::sqrt(Point[1]*Point[1] + xc*xc);
+							int Charge,
+							int FieldType) const
+{
+  // x, xc are "rhat"
+  // y is the usual vertical coordinate
+  // z is the "azimuth" coordinate
+  // theta is the y/x angle, not the angle around the ring
+  double x = 0.0;
+  double azimuth = 0.0;
+  ComputeRhatThetaFromXZ(&x, &azimuth, Point[0], Point[2]);
+  double y = Point[1];
+  double const xc = x;
+  double const rc = std::sqrt(xc*xc + y*y);
+  double const theta = ComputeFieldTheta(xc, y);
+  //double const xc = sqrt(Point[0]*Point[0]+Point[2]*Point[2])-gm2ringsim::R_magic();
+  //double const rc = std::sqrt(Point[1]*Point[1] + xc*xc);
   //std::cout << "xc rc " << xc << ' ' << rc << '\n';
   if( rc <= 45.*mm ){
-    //std::cout << "central\n";
-    centralimpl_->GetFieldValue(Point,Bfield);
+    if ( FieldType == kSimpleField ) {
+      //std::cout << "central\n";
+      centralimpl_->GetFieldValue(Point,Bfield);
+    }
+
+    if ( FieldType == kMappedField ) {
+      // Convention is for a negative field (in y) since we assume a negatively charged muon
+      // This is corrected below if we have a positively charged muon
+      double By = B0;
+      double dBy = 0.0;
+      for ( int n = 1; n <= 4; n++ ) {      
+	dBy += pow(rc/R0,n)*(AzimuthalAveragedCos[n-1]*cos(theta*n) + 
+			     AzimuthalAveragedSin[n-1]*sin(theta*n));
+      }
+      centralimpl_->GetFieldValue(Point,Bfield);
+      G4cout.precision(3);
+      if ( fabs(y) < 0.001 ) {
+	;//G4cout << "FIELD: " << rc << "\t" << theta << "\t" << B0 << "\t" << Bfield[1] << "\t" << dBy << G4endl;
+      }
+      Bfield[1] = By + dBy;
+    }
   }
   else {
     //std::cout << "fringe\n";
@@ -208,6 +277,10 @@ void gm2ringsim::uniformStorageImpl::GetFieldValue(const double * /*Point[3]*/,
 					double *Bfield) const {
   std::memcpy(Bfield,Field,3*sizeof(double));
 }
+
+
+
+
 
 
 ////////////////////////////////////////////////
@@ -400,6 +473,7 @@ void gm2ringsim::fringeStorageImpl::GetFieldValue( const double Point[3],
 gm2ringsim::detailedMultipoleStorageImpl::detailedMultipoleStorageImpl(double central) :
   storageFieldImpl(central),
   multipole_map_name_("g2RunTimeFiles/g2StorageMultipoleField.dat"),
+  //data_(), theta_offset_(5.587*degree),
   data_(), theta_offset_(inflectorGeometry::getInstance().delta()),
   mess_(new detailedMultipoleMessenger(this))
 {
@@ -804,6 +878,7 @@ void gm2ringsim::fringeStorageMessenger::SetNewValue(G4UIcommand* command, G4Str
     return;
   }
 }
+
 
 
 /** @bug Hack!  I need the storageFieldController to be built before

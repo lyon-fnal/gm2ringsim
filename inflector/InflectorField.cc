@@ -44,8 +44,8 @@ void gm2ringsim::VanishingInflectorField::GetFieldValue(const double */*Point*/,
 
 //////////// simpleInflectorField
 
-gm2ringsim::SimpleInflectorField::SimpleInflectorField(G4double fieldNormConstant, int Charge, double rotAngle, double swingAngle, double tiltAngle) :
-  epsilon(30*degree),fieldNormConst(fieldNormConstant), Charge_(Charge)
+gm2ringsim::SimpleInflectorField::SimpleInflectorField(G4double fieldNormConstant, int Charge, int StorageFieldType, double rotAngle, double swingAngle, double tiltAngle) :
+  epsilon(30*degree),fieldNormConst(fieldNormConstant), Charge_(Charge), StorageFieldType_(StorageFieldType)
 {
   // Set data members to latest position of inflector
   inflectorGeometry const& ig = inflectorGeometry::getInstance();
@@ -53,9 +53,9 @@ gm2ringsim::SimpleInflectorField::SimpleInflectorField(G4double fieldNormConstan
   delta = rotAngle;
   gamma = swingAngle;
   zeta  = tiltAngle;
-//   delta = ig.delta();
-//   gamma = ig.gamma();
-//   zeta = ig.zeta();
+  //   delta = ig.delta();
+  //   gamma = ig.gamma();
+  //   zeta = ig.zeta();
   apertureRadius = R_magic() + ig.aperture_off();
   inflectorTotalLength = ig.length();
 
@@ -106,8 +106,8 @@ void gm2ringsim::SimpleInflectorField::GetFieldValue(const double *Point,
   // yoke storage field; therefore, since g2MIGTRACE uses negative
   // muons and the storage field is subsequently in the negative y
   // direction, the inflector field must be in positive y
-  storageFieldController::getInstance().GetFieldValue(Point, Bfield, Charge_);
-
+  storageFieldController::getInstance().GetFieldValue(Point, Bfield, Charge_, StorageFieldType_);
+  
   //----------------------
   // Assumes negative beam
   //----------------------
@@ -214,8 +214,8 @@ G4double gm2ringsim::SimpleInflectorField::CalculateFieldValue(const G4double x_
 
 /** @bug Need to fix things so that these field maps don't get
     reloaded when the field gets reinstantiated. */
-gm2ringsim::MappedInflectorField::MappedInflectorField(int Charge, double rotAngle, double swingAngle, double tiltAngle) :
-  Charge_(Charge)
+gm2ringsim::MappedInflectorField::MappedInflectorField(int Charge, int StorageFieldType, double rotAngle, double swingAngle, double tiltAngle) :
+  Charge_(Charge), StorageFieldType_(StorageFieldType)
 {
 //   inflectorGeometry const& ig = inflectorGeometry::getInstance();
 //   delta_ = ig.delta();

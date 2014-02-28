@@ -23,6 +23,7 @@
 */
 
 #include <string>
+#include <iostream>
 #include <tr1/memory>
 #include <utility>
 
@@ -42,7 +43,7 @@ namespace gm2ringsim {
   public:
     
     /** Should only be called by octupoleConstruction members */
-    storageRingField(int Charge);
+    storageRingField(int Charge, int FieldType);
     
     //Always include a virtual destructor
     virtual ~storageRingField(){}
@@ -52,6 +53,7 @@ namespace gm2ringsim {
     
   private:
     int Charge_;
+    int FieldType_;
   };
 
   /** The concrete interface to the storage EM field */
@@ -60,7 +62,7 @@ namespace gm2ringsim {
   public:
     
     /** Should only be called by octupoleConstruction members */
-    storageRingEMField(int Charge);
+    storageRingEMField(int Charge, int FieldType);
     
     //Always include a virtual destructor
     virtual ~storageRingEMField(){}
@@ -71,6 +73,7 @@ namespace gm2ringsim {
     
   private:
     int Charge_;
+    int FieldType_;
   };
   
   /** Abstract base class for the internal field implementation classes */
@@ -96,7 +99,8 @@ namespace gm2ringsim {
     static storageFieldController const& getInstance();
     void GetFieldValue( const double Point[3],
 			double *Bfield,
-			int Charge) const;  
+			int Charge,
+			int FieldType) const;  
     
     void setFieldType(G4String);
     

@@ -62,7 +62,7 @@ namespace gm2ringsim {
   */
   class KickField : public G4MagneticField {
   public:
-    KickField(KickModifier* mod, int Charge) : mod_(mod), Charge_(Charge) {}
+    KickField(KickModifier* mod, int Charge, int StorageFieldType) : mod_(mod), Charge_(Charge), StorageFieldType_(StorageFieldType) {}
     virtual void KickFieldValue(G4double const Point[4],
 				G4double Bfield[3]) const =0;
     void GetFieldValue(G4double const Point[4],
@@ -71,6 +71,7 @@ namespace gm2ringsim {
   protected:
     KickModifier* mod_;
     int Charge_;
+    int StorageFieldType_;
   };
   
   /** Provides an LCR pulse model for the kicker vertical field. */
@@ -81,7 +82,7 @@ namespace gm2ringsim {
 		 G4double kickerOffsetTime, G4double circuitC,
 		 G4double circuitL, G4double circuitR,
 		 KickModifier* mod,
-		 int Charge);
+		 int Charge, int StorageFieldType);
     
     void KickFieldValue(G4double const Point[4],
 			G4double Bfield[3]) const;
@@ -97,6 +98,7 @@ namespace gm2ringsim {
     G4double i0;
 
     int Charge_;
+    int StorageFieldType_;
   };
   
   
@@ -105,7 +107,7 @@ namespace gm2ringsim {
   class SquareKickField : public KickField {
     
   public: 
-    SquareKickField(G4double kickSquareField, KickModifier* mod, int Charge);
+    SquareKickField(G4double kickSquareField, KickModifier* mod, int Charge, int StorageFieldType);
     
     void KickFieldValue(G4double const Point[4],
 			G4double Kfield[3]) const;
@@ -113,6 +115,7 @@ namespace gm2ringsim {
   private:
     G4double squareField;
     int Charge_;
+    int StorageFieldType_;
   };
   
   /** Provides no kick whatever.  Useful when studying late time, static
@@ -120,13 +123,14 @@ namespace gm2ringsim {
   class NoKickField : public KickField {
     
   public:
-    NoKickField(KickModifier* mod, int Charge);
+    NoKickField(KickModifier* mod, int Charge, int StorageFieldType);
     
     void KickFieldValue(G4double const Point[4],
 			G4double Kfield[3]) const;
 
   private:
     int Charge_;
+    int StorageFieldType_;
   };
   
 } //namespace gm2ringsim

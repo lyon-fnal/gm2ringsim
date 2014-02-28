@@ -128,7 +128,7 @@ void gm2ringsim::MorseModifier::ModifyKickField(G4double const Point[4],
 
 void gm2ringsim::KickField::GetFieldValue(double const Point[4],
 			      double Bfield[3]) const {
-  storageFieldController::getInstance().GetFieldValue(Point, Bfield, Charge_);
+  storageFieldController::getInstance().GetFieldValue(Point, Bfield, Charge_, StorageFieldType_);
   double Kfield[3];
   this->KickFieldValue(Point,Kfield);
   mod_->ModifyKickField(Point,Kfield);
@@ -156,13 +156,15 @@ gm2ringsim::LCRKickField::LCRKickField(G4double kickerHV,
 				       G4double kickerOffsetTime, G4double circuitC,
 				       G4double circuitL, G4double circuitR,
 				       KickModifier* mod,
-				       int Charge) : 
-  KickField(mod, Charge),
+				       int Charge,
+				       int StorageFieldType) : 
+  KickField(mod, Charge, StorageFieldType),
   HV(kickerHV), offsetTime(kickerOffsetTime), 
   C(circuitC), L(circuitL), R(circuitR),
   omega(sqrt( 1/(L*C) - (R*R/( 4.0*L*L )) )),
   X( R/( 2.0*L ) ),
-  Charge_(Charge)
+  Charge_(Charge),
+  StorageFieldType_(StorageFieldType)
 {
   
   //-------------------
@@ -268,8 +270,9 @@ void gm2ringsim::LCRKickField::KickFieldValue(double const Point[4],
 
 gm2ringsim::SquareKickField::SquareKickField(G4double kickSquareField,
 					     KickModifier* mod,
-					     int Charge) : 
-  KickField(mod, Charge), squareField(kickSquareField), Charge_(Charge)
+					     int Charge,
+					     int StorageFieldType) : 
+  KickField(mod, Charge, StorageFieldType), squareField(kickSquareField), Charge_(Charge), StorageFieldType_(StorageFieldType)
 {
   //-------------------
   // Correct for polarity if we run with positive muons.
@@ -359,7 +362,7 @@ void gm2ringsim::SquareKickField::KickFieldValue(G4double const Point[4],
 
 
 
-gm2ringsim::NoKickField::NoKickField(KickModifier* mod, int Charge) : KickField(mod, Charge), Charge_(Charge) {}
+gm2ringsim::NoKickField::NoKickField(KickModifier* mod, int Charge, int StorageFieldType) : KickField(mod, Charge, StorageFieldType), Charge_(Charge), StorageFieldType_(StorageFieldType) {}
 
 void gm2ringsim::NoKickField::KickFieldValue(G4double const /*Point*/[4],
 				 G4double Kfield[3]) const {
