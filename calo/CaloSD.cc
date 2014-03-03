@@ -61,8 +61,8 @@ G4bool gm2ringsim::CaloSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){
     // Get basic information about the particle involved in this step
     G4Track* track = thisStep->GetTrack();
     int trackID = track->GetTrackID();
-    int parentID = track->GetParentID();
     int pdg = track->GetDefinition()->GetPDGEncoding();
+    int caloNum = thisStep->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo();
     G4String preStepVolume = thisStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName();
     G4String postStepVolume = thisStep->GetPostStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName();
 
@@ -73,8 +73,7 @@ G4bool gm2ringsim::CaloSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){
     if (preStepVolume=="calo_L" && postStepVolume=="insideCalo_L") // particle is entering calo
     {
         // add this particle to the shower list
-        // TO DO: flag these particles as "shower initiators" regardless of parent status
-        ShowerListManager::instance().addToList( trackID, parentID );
+        ShowerListManager::instance().addEnteringParticle(caloNum, trackID);
         
         // exclude particle types that will not cause an interaction in the calo
         if (pdg == 0 || pdg == 12 || pdg ==-14) // optical photon, nu_e, or anti_nu_mu

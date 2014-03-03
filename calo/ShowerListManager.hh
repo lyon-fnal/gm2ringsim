@@ -9,6 +9,7 @@
  
     @author Robin Bjorkquist
     @date 2013 port to Art
+    @date 2014
  
  */
 
@@ -28,8 +29,10 @@ public:
     // reset list to "No particle id's entered" state for new event
     void resetList();
     
-    const std::vector<double>&  showerParentList() { return m_showerParentList; }
-    particleStatus addToList( int trackID, int parentID );
+    const std::vector<int>& showerParentList(int caloNum) { return m_showerParentList[caloNum]; }
+    
+    particleStatus addToList( int caloNum, int trackID, int parentID );
+    void addEnteringParticle ( int caloNum, int trackID );
     
 private:
     ShowerListManager();                  // only accessible by instance()
@@ -41,8 +44,19 @@ private:
     // -- the singleton instance
     static ShowerListManager* m_theManager;
     
-    // the working list
-    std::vector<double> m_showerParentList;
+    // the working list, stored as a map:
+    //   key = calorimeter number
+    // value = vector containing information for each particle seen by this calo
+    //         vector[i] = -1 means the particle with trackID = i has not
+    //                      been seen in this calorimeter
+    //         vector[i] = n means the particle with trackID = i has been
+    //                      seen in this calorimeter, and its "ancestor" is
+    //                      trackID = n. To find the ancestor, we track back
+    //                      through the parent list until we find a particle
+    //                      that caused a calo hit. If a particle's parent is
+    //                      not on the list, then that particle is it's own
+    //                      ancestor.
+    std::map< int, std::vector<int> > m_showerParentList;
     
     // remember the last run and event for which the list was re-initialized
     int m_lastEventReinit;

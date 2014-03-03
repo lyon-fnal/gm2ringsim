@@ -108,7 +108,7 @@ G4bool gm2ringsim::XtalSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){
         
         // make sure our list is long enough to accomodate this particle
         ShowerListManager &listMan = ShowerListManager::instance();
-        ShowerListManager::particleStatus status = listMan.addToList( thisID, parentID );
+        ShowerListManager::particleStatus status = listMan.addToList( caloNum, thisID, parentID );
         if ( status == ShowerListManager::kAlreadyPartOfShower ) {
             alreadyPartOfShower = true;
         } else {
@@ -157,7 +157,8 @@ G4bool gm2ringsim::XtalSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){
         // ****!!!*** photons to be the particle that initiates a shower
         if( chargedParticle )
         {
-            int initiateId = ShowerListManager::instance().showerParentList()[thisID];
+            
+            int initiateId = ShowerListManager::instance().showerParentList(caloNum)[thisID];
             XtalHit* xHit = new XtalHit( thisStep, initiateId );
             xHit->caloNum = caloNum ;
             xHit->xtalNum = xtalNum ;
@@ -170,7 +171,7 @@ G4bool gm2ringsim::XtalSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){
             xtalID_[copyID] = hcsize - 1;
             
             //            xHit->parentID = particleToInitiatingParticle[thisID];
-            xHit->parentID = ShowerListManager::instance().showerParentList()[thisID];
+            xHit->parentID = ShowerListManager::instance().showerParentList(caloNum)[thisID];
             
             // std::cout << "New  copyID seen: " << copyID << " for parent " << xHit->parentID << std::endl;
             // 	 std::cout << " New XtalHit on xtalID " << copyID << " " << hcsize-1
