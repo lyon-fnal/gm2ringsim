@@ -6,11 +6,12 @@
     Provides the declaration of a xtal sensitive detector.
  
     Ported to Art from g2migtrace file xtalSD.hh
-        @author Werner Sun
-        @date 2011
+    @author Werner Sun
+    @date 2011
  
     @author Robin Bjorkquist
-    @date 2013
+    @date 2013 port to art
+    @date 2014
  */
 
 #include "XtalHit.hh"
@@ -56,13 +57,18 @@ private:
             
     std::vector<bool> photonTracks_;
     
-    G4ThreeVector m_parentPosition;
     int nShowerElectrons_;
     
     unsigned int nXtalsTotal_;
     int nXtalsPerCalo_;
     
-    std::vector<int> xtalID_ ;
+    std::map< int, std::vector<int> > xtalHitList_ ;
+    // key = track ID of calo hit
+    // value = vector containing information about which crystals already have
+    //         xtal hits associated with that calo hit
+    //         vector[xtalCopyID] = -1 means that xtal has no hit yet
+    //         vector[xtalCopyID] = n means this (calo hit, xtal) pair is the
+    //                              nth entry in the hit collection
 };
 
 } // namespace gm2ringsim

@@ -778,8 +778,8 @@ void gm2ringsim::Calorimeter::doFillEventWithCaloHits(G4HCofThisEvent * hc) {
                                     e->global_mom.y(),
                                     e->global_mom.z(), 
                                     e->energy,
-																		e->particle_name, 
-																		e->parent_ID);
+                                    e->particle_name,
+                                    e->parent_ID);
         }
     }
     else {
@@ -819,7 +819,7 @@ void gm2ringsim::Calorimeter::doFillEventWithXtalHits(G4HCofThisEvent * hc) {
                                     e->caloNum,
                                     e->xtalNum,
                                     e->trackID,
-                                    e->parentID,
+                                    e->caloHitID,
                                     e->local_pos.x(), // radial coordinate
                                     e->local_pos.z(), // thickness coordinate
                                     e->local_pos.y(), // vertical coordinate

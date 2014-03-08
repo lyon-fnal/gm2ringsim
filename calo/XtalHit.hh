@@ -31,26 +31,22 @@ public:
     // z() : thickness component, positive downstream
     
     // Position and momentum are for charged track at entrance to xtal.
-    G4ThreeVector global_pos, global_mom; // get from prestep pt, which
-    // is in the xtal volume
-    // (isn't it?), and get in the
-    // coordinate system of the
-    // xtal
+    G4ThreeVector global_pos, global_mom;
     G4ThreeVector local_pos, local_mom;
     G4double time;
     G4int turnNum; // obtained from turn counter
     G4int trackID;
-    G4int parentID; // id of e+/e- that originates shower; can be same as trackID
+    G4int caloHitID; // trackID of particle that initated this shower
     G4int caloNum;
     G4int xtalNum;
-    G4double energy ;      // total energy of charged track
+    G4double energy ;      // total energy of first charged particle in this sub-shower to enter xtal
     G4double energyDep ;   // total energy deposited by charged track
     G4double trackLength ; // total path length of charged track
     G4int pdgID ;
     G4int nphoton ;
     G4double ephoton ;
     
-    XtalHit(G4Step*, G4int trackInitiatingShower);
+    XtalHit(G4Step*);
     
     inline void* operator new(size_t);
     inline void  operator delete(void*);
