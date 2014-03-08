@@ -56,7 +56,23 @@
 #include "Geant4/G4EqMagElectricField.hh"
 #include "Geant4/G4EqEMFieldWithSpin.hh"
 #include "Geant4/G4EqEMFieldWithEDM.hh"
-#include "Geant4/G4ClassicalRK4.hh"
+
+//#include "Geant4/G4ClassicalRK4.hh"
+
+
+#include "Geant4/G4NystromRK4.hh"	
+#include "Geant4/G4CashKarpRKF45.hh"	
+#include "Geant4/G4ClassicalRK4.hh"	
+#include "Geant4/G4ConstRK4.hh"	
+#include "Geant4/G4ExplicitEuler.hh"	
+#include "Geant4/G4ImplicitEuler.hh"	
+#include "Geant4/G4SimpleHeum.hh"	
+#include "Geant4/G4SimpleRunge.hh"	
+#include "Geant4/G4HelixExplicitEuler.hh"	
+#include "Geant4/G4HelixHeum.hh"	
+#include "Geant4/G4HelixImplicitEuler.hh"	
+#include "Geant4/G4HelixSimpleRunge.hh"
+
 #include "Geant4/G4UserLimits.hh"
 
 #include "gm2ringsim/fields/g2EqEMFieldWithSpin.hh"
@@ -72,7 +88,7 @@ gm2ringsim::Quad::Quad(fhicl::ParameterSet const & p, art::ActivityRegistry & ) 
 	       p.get<std::string>("mother_category", "vac")),
   sts_("SpinTracking"),
   qg_(myName()), //QuadGeometry
-  qff_(qg_.DoScraping, qg_.ScrapeHV, qg_.StoreHV, sts_.GetCharge()),
+  qff_(qg_.DoScraping, qg_.ScrapeHV, qg_.StoreHV, sts_.GetCharge(), qg_.FieldType, sts_.GetStorageFieldType()),
   nospin_tracking_(true),
   spin_tracking_(sts_.spinTrackingEnabled),
   edm_tracking_(sts_.edmTrackingEnabled)
@@ -102,6 +118,7 @@ gm2ringsim::Quad::Quad(fhicl::ParameterSet const & p, art::ActivityRegistry & ) 
   G4cout << "| DoScraping       = " << qg_.DoScraping << G4endl;
   G4cout << "| Spin Tracking    = " << spin_tracking_ << G4endl;
   G4cout << "| EDM Tracking     = " << edm_tracking_ << G4endl;
+  G4cout << "| Field Type       = " << qg_.FieldType << G4endl;
   G4cout << "| Support Material = " << qg_.SupportMaterial << G4endl;
   G4cout << "| Plate Material   = " << qg_.PlateMaterial << G4endl;
   G4cout << "| Q1 offset        = " << qg_.outerQ1offset << G4endl;
@@ -537,8 +554,24 @@ void gm2ringsim::Quad::buildFieldManagers(G4int quadRegion, G4int sectionType) {
   //----------------------------------------
   if ( nospin_tracking_ ) {
     equation = new G4EqMagElectricField(field);
-    stepper = new G4ClassicalRK4(equation, 8); // modifies energy, so 8
-    driver = new G4MagInt_Driver(0.01*mm, stepper, stepper->GetNumberOfVariables());
+    if ( qg_.Stepper  == "CashKarpRKF45" )      { stepper = new G4CashKarpRKF45(equation, 8); }
+    else if ( qg_.Stepper  == "ClassicalRK4" )  { stepper = new G4ClassicalRK4(equation, 8); }
+    else if ( qg_.Stepper  == "ExplicitEuler" ) { stepper = new G4ExplicitEuler(equation, 8); }
+    else if ( qg_.Stepper  == "ImplicitEuler" ) { stepper = new G4ImplicitEuler(equation, 8); }
+    else if ( qg_.Stepper  == "SimpleHeum" )    { stepper = new G4SimpleHeum(equation, 8); }
+    else if ( qg_.Stepper  == "SimpleRunge" )   { stepper = new G4SimpleRunge(equation, 8); }
+    else {
+      G4cout << "Could not set up Quad Stepper: " << qg_.Stepper << "." << G4endl; exit(1);
+      stepper = new G4ClassicalRK4(equation, 8);
+    }
+    if ( stepper ) { G4cout << "Set up Quad Stepper: " << qg_.Stepper << "." << G4endl; }
+    
+    //stepper = new G4ClassicalRK4(equation, 8); // modifies energy, so 8
+    
+    G4double stepsize = qg_.StepSize;
+    G4cout << "Using " << stepsize/mm << " step size." << G4endl;
+
+    driver = new G4MagInt_Driver(stepsize, stepper, stepper->GetNumberOfVariables());
     chord = new G4ChordFinder(driver);
     withoutSpin_[quadRegion][sectionType] = new G4FieldManager(field,chord,true);
   }
@@ -553,8 +586,24 @@ void gm2ringsim::Quad::buildFieldManagers(G4int quadRegion, G4int sectionType) {
     else {
       equation = new G4EqEMFieldWithSpin(field);
     }
-    stepper = new G4ClassicalRK4(equation, 12); // modifies spin, so 12
-    driver = new G4MagInt_Driver(0.01*mm, stepper, stepper->GetNumberOfVariables());
+    if ( qg_.Stepper  == "CashKarpRKF45" )      { stepper = new G4CashKarpRKF45(equation, 12); }
+    else if ( qg_.Stepper  == "ClassicalRK4" )  { stepper = new G4ClassicalRK4(equation, 12); }
+    else if ( qg_.Stepper  == "ExplicitEuler" ) { stepper = new G4ExplicitEuler(equation, 12); }
+    else if ( qg_.Stepper  == "ImplicitEuler" ) { stepper = new G4ImplicitEuler(equation, 12); }
+    else if ( qg_.Stepper  == "SimpleHeum" )    { stepper = new G4SimpleHeum(equation, 12); }
+    else if ( qg_.Stepper  == "SimpleRunge" )   { stepper = new G4SimpleRunge(equation, 12); }
+    else {
+      G4cout << "Could not set up Quad Stepper: " << qg_.Stepper << " / spin." << G4endl; exit(1);
+      stepper = new G4ClassicalRK4(equation, 12);
+    }
+    if ( stepper ) { G4cout << "Set up Quad Stepper: " << qg_.Stepper << " w/ spin." << G4endl; }
+    
+    //stepper = new G4ClassicalRK4(equation, 8); // modifies energy, so 8
+    
+    G4double stepsize = qg_.StepSize;
+    G4cout << "Using " << stepsize/mm << " step size." << G4endl;
+    //stepper = new G4ClassicalRK4(equation, 12); // modifies spin, so 12
+    driver = new G4MagInt_Driver(stepsize, stepper, stepper->GetNumberOfVariables());
     chord = new G4ChordFinder(driver);
     withSpin_[quadRegion][sectionType] = new G4FieldManager(field,chord,true);
   }

@@ -18,6 +18,7 @@
 namespace gm2ringsim {
   
   void ComputeXZFromRhatTheta(G4double *x, G4double *z, G4double rhat, G4double theta);
+  void ComputeRhatThetaFromXZ(G4double *rhat, G4double *theta, G4double x, G4double z);
   
   G4double ComputeZhat(double dt, int turn);
 
@@ -27,6 +28,7 @@ namespace gm2ringsim {
 
   G4double ComputeTheta(G4ThreeVector *pos);
   G4double ComputeTheta(double x, double z);
+  G4double ComputeFieldTheta(double x, double y);
   G4double ConvertTheta(double theta);
 
   G4double ComputeRhat(const G4Track *track);
@@ -35,6 +37,7 @@ namespace gm2ringsim {
   G4double ComputeRhat(TVector3 *pos);  
   G4double ComputeRhat(const G4ThreeVector *pos);  
   G4double ComputeRhat(G4double r);
+  G4double ComputeRhat(G4double x, G4double z);
 
   G4double ComputeVhat(G4Track *track);
   G4double ComputeVhat(const G4Track *track);

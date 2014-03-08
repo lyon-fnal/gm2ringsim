@@ -48,6 +48,7 @@ gm2ringsim::LostMuonAction::LostMuonAction(fhicl::ParameterSet const& p, art::Ac
   stored_rmin_(p.get<double>("stored_rmin", -50.0) * mm),
   stored_rmax_(p.get<double>("stored_rmax",50.0) * mm),
   stored_y_(p.get<double>("stored_y",50.0) * mm),
+  dist_from_ring_(p.get<double>("dist_from_ring",-1.0) * m),
   Nexposed_(0),
   Nkilled_(0),
   logInfo_("LostMuonAction")
@@ -142,8 +143,8 @@ void gm2ringsim::LostMuonAction::userSteppingAction(const G4Step *currentStep) {
   // Only run this for muons
   //
   //-------------------------
-  if ( currentTrack->GetParticleDefinition()->GetPDGEncoding() != 13 &&
-       currentTrack->GetParticleDefinition()->GetPDGEncoding() != -13 ) { return; }
+//   if ( currentTrack->GetParticleDefinition()->GetPDGEncoding() != 13 &&
+//        currentTrack->GetParticleDefinition()->GetPDGEncoding() != -13 ) { return; }
   
 
   G4ThreeVector const currentPos =
@@ -152,13 +153,25 @@ void gm2ringsim::LostMuonAction::userSteppingAction(const G4Step *currentStep) {
   G4double const vhat = ComputeVhat(&currentPos);
   
   if( currentTrack -> GetTrackID() == 1 ) {
-    if( rhat < stored_rmin_ || rhat > stored_rmax_ || std::abs(vhat) > stored_y_) {
-      //G4cout << rhat << " < " << stored_rmin_ << " , " << rhat << " > " << stored_rmax_ << " , " << std::abs(vhat) << " > " << stored_y_ << G4endl;
-      currentTrack -> SetWeight(1);
-      currentTrack -> SetTrackStatus(fKillTrackAndSecondaries);
-      currentTrack -> SetGoodForTrackingFlag(true);
-      Nkilled_++;
-      return;
+    if ( dist_from_ring_ > 0 ) {
+      double dist = TMath::Sqrt(rhat*rhat + vhat*vhat);
+      if ( dist > dist_from_ring_ ) {
+	currentTrack -> SetWeight(1);
+	currentTrack -> SetTrackStatus(fKillTrackAndSecondaries);
+	currentTrack -> SetGoodForTrackingFlag(true);
+	Nkilled_++;
+	return;
+      }
+    }
+    else {
+      if( rhat < stored_rmin_ || rhat > stored_rmax_ || std::abs(vhat) > stored_y_) {
+	//G4cout << rhat << " < " << stored_rmin_ << " , " << rhat << " > " << stored_rmax_ << " , " << std::abs(vhat) << " > " << stored_y_ << G4endl;
+	currentTrack -> SetWeight(1);
+	currentTrack -> SetTrackStatus(fKillTrackAndSecondaries);
+	currentTrack -> SetGoodForTrackingFlag(true);
+	Nkilled_++;
+	return;
+      }
     }
   }
 

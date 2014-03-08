@@ -12,12 +12,16 @@
 #include "Geant4/G4RunManagerKernel.hh"
 #include "Geant4/G4UnitsTable.hh"
 
+#include "artg4/util/util.hh"
+#include "cetlib/exception.h"
+
 #include <string>
 #include <iostream>
 #include <fstream>
 #include <istream>
 #include <utility>
 #include <algorithm>
+#include <cstdlib>
 
 #include <cmath>
 
@@ -40,8 +44,8 @@ void gm2ringsim::VanishingInflectorField::GetFieldValue(const double */*Point*/,
 
 //////////// simpleInflectorField
 
-gm2ringsim::SimpleInflectorField::SimpleInflectorField(G4double fieldNormConstant, int Charge, double rotAngle, double swingAngle, double tiltAngle) :
-  epsilon(30*degree),fieldNormConst(fieldNormConstant), Charge_(Charge)
+gm2ringsim::SimpleInflectorField::SimpleInflectorField(G4double fieldNormConstant, int Charge, int StorageFieldType, double rotAngle, double swingAngle, double tiltAngle) :
+  epsilon(30*degree),fieldNormConst(fieldNormConstant), Charge_(Charge), StorageFieldType_(StorageFieldType)
 {
   // Set data members to latest position of inflector
   inflectorGeometry const& ig = inflectorGeometry::getInstance();
@@ -49,9 +53,9 @@ gm2ringsim::SimpleInflectorField::SimpleInflectorField(G4double fieldNormConstan
   delta = rotAngle;
   gamma = swingAngle;
   zeta  = tiltAngle;
-//   delta = ig.delta();
-//   gamma = ig.gamma();
-//   zeta = ig.zeta();
+  //   delta = ig.delta();
+  //   gamma = ig.gamma();
+  //   zeta = ig.zeta();
   apertureRadius = R_magic() + ig.aperture_off();
   inflectorTotalLength = ig.length();
 
@@ -102,8 +106,8 @@ void gm2ringsim::SimpleInflectorField::GetFieldValue(const double *Point,
   // yoke storage field; therefore, since g2MIGTRACE uses negative
   // muons and the storage field is subsequently in the negative y
   // direction, the inflector field must be in positive y
-  storageFieldController::getInstance().GetFieldValue(Point, Bfield, Charge_);
-
+  storageFieldController::getInstance().GetFieldValue(Point, Bfield, Charge_, StorageFieldType_);
+  
   //----------------------
   // Assumes negative beam
   //----------------------
@@ -210,16 +214,19 @@ G4double gm2ringsim::SimpleInflectorField::CalculateFieldValue(const G4double x_
 
 /** @bug Need to fix things so that these field maps don't get
     reloaded when the field gets reinstantiated. */
-gm2ringsim::MappedInflectorField::MappedInflectorField(int Charge, double rotAngle, double swingAngle, double tiltAngle) :
-  magnet_file_("/gm2/app/users/tgadfort/gm2ART7/srcs/gm2ringsim/g2RunTimeFiles/injec_fld.dat"),
-  inflector_file_("/gm2/app/users/tgadfort/gm2ART7/srcs/gm2ringsim/g2RunTimeFiles/inf_field_alone.dat"),
-  Charge_(Charge)
-	      
+gm2ringsim::MappedInflectorField::MappedInflectorField(int Charge, int StorageFieldType, double rotAngle, double swingAngle, double tiltAngle) :
+  Charge_(Charge), StorageFieldType_(StorageFieldType)
 {
 //   inflectorGeometry const& ig = inflectorGeometry::getInstance();
 //   delta_ = ig.delta();
 //   gamma_ = ig.gamma();
 //   zeta_ = ig.zeta();
+
+  // Determine the location of field files
+  std::string basePath = artg4::basePath("GM2RINGSIM_DIR", "gm2ringsim");
+
+  magnet_file_    = basePath + "/runTimeFiles/injec_fld.dat";
+  inflector_file_ = basePath + "/runTimeFiles/inf_field_alone.dat";
   
   delta_ = rotAngle;
   gamma_ = swingAngle;
@@ -243,11 +250,14 @@ void gm2ringsim::MappedInflectorField::load_maps(){
   std::ifstream magnet_if(magnet_file_.c_str()), 
     inflector_if(inflector_file_.c_str());
 
-  if( !magnet_if.is_open() )
-    throw new no_magnet_file;
+  if( !magnet_if.is_open() ) {
+     // No magnet file
+     throw cet::exception("MISSINGFILE") << "Unable to open " << magnet_file_ << " in gm2ringsim::InflectorField::MappedInflectorField::load_maps()\n";
+  }
 
-  if( !inflector_if.is_open() )
-    throw new no_inflector_file;
+  if( !inflector_if.is_open() ) {
+      throw cet::exception("MISSINGFILE") << "Unable to open " << inflector_file_ << "in gm2ringsim::InflectorField::MappedInflectorField::load_maps()\n";
+  }
 
   // parse each file into a vector of data_points
   G4cout << "Reading storage field from file " << magnet_file_ << '\n';

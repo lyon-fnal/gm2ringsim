@@ -18,12 +18,13 @@
 
 #include <cmath>
 
-gm2ringsim::OctupoleField::OctupoleField(int Charge) : 
+gm2ringsim::OctupoleField::OctupoleField(int Charge, int StorageFieldType) : 
   octGeom_("octupole"),
   period_(octGeom_.period),
   offset_(octGeom_.offset),
   gradient_(octGeom_.gradient),
-  Charge_(Charge)
+  Charge_(Charge),
+  StorageFieldType_(StorageFieldType)
 {}
 
 void gm2ringsim::OctupoleField::GetFieldValue( double const Point[4], 
@@ -32,7 +33,7 @@ void gm2ringsim::OctupoleField::GetFieldValue( double const Point[4],
   // see comments in quadField.cc::GetFieldValue for coordinate system
   // conversions
 
-  storageFieldController::getInstance().GetFieldValue(Point, Bfield, Charge_);
+  storageFieldController::getInstance().GetFieldValue(Point, Bfield, Charge_, StorageFieldType_);
 
   G4double const& time = Point[3];
 

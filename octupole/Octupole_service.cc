@@ -186,7 +186,7 @@ void gm2ringsim::Octupole::buildLogicals(){
 }
 
 void gm2ringsim::Octupole::buildFieldManagers(){
-  OctupoleField *field = new OctupoleField(sts_.GetCharge());
+  OctupoleField *field = new OctupoleField(sts_.GetCharge(), sts_.GetStorageFieldType());
   G4Mag_EqRhs *equation;
   G4MagIntegratorStepper *stepper;
   G4ChordFinder *chord;

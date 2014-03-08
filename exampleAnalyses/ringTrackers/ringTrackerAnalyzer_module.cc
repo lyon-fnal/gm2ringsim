@@ -252,6 +252,7 @@ using gm2strawtracker::na_view;
 
 #define MaxNparticles 20
 
+#define kProtonID 2212
 #define kElectronID 11
 #define kPositronID -11
 #define kMuonID 13
@@ -464,7 +465,10 @@ private:
   int Nstat;
 
   
-  TTree *tree_, *bs_tree_;
+  TTree *tree_, *tree_lost_, *bs_tree_;
+
+  float lost_time;
+  float lost_dist;
 
   float bs_time;
   float bs_rhat;
@@ -997,7 +1001,7 @@ void gm2ringsim::ringTrackerAnalyzer::endRun(art::Run const &r)
   }
 
 
-  if ( fill_ ) {
+  if ( fill_ && 0 ) {
   cout << "============ TRUTH INFORMATION ============" << endl;
 
   int tmp_particle = truth_particle_nums["DecayMuon"];
@@ -1414,6 +1418,7 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
     truth_particle_names[Nparticles++] = "LostMuon";
     truth_particle_names[Nparticles++] = "LostDecayMuon";
     truth_particle_names[Nparticles++] = "StoredMuon";
+    truth_particle_names[Nparticles++] = "DecayMuon";
   }
   else {
     if ( muongas_ ) {
@@ -1487,6 +1492,10 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
 
   fill = fill_;
 
+
+  tree_lost_ = histDir.make<TTree>("lost", "Tree of hits");
+  tree_lost_->Branch("time", &lost_time, "time/F");
+  tree_lost_->Branch("dist", &lost_dist, "dist/F");
 
   tree_ = histDir.make<TTree>("positrons", "Tree of hits");
   tree_->Branch("time", &pt_time, "time/F");
@@ -2115,7 +2124,7 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
 
   } // if ( SaveVRing1PlaneHits_ )  
 
-  if ( debug_ ) { cout << "Created ring tracker histograms." << endl; }
+  if ( debug_ ) { cout << "Created beam scan histograms." << endl; }
 
   
   if ( SaveBeamScanHits_ && fill_ ) {
@@ -2139,6 +2148,9 @@ gm2ringsim::ringTrackerAnalyzer::ringTrackerAnalyzer(fhicl::ParameterSet const &
 
 
     for ( int t = 0; t < Ntruthtimestamps; t++ ) {
+
+      if ( debug_ ) { cout << "Creating Beam Scan Histograms for time " << timestamps[t] << endl; }
+
       
       if ( !FillByTimestamp(t) ) { continue; }
 
@@ -4360,6 +4372,12 @@ void gm2ringsim::ringTrackerAnalyzer::SetInitial(double *t0, double *t1, double 
 int gm2ringsim::ringTrackerAnalyzer::FindParticle(int pdgid, int status)
 {
   int particle = -1;
+  if ( pdgid == kProtonID ) {
+    if ( status == gm2ringsim::kBirth ) { particle = truth_particle_nums["BirthMuon"]; }
+    if ( status == gm2ringsim::kDecay ) { particle = truth_particle_nums["LostMuon"]; }
+    if ( status == gm2ringsim::kLost )  { particle = truth_particle_nums["LostMuon"]; }
+    if ( status == gm2ringsim::kStore ) { particle = truth_particle_nums["StoredMuon"]; }
+  }
   if ( pdgid == kMuonID || pdgid == kAntiMuonID ) {
     if ( status == gm2ringsim::kBirth ) { particle = truth_particle_nums["BirthMuon"]; }
     if ( status == gm2ringsim::kDecay ) { particle = truth_particle_nums["DecayMuon"]; }
@@ -4377,6 +4395,7 @@ string gm2ringsim::ringTrackerAnalyzer::ParticleStatusName(int status, int pdgid
 {
   string status_name = "UNKNOWN";
   string id_name = "No Name";
+  if ( pdgid == kProtonID ) { id_name = "proton"; }
   if ( pdgid == kMuonID ) { id_name = "mu-"; }
   if ( pdgid == kAntiMuonID ) { id_name = "mu+"; }
   if ( pdgid == kElectronID ) { id_name = "e-"; }
@@ -4649,10 +4668,10 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
   if ( SaveBeamScanHits_ ) {
     e.getByLabel(truthbeamscanhitModuleLabel_, truthbeamscaninstanceName_, truthbeamscanhitDataHandle);
   }
-  if ( SaveInfHits_ || 1 ) {
+  if ( SaveInfHits_ ) {
     e.getByLabel(inflectorhitModuleLabel_, inflectorinstanceName_, inflectorhitDataHandle);
   }
-  if ( SaveRingHits_ || 1 ) {
+  if ( SaveRingHits_ ) {
     e.getByLabel(ringhitModuleLabel_, ringinstanceName_, ringhitDataHandle);
   }
   if ( SaveCaloHits_ ) {
@@ -4685,12 +4704,22 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
   if ( debug_ ) { cout << "Getting VR hits - Done." << G4endl; }
   if ( debug_ ) {
     cout << "  ringTrackerAnalyzer: " << "There are " << pvs.size() << " entries in the PVS" << endl;
-    cout << "  ringTrackerAnalyzer: " << "There are " << ringhits.size() << " ring hits in this event." << endl;
-    cout << "  ringTrackerAnalyzer: " << "There are " << calohits.size() << " calo hits in this event." << endl;
-    cout << "  ringTrackerAnalyzer: " << "There are " << strawhits.size() << " straw hits in this event." << endl;
-    cout << "  ringTrackerAnalyzer: " << "There are " << inflectorhits.size() << " inflector hits in this event." << endl;
+    if ( SaveRingHits_ ) {
+      cout << "  ringTrackerAnalyzer: " << "There are " << ringhits.size() << " ring hits in this event." << endl;
+    }
+    if ( SaveCaloHits_ ) {
+      cout << "  ringTrackerAnalyzer: " << "There are " << calohits.size() << " calo hits in this event." << endl;
+    }
+    if ( SaveStrawHits_ ) {
+      cout << "  ringTrackerAnalyzer: " << "There are " << strawhits.size() << " straw hits in this event." << endl;
+    }
+    if ( SaveInfHits_ ) {
+      cout << "  ringTrackerAnalyzer: " << "There are " << inflectorhits.size() << " inflector hits in this event." << endl;
+    }
     cout << "  ringTrackerAnalyzer: " << "There are " << truthhits.size() << " truth hits in this event." << endl;
-    cout << "  ringTrackerAnalyzer: " << "There are " << truthbeamscanhits.size() << " truth hits in this event." << endl;
+    if ( SaveBeamScanHits_ ) {
+      cout << "  ringTrackerAnalyzer: " << "There are " << truthbeamscanhits.size() << " truth hits in this event." << endl;
+    }
     if ( SaveVRingHits_  ) {
       cout << "  ringTrackerAnalyzer: " << "There are " << ringtrackerhits.size() << " virtual ring station hits in this event." << endl;
     }
@@ -5383,6 +5412,8 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
 	double theta = ComputeTheta(x, z);
 	double Polarization = -99.9;
 	
+	if ( debug_ ) { cout << "  Truth Track: " << trackType << " w/ status = " << status << endl; }
+
 	turn = (int)(time-t0)/(149.15*ns);
 	double dT = turn + theta/TMath::TwoPi();
 
@@ -5402,13 +5433,14 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
 	//double spinphase = ComputeSpinPhase(polx_pre, poly_pre, polz_pre, px, py, pz);
 	
 
+	if ( trackType == "proton" ) { pdgid = kProtonID; }
 	if ( trackType == "mu+" ) { pdgid = kAntiMuonID; }
 	if ( trackType == "e+" ) { pdgid = kPositronID; }
 	if ( trackType == "mu-" ) { pdgid = kMuonID; }
 	if ( trackType == "e-" ) { pdgid = kElectronID; }
 
 
-	//cout << "i = " << i << "\t" << trackType << "\t" << time << "\t" << pdgid << "\t" << status << endl;
+	if ( debug_ ) { cout << "  i = " << i << "\t" << trackType << "\t" << time << "\t" << pdgid << "\t" << status << endl; }
 
 	int part = -1;
     
@@ -5419,7 +5451,7 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
 	else { part = 2; }
     
 	if ( status == gm2ringsim::kBirth ) {
-	  if ( trackType == "mu+" || trackType == "mu-" ) { 
+	  if ( trackType == "mu+" || trackType == "mu-" || trackType == "proton" ) { 
 	    mu.SetPxPyPzE(px, py, pz, e);
 	    t0 = time;
 	    if ( muongas_ ) { t0 = 0.0; }
@@ -5469,31 +5501,10 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
 	  
 	
 	int particle = FindParticle(pdgid, status);
+	if ( debug_ ) { cout << "  Particle ID = " << particle << endl; }
 	if ( particle == truth_particle_nums["DecayElectron"] ) { continue; }
 	if ( particle < 0 ) { continue; }
 
-	if ( 0 ) {
-	if ( particle == truth_particle_nums["BirthMuon"] || particle == truth_particle_nums["DecayMuon"] ) {
-// 	  cout << xAxis << endl;
-// 	  cout << yAxis << endl;
-// 	  cout << zAxis << endl;
-	  cout << "Polarization: " << endl;
-	  cout << "\t" << polx_pre << "\t" << poly_pre << "\t" << polz_pre << endl;
-	  cout << "\t" << polx << "\t" << poly << "\t" << polz << endl;
-	  cout << "\t" << pol_azimuth_truth << "\t" << pol_radial_truth << "\t" << pol_vertical_truth << endl;
-
-	  RotateRingToBeamCoordinates(theta);
-	  TVector3 pol_ring(polx_pre, poly_pre, polz_pre);
-	  pol_vertical_truth = pol_ring.Dot(yAxis_beam_);
-	  pol_radial_truth   = pol_ring.Dot(xAxis_beam_);
-	  pol_azimuth_truth  = pol_ring.Dot(zAxis_beam_);
-// 	  cout << xAxis_beam_ << endl;
-// 	  cout << yAxis_beam_ << endl;
-// 	  cout << zAxis_beam_ << endl;
-	  cout << "\t" << pol_azimuth_truth << "\t" << pol_radial_truth << "\t" << pol_vertical_truth << endl;
-	}
-	//continue;
-	}
 
     
 	TVector3 truthmom(px, py, pz);
@@ -5618,6 +5629,7 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
 	if ( particle < 0 ) { continue; }
 
 	if ( particle > -1 ) {
+	  if ( debug_ ) { cout << "  Saving particle in Npart list w/ id = " << particle << endl; }
 	  Npart[particle]++;
 	  Npart_Rhat[particle] = rhat_truth;
 	  Npart_Yhat[particle] = y_truth;
@@ -5659,18 +5671,20 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
 	//bool kickerhit = false;
 	//bool quadhit = false;
 	if ( particle == truth_particle_nums["LostMuon"] ) {
-	  //cout << "Found lost mu+, looking for ring hit from col size = " << ringhits.size() << "." << endl;
-	  for ( unsigned int i = 0; i < ringhits.size(); ++i ) {
-	    RingArtRecord ringhit = ringhits[i];
-	    int ringtrackID   = ringhit.trackID;
-	    //cout << "  " << ringtrackID << "  ?  " << trackID << endl;
-	    if ( ringtrackID == trackID && syshits == 0 ) {
-	      int ringvolumeUID = ringhit.volumeUID;
-	      string ringname = pvs.stringGivenID(ringvolumeUID);
-	      int syshit = IsSomething(ringname);
-	      //if ( syshit == kKickerHit ) { kickerhit = true; }
-	      //if ( syshit == kQuadHit ) { quadhit = true; }	      
-	      syshits = syshit + 1;
+	  if ( SaveRingHits_ ) {
+	    //cout << "Found lost mu+, looking for ring hit from col size = " << ringhits.size() << "." << endl;
+	    for ( unsigned int i = 0; i < ringhits.size(); ++i ) {
+	      RingArtRecord ringhit = ringhits[i];
+	      int ringtrackID   = ringhit.trackID;
+	      //cout << "  " << ringtrackID << "  ?  " << trackID << endl;
+	      if ( ringtrackID == trackID && syshits == 0 ) {
+		int ringvolumeUID = ringhit.volumeUID;
+		string ringname = pvs.stringGivenID(ringvolumeUID);
+		int syshit = IsSomething(ringname);
+		//if ( syshit == kKickerHit ) { kickerhit = true; }
+		//if ( syshit == kQuadHit ) { quadhit = true; }	      
+		syshits = syshit + 1;
+	      }
 	    }
 	  }
 	}
@@ -5684,10 +5698,16 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
 	if ( particle == truth_particle_nums["LostMuon"] ) {
 	  Nlost++;
 	  FillTruthData(LostMuonData, xe_truth, rhat_truth, y_truth, rprime_truth, yprime_truth, p, x, z, theta, t0, time, tDecay, pol_azimuth_truth, pol_radial_truth, pol_vertical_truth, Polarization, syshits, spinphase);	  
+	  lost_time = time;
+	  lost_dist = TMath::Sqrt(y_truth*y_truth + rhat_truth*rhat_truth);
+	  tree_lost_->Fill();
 	}
 	if ( particle == truth_particle_nums["LostDecayMuon"] ) {
 	  Nlostdecayed++;
 	  FillTruthData(LostDecayMuonData, xe_truth, rhat_truth, y_truth, rprime_truth, yprime_truth, p, x, z, theta, t0, time, tDecay, pol_azimuth_truth, pol_radial_truth, pol_vertical_truth, Polarization, syshits, spinphase);	  
+	  lost_time = time;
+	  lost_dist = TMath::Sqrt(y_truth*y_truth + rhat_truth*rhat_truth);
+	  tree_lost_->Fill();
 	}
 	if ( particle == truth_particle_nums["StoredMuon"] ) {
 	  Nstored++;
@@ -5726,6 +5746,7 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
     
     
     bool show_particle = false;
+    if ( debug_ ) { show_particle = true; }
     for ( int i = 0; i < Nparticles; i++ ) {
       if ( Npart[i] > 1 ) { cout << "You have more than one particle of " << truth_particle_names[i] << endl; show_particle = true; }
     }
@@ -5916,41 +5937,44 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
       bool otherhit = false;
       bool nohit = true;
       if ( found_positron_trk ) {
-	int pvsize = (int)pvs.size();
-	if ( debug_ ) {
-	  cout << "Found e+, looking for ring hit from col size = " << ringhits.size() << ". PVs = " << pvsize << endl;
-	}
-	if ( 1 ) {
-	  for ( unsigned int i = 0; i < ringhits.size(); ++i ) {
-	    RingArtRecord ringhit = ringhits[i];
-	    int ringtrackID   = ringhit.trackID;
-	    double deltaE = ringhit.deltaE;
-	    if ( deltaE < 0 ) { deltaE = -1*ringhit.deltaE; }
-	    if ( deltaE <= 0.0 ) { deltaE = 1e-10; }
-	    if ( deltaE < 0.1 ) { continue; }
-
-	    if ( debug_ ) { cout << "        RingTrack=" << ringtrackID << "  ?  CaloTrack=" << trackID << endl; }
-	    if ( ringtrackID == trackID ) {
-	      if ( debug_ ) { cout << "          Found ring track." << endl; }
-	      int ringvolumeUID = ringhit.volumeUID;
-	      if ( ringvolumeUID >= pvsize ) { continue; }
-	      if ( debug_ ) { cout << "          Found ring track w/ UID = " << ringvolumeUID << endl; }
-	      string ringname = pvs.stringGivenID(ringvolumeUID);
-	      if ( debug_ ) { cout << "          Found ring track w/ ringname = " << ringname << " and dE = " << deltaE << endl; }
-	      int syshit = IsSomething(ringname);
-	      if ( syshit == kKickerHit ) { kickerhit = true; nohit = false; }
-	      if ( syshit == kQuadHit ) { quadhit = true; nohit = false; }
-	      if ( syshit == kCollimatorHit ) { collhit = true; otherhit = true; nohit = false; }
-	      if ( syshit == kVacuumHit ) { vachit = true; otherhit = true; nohit = false; }	    
-	      if ( syshit == kCryostatHit ) { otherhit = true; nohit = false; }	 	    	    
-	      if ( syshit == kStrawSystemHit ) { otherhit = true; nohit = false; }		    	    
-	      if ( syshit == kCaloSystemHit ) { otherhit = true; nohit = false; }	 	    
-	      if ( syshit == kInflectorHit ) { otherhit = true; nohit = false; }
-	      //if ( nohit && deltaE > 1 ) { otherhit = true; 
-	      syshits++;
+	if ( SaveRingHits_ ) {
+	  if ( debug_ ) { cout << "  Looping over ring hits since we found the positron." << endl; }
+	  int pvsize = (int)pvs.size();
+	  if ( debug_ ) {
+	    cout << "Found e+, looking for ring hit from col size = " << ringhits.size() << ". PVs = " << pvsize << endl;
+	  }
+	  if ( 1 ) {
+	    for ( unsigned int i = 0; i < ringhits.size(); ++i ) {
+	      RingArtRecord ringhit = ringhits[i];
+	      int ringtrackID   = ringhit.trackID;
+	      double deltaE = ringhit.deltaE;
+	      if ( deltaE < 0 ) { deltaE = -1*ringhit.deltaE; }
+	      if ( deltaE <= 0.0 ) { deltaE = 1e-10; }
+	      if ( deltaE < 0.1 ) { continue; }
 	      
-	      if ( nohit ) {
+	      if ( debug_ ) { cout << "        RingTrack=" << ringtrackID << "  ?  CaloTrack=" << trackID << endl; }
+	      if ( ringtrackID == trackID ) {
+		if ( debug_ ) { cout << "          Found ring track." << endl; }
+		int ringvolumeUID = ringhit.volumeUID;
+		if ( ringvolumeUID >= pvsize ) { continue; }
+		if ( debug_ ) { cout << "          Found ring track w/ UID = " << ringvolumeUID << endl; }
+		string ringname = pvs.stringGivenID(ringvolumeUID);
 		if ( debug_ ) { cout << "          Found ring track w/ ringname = " << ringname << " and dE = " << deltaE << endl; }
+		int syshit = IsSomething(ringname);
+		if ( syshit == kKickerHit ) { kickerhit = true; nohit = false; }
+		if ( syshit == kQuadHit ) { quadhit = true; nohit = false; }
+		if ( syshit == kCollimatorHit ) { collhit = true; otherhit = true; nohit = false; }
+		if ( syshit == kVacuumHit ) { vachit = true; otherhit = true; nohit = false; }	    
+		if ( syshit == kCryostatHit ) { otherhit = true; nohit = false; }	 	    	    
+		if ( syshit == kStrawSystemHit ) { otherhit = true; nohit = false; }		    	    
+		if ( syshit == kCaloSystemHit ) { otherhit = true; nohit = false; }	 	    
+		if ( syshit == kInflectorHit ) { otherhit = true; nohit = false; }
+		//if ( nohit && deltaE > 1 ) { otherhit = true; 
+		syshits++;
+		
+		if ( nohit ) {
+		  if ( debug_ ) { cout << "          Found ring track w/ ringname = " << ringname << " and dE = " << deltaE << endl; }
+		}
 	      }
 	    }
 	  }
@@ -6452,7 +6476,7 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
   if ( SaveBeamScanHits_ ) {
     int particle = truth_particle_nums["DecayMuon"];
     if ( particle >= 0 ) {
-      if ( Npart[particle] > 0 ) {
+      if ( Npart[particle] > 0 || 1 ) {
 	double maxvhat=0;
 	double maxrhat=0;
 	int randbs = (int)truthbeamscanhits.size()*G4UniformRand();
