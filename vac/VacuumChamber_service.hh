@@ -65,6 +65,8 @@ namespace gm2ringsim {
     // Some internal methods
     G4UnionSolid* buildUnionSolid(const gm2geom::VacGeometry&, gm2geom::VacGeometry::typeToBuild, unsigned int, bool firstpos, bool secondpos);
     
+    void FindScallopPos(std::vector<int> whichScallops, int arcNumber, bool &firstpos, bool &secondpos);
+  
     void makeWallLVs(const gm2geom::VacGeometry&);
     
     void makeVacuumLVs(std::vector<G4LogicalVolume*>&, const gm2geom::VacGeometry&);

@@ -127,10 +127,27 @@ G4UnionSolid* gm2ringsim::VacuumChamber::buildUnionSolid(const VacGeometry& g, V
   
   //Add in extension to vacuum chamber for sections with 
   //tracker systems in place. 
- 
-  G4Box *scallop_extension = new G4Box("scallop_extension",g.trackerExtensionW/2,g.trackerExtensionL/2,pDy);
   
-  Hep2Vector extensionPlacement(g.trackerExtPlacementX,g.trackerExtPlacementY);
+  
+  //bool vacRegion = false;
+  //if (which == g.vacuumRegion) vacRegion = true;
+  
+  G4double
+  x = g.trackerExtPlacementX,
+  y = 0,
+  ds = 1436-g.trackerExtPlacementFromCalo-g.trackerExtBuildL[g.wallRegion],
+  deltaX = 0;
+
+
+  deltaX = ds *sin(g.phi_a);
+
+  double deltaX_c = deltaX + (g.trackerExtBuildW[g.wallRegion])*cos(g.phi_a);
+  x = x - deltaX_c;
+  y = sqrt(ds*ds - deltaX*deltaX) - (g.trackerExtBuildW[g.wallRegion])*sin(g.phi_a) ;
+
+  G4Box *scallop_extension = new G4Box("scallop_extension",g.trackerExtBuildW[which],g.trackerExtBuildL[which],g.trackerExtBuildH[which]);
+
+  Hep2Vector extensionPlacement(x,y);
   if(firstpos){
     G4Transform3D out_transform_scallop_ext_1(G4RotationMatrix( 0., 0, -g.phi_a ),
                                             G4ThreeVector( extensionPlacement.x(),extensionPlacement.y(), 0. ) );
@@ -145,6 +162,18 @@ G4UnionSolid* gm2ringsim::VacuumChamber::buildUnionSolid(const VacGeometry& g, V
   //end add in scallop extension for tracker 
   return us;
 }
+void gm2ringsim::VacuumChamber::FindScallopPos(std::vector<int> whichScallops, int arcNum, bool &firstpos, bool &secondpos){
+  
+    std::vector<int>::iterator it; 
+    int scallopNumber = arcNum*2;
+
+    it = std::find (whichScallops.begin(), whichScallops.end(), scallopNumber);
+    if (it != whichScallops.end()) firstpos = true;
+
+    scallopNumber = arcNum*2 + 1;
+    it = std::find (whichScallops.begin(), whichScallops.end(), scallopNumber);
+    if (it != whichScallops.end()) secondpos = true;
+}
 
 void gm2ringsim::VacuumChamber::makeWallLVs(const VacGeometry& g) {
  
@@ -153,17 +182,9 @@ void gm2ringsim::VacuumChamber::makeWallLVs(const VacGeometry& g) {
 
     bool firstpos = false;
     bool secondpos = false;
-
-    std::vector<int>::iterator it; 
-    int scallopNumber = arcNum*2;
-
-    it = std::find (strawgeom.whichScallopLocations.begin(), strawgeom.whichScallopLocations.end(), scallopNumber);
-    if (it != strawgeom.whichScallopLocations.end()) firstpos = true;
     
-    scallopNumber = arcNum*2 + 1;
-    it = std::find (strawgeom.whichScallopLocations.begin(), strawgeom.whichScallopLocations.end(), scallopNumber);
-    if (it != strawgeom.whichScallopLocations.end()) secondpos = true;
-    
+    FindScallopPos(strawgeom.whichScallopLocations, arcNum, firstpos, secondpos); 
+   
     G4UnionSolid* us = buildUnionSolid(g, g.wallRegion, arcNum,firstpos,secondpos);
     
     std::string wallName = artg4::addNumberToName("VacuumChamberWallLV", arcNum);
@@ -192,9 +213,14 @@ void gm2ringsim::VacuumChamber::makeVacuumLVs(
             std::vector<G4LogicalVolume*>& vacLVs,
             const VacGeometry& g ) {
   
+  gm2geom::StrawTrackerGeometry strawgeom; 
   for ( unsigned int arcNum=0; arcNum != 12; ++arcNum) {
     
-    G4UnionSolid* us = buildUnionSolid(g, g.vacuumRegion, arcNum,false,false);
+    bool firstpos = false;
+    bool secondpos = false;
+    
+    FindScallopPos(strawgeom.whichScallopLocations, arcNum, firstpos, secondpos); 
+    G4UnionSolid* us = buildUnionSolid(g, g.vacuumRegion, arcNum,firstpos,secondpos);
     
     std::string lvName = artg4::addNumberToName("VacuumChamberLV", arcNum);
     
