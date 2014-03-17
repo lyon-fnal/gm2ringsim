@@ -135,7 +135,7 @@ G4UnionSolid* gm2ringsim::VacuumChamber::buildUnionSolid(const VacGeometry& g, V
   G4double
   x = g.trackerExtPlacementX,
   y = 0,
-  ds = 1415- g.trackerExtPlacementFromCalo-g.trackerExtBuildL[g.wallRegion],
+  ds = g.distCenterExtAlongScallop,
   deltaX = 0;
 
   deltaX = ds *sin(g.phi_a);
