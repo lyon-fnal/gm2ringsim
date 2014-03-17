@@ -228,9 +228,10 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::StrawTracker::doPlaceToPVs( std::ve
 
     
     std::string strawStationLabel( boost::str( boost::format("strawStationNumber[%d][%d]") %strawTrackerNumber %stationIndex));
-
+    
     G4double
-    x = 7010,
+    //x = 7010,
+    x = vacg.trackerExtPlacementX,
     y = 0,
     ds = geom_.strawStationLocation[stationIndex],
     deltaX = 0;
@@ -239,11 +240,15 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::StrawTracker::doPlaceToPVs( std::ve
     int arcNumber = floor(strawTrackerNumber/2);
     
     deltaX = ds*sin(vacg.phi_a);
-    
-    double deltaX_c = deltaX - geom_.strawStationCenterFromEdge[stationIndex]*cos(vacg.phi_a);
-    x = x - deltaX_c;
+    double shiftFromExtEdge = .5 * (geom_.strawStationSize[stationIndex] - vacg.trackerExtensionW); 
+    x = x - deltaX;
+    double deltaX_c = shiftFromExtEdge*cos(vacg.phi_a);
+    x = x + deltaX_c;
 
-    y = sqrt(ds*ds - deltaX*deltaX) + geom_.strawStationCenterFromEdge[stationIndex]*sin(vacg.phi_a) ;
+    
+    y = ds*cos(vacg.phi_a);
+    double deltaY_c = shiftFromExtEdge*sin(vacg.phi_a);
+    y = y + deltaY_c;
     
     G4TwoVector fixup(x,y);
         

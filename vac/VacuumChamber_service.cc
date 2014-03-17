@@ -135,16 +135,14 @@ G4UnionSolid* gm2ringsim::VacuumChamber::buildUnionSolid(const VacGeometry& g, V
   G4double
   x = g.trackerExtPlacementX,
   y = 0,
-  ds = 1436-g.trackerExtPlacementFromCalo-g.trackerExtBuildL[g.wallRegion],
+  ds = 1415- g.trackerExtPlacementFromCalo-g.trackerExtBuildL[g.wallRegion],
   deltaX = 0;
-
 
   deltaX = ds *sin(g.phi_a);
 
-  double deltaX_c = deltaX + (g.trackerExtBuildW[g.wallRegion])*cos(g.phi_a);
-  x = x - deltaX_c;
-  y = sqrt(ds*ds - deltaX*deltaX) - (g.trackerExtBuildW[g.wallRegion])*sin(g.phi_a) ;
-
+  x = x -deltaX;
+  y = ds * cos(g.phi_a);
+  
   G4Box *scallop_extension = new G4Box("scallop_extension",g.trackerExtBuildW[which],g.trackerExtBuildL[which],g.trackerExtBuildH[which]);
 
   Hep2Vector extensionPlacement(x,y);
@@ -219,7 +217,7 @@ void gm2ringsim::VacuumChamber::makeVacuumLVs(
     bool firstpos = false;
     bool secondpos = false;
     
-    FindScallopPos(strawgeom.whichScallopLocations, arcNum, firstpos, secondpos); 
+//    FindScallopPos(strawgeom.whichScallopLocations, arcNum, firstpos, secondpos); 
     G4UnionSolid* us = buildUnionSolid(g, g.vacuumRegion, arcNum,firstpos,secondpos);
     
     std::string lvName = artg4::addNumberToName("VacuumChamberLV", arcNum);
