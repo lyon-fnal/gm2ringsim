@@ -217,7 +217,7 @@ void gm2ringsim::VacuumChamber::makeVacuumLVs(
     bool firstpos = false;
     bool secondpos = false;
     
-//    FindScallopPos(strawgeom.whichScallopLocations, arcNum, firstpos, secondpos); 
+    FindScallopPos(strawgeom.whichScallopLocations, arcNum, firstpos, secondpos); 
     G4UnionSolid* us = buildUnionSolid(g, g.vacuumRegion, arcNum,firstpos,secondpos);
     
     std::string lvName = artg4::addNumberToName("VacuumChamberLV", arcNum);
