@@ -142,11 +142,20 @@ G4UnionSolid* gm2ringsim::VacuumChamber::buildUnionSolid(const VacGeometry& g, V
 
   x = x -deltaX;
   y = ds * cos(g.phi_a);
-  
+  if (which == g.vacuumRegion){
+    
+    double shiftFromExtEdge = .5 * (2*g.trackerExtBuildW[g.vacuumRegion] -  g.trackerExtensionW)+ g.trackerExtWallThick;
+    double deltaX_c = shiftFromExtEdge*cos(g.phi_a);
+    x = x + deltaX_c;
+
+    double deltaY_c = shiftFromExtEdge*sin(g.phi_a);
+    y = y + deltaY_c;
+  }
   G4Box *scallop_extension = new G4Box("scallop_extension",g.trackerExtBuildW[which],g.trackerExtBuildL[which],g.trackerExtBuildH[which]);
 
   Hep2Vector extensionPlacement(x,y);
   if(firstpos){
+
     G4Transform3D out_transform_scallop_ext_1(G4RotationMatrix( 0., 0, -g.phi_a ),
                                             G4ThreeVector( extensionPlacement.x(),extensionPlacement.y(), 0. ) );
     us = new G4UnionSolid("union1_5",us, scallop_extension,out_transform_scallop_ext_1);
