@@ -151,9 +151,9 @@ void gm2ringsim::storageRingEMField::GetFieldValue( const double Point[3],
 gm2ringsim::storageFieldController::storageFieldController() : 
   central_(-B_magic()),
   centralimpl_(new uniformStorageImpl(central_)),
-  fringeimpl_(new uniformStorageImpl(central_)),
+  fringeimpl_( new fringeStorageImpl(central_)),
   sfm_(new storageFieldMessenger(this)),
-  centralname_("uniform"), fringename_("uniform")
+  centralname_("uniform"), fringename_("nonuniform")
 {}
 
 gm2ringsim::storageFieldController const& gm2ringsim::storageFieldController::getInstance() {
