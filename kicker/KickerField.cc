@@ -231,6 +231,16 @@ void gm2ringsim::CornellKickField::KickFieldValue(G4double const Point[4],
 						 G4double Kfield[3]) const {
 
 
+  // vertical (y)
+  Kfield[1] = 0.0;
+
+  // horizontal (x, z)
+  Kfield[0] = 0.0;
+  Kfield[2] = 0.0;
+  if( TurnCounter::getInstance().turns() > 0 ){ return; }
+
+
+
   double const r = hypot(Point[0],Point[2]);
   double x = 0.0;
   double theta = 0.0;

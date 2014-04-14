@@ -310,7 +310,7 @@ void gm2ringsim::Kicker::buildKickerFields(){
       }
     }
     else if( KickType_ == KICK_CORNELL ){
-      kickerMagField_[i] = new CornellKickField(kg_.kickerHV[i],
+      kickerMagField_[i] = new CornellKickField(kg_.squareMag[i],
 						modifier_[i],
 						sts_.GetCharge(),
 						sts_.GetStorageFieldType());
