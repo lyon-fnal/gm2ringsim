@@ -133,11 +133,12 @@ void gm2ringsim::MorseModifier::ModifyKickField(G4double const Point[4],
 }
 
 
-gm2ringsim::CornellKickField::CornellKickField(G4double kickerHV,
+gm2ringsim::CornellKickField::CornellKickField(G4double kFieldMag,
 					       KickModifier* mod,
 					       int Charge,
 					       int StorageFieldType) : 
   KickField(mod, Charge, StorageFieldType),
+  kFieldMag_(kFieldMag),
   Charge_(Charge),
   StorageFieldType_(StorageFieldType)
 {
@@ -151,7 +152,7 @@ gm2ringsim::CornellKickField::CornellKickField(G4double kickerHV,
   G4cout << "Read " << vec.size() 
 	 << " data points from kicker field file "
 	 << fname_ << ".\n";
-  G4cout << "HV = " << kickerHV << G4endl;
+  G4cout << "|B| = " << kFieldMag << G4endl;
 
   //FIXME
   kicker_tree_ = data_tree(vec.begin(), vec.end());
@@ -259,7 +260,7 @@ void gm2ringsim::CornellKickField::KickFieldValue(G4double const Point[4],
 //   G4ThreeVector B = shepard_interpolate(dp,found);
 //   found.clear();
 
-  double scale = 1.0;
+  double scale = kFieldMag_;
 
 //   G4cout << point << " \t ";
 //   G4cout << B << "\t";

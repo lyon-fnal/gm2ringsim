@@ -86,7 +86,7 @@ namespace gm2ringsim {
   /** Provides an LCR pulse model for the kicker vertical field. */
   class CornellKickField : public KickField {
   public: 
-    CornellKickField(G4double kickerHV,
+    CornellKickField(G4double kFieldMag,
 		     KickModifier* mod,
 		     int Charge, int StorageFieldType);
     
@@ -96,6 +96,7 @@ namespace gm2ringsim {
   private:
     G4String fname_;
 
+    double kFieldMag_;
     int Charge_;
     int StorageFieldType_;
 
