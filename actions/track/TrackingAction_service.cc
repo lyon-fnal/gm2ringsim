@@ -84,7 +84,7 @@ void gm2ringsim::TrackingAction::postUserTrackingAction(const G4Track * currentT
       FillTrackingActionArtRecord(currentTrack, gm2ringsim::kDecay);
     }
     else {
-      G4cout << "Track Status = " << currentTrack->GetTrackStatus() << G4endl;
+//      G4cout << "Track Status = " << currentTrack->GetTrackStatus() << G4endl;
     }
   }
   else {
