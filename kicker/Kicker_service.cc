@@ -60,6 +60,7 @@ gm2ringsim::Kicker::Kicker(fhicl::ParameterSet const & p, art::ActivityRegistry 
   G4cout << "=========== Kicker ===========" << G4endl;
   G4cout << "| Beam Charge  = " << sts_.GetCharge() << G4endl;
   G4cout << "| Type of Kick = " << kg_.TypeOfKick << G4endl;
+  if ( kg_.TypeOfKick == "Cornell" || kg_.TypeOfKick == "E989" || kg_.TypeOfKick == "FNAL" ) { KickType_ = KICK_CORNELL; }
   if ( kg_.TypeOfKick == "LCR" || kg_.TypeOfKick == "E821" ) { KickType_ = KICK_LCR; }
   if ( kg_.TypeOfKick == "Square" || kg_.TypeOfKick == "Perfect" ||
        kg_.TypeOfKick == "SQUARE" || kg_.TypeOfKick == "PERFECT" ) { KickType_ = KICK_SQUARE; }
@@ -73,6 +74,12 @@ gm2ringsim::Kicker::Kicker(fhicl::ParameterSet const & p, art::ActivityRegistry 
   else if ( KickType_ == KICK_LCR ) {
     G4cout << "| HV   = " << kg_.kickerHV[0]/kilovolt << " , " << kg_.kickerHV[1]/kilovolt << " , " << kg_.kickerHV[2]/kilovolt << " kV" << G4endl;
     if ( kg_.kickerHV[0] <= 0.0 && kg_.kickerHV[1] <= 0.0 && kg_.kickerHV[2] <= 0.0 ) {
+      KickType_ = KICK_OTHER;
+    }
+  }
+  else if ( KickType_ == KICK_CORNELL ) {
+    G4cout << "| Blumlein HV   = " << kg_.kickerHV[0]/kilovolt << " , " << kg_.kickerHV[1]/kilovolt << " , " << kg_.kickerHV[2]/kilovolt << " kV" << G4endl;
+    if ( kg_.kickerHV[0] < 0.0 && kg_.kickerHV[1] < 0.0 && kg_.kickerHV[2] < 0.0 ) {
       KickType_ = KICK_OTHER;
     }
   }
@@ -250,6 +257,8 @@ void gm2ringsim::Kicker::buildKickerFields(){
   bool myspin = false;
   bool myedm = false;
 
+  G4cout << "KickType = " << KickType_ << "\t" << KICK_CORNELL << "\t" << KICK_LCR << "\t" << KICK_SQUARE << G4endl;
+
   for(int i=0; i!=numKickers_; ++i){
     if( which_modifier_ == NO_MODIFIER )
       modifier_[i] = new NoModifier;
@@ -299,7 +308,43 @@ void gm2ringsim::Kicker::buildKickerFields(){
 	}
 	// 12 for spin dependence       
       }
-    }else if ( KickType_ == KICK_SQUARE ) {
+    }
+    else if( KickType_ == KICK_CORNELL ){
+      kickerMagField_[i] = new CornellKickField(kg_.squareMag[i],
+						modifier_[i],
+						sts_.GetCharge(),
+						sts_.GetStorageFieldType());
+      if( nospin_tracking_ ){
+        iEquation_[i] = new g2TimeDepMagField_EqRhs(kickerMagField_[i]);
+        iStepper_[i] = new G4ClassicalRK4(iEquation_[i], 8);
+	// 8 for time dependence.                                               
+      }
+      else if ( spin_tracking_ ) {
+	if ( myspin ) {
+	  iEquation2_[i] = new g2EqEMFieldWithSpin(kickerMagField_[i]);
+	  iStepper_[i] = new G4ClassicalRK4(iEquation2_[i], 12);
+	}
+	else {
+	  iEquation_[i] = new g2TimeDepMagField_SpinEqRhs(kickerMagField_[i]);
+	  iStepper_[i] = new G4ClassicalRK4(iEquation_[i], 12);
+	}
+	// 12 for spin dependence       
+      }
+      else if ( edm_tracking_ ) {
+	if ( myedm ) {
+	  iEquation3_[i] = new g2EqEMFieldWithEDM(kickerMagField_[i]);
+	  iEquation3_[i]->SetEta(sts_.GetEta());
+	  if ( sts_.GetGm2() > 0 ) { iEquation3_[i]->SetAnomaly(sts_.GetGm2()); }
+	  iStepper_[i] = new G4ClassicalRK4(iEquation3_[i], 12);
+	}
+	else {
+	  iEquation_[i] = new g2TimeDepMagField_SpinEqRhs(kickerMagField_[i]);
+	  iStepper_[i] = new G4ClassicalRK4(iEquation_[i], 12);
+	}
+	// 12 for spin dependence       
+      }
+    }
+    else if ( KickType_ == KICK_SQUARE ) {
       kickerMagField_[i] = new SquareKickField(kg_.squareMag[i]*
 					       kg_.kickPercent[i]/100.,
 					       modifier_[i],
@@ -332,7 +377,8 @@ void gm2ringsim::Kicker::buildKickerFields(){
 	  iStepper_[i] = new G4ClassicalRK4(iEquation_[i], 12);
 	}
       }
-    } else {
+    }
+    else {
       G4cout << "Invalid kick type specified!  Not going to kick!\n";
       kickerMagField_[i] = new NoKickField(modifier_[i], 
 					   sts_.GetCharge(),

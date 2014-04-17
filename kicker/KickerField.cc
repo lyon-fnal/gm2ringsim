@@ -21,12 +21,18 @@
 
 #include "TMath.h"
 
+#include "artg4/util/util.hh"
+#include "cetlib/exception.h"
+
 #include <boost/algorithm/string.hpp>
 #include <boost/tokenizer.hpp>
 #include <cstdlib>
 
 #include "gm2ringsim/kicker/KickerField.hh"
+
 #include "gm2ringsim/common/g2PreciseValues.hh"
+#include "gm2ringsim/common/UsefulVariables.hh"
+
 #include "gm2ringsim/arc/StorageRingField.hh"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -116,7 +122,7 @@ void gm2ringsim::MorseModifier::parse_file(){
 }
 
 void gm2ringsim::MorseModifier::ModifyKickField(G4double const Point[4],
-				    G4double Bfield[3]) const {
+						G4double Bfield[3]) const {
   double point = Point[1]>0 ? Point[1] : -Point[1];
 
   double scale = (*interp)(point);
@@ -124,6 +130,225 @@ void gm2ringsim::MorseModifier::ModifyKickField(G4double const Point[4],
   Bfield[0]*=scale;
   Bfield[1]*=scale;
   Bfield[2]*=scale;
+}
+
+
+gm2ringsim::CornellKickField::CornellKickField(G4double kFieldMag,
+					       KickModifier* mod,
+					       int Charge,
+					       int StorageFieldType) : 
+  KickField(mod, Charge, StorageFieldType),
+  kFieldMag_(kFieldMag),
+  Charge_(Charge),
+  StorageFieldType_(StorageFieldType)
+{
+  // Determine the location of field files
+  std::string basePath = artg4::basePath("GM2RINGSIM_DIR", "gm2ringsim");
+  
+  fname_ = basePath + "/runTimeFiles/KickerE989.dat";  
+
+  gm2ringsim::CornellKickField::data_vec vec = parse_file();
+
+  G4cout << "Read " << vec.size() 
+	 << " data points from kicker field file "
+	 << fname_ << ".\n";
+  G4cout << "|B| = " << kFieldMag << G4endl;
+
+  //FIXME
+  kicker_tree_ = data_tree(vec.begin(), vec.end());
+}
+
+
+gm2ringsim::CornellKickField::data_vec gm2ringsim::CornellKickField::parse_file(){
+  // assume in order and increasing
+  std::ifstream is(fname_);
+
+  data_vec temp;
+  std::string str;
+
+  std::vector<double> ys,scales;
+
+  int nline = 0;
+
+  hBx = new TH2F("CornellBx", "", 171, -7*cm, 7*cm, 121, -6*cm, 6*cm);
+  hBy = new TH2F("CornellBy", "", 171, -7*cm, 7*cm, 121, -6*cm, 6*cm);
+
+  while( is.good() ){
+    std::getline(is, str);
+    nline++;
+
+    // clean leading and trailing whitespace
+    boost::trim(str);
+    // skip comment lines and blank lines
+    if( str[0] == '#' || str[0] == '!' || str.size() == 0){
+      continue;
+    }
+
+    nline++;
+
+    // tokenize
+    boost::char_separator<char> sep(" \t");
+    typedef boost::tokenizer<boost::char_separator<char> > tokenize_on_blanks;
+    tokenize_on_blanks tokens(str,sep);
+    tokenize_on_blanks::const_iterator b = tokens.begin(),
+      e = tokens.end();
+    int toks = std::distance(b,e);
+    if( toks != 4 )
+      G4cout << "Bad line!  Saw " << toks << " tokens!\n";
+    
+    // parse tokens into doubles into G4ThreeVectors into field_point
+    // objects
+    double x = std::strtod( (*b++).c_str(),0 )*centimeter;
+    double y = std::strtod( (*b++).c_str(),0 )*centimeter;
+    double z = 0.0;
+    G4ThreeVector pos(x,y,z);
+      
+    double bx = std::strtod( (*b++).c_str(),0 )*200*gauss;
+    double by = std::strtod( (*b++).c_str(),0 )*200*gauss;
+    double bz = 0.0;
+    G4ThreeVector bfield(bx,by,bz);
+
+    int xbin = 1 + (int)170*((x + 7*cm)/(14*cm));
+    int ybin = 1 + (int)120*((y + 6*cm)/(12*cm));
+    //hBx->SetBinContent(
+
+    hBx->SetBinContent(xbin, ybin, bx);
+    hBy->SetBinContent(xbin, ybin, by);
+    //    G4cout << bfield << '\n';
+
+    temp.push_back(data_point(pos,bfield));
+
+    // leave at end!
+    if( is.eof() )
+      break;
+  }
+
+
+  return temp;
+}
+
+void gm2ringsim::CornellKickField::KickFieldValue(G4double const Point[4],
+						 G4double Kfield[3]) const {
+
+
+  // vertical (y)
+  Kfield[1] = 0.0;
+
+  // horizontal (x, z)
+  Kfield[0] = 0.0;
+  Kfield[2] = 0.0;
+  if( TurnCounter::getInstance().turns() > 0 ){ return; }
+
+
+
+  double const r = hypot(Point[0],Point[2]);
+  double x = 0.0;
+  double theta = 0.0;
+  ComputeRhatThetaFromXZ(&x, &theta, Point[0], Point[2]);
+  double y = Point[1];
+  //  double z = 0.0;
+  
+//   G4ThreeVector point(x, y, z);
+//   G4ThreeVector zero(0,0,0);
+  
+//   data_point dp(point,zero);
+
+//   data_vec found;
+
+//   // calculate the storage field
+
+//   // find_within_range seems to be quite "fuzzy", so we'll have to
+//   // actually check.
+//   //
+//   //FIXME
+//   G4double const search_rad = 5.*millimeter;
+//   kicker_tree_.find_within_range(dp, search_rad, std::back_inserter(found));
+
+//   /** @bug Need to do something more intelligent if we don't find any
+//       internal points, that is, if we are outside the mapped field
+//       region. */
+//   G4ThreeVector B = shepard_interpolate(dp,found);
+//   found.clear();
+
+  double scale = kFieldMag_;
+
+//   G4cout << point << " \t ";
+//   G4cout << B << "\t";
+  //  exit(1);
+
+//   double x0 = -7*cm;
+//   double xN = 7*cm;
+//   int xbin = 170*(int)( (x - x0)/(xN - x0) );
+
+//   double y0 = -6*cm;
+//   double yN = 6*cm;
+//   int ybin = 120*(int)( (y - y0)/(yN - y0) );
+  
+  //double xbin2 = hBx->ProjectionX()->FindBin(x);
+  //double ybin2 = hBx->ProjectionY()->FindBin(y);
+  int xbin = 1 + (int)170*((x + 7*cm)/(14*cm));
+  int ybin = 1 + (int)120*((y + 6*cm)/(12*cm));
+  //G4cout.precision(3);
+  //G4cout << x << "\t" << xbin << "\t" << y << "\t" << ybin << "\t";
+  //double bx = hBx->GetBinContent(xbin, ybin);
+  //double by = hBy->GetBinContent(xbin, ybin);
+  //G4cout << hBx->GetBinContent(xbin, ybin) << "\t" << hBy->GetBinContent(xbin, ybin) << G4endl;
+  
+
+  double Bx = hBx->GetBinContent(xbin, ybin);
+  double By = hBy->GetBinContent(xbin, ybin);
+  
+
+  // vertical (y)
+  Kfield[1] = By * scale;
+
+  // horizontal (x, z)
+  Kfield[0] = Bx*Point[0]/r * scale;
+  Kfield[2] = Bx*Point[2]/r * scale;
+}
+
+
+G4ThreeVector gm2ringsim::CornellKickField::
+shepard_interpolate(data_point const& dp, data_vec const& dv) const {
+  //  G4cout << "shepard_interpolate:\n";
+
+  G4double const lim = 0.01*mm;
+  G4double const p = 2.;
+
+  // phi = r^-p, but I moderate it with lim to prevent overflows and
+  // crashing 
+
+  data_vec::const_iterator b = dv.begin(), e = dv.end();
+  G4double dweight = 0.;
+  if(dv.size() == 0){
+    //    G4cout << "\tNo matches in range! return 0\n";
+    return G4ThreeVector(0.,0.,0.);
+  }
+  if(dv.size() == 1){ // wrong, but still as good as anything else!
+    //    G4cout << "\tOnly one match in range!  return closest point\n";
+    return dv[0].payload();
+  }
+
+  G4ThreeVector B;
+  while(b!=e){
+    //    G4cout << "\t\tPayload: " << b->payload() << '\n';
+    
+    //G4double dist = distance(b->point(),dp.point());
+    G4double dist = (b->point() - dp.point()).mag();
+    //    if( dist < lim ) dist = lim;
+    //    G4cout << "\t\tdist [lim] " << dist << ' ' << lim << '\n';;
+    if( dist < lim ) return dp.payload(); // this line isn't right,
+					  // and never has been!
+    G4double nweight = std::pow(dist,-p);
+    B += nweight*b->payload();
+    dweight += nweight;
+    //    G4cout << "\t\tnweight " << nweight << " dweight " << dweight << '\n';
+    ++b;
+  }
+
+  //  G4cout << "\tdone: " << B/dweight << '\n';
+
+  return B/dweight;
 }
 
 void gm2ringsim::KickField::GetFieldValue(double const Point[4],
@@ -368,3 +593,5 @@ void gm2ringsim::NoKickField::KickFieldValue(G4double const /*Point*/[4],
 				 G4double Kfield[3]) const {
   Kfield[0] = Kfield[1] = Kfield[2] = 0.;
 }
+
+
