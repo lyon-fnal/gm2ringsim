@@ -93,7 +93,11 @@ G4bool gm2ringsim::XtalSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){
         // shower (i.e., trace back through particle parents to find the trackID
         // of the "ancestor" particle that made a calo hit)
         
-        listMan.addToList( caloNum, trackID, parentID );
+        ShowerListManager::particleStatus showerStatus = listMan.addToList( caloNum, trackID, parentID );
+        if (showerStatus==ShowerListManager::kInitiatedShower)
+        {
+            std::cout << "Warning: internal particle marked as shower initiator" << std::endl;
+        }
         int initiateID = listMan.getShowerParentID(caloNum, trackID);
         
         // only create xtal hits & increment energy dep and track length for charged particles
