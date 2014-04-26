@@ -8,7 +8,7 @@
  @date 2012
  
  @author Robin Bjorkquist
- @date 2013
+ @date 2013, 2014
  */
 
 #include "artg4/material/Materials.hh"
@@ -681,7 +681,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Calorimeter::doPlaceToPVs( std::vec
         
         // find the location of the center of the calorimeter volume along the station's thickness
         // (depth) dimension so that front of calo volume is flush with front of station
-        G4double centerLocation = (caloGeom.thickness + 2*caloGeom.crystalCaloBuffer - stationGeom.t) / 2;
+        G4double centerLocation = (caloGeom.thickness + 4*caloGeom.crystalCaloBuffer - stationGeom.t) / 2;
         pos.setY(centerLocation);
         
         // create the rotation matrix that we need for placing the calo LV's into the stations
@@ -701,13 +701,21 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Calorimeter::doPlaceToPVs( std::vec
         std::string calorimeterLabel( boost::str( boost::format("CalorimeterNumber[%02d]") % calorimeterNum ));
 
 
-        calorimeterPVs.push_back( new G4PVPlacement(caloRot,
-                                                    pos,
-                                                    aCalorimeterLV,
-                                                    calorimeterLabel,
-                                                    stations[ calorimeterNum ],
-                                                    false,
-                                                    calorimeterNum ) );
+        G4PVPlacement* calo_P = new G4PVPlacement(caloRot,
+                                                  pos,
+                                                  aCalorimeterLV,
+                                                  calorimeterLabel,
+                                                  stations[ calorimeterNum ],
+                                                  false,
+                                                  calorimeterNum,
+                                                  false );
+        
+        if(calo_P->CheckOverlaps())
+        {
+            throw cet::exception("Calorimeter") << "Calorimeter volume overlap ";
+        }
+        
+        calorimeterPVs.push_back( calo_P );
         
         
         calorimeterNum++;
