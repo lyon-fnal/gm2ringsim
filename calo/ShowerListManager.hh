@@ -26,13 +26,11 @@ public:
     
     static ShowerListManager& instance();
     
-    // reset list to "No particle id's entered" state for new event
     void resetList();
     
-    const std::vector<int>& showerParentList(int caloNum) { return m_showerParentList[caloNum]; }
-    
     particleStatus addToList( int caloNum, int trackID, int parentID );
-    void addEnteringParticle ( int caloNum, int trackID );
+    void addEnteringParticle( int caloNum, int trackID );
+    int getShowerParentID( int caloNum, int trackID );
     
 private:
     ShowerListManager();                  // only accessible by instance()
@@ -44,19 +42,17 @@ private:
     // -- the singleton instance
     static ShowerListManager* m_theManager;
     
-    // the working list, stored as a map:
+    // the working list, stored as a map of maps:
     //   key = calorimeter number
-    // value = vector containing information for each particle seen by this calo
-    //         vector[i] = -1 means the particle with trackID = i has not
-    //                      been seen in this calorimeter
-    //         vector[i] = n means the particle with trackID = i has been
-    //                      seen in this calorimeter, and its "ancestor" is
-    //                      trackID = n. To find the ancestor, we track back
-    //                      through the parent list until we find a particle
-    //                      that caused a calo hit. If a particle's parent is
-    //                      not on the list, then that particle is it's own
-    //                      ancestor.
-    std::map< int, std::vector<int> > m_showerParentList;
+    // value = map containing information for each particle seen by this calo
+    //         within this map:
+    //               key = trackID of particle
+    //             value = trackID of the particle's "ancestor." To find the
+    //                     ancestor, we track back through the parent list until
+    //                     we find a particle that caused a calo hit. If a
+    //                     particle's parent is not on the list, then that
+    //                     particle is its own ancestor.
+    std::map< int, std::map<int, int> > m_showerParentList;
     
     // remember the last run and event for which the list was re-initialized
     int m_lastEventReinit;

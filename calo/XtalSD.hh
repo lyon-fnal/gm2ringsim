@@ -21,6 +21,8 @@
 #include "Geant4/G4Step.hh"
 #include "Geant4/G4HCofThisEvent.hh"
 
+#include <unordered_set>
+
 /** A sensitive detector for the xtals. */
 
 namespace gm2ringsim {
@@ -55,7 +57,7 @@ private:
     
     bool killOpticalPhotons_;
             
-    std::vector<bool> photonTracks_;
+    std::unordered_set<int> photonTracks_;
     
     int nShowerElectrons_;
     

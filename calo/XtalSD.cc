@@ -7,7 +7,7 @@
  @date 2009
  
  @author Robin Bjorkquist
- @date 2013
+ @date 2013, 2014
  */
 
 #include "XtalSD.hh"
@@ -26,9 +26,6 @@
 #include "Geant4/G4StepPoint.hh"
 #include "Geant4/G4ThreeVector.hh"
 
-const int kInitialListSize = 300000;
-const int kSizeIncrement = 100000;
-const int kNoTrackNumber = -1;
 
 gm2ringsim::XtalSD::XtalSD(G4String name) :
 G4VSensitiveDetector( name ),
@@ -65,7 +62,6 @@ void gm2ringsim::XtalSD::Initialize(G4HCofThisEvent* HCoTE){
     HCoTE->AddHitsCollection( thisPhotonHCID, thisPhotonHC );
     
     photonTracks_.clear();
-    photonTracks_.resize( kInitialListSize, false );
     
     xtalHitList_.clear();
     
@@ -98,7 +94,7 @@ G4bool gm2ringsim::XtalSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){
         // of the "ancestor" particle that made a calo hit)
         
         listMan.addToList( caloNum, trackID, parentID );
-        int initiateID = listMan.showerParentList(caloNum)[trackID];
+        int initiateID = listMan.getShowerParentID(caloNum, trackID);
         
         // only create xtal hits & increment energy dep and track length for charged particles
         if (chargedParticle)
@@ -135,22 +131,19 @@ G4bool gm2ringsim::XtalSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){
     }
     else if ( pdg == 0 ) // optical photon
     {
-        // Make sure the photon list is big enough
-        int opListSize = photonTracks_.size();
-        if ( trackID >= opListSize )
+        if ( photonTracks_.count(trackID)==0) // we haven't seen this photon before
         {
-            photonTracks_.resize( trackID+kSizeIncrement, false ); // increase the size of the list
-        }
-
-        if ( !photonTracks_[trackID]) // we haven't seen this photon before
-        {
-            photonTracks_[trackID] = true;
+            photonTracks_.insert(trackID); // add this photon to the list
             
             // Use the ShowerListManager to look up the initiating particle of this
             // shower (i.e., trace back through particle parents to find the trackID
             // of the "ancestor" particle that made a calo hit). Optical photons
             // aren't on the list, so look up this particle's parent.
-            int initiateID = listMan.showerParentList(caloNum)[parentID];
+            int initiateID = listMan.getShowerParentID(caloNum, parentID);
+            if (initiateID==-1) // parent was not on the shower list
+            {
+                std::cout << "Warning: parent of optical photon not found in ShowerListManager" << std::endl;
+            }
             
             // make sure we already have an xtalHit for this xtal & initiating particle
             std::vector<int>& xtalHitSubList = xtalHitList_[initiateID];

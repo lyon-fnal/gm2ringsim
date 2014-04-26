@@ -11,6 +11,7 @@
  
     @author Robin Bjorkquist
     @date 2013 port to Art
+    @date 2014
  */
 
 #include <vector>
@@ -31,8 +32,6 @@ public:
     // flag the cerenkov photon as transmitted and its detection status
     void registerPhotodetectorTrack( int photonTrackId, bool photoElectron );
     
-    void increaseListSize( int photonTrackId );
-    
 private:
     PhotonHitCorrelator(); // only public access via getInstance()
     ~PhotonHitCorrelator();
@@ -42,7 +41,9 @@ private:
     PhotonHitCorrelator& operator=(PhotonHitCorrelator const &);
     
     // private member data
-    std::vector<XtalPhotonHit*> photonTrackToHit_;
+    std::map<int, XtalPhotonHit*> photonList_;
+    // This map has    key = trackID for photon
+    //               value = that photon's XtalPhotonHit
     
     // handle to the single instance
     static PhotonHitCorrelator* instance_;
