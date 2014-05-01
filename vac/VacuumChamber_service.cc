@@ -42,7 +42,7 @@ gm2ringsim::VacuumChamber::VacuumChamber(fhicl::ParameterSet const & p, art::Act
   virtualringstationSD_ = artg4::getSensitiveDetector<VirtualRingStationSD>(virtualringstationSDName_);
 }
 
-G4UnionSolid* gm2ringsim::VacuumChamber::buildUnionSolid(const VacGeometry& g, VacGeometry::typeToBuild which, unsigned int arc, bool firstpos, bool secondpos) {
+G4UnionSolid* gm2ringsim::VacuumChamber::buildUnionSolid(const VacGeometry& g, VacGeometry::typeToBuild which, unsigned int arc) {
   
   // This was cut and pasted from vacChamberConstruction
   G4Tubs *torus = new G4Tubs("torus",
@@ -128,9 +128,12 @@ G4UnionSolid* gm2ringsim::VacuumChamber::buildUnionSolid(const VacGeometry& g, V
   //Add in extension to vacuum chamber for sections with 
   //tracker systems in place. 
   
-  
-  //bool vacRegion = false;
-  //if (which == g.vacuumRegion) vacRegion = true;
+  gm2geom::StrawTrackerGeometry strawgeom; 
+
+  bool firstpos = false;
+  bool secondpos = false;
+   
+  FindScallopPos(strawgeom.whichScallopLocations, arc, firstpos, secondpos); 
   
   G4double
   x = g.trackerExtPlacementX,
@@ -184,15 +187,9 @@ void gm2ringsim::VacuumChamber::FindScallopPos(std::vector<int> whichScallops, i
 
 void gm2ringsim::VacuumChamber::makeWallLVs(const VacGeometry& g) {
  
-  gm2geom::StrawTrackerGeometry strawgeom; 
   for ( unsigned int arcNum=0; arcNum != 12; ++arcNum) {
 
-    bool firstpos = false;
-    bool secondpos = false;
-    
-    FindScallopPos(strawgeom.whichScallopLocations, arcNum, firstpos, secondpos); 
-   
-    G4UnionSolid* us = buildUnionSolid(g, g.wallRegion, arcNum,firstpos,secondpos);
+    G4UnionSolid* us = buildUnionSolid(g, g.wallRegion, arcNum);
     
     std::string wallName = artg4::addNumberToName("VacuumChamberWallLV", arcNum);
 
@@ -220,14 +217,9 @@ void gm2ringsim::VacuumChamber::makeVacuumLVs(
             std::vector<G4LogicalVolume*>& vacLVs,
             const VacGeometry& g ) {
   
-  gm2geom::StrawTrackerGeometry strawgeom; 
   for ( unsigned int arcNum=0; arcNum != 12; ++arcNum) {
     
-    bool firstpos = false;
-    bool secondpos = false;
-    
-    FindScallopPos(strawgeom.whichScallopLocations, arcNum, firstpos, secondpos); 
-    G4UnionSolid* us = buildUnionSolid(g, g.vacuumRegion, arcNum,firstpos,secondpos);
+    G4UnionSolid* us = buildUnionSolid(g, g.vacuumRegion, arcNum);
     
     std::string lvName = artg4::addNumberToName("VacuumChamberLV", arcNum);
     
