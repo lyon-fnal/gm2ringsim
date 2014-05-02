@@ -140,14 +140,18 @@ G4UnionSolid* gm2ringsim::VacuumChamber::buildUnionSolid(const VacGeometry& g, V
   y = 0,
   ds = g.distCenterExtAlongScallop,
   deltaX = 0;
-
+  //put the extension so the middle of it aligns with the inner vacuum wall
   deltaX = ds *sin(g.phi_a);
-
   x = x -deltaX;
   y = ds * cos(g.phi_a);
+
+  //now move it "down" by one extension width
+  x = x - g.trackerExtBuildW[g.wallRegion]*cos(g.phi_a);
+  y = y - g.trackerExtBuildW[g.wallRegion]*sin(g.phi_a);
+
   if (which == g.vacuumRegion){
     
-    double shiftFromExtEdge = .5 * (2*g.trackerExtBuildW[g.vacuumRegion] -  g.trackerExtensionW)+ g.trackerExtWallThick;
+    double shiftFromExtEdge = .5 * (2*g.trackerExtBuildW[g.vacuumRegion] -  g.trackerExtensionW);
     double deltaX_c = shiftFromExtEdge*cos(g.phi_a);
     x = x + deltaX_c;
 
@@ -157,18 +161,19 @@ G4UnionSolid* gm2ringsim::VacuumChamber::buildUnionSolid(const VacGeometry& g, V
   G4Box *scallop_extension = new G4Box("scallop_extension",g.trackerExtBuildW[which],g.trackerExtBuildL[which],g.trackerExtBuildH[which]);
 
   Hep2Vector extensionPlacement(x,y);
+
   if(firstpos){
 
     G4Transform3D out_transform_scallop_ext_1(G4RotationMatrix( 0., 0, -g.phi_a ),
                                             G4ThreeVector( extensionPlacement.x(),extensionPlacement.y(), 0. ) );
     us = new G4UnionSolid("union1_5",us, scallop_extension,out_transform_scallop_ext_1);
   }
-  if(secondpos){
+  /*if(secondpos){
     extensionPlacement.rotate(15.*deg);
     G4Transform3D out_transform_scallop_ext_2(G4RotationMatrix( 0., 0, -g.phi_a-15*degree),
                                             G4ThreeVector( extensionPlacement.x(),extensionPlacement.y(), 0. ) );
     us = new G4UnionSolid("union2_5",us, scallop_extension,out_transform_scallop_ext_2);
-  }
+  }*/
   //end add in scallop extension for tracker 
   return us;
 }

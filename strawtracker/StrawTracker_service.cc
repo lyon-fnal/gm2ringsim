@@ -190,11 +190,13 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::StrawTracker::doPlaceToPVs( std::ve
     deltaX = ds*sin(vacg.phi_a);
     double shiftFromExtEdge = .5 * (geom_.strawStationSize[stationIndex] - vacg.trackerExtensionW); 
     x = x - deltaX;
+    x = x - vacg.trackerExtBuildW[vacg.wallRegion]*cos(vacg.phi_a);
     double deltaX_c = shiftFromExtEdge*cos(vacg.phi_a);
     x = x + deltaX_c;
 
     
     y = ds*cos(vacg.phi_a);
+    y = y - vacg.trackerExtBuildW[vacg.wallRegion]*sin(vacg.phi_a);
     double deltaY_c = shiftFromExtEdge*sin(vacg.phi_a);
     y = y + deltaY_c;
     
