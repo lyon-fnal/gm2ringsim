@@ -140,22 +140,21 @@ G4UnionSolid* gm2ringsim::VacuumChamber::buildUnionSolid(const VacGeometry& g, V
   y = 0,
   deltaX = 0;
   //put the extension so the middle of it aligns with the inner vacuum wall
+ 
   deltaX =  g.distCenterExtAlongScallop*sin(g.phi_a);
   x = x - deltaX;
   y =  g.distCenterExtAlongScallop* cos(g.phi_a);
 
   //now move it "down" by one extension width
-  x = x - g.trackerExtBuildW[g.wallRegion]*cos(g.phi_a);
-  y = y - g.trackerExtBuildW[g.wallRegion]*sin(g.phi_a);
-
+  if(which == g.wallRegion){
+    x = x - g.trackerExtBuildW[g.wallRegion]*cos(g.phi_a);
+    y = y - g.trackerExtBuildW[g.wallRegion]*sin(g.phi_a);
+  }
   if (which == g.vacuumRegion){
     
-    double shiftFromExtEdge = .5 * (2*g.trackerExtBuildW[g.vacuumRegion] -  g.trackerExtensionW);
-    double deltaX_c = shiftFromExtEdge*cos(g.phi_a);
-    x = x + deltaX_c;
-
-    double deltaY_c = shiftFromExtEdge*sin(g.phi_a);
-    y = y + deltaY_c;
+    double distShift = g.trackerExtBuildW[g.wallRegion] - (g.trackerExtBuildW[g.vacuumRegion] - g.trackerExtBuildW[g.wallRegion]) -g.trackerExtWallThick;
+    x = x - distShift*cos(g.phi_a);
+    y = y - distShift*sin(g.phi_a);
   }
  G4Box *scallop_extension = new G4Box("scallop_extension",g.trackerExtBuildW[which],g.trackerExtBuildL[which],g.trackerExtBuildH[which]);
 
