@@ -152,6 +152,17 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
   
 }
 
+void gm2ringsim::StrawTracker::getXYCoordinatesForPlacement(double distAlongScallop, double distShift, double &x, double &y){
+
+    const gm2geom::VacGeometry vacg("vac");
+    //move long the scallop line
+    x = x - distAlongScallop*sin(vacg.phi_a);
+    y = distAlongScallop*cos(vacg.phi_a);
+
+    //move inward to be in correct position
+    x = x - distShift*cos(vacg.phi_a);
+    y = y - distShift*sin(vacg.phi_a);
+}
 
 // Build the physical volumes
 std::vector<G4VPhysicalVolume *> gm2ringsim::StrawTracker::doPlaceToPVs( std::vector<G4LogicalVolume*> vacs) {
@@ -178,27 +189,17 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::StrawTracker::doPlaceToPVs( std::ve
     std::string strawStationLabel( boost::str( boost::format("strawStationNumber[%d][%d]") %strawTrackerNumber %stationIndex));
     
     G4double
-    //x = 7010,
     x = vacg.trackerExtPlacementX,
     y = 0,
-    ds = geom_.strawStationLocation[stationIndex],
-    deltaX = 0;
+    distAlongScallop = geom_.strawStationLocation[stationIndex]; 
     
     int arcPosition = strawTrackerNumber % 2;
     int arcNumber = floor(strawTrackerNumber/2);
     
-    deltaX = ds*sin(vacg.phi_a);
-    double shiftFromExtEdge = .5 * (geom_.strawStationSize[stationIndex] - vacg.trackerExtensionW); 
-    x = x - deltaX;
-    x = x - vacg.trackerExtBuildW[vacg.wallRegion]*cos(vacg.phi_a);
-    double deltaX_c = shiftFromExtEdge*cos(vacg.phi_a);
-    x = x + deltaX_c;
 
+    double distShift = vacg.trackerExtensionW+ vacg.outerWallThickness -  geom_.strawStationSizeHalf[stationIndex];
     
-    y = ds*cos(vacg.phi_a);
-    y = y - vacg.trackerExtBuildW[vacg.wallRegion]*sin(vacg.phi_a);
-    double deltaY_c = shiftFromExtEdge*sin(vacg.phi_a);
-    y = y + deltaY_c;
+    getXYCoordinatesForPlacement(distAlongScallop,distShift,x,y);  
     
     G4TwoVector fixup(x,y);
         
