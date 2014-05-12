@@ -36,7 +36,8 @@ gm2ringsim::StrawTracker::StrawTracker(fhicl::ParameterSet const & p, art::Activ
                    p.get<std::string>("name", "strawtracker"),
                    p.get<std::string>("category", "strawtracker"),
                    p.get<std::string>("mother_category", "vac")),
-  geom_(myName())
+  geom_(myName()),
+  vacg("vac")
 {
   geom_.print();
 }
@@ -154,7 +155,6 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
 
 void gm2ringsim::StrawTracker::getXYCoordinatesForPlacement(double distAlongScallop, double distShift, double &x, double &y){
 
-    const gm2geom::VacGeometry vacg("vac");
     //move long the scallop line
     x = x - distAlongScallop*sin(vacg.phi_a);
     y = distAlongScallop*cos(vacg.phi_a);
@@ -169,7 +169,6 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::StrawTracker::doPlaceToPVs( std::ve
   
   std::vector<G4VPhysicalVolume*> strawStationPVs;
   
-  const gm2geom::VacGeometry vacg("vac");
   int i = 0;
   int strawTrackerIndex, strawTrackerNumber;
   int numberOfStationsPerTracker = geom_.strawStationSize.size();
