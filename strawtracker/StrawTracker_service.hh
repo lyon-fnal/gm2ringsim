@@ -34,8 +34,8 @@ namespace gm2ringsim {
         virtual ~StrawTracker() {};
 
     private:
-        gm2geom::StrawTrackerGeometry geom_;
-        gm2geom::VacGeometry vacg;
+        const gm2geom::StrawTrackerGeometry strawg_;
+        const gm2geom::VacGeometry vacg_;
 
         void getXYCoordinatesForPlacement(double distAlongScallop, double distShift, double &x, double&y);     
         // Private overriden methods
