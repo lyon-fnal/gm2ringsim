@@ -48,10 +48,10 @@ namespace gm2ringsim {
     G4String virtualringstationSDName_;
     TurnCounterSD *turnSD_;
     VirtualRingStationSD *virtualringstationSD_;
-    
     // We need to hang onto the wallLVs for placement later
     std::vector<G4LogicalVolume*> wallLVs_;
     
+    const gm2geom::VacGeometry g;    
     // Private overriden methods
     
     // Create the logical volumes
@@ -63,8 +63,9 @@ namespace gm2ringsim {
     
     
     // Some internal methods
-    G4UnionSolid* buildUnionSolid(const gm2geom::VacGeometry&, gm2geom::VacGeometry::typeToBuild, unsigned int);
+    G4UnionSolid* buildUnionSolid(gm2geom::VacGeometry::typeToBuild, unsigned int);
     
+    void getXYCoordinatesForPlacement(double distAlongScallop, double distShift, double &x, double&y);     
     void FindScallopPos(int arcNumber, bool &firstpos, bool &secondpos);
   
     void makeWallLVs(const gm2geom::VacGeometry&);

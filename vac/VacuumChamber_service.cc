@@ -35,14 +35,27 @@ gm2ringsim::VacuumChamber::VacuumChamber(fhicl::ParameterSet const & p, art::Act
   virtualringstationSDName_("VirtualRingStationSD"),
   turnSD_(0),   // will set below
   virtualringstationSD_(0), // will set below
-  wallLVs_()
+  wallLVs_(),
+  g(myName())
 {
   //creates or gets the turnCounterSD depending on whether it exists or not.
   turnSD_ = artg4::getSensitiveDetector<TurnCounterSD>(turnCounterSDName_);
   virtualringstationSD_ = artg4::getSensitiveDetector<VirtualRingStationSD>(virtualringstationSDName_);
 }
 
-G4UnionSolid* gm2ringsim::VacuumChamber::buildUnionSolid(const VacGeometry& g, VacGeometry::typeToBuild which, unsigned int arc) {
+void gm2ringsim::VacuumChamber::getXYCoordinatesForPlacement(double distAlongScallop, double distShift, double &x, double&y){
+
+    //move long the scallop line
+    x = x - distAlongScallop*sin(g.phi_a);
+    y = distAlongScallop*cos(g.phi_a);
+
+    //move inward to be in correct position
+    x = x - distShift*cos(g.phi_a);
+    y = y - distShift*sin(g.phi_a);
+
+}     
+
+G4UnionSolid* gm2ringsim::VacuumChamber::buildUnionSolid(VacGeometry::typeToBuild which, unsigned int arc) {
   
   // This was cut and pasted from vacChamberConstruction
   G4Tubs *torus = new G4Tubs("torus",
@@ -128,7 +141,6 @@ G4UnionSolid* gm2ringsim::VacuumChamber::buildUnionSolid(const VacGeometry& g, V
   //Add in extension to vacuum chamber for sections with 
   //tracker systems in place. 
   
-  //gm2geom::StrawTrackerGeometry strawgeom; 
 
   bool firstpos = false;
   bool secondpos = false;
@@ -138,24 +150,19 @@ G4UnionSolid* gm2ringsim::VacuumChamber::buildUnionSolid(const VacGeometry& g, V
   G4double
   x = g.trackerExtPlacementX,
   y = 0,
-  deltaX = 0;
-  //put the extension so the middle of it aligns with the inner vacuum wall
- 
-  deltaX =  g.distCenterExtAlongScallop*sin(g.phi_a);
-  x = x - deltaX;
-  y =  g.distCenterExtAlongScallop* cos(g.phi_a);
+  distShift = 0,
+  distAlongScallop = g.distCenterExtAlongScallop;
 
-  //now move it "down" by one extension width
   if(which == g.wallRegion){
-    x = x - g.trackerExtBuildW[g.wallRegion]*cos(g.phi_a);
-    y = y - g.trackerExtBuildW[g.wallRegion]*sin(g.phi_a);
+    distShift = g.trackerExtBuildW[which];
+    getXYCoordinatesForPlacement(distAlongScallop,distShift,x,y);
   }
+
   if (which == g.vacuumRegion){
-    
-    double distShift = g.trackerExtBuildW[g.wallRegion] - (g.trackerExtBuildW[g.vacuumRegion] - g.trackerExtBuildW[g.wallRegion]) -g.trackerExtWallThick;
-    x = x - distShift*cos(g.phi_a);
-    y = y - distShift*sin(g.phi_a);
+    distShift = g.trackerExtBuildW[g.wallRegion] - (g.trackerExtBuildW[g.vacuumRegion] - g.trackerExtBuildW[g.wallRegion]) -g.trackerExtWallThick;
+    getXYCoordinatesForPlacement(distAlongScallop,distShift,x,y);
   }
+
  G4Box *scallop_extension = new G4Box("scallop_extension",g.trackerExtBuildW[which],g.trackerExtBuildL[which],g.trackerExtBuildH[which]);
 
   Hep2Vector extensionPlacement(x,y);
@@ -193,7 +200,7 @@ void gm2ringsim::VacuumChamber::makeWallLVs(const VacGeometry& g) {
  
   for ( unsigned int arcNum=0; arcNum != 12; ++arcNum) {
 
-    G4UnionSolid* us = buildUnionSolid(g, g.wallRegion, arcNum);
+    G4UnionSolid* us = buildUnionSolid(g.wallRegion, arcNum);
     
     std::string wallName = artg4::addNumberToName("VacuumChamberWallLV", arcNum);
 
@@ -223,7 +230,7 @@ void gm2ringsim::VacuumChamber::makeVacuumLVs(
   
   for ( unsigned int arcNum=0; arcNum != 12; ++arcNum) {
     
-    G4UnionSolid* us = buildUnionSolid(g, g.vacuumRegion, arcNum);
+    G4UnionSolid* us = buildUnionSolid(g.vacuumRegion, arcNum);
     
     std::string lvName = artg4::addNumberToName("VacuumChamberLV", arcNum);
     
@@ -391,7 +398,7 @@ void gm2ringsim::VacuumChamber::makeVirtualRingStationPVs(
 // Build the logical volumes
 std::vector<G4LogicalVolume *> gm2ringsim::VacuumChamber::doBuildLVs() {
   
-  VacGeometry g(myName());
+  //VacGeometry g(myName());
   g.print();
   
   // Note how this works -
