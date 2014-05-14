@@ -107,7 +107,7 @@ gm2ringsim::StrawHit::StrawHit(G4Step* step) :
   }
   gm2geom::StrawTrackerGeometry g;
   scallop_position.set(station_position.x() + 
-          g.strawStationCenterFromEdge[wire.getStation()],
+          g.distShift[wire.getStation()],
           station_position.y() + g.strawStationLocation[wire.getStation()],
           station_position.z());
   

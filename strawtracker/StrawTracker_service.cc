@@ -196,10 +196,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::StrawTracker::doPlaceToPVs( std::ve
     int arcPosition = strawTrackerNumber % 2;
     int arcNumber = floor(strawTrackerNumber/2);
     
-
-    double distShift = vacg_.trackerExtensionW + vacg_.outerWallThickness -  strawg_.strawStationSizeHalf[stationIndex];
-    
-    getXYCoordinatesForPlacement(distAlongScallop,distShift,x,y);  
+    getXYCoordinatesForPlacement(distAlongScallop,strawg_.distShift[stationIndex],x,y);  
     
     G4TwoVector fixup(x,y);
         
