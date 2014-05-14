@@ -49,11 +49,11 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
   for (unsigned int tb = 0; tb<strawg_.whichScallopLocations.size(); tb++){
     for (unsigned int sc =0 ; sc<strawg_.strawStationType.size(); sc++){
       
-      G4VSolid *strawStation = new G4Box("strawSystem", strawg_.strawStationSizeHalf[sc], strawg_.strawStationWidthHalf[sc], strawg_.strawStationHeightHalf);
+      G4VSolid *strawStation = new G4Box("strawSystem", strawg_.strawStationSizeHalf[sc], strawg_.strawStationWidthHalf, strawg_.strawStationHeightHalf);
       
       //Build Manifold structure. Hollow box built by subtracting a slightly smaller box from the full size. 
-      G4VSolid *outerStationManifold = new G4Box("outerManifoldSystem", strawg_.strawStationSizeHalf[sc], strawg_.strawStationManifoldWidth/2, strawg_.strawStationManifoldHeightHalf);
-      G4VSolid *innerStationManifold = new G4Box("innerManifoldSystem", strawg_.strawStationSizeHalf[sc] - strawg_.strawStationManifoldThickness, strawg_.strawStationManifoldWidth/2-strawg_.strawStationManifoldThickness, strawg_.strawStationManifoldHeightHalf-strawg_.strawStationManifoldThickness);
+      G4VSolid *outerStationManifold = new G4Box("outerManifoldSystem", strawg_.strawStationSizeHalf[sc], strawg_.strawStationManifoldWidthHalf, strawg_.strawStationManifoldHeightHalf);
+      G4VSolid *innerStationManifold = new G4Box("innerManifoldSystem", strawg_.strawStationSizeHalf[sc] - strawg_.strawStationManifoldThickness, strawg_.strawStationManifoldWidthHalf-strawg_.strawStationManifoldThickness, strawg_.strawStationManifoldHeightHalf-strawg_.strawStationManifoldThickness);
       G4SubtractionSolid *stationManifold = new G4SubtractionSolid("stationManifold", outerStationManifold, innerStationManifold);
 
 
@@ -114,7 +114,8 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
 					            0
                      );
       double xpospost = strawg_.strawStationSizeHalf[sc]-strawg_.supportPostRadius;
-      double ypospost = strawg_.supportPostYPosition - strawg_.strawStationWidthHalf[sc];
+      double ypospost = strawg_.supportPostYPosition - strawg_.strawStationWidthHalf;
+
       new G4PVPlacement(0,
                       G4ThreeVector(xpospost,ypospost,0),
                       supportPostLV,
