@@ -90,6 +90,7 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
     double xtalWidth                 = caloGeom.xtalWidth ;
     double xtalHeight                = caloGeom.xtalHeight ;
     double xtalDepth                 = caloGeom.xtalDepth ;
+    std::string couplingMaterialName = caloGeom.couplingMaterial ;
     double opticalCouplingDepth      = caloGeom.opticalCouplingDepth ;
     std::string photodetectorShape   = caloGeom.photodetectorShape ;
     double photodetectorSize         = caloGeom.photodetectorSize ;
@@ -416,6 +417,21 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
                                            wrappingHoleSurface);
             }
             
+            // --- get optical coupling material
+            G4Material* couplingMaterial;
+            if ( couplingMaterialName.compare("Nusil") == 0 )
+            {
+                couplingMaterial = artg4Materials::NusilLS5257();
+            }
+            else if ( couplingMaterialName.compare("Bicron") == 0 )
+            {
+                couplingMaterial = artg4Materials::BicronBC630();
+            }
+            else
+            {
+                throw cet::exception("Unknown optical coupling material") << "Unknown optical coupling material " << couplingMaterialName << " in MakeCalorimeterLV";
+            }
+            
             // --- declare optical coupling and photodetector logical volumes outside if statement
             G4LogicalVolume* opticalCoupling_L ;
             G4LogicalVolume* photodetector_L ;
@@ -429,7 +445,7 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
                                                       opticalCouplingDepth / 2. ) ;
                 // --- optical coupling logical volume
                 opticalCoupling_L = new G4LogicalVolume(opticalCoupling_S,
-                                              artg4Materials::BicronBC630(),
+                                              couplingMaterial,
                                               "opticalCoupling_L" ) ;
                 // --- photodetector shape
                 G4Box* photodetector_S = new G4Box( "photodetector_S",
@@ -450,7 +466,7 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
                                                         0, 360. * deg);
                 // --- optical coupling logical volume
                 opticalCoupling_L = new G4LogicalVolume( opticalCoupling_S,
-                                                         artg4Materials::BicronBC630(),
+                                                         couplingMaterial,
                                                          "opticalCoupling_L");
                 // --- photodetector shape
                 G4Tubs* photodetector_S = new G4Tubs( "photodetector_S",

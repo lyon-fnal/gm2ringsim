@@ -60,7 +60,7 @@ namespace gm2ringsim {
       enum {KICKER1 = 0, KICKER2 = 1, KICKER3 = 2};
       G4int const numKickers_;
       G4int const numKickerObjects_;
-      enum {KICK_LCR, KICK_SQUARE, KICK_OTHER};
+      enum {KICK_LCR, KICK_SQUARE, KICK_CORNELL, KICK_OTHER};
       G4int KickType_;
 
       G4int BeamChargeFactor_;

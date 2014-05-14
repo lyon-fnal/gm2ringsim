@@ -22,7 +22,14 @@
 
 #include "Geant4/globals.hh"
 
+#include "gm2ringsim/external_libs/libkdtree++/kdtree++/kdtree.hpp"
+#include "gm2ringsim/fields/field_point.hh"
+
+#include "Geant4/G4ThreeVector.hh"
+
 #include "gm2ringsim/external_libs/interpolation/interpolators1D.hh"
+
+#include "TH2F.h"
 
 namespace gm2ringsim {
   /** Abstract base class for field modifier classes. */
@@ -72,6 +79,45 @@ namespace gm2ringsim {
     KickModifier* mod_;
     int Charge_;
     int StorageFieldType_;
+  };
+
+  
+  
+  /** Provides an LCR pulse model for the kicker vertical field. */
+  class CornellKickField : public KickField {
+  public: 
+    CornellKickField(G4double kFieldMag,
+		     KickModifier* mod,
+		     int Charge, int StorageFieldType);
+    
+    void KickFieldValue(G4double const Point[4],
+			G4double Bfield[3]) const;
+    
+  private:
+    G4String fname_;
+
+    double kFieldMag_;
+    int Charge_;
+    int StorageFieldType_;
+
+    TH2F *hBx, *hBy;
+    
+    typedef field_point<G4ThreeVector,G4ThreeVector> data_point;
+    typedef std::vector<data_point> data_vec;
+    typedef KDTree::KDTree<3, data_point> data_tree;
+    
+    // the coordinates of the storage field data in the magnet_tree_ are
+    // the global coordinates of the simulation.
+    data_tree kicker_tree_;
+
+    data_vec parse_file();
+        
+    G4ThreeVector shepard_interpolate(data_point const& dp, data_vec const& dv) const;
+
+    inline G4double distance(G4ThreeVector const& left,G4ThreeVector const& right){
+      return (left-right).mag();
+    }
+
   };
   
   /** Provides an LCR pulse model for the kicker vertical field. */
