@@ -1,4 +1,4 @@
-// Make a one calorimter test beam
+// Make a one-calorimeter test beam
 
 #include "geom/world.fcl"
 #include "geom/station.fcl"
@@ -123,3 +123,13 @@ services.user.Calorimeter.mother_category : world
 services.user.Calorimeter.stationGeomName : station
 services.user.Geometry.calorimeter.nCalorimeters : 1
 services.user.Geometry.calorimeter.placeInStation : false
+
+// wrapping options: Tedlar, Millipore, Black, Diffuse, Open
+services.user.Geometry.calorimeter.sideWrapping: "Tedlar"
+services.user.Geometry.calorimeter.frontWrapping: "Tedlar"
+services.user.Geometry.calorimeter.backWrapping: "Tedlar"
+
+// optical coupling options: Nusil, Bicron
+services.user.Geometry.calorimeter.couplingMaterial: "Nusil"
+services.user.Geometry.calorimeter.opticalCouplingDepth: 0.01 // cm
+
