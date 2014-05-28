@@ -49,11 +49,19 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
   for (unsigned int tb = 0; tb<strawg_.whichScallopLocations.size(); tb++){
     for (unsigned int sc =0 ; sc<strawg_.strawStationType.size(); sc++){
       
-      G4VSolid *strawStation = new G4Box("strawSystem", strawg_.strawStationSizeHalf[sc], strawg_.strawStationWidthHalf, strawg_.strawStationHeightHalf);
+      G4VSolid *strawStation = new G4Box("strawSystem", strawg_.strawStationSizeHalf[sc], 
+                                                        strawg_.strawStationWidthHalf, 
+                                                        strawg_.strawStationHeightHalf);
       
       //Build Manifold structure. Hollow box built by subtracting a slightly smaller box from the full size. 
-      G4VSolid *outerStationManifold = new G4Box("outerManifoldSystem", strawg_.strawStationSizeHalf[sc], strawg_.strawStationManifoldWidthHalf, strawg_.strawStationManifoldHeightHalf);
-      G4VSolid *innerStationManifold = new G4Box("innerManifoldSystem", strawg_.strawStationSizeHalf[sc] - strawg_.strawStationManifoldThickness, strawg_.strawStationManifoldWidthHalf-strawg_.strawStationManifoldThickness, strawg_.strawStationManifoldHeightHalf-strawg_.strawStationManifoldThickness);
+      G4VSolid *outerStationManifold = new G4Box("outerManifoldSystem", strawg_.strawStationSizeHalf[sc], 
+                                                                        strawg_.strawStationManifoldWidthHalf, 
+                                                                        strawg_.strawStationManifoldHeightHalf);
+
+      G4VSolid *innerStationManifold = new G4Box("innerManifoldSystem", strawg_.strawStationSizeHalf[sc] - strawg_.strawStationManifoldThickness, 
+                                                                        strawg_.strawStationManifoldWidthHalf-strawg_.strawStationManifoldThickness, 
+                                                                        strawg_.strawStationManifoldHeightHalf-strawg_.strawStationManifoldThickness);
+      
       G4SubtractionSolid *stationManifold = new G4SubtractionSolid("stationManifold", outerStationManifold, innerStationManifold);
 
 
@@ -64,16 +72,16 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
 																											 strawg_.startAngleOfTheStraw,
 																											 strawg_.spanningAngleOfTheStraw
                                         );
-      //Build Support Plate
                                                             
-      std::string strawStationLVName = artg4::addNumberToName("StationChamberLV-%d", sc+tb);
+//      std::string strawStationLVName = artg4::addNumberToName("StationChamberLV-%d", sc+tb);
       G4Material *stationMaterial = artg4Materials::Al();
       G4Material *supportPostMaterial = artg4Materials::C();
     
       G4LogicalVolume* strawStationLV = new G4LogicalVolume(
                                                             strawStation,
                                                             artg4Materials::Vacuum(),
-                                                            strawStationLVName,
+                                                            //strawStationLVName,
+                                                            "StationChamberLV",
                                                             0,
                                                             0);
 
@@ -201,8 +209,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::StrawTracker::doPlaceToPVs( std::ve
     G4TwoVector fixup(x,y);
         
     fixup.rotate(15*degree*arcPosition);
-        
-    G4Transform3D out_transform(G4RotationMatrix( -vacg_.phi_a -vacg_.phi_a*arcPosition, 0, 0),
+    G4Transform3D out_transform(G4RotationMatrix( 0, 0, -vacg_.phi_a -15*degree*arcPosition),
                                     G4ThreeVector(fixup.x(), fixup.y(), 0. ) );
 
     strawStationPVs.push_back(new G4PVPlacement(out_transform,
