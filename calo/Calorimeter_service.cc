@@ -8,7 +8,7 @@
  @date 2012
  
  @author Robin Bjorkquist
- @date 2013
+ @date 2013, 2014
  */
 
 #include "artg4/material/Materials.hh"
@@ -122,16 +122,24 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
     
     // Make the main calo volume
     
-    // Dimensions include the "crystalCaloBuffer" on all sides; we want the
-    // main calo volume to be slightly larger than its contents so that all
-    // particles entering the calorimeter will pass through the calo volume
-    // (and be seen by the CaloSD) before entering any sub-volume.
+    // Dimensions include two extra layers on all sides (each with
+    // thickness = "crystalCaloBuffer"). The outermost layer will be the "calo"
+    // volume, where the CaloSD is active. The next layer will be the
+    // "insideCalo" volume. All particles entering the calorimeter must pass
+    // through the "calo" layer followed by the "insideCalo" layer -- this is
+    // the signature of entering particles, which the CaloSD uses to identify
+    // particles for the creation of calo hits. The next volume is the
+    // "caloBound" volume, which tightly encloses all the physical contents of
+    // the calorimeter (crystals, photodetectors, gaps required for correct
+    // functioning of optical surfaces, etc.). The "caloBound" volume must be
+    // slightly smaller than the "insideCalo" volume, to allow proper
+    // identification of incoming particles.
 
     // --- calo shape
     G4Box *calo_S = new G4Box("calo_S",
-                              r_2 + crystalCaloBuffer,
-                              v_2 + crystalCaloBuffer,
-                              t_2 + crystalCaloBuffer );
+                              r_2 + 2*crystalCaloBuffer,
+                              v_2 + 2*crystalCaloBuffer,
+                              t_2 + 2*crystalCaloBuffer );
     
     // --- calo logical volume
     G4LogicalVolume *calo_L =
@@ -146,7 +154,31 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
     calo_L->SetSensitiveDetector( caloSD_ );
     
     
-    // Now build a volume that is slightly smaller than the calo volume,
+    // Now build a volume that is slightly smaller than the calo volume
+    
+    // ---insideCalo shape
+    G4Box *insideCalo_S = new G4Box("insideCalo_S",
+                                   r_2 + crystalCaloBuffer,
+                                   v_2 + crystalCaloBuffer,
+                                   t_2 + crystalCaloBuffer );
+    
+    // --- insideCalo logical volume
+    G4LogicalVolume *insideCalo_L = new G4LogicalVolume(insideCalo_S,
+                                                       artg4Materials::Vacuum1(),
+                                                       "insideCalo_L");
+    
+    // --- insideCalo visual attributes
+    artg4::setVisAtts(insideCalo_L, caloGeom.displayCalorimeterBox, caloGeom.calorimeterColor);
+    
+    // --- place insideCalo volume inside calo volume
+    G4ThreeVector centerPos = G4ThreeVector(0,0,0);
+    std::string insideCaloLabel( boost::str( boost::format("insideCalo[%02d]") % calorimeterNumber ));
+    G4String insideCaloName = insideCaloLabel;
+    // G4PVPlacement* insideCalo_P =
+        new G4PVPlacement(0, centerPos, insideCalo_L, insideCaloName, calo_L, false, 0);
+
+    
+    // Now build a volume that is slightly smaller than the insideCalo volume,
     // but will tightly enclose the crystals, photodetectors, and gaps.
 
     // --- caloBound shape
@@ -163,12 +195,11 @@ G4LogicalVolume* gm2ringsim::Calorimeter::makeCalorimeterLV(const CalorimeterGeo
     // --- caloBound visual attributes
     artg4::setVisAtts(caloBound_L, caloGeom.displayCalorimeterBox, caloGeom.calorimeterColor);
     
-    // --- place caloBound volume inside calo volume
-    G4ThreeVector pos = G4ThreeVector(0,0,0);
-    std::string calorimeterLabel( boost::str( boost::format("PbF2Bounding[%02d]") % calorimeterNumber ));
-    G4String name = calorimeterLabel;
+    // --- place caloBound volume inside the insideCalo volume
+    std::string caloBoundLabel( boost::str( boost::format("PbF2Bounding[%02d]") % calorimeterNumber ));
+    G4String caloBoundName = caloBoundLabel;
     G4PVPlacement* caloBound_P =
-          new G4PVPlacement(0, pos, caloBound_L, name, calo_L, false, 0);
+          new G4PVPlacement(0, centerPos, caloBound_L, caloBoundName, insideCalo_L, false, 0);
 
     
     // Calculate the locations of sub-volumes inside the caloBound volume.
@@ -666,7 +697,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Calorimeter::doPlaceToPVs( std::vec
         
         // find the location of the center of the calorimeter volume along the station's thickness
         // (depth) dimension so that front of calo volume is flush with front of station
-        G4double centerLocation = (caloGeom.thickness + 2*caloGeom.crystalCaloBuffer - stationGeom.t) / 2;
+        G4double centerLocation = (caloGeom.thickness + 4*caloGeom.crystalCaloBuffer - stationGeom.t) / 2;
         pos.setY(centerLocation);
         
         // create the rotation matrix that we need for placing the calo LV's into the stations
@@ -686,13 +717,21 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Calorimeter::doPlaceToPVs( std::vec
         std::string calorimeterLabel( boost::str( boost::format("CalorimeterNumber[%02d]") % calorimeterNum ));
 
 
-        calorimeterPVs.push_back( new G4PVPlacement(caloRot,
-                                                    pos,
-                                                    aCalorimeterLV,
-                                                    calorimeterLabel,
-                                                    stations[ calorimeterNum ],
-                                                    false,
-                                                    calorimeterNum ) );
+        G4PVPlacement* calo_P = new G4PVPlacement(caloRot,
+                                                  pos,
+                                                  aCalorimeterLV,
+                                                  calorimeterLabel,
+                                                  stations[ calorimeterNum ],
+                                                  false,
+                                                  calorimeterNum,
+                                                  false );
+        
+        if(calo_P->CheckOverlaps())
+        {
+            throw cet::exception("Calorimeter") << "Calorimeter volume overlap ";
+        }
+        
+        calorimeterPVs.push_back( calo_P );
         
         
         calorimeterNum++;
@@ -763,8 +802,8 @@ void gm2ringsim::Calorimeter::doFillEventWithCaloHits(G4HCofThisEvent * hc) {
                                     e->global_mom.y(),
                                     e->global_mom.z(), 
                                     e->energy,
-																		e->particle_name, 
-																		e->parent_ID);
+                                    e->particle_name,
+                                    e->parent_ID);
         }
     }
     else {
@@ -804,7 +843,7 @@ void gm2ringsim::Calorimeter::doFillEventWithXtalHits(G4HCofThisEvent * hc) {
                                     e->caloNum,
                                     e->xtalNum,
                                     e->trackID,
-                                    e->parentID,
+                                    e->caloHitID,
                                     e->local_pos.x(), // radial coordinate
                                     e->local_pos.z(), // thickness coordinate
                                     e->local_pos.y(), // vertical coordinate

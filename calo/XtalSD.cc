@@ -1,13 +1,13 @@
 /** @file XtalSD.cc
  
-    Implements the xtal sensitive detector.
+ Implements the xtal sensitive detector.
  
-    Ported to Art from g2migtrace file xtalSD.cc
-        @author Kevin Lynch
-        @date 2009
+ Ported to Art from g2migtrace file xtalSD.cc
+ @author Kevin Lynch
+ @date 2009
  
-    @author Robin Bjorkquist
-    @date 2013
+ @author Robin Bjorkquist
+ @date 2013, 2014
  */
 
 #include "XtalSD.hh"
@@ -26,9 +26,6 @@
 #include "Geant4/G4StepPoint.hh"
 #include "Geant4/G4ThreeVector.hh"
 
-const int kInitialListSize = 300000;
-const int kSizeIncrement = 100000;
-const int kNoTrackNumber = -1;
 
 gm2ringsim::XtalSD::XtalSD(G4String name) :
 G4VSensitiveDetector( name ),
@@ -37,7 +34,7 @@ printLevel(0), drawLevel(0), killOpticalPhotons_(true)
     collectionName.insert( name );
     G4String photonName = Calorimeter::addPhotonToName(name);
     collectionName.insert( photonName );
-        
+    
     // Register with SDManager
     G4SDManager* SDman = G4SDManager::GetSDMpointer();
     SDman->AddNewDetector(this);
@@ -64,14 +61,9 @@ void gm2ringsim::XtalSD::Initialize(G4HCofThisEvent* HCoTE){
     HCoTE->AddHitsCollection( thisHCID,       thisHC );
     HCoTE->AddHitsCollection( thisPhotonHCID, thisPhotonHC );
     
-    if (xtalID_.size() < nXtalsTotal_) xtalID_.resize(nXtalsTotal_);
-    for( unsigned int i = 0 ; i < xtalID_.size() ; ++i )
-    {
-        xtalID_[i] = -1 ;
-    }
+    photonTracks_.clear();
     
-    photonTracks.clear();
-    photonTracks.resize( kInitialListSize, false );
+    xtalHitList_.clear();
     
     ShowerListManager::instance().resetList();
     nShowerElectrons_ = 0;
@@ -82,164 +74,106 @@ G4bool gm2ringsim::XtalSD::ProcessHits(G4Step* thisStep, G4TouchableHistory*){
     // get basic information regarding the particle involved in this step
     G4Track* track = thisStep->GetTrack() ;
     int parentID = track->GetParentID() ;
-    int thisID = track->GetTrackID() ;
+    int trackID = track->GetTrackID() ;
     bool chargedParticle = (track->GetDefinition()->GetPDGCharge() != 0);
     int signedPdg = track->GetDefinition()->GetPDGEncoding();
     int pdg = abs( signedPdg ) ;
     
     // find out which calorimeter station & which xtal contain this step
-    int copyID = thisStep->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo(); // each xtal in the entire ring has a unique copy number
-    int caloNum = copyID / nXtalsPerCalo_ ; // integer division
-    int xtalNum = copyID % nXtalsPerCalo_ ; // xtal num local to that calo
+    int xtalCopyID = thisStep->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo(); // each xtal in the entire ring has a unique copy number
+    int caloNum = xtalCopyID / nXtalsPerCalo_ ; // integer division
+    int xtalNum = xtalCopyID % nXtalsPerCalo_ ; // xtal num local to that calo
     
-    bool alreadyPartOfShower = false;
-    bool initiatedShower = false;
-    
-    if( pdg != 0 )
+    ShowerListManager &listMan = ShowerListManager::instance();
+
+    if( pdg != 0 ) // anything other than an optical photon
     {
         
-        // To determine which xtals belong to a single shower, keep track of all
-        // non-optical-photon daughters of an e+ or e-.  If a new xtal is started
-        // by a particle whose parent is in this list, then it is in the same
-        // cluster, and the parentID is set to the ID in the list (which is the
-        // initiating e+ or e-).  Otherwise, we are starting a new cluster, and the
-        // list is cleared.    The bookkeeping must be coordinated with calorimeterSD,
-        // hence the singleton ShowerListManager
+        // Use the ShowerListManager to look up the initiating particle of this
+        // shower (i.e., trace back through particle parents to find the trackID
+        // of the "ancestor" particle that made a calo hit)
         
-        // make sure our list is long enough to accomodate this particle
-        ShowerListManager &listMan = ShowerListManager::instance();
-        ShowerListManager::particleStatus status = listMan.addToList( thisID, parentID );
-        if ( status == ShowerListManager::kAlreadyPartOfShower ) {
-            alreadyPartOfShower = true;
-        } else {
-            if ( status == ShowerListManager::kInitiatedShower ) {
-                initiatedShower = true;
-            }
-        }
-        
-    }
-    
-    // Stop processing the hit if it is something other than e+, e-, mu+, mu-, optical photon
-    //     Note: this mosly applies to non-optical photons (pdg id = 22)
-    // really not sure that we want to do this!
-    if( pdg != 11 && // electron
-       pdg != 13 && // muon
-       pdg != 0 ) // optical photon
-    {
-        return false ;
-    }
-    
-    if ( pdg == 11 && !alreadyPartOfShower ) {
-        ++nShowerElectrons_;
-    }
-    //    std::cout << "XTAL Track " << thisID
-    // 	     << " name " << track->GetParticleDefinition()->GetParticleName()
-    // 	     << " pdg " << track->GetParticleDefinition()->GetPDGEncoding()
-    // 	     << " mat " << track->GetMaterial()->GetName()
-    // 	     << std::endl
-    // 	     << " pos " << track->GetPosition()
-    // 	     << " mom " << track->GetMomentum()
-    // 	     << std::endl ;
-    
-    // From example N05
-    G4double edep = thisStep->GetTotalEnergyDeposit();
-    if(edep<=0. && ( pdg == 11 || pdg == 13 ) ) return false;
-    
-    if(xtalID_[copyID]==-1)
-    {
-        // Only count optical photons if a track has already been seen, so don't make
-        // new hits only for photons.
-        
-        // ****!!!*** Note: we can change the crystal hit structure to be a map of <trackID,xtalHit>
-        // ****!!!*** to allow more than one particle that initiates a shower per crystal
-        
-        // ****!!!*** this needs to be generalized to allow any particle except for optical
-        // ****!!!*** photons to be the particle that initiates a shower
-        if( pdg == 11 || pdg == 13 )
+        ShowerListManager::particleStatus showerStatus = listMan.addToList( caloNum, trackID, parentID );
+        if (showerStatus==ShowerListManager::kInitiatedShower)
         {
-            int initiateId = ShowerListManager::instance().showerParentList()[thisID];
-            XtalHit* xHit = new XtalHit( thisStep, initiateId );
-            xHit->caloNum = caloNum ;
-            xHit->xtalNum = xtalNum ;
-            xHit->energyDep = edep ;
-            if ( chargedParticle ) {
+            std::cout << "Warning: internal particle marked as shower initiator" << std::endl;
+        }
+        int initiateID = listMan.getShowerParentID(caloNum, trackID);
+        
+        // only create xtal hits & increment energy dep and track length for charged particles
+        if (chargedParticle)
+        {
+            // From example N05
+            G4double edep = thisStep->GetTotalEnergyDeposit();
+            if(edep<=0.) return false;
+            
+            // check to see if we already have an xtalHitList for this sub-shower
+            std::vector<int>& xtalHitSubList = xtalHitList_[initiateID];
+            if (xtalHitSubList.size() < nXtalsTotal_) xtalHitSubList.resize(nXtalsTotal_, -1);
+            
+            if(xtalHitSubList[xtalCopyID]==-1) // this crystal does not have an xtal hit yet
+            {
+                XtalHit* xHit = new XtalHit( thisStep );
+                xHit->caloHitID = initiateID;
+                xHit->caloNum = caloNum ;
+                xHit->xtalNum = xtalNum ;
+                xHit->energyDep = edep ;
                 xHit->trackLength = thisStep->GetStepLength() ;
+                
+                G4int hcsize = thisHC->insert( xHit );
+                xtalHitSubList[xtalCopyID] = hcsize - 1;
+                
             }
-            
-            G4int hcsize = thisHC->insert( xHit );
-            xtalID_[copyID] = hcsize - 1;
-            
-            //            xHit->parentID = particleToInitiatingParticle[thisID];
-            xHit->parentID = ShowerListManager::instance().showerParentList()[thisID];
-            
-            // std::cout << "New  copyID seen: " << copyID << " for parent " << xHit->parentID << std::endl;
-            // 	 std::cout << " New XtalHit on xtalID " << copyID << " " << hcsize-1
-            // 		   << " track " << thisID << " pos " << track->GetPosition() << " mom " << track->GetMomentum()
-            // 	      << " parent " << parentID
-            // 	      << " parentID " << xHit->parentID
-            // 	      << " pdg " << track->GetDefinition()->GetPDGEncoding()
-            // 	      << " edep " << xHit->energyDep
-            // 	      << " length " << xHit->trackLength << std::endl ;
+            else // this crystal already has a hit for this initiating particle
+            {
+                int hitIndex = xtalHitSubList[ xtalCopyID ] ;
+                
+                ( *thisHC )[ hitIndex ]->energyDep += edep ;
+                ( *thisHC )[ hitIndex ]->trackLength += thisStep->GetStepLength() ;
+            }
         }
-        // else if ( pdg == 0 ) {
-            // std::cout << "Track id " << thisID << " for optical photon entering new volume" << std::endl;
-        // }
-        if ( initiatedShower ) {
-            int hitIndex = xtalID_[ copyID ];
-            m_parentPosition.setY(0);
-            m_parentPosition.setX(  (*thisHC)[hitIndex]->local_pos.x() );
-            m_parentPosition.setZ( -(*thisHC)[hitIndex]->local_pos.z() );
-        }
-        
     }
-    else
+    else if ( pdg == 0 ) // optical photon
     {
-        int hitIndex = xtalID_[ copyID ] ;
-        
-        // ***!!!*** @bug error condition: we have a second particle that has initiated a shower
-        // ***!!!*** this should be true in general
-        
-        if (initiatedShower) {
-            std::cout << "*!*!*!*!*!*!*! Error: 2nd shower initiated in a previously hit crystal" << std::endl;
-        }
-        
-        if( chargedParticle )
+        if ( photonTracks_.count(trackID)==0) // we haven't seen this photon before
         {
-            ( *thisHC )[ hitIndex ]->energyDep += edep ;
-            ( *thisHC )[ hitIndex ]->trackLength += thisStep->GetStepLength() ;
+            photonTracks_.insert(trackID); // add this photon to the list
             
-        }
-        else if ( pdg == 0 ) // optical photon
-        {
-            int opListSize = photonTracks.size();
-            if ( thisID >= opListSize ) {
-                photonTracks.resize( thisID+kSizeIncrement, false ); // increase the size of the list
-            }
-            // Check if this photon has already been counted
-            if ( !photonTracks[thisID] ) {
-                
-                photonTracks[thisID] = true; // we've seen this track before
-                
-                // increment the energy deposited
-                ++( ( *thisHC )[ hitIndex ]->nphoton ) ; // increment the photon counter
-                ( *thisHC )[ hitIndex ]->ephoton += thisStep->GetPreStepPoint()->GetTotalEnergy() ; // add
-                
-                // create a photonHit entry for this photon
-                XtalPhotonHit *xph = new XtalPhotonHit(thisStep);
-                xph->caloNum = caloNum;
-                xph->xtalNum = xtalNum;
-                thisPhotonHC->insert(xph);
-                PhotonHitCorrelator::getInstance().addTrack(thisID,xph);
+            // Use the ShowerListManager to look up the initiating particle of this
+            // shower (i.e., trace back through particle parents to find the trackID
+            // of the "ancestor" particle that made a calo hit). Optical photons
+            // aren't on the list, so look up this particle's parent.
+            int initiateID = listMan.getShowerParentID(caloNum, parentID);
+            if (initiateID==-1) // parent was not on the shower list
+            {
+                std::cout << "Warning: parent of optical photon not found in ShowerListManager" << std::endl;
             }
             
-            // If the killOpticalPhotons_ parameter is set to true, kill the track
-            if (killOpticalPhotons_){
-                thisStep->GetTrack()->SetTrackStatus(fStopAndKill);
-            }
+            // make sure we already have an xtalHit for this xtal & initiating particle
+            std::vector<int>& xtalHitSubList = xtalHitList_[initiateID];
+            if (xtalHitSubList.size() < nXtalsTotal_) return false;
+            if (xtalHitSubList[xtalCopyID]==-1) return false;
+            int hitIndex = xtalHitSubList[xtalCopyID];
+            
+            // increment the photon counts in the xtal hit
+            ( *thisHC )[ hitIndex ]->nphoton ++  ;
+            ( *thisHC )[ hitIndex ]->ephoton += thisStep->GetPreStepPoint()->GetTotalEnergy() ;
+            
+            // create an xtalPhotonHit for this photon
+            XtalPhotonHit *xph = new XtalPhotonHit(thisStep);
+            xph->caloNum = caloNum;
+            xph->xtalNum = xtalNum;
+            thisPhotonHC->insert(xph);
+            PhotonHitCorrelator::getInstance().addTrack(trackID,xph);
         }
         
+        // If the killOpticalPhotons_ parameter is set to true, kill the track
+        if (killOpticalPhotons_)
+        {
+            thisStep->GetTrack()->SetTrackStatus(fStopAndKill);
+        }
     }
-       
+    
     return true;
 }
 
