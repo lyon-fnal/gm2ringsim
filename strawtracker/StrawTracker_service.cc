@@ -73,14 +73,12 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
 																											 strawg_.spanningAngleOfTheStraw
                                         );
                                                             
-//      std::string strawStationLVName = artg4::addNumberToName("StationChamberLV-%d", sc+tb);
       G4Material *stationMaterial = artg4Materials::Al();
       G4Material *supportPostMaterial = artg4Materials::C();
     
       G4LogicalVolume* strawStationLV = new G4LogicalVolume(
                                                             strawStation,
                                                             artg4Materials::Vacuum(),
-                                                            //strawStationLVName,
                                                             "StationChamberLV",
                                                             0,
                                                             0);
