@@ -71,7 +71,7 @@ gm2ringsim::StrawHit::StrawHit(G4Step* step) :
   strawInRow = wire.getWire();
   layerNumber = wire.getLayer();
   viewNumber = wire.getView();
-  stationNumber = wire.getStation();
+  moduleNumber = wire.getModule();
   // No longer using the overall straw number
   strawNumber = -1;
   trackerNumber = wire.getTrackerNumber();
@@ -97,19 +97,19 @@ gm2ringsim::StrawHit::StrawHit(G4Step* step) :
     local_position = history->GetTransform(depth).TransformPoint(worldPosition);
   }
   
-  G4VPhysicalVolume *station_vol = history->GetVolume(depth-1);
+  G4VPhysicalVolume *module_vol = history->GetVolume(depth-1);
   
-  if (station_vol){
+  if (module_vol){
     G4RotationMatrix rotInv = history->GetTransform(depth-1).NetRotation().inverse();
     //position in detector coordinates
-    station_position = history->GetTransform(depth-1).TransformPoint(worldPosition);
+    module_position = history->GetTransform(depth-1).TransformPoint(worldPosition);
 
   }
   gm2geom::StrawTrackerGeometry g;
-  scallop_position.set(station_position.x() + 
-          g.distShift[wire.getStation()],
-          station_position.y() + g.strawStationLocation[wire.getStation()],
-          station_position.z());
+  scallop_position.set(module_position.x() + 
+          g.distShift[wire.getModule()],
+          module_position.y() + g.strawModuleLocation[wire.getModule()],
+          module_position.z());
   
 }
 
@@ -138,13 +138,13 @@ void gm2ringsim::StrawHit::Print(){
   << " \n\t time: " << time
   << " \n\t global position: " << global_position
   << " \n\t local position: " << local_position
-  << " \n\t station position: "<< station_position
+  << " \n\t module position: "<< module_position
   << " \n\t particle: " << particle_name
   << " \n\t parentID: " << parent_ID
   <<"\n\n\t strawInRow: " << strawInRow
   <<" layerNumber: " <<layerNumber
   <<" viewNumber: "<<viewNumber
-  <<" stationNumber: " <<stationNumber
+  <<" moduleNumber: " <<moduleNumber
   <<" strawNumber: " << strawNumber
 
   << "\n";

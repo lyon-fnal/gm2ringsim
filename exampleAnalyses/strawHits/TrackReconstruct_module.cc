@@ -48,11 +48,11 @@ private:
 
   // Variables for the tree
   float x_local_, y_local_, z_local_;
-  float x_station_, y_station_, z_station_;
+  float x_module_, y_module_, z_module_;
   float x_scallop_, y_scallop_, z_scallop_;
   
 
-  int station_number_, view_number_, layer_number_, straw_in_layer_, straw_;
+  int module_number_, view_number_, layer_number_, straw_in_layer_, straw_;
   
   
 };
@@ -78,14 +78,14 @@ gm2ringsim::TrackReconstruct::TrackReconstruct(fhicl::ParameterSet const & p) :
   t_trackTree_->Branch("x_local", &x_local_, "x_local/F");
   t_trackTree_->Branch("y_local", &y_local_, "y_local/F");
   t_trackTree_->Branch("z_local", &z_local_, "z_local/F");
-  t_trackTree_->Branch("x_station", &x_station_, "x_station/F");
-  t_trackTree_->Branch("y_station", &y_station_, "y_station/F");
-  t_trackTree_->Branch("z_station", &z_station_, "z_station/F");
+  t_trackTree_->Branch("x_module", &x_module_, "x_module/F");
+  t_trackTree_->Branch("y_module", &y_module_, "y_module/F");
+  t_trackTree_->Branch("z_module", &z_module_, "z_module/F");
   t_trackTree_->Branch("x_scallop", &x_scallop_, "x_scallop/F");
   t_trackTree_->Branch("y_scallop", &y_scallop_, "y_scallop/F");
   t_trackTree_->Branch("z_scallop", &z_scallop_, "z_scallop/F");
 
-  t_trackTree_->Branch("station_number", &station_number_,"station_number/I");
+  t_trackTree_->Branch("module_number", &module_number_,"module_number/I");
   t_trackTree_->Branch("view_number", &view_number_,"view_number/I");
   t_trackTree_->Branch("layer_number", &layer_number_,"layer_number/I");
   t_trackTree_->Branch("straw_in_layer", &straw_in_layer_,"straw_in_layer/I");
@@ -118,15 +118,15 @@ void gm2ringsim::TrackReconstruct::analyze(art::Event const & e)
     x_local_ = hdata.x_local;
     y_local_ = hdata.y_local;
     z_local_ = hdata.z_local;
-    x_station_ = hdata.x_station;
-    y_station_ = hdata.y_station;
-    z_station_ = hdata.z_station;
+    x_module_ = hdata.x_module;
+    y_module_ = hdata.y_module;
+    z_module_ = hdata.z_module;
     x_scallop_ = hdata.x_scallop;
     y_scallop_ = hdata.y_scallop;
     z_scallop_ = hdata.z_scallop;
     
     
-    station_number_ = hdata.stationNumber;
+    module_number_ = hdata.moduleNumber;
     view_number_ = hdata.viewNumber;
     layer_number_ = hdata.layerNumber;
     straw_in_layer_ = hdata.strawInRow;
@@ -137,10 +137,10 @@ void gm2ringsim::TrackReconstruct::analyze(art::Event const & e)
               <<" StrawInRow: "<< hdata.strawInRow
               <<" layerNumber: "<<hdata.layerNumber
               <<" viewNumber: "<<hdata.viewNumber
-              <<" stationNumber: "<<hdata.stationNumber
+              <<" moduleNumber: "<<hdata.moduleNumber
               <<" \nglobalPosition: ("<<hdata.x_global<< ","<<hdata.y_global<<","<< hdata.z_global<<")"
               <<" \nlocalPosition: ("<<hdata.x_local<< ","<<hdata.y_local<<","<< hdata.z_local<<")"
-              <<" \nstationPosition: ("<<hdata.x_station<< ","<<hdata.y_station<<","<< hdata.z_station<<")"
+              <<" \nmodulePosition: ("<<hdata.x_module<< ","<<hdata.y_module<<","<< hdata.z_module<<")"
     <<std::endl;
     
   }

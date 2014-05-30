@@ -45,24 +45,24 @@ gm2ringsim::StrawTracker::StrawTracker(fhicl::ParameterSet const & p, art::Activ
 //Build the logical volumes
 std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
 
-  std::vector<G4LogicalVolume*> stations;
+  std::vector<G4LogicalVolume*> modules;
   for (unsigned int tb = 0; tb<strawg_.whichScallopLocations.size(); tb++){
-    for (unsigned int sc =0 ; sc<strawg_.strawStationType.size(); sc++){
+    for (unsigned int sc =0 ; sc<strawg_.strawModuleType.size(); sc++){
       
-      G4VSolid *strawStation = new G4Box("strawSystem", strawg_.strawStationSizeHalf[sc], 
-                                                        strawg_.strawStationWidthHalf, 
-                                                        strawg_.strawStationHeightHalf);
+      G4VSolid *strawModule = new G4Box("strawSystem", strawg_.strawModuleSizeHalf[sc], 
+                                                        strawg_.strawModuleWidthHalf, 
+                                                        strawg_.strawModuleHeightHalf);
       
       //Build Manifold structure. Hollow box built by subtracting a slightly smaller box from the full size. 
-      G4VSolid *outerStationManifold = new G4Box("outerManifoldSystem", strawg_.strawStationSizeHalf[sc], 
-                                                                        strawg_.strawStationManifoldWidthHalf, 
-                                                                        strawg_.strawStationManifoldHeightHalf);
+      G4VSolid *outerModuleManifold = new G4Box("outerManifoldSystem", strawg_.strawModuleSizeHalf[sc], 
+                                                                        strawg_.strawModuleManifoldWidthHalf, 
+                                                                        strawg_.strawModuleManifoldHeightHalf);
 
-      G4VSolid *innerStationManifold = new G4Box("innerManifoldSystem", strawg_.strawStationSizeHalf[sc] - strawg_.strawStationManifoldThickness, 
-                                                                        strawg_.strawStationManifoldWidthHalf-strawg_.strawStationManifoldThickness, 
-                                                                        strawg_.strawStationManifoldHeightHalf-strawg_.strawStationManifoldThickness);
+      G4VSolid *innerModuleManifold = new G4Box("innerManifoldSystem", strawg_.strawModuleSizeHalf[sc] - strawg_.strawModuleManifoldThickness, 
+                                                                        strawg_.strawModuleManifoldWidthHalf-strawg_.strawModuleManifoldThickness, 
+                                                                        strawg_.strawModuleManifoldHeightHalf-strawg_.strawModuleManifoldThickness);
       
-      G4SubtractionSolid *stationManifold = new G4SubtractionSolid("stationManifold", outerStationManifold, innerStationManifold);
+      G4SubtractionSolid *moduleManifold = new G4SubtractionSolid("moduleManifold", outerModuleManifold, innerModuleManifold);
 
 
       //Build Support post
@@ -73,40 +73,40 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
 																											 strawg_.spanningAngleOfTheStraw
                                         );
                                                             
-      G4Material *stationMaterial = artg4Materials::Al();
+      G4Material *moduleMaterial = artg4Materials::Al();
       G4Material *supportPostMaterial = artg4Materials::C();
     
-      G4LogicalVolume* strawStationLV = new G4LogicalVolume(
-                                                            strawStation,
+      G4LogicalVolume* strawModuleLV = new G4LogicalVolume(
+                                                            strawModule,
                                                             artg4Materials::Vacuum(),
-                                                            "StationChamberLV",
+                                                            "ModuleChamberLV",
                                                             0,
                                                             0);
 
       G4LogicalVolume* manifoldLV = new G4LogicalVolume(
-                                                        stationManifold,
-                                                        stationMaterial,
-                                                        "stationManifold",
+                                                        moduleManifold,
+                                                        moduleMaterial,
+                                                        "moduleManifold",
                                                          0,
                                                          0);
 
       G4LogicalVolume* supportPostLV = new G4LogicalVolume(
                                                             supportPost, 
                                                             supportPostMaterial,
-                                                            "stationSupportPost",
+                                                            "moduleSupportPost",
                                                             0,
                                                             0
                                                           );
 
 
 
-      double manifoldPlacement = strawg_.strawStationHeightHalf-strawg_.strawStationManifoldHeightHalf;
+      double manifoldPlacement = strawg_.strawModuleHeightHalf-strawg_.strawModuleManifoldHeightHalf;
 
 	    new G4PVPlacement(0,
 					            G4ThreeVector(0,0,-1*manifoldPlacement),
 						          manifoldLV,
 					            "manifoldLV-top",
-					            strawStationLV,
+					            strawModuleLV,
 						          0,
 					            0
                      );
@@ -115,48 +115,48 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
 					            G4ThreeVector(0,0,manifoldPlacement),
 						          manifoldLV,
 					            "manifoldLV-bottom",
-					            strawStationLV,
+					            strawModuleLV,
 						          0,
 					            0
                      );
-      double xpospost = strawg_.strawStationSizeHalf[sc]-strawg_.supportPostRadius;
-      double ypospost = strawg_.supportPostYPosition - strawg_.strawStationWidthHalf;
+      double xpospost = strawg_.strawModuleSizeHalf[sc]-strawg_.supportPostRadius;
+      double ypospost = strawg_.supportPostYPosition - strawg_.strawModuleWidthHalf;
 
       new G4PVPlacement(0,
                       G4ThreeVector(xpospost,ypospost,0),
                       supportPostLV,
                       "supportPostLV",
-                      strawStationLV,
+                      strawModuleLV,
                       0,
                       0
                      );
       
-      artg4::setVisAtts( strawStationLV, strawg_.displayStation, strawg_.stationColor,
+      artg4::setVisAtts( strawModuleLV, strawg_.displayModule, strawg_.moduleColor,
                         [] (G4VisAttributes* att) {
                           att->SetForceSolid(0);
                           att->SetVisibility(1);
                         }
                         );
 
-      artg4::setVisAtts( manifoldLV, strawg_.displayStationMaterial, strawg_.manifoldColor,
+      artg4::setVisAtts( manifoldLV, strawg_.displayModuleMaterial, strawg_.manifoldColor,
                         [] (G4VisAttributes* att) {
                           att->SetForceSolid(1);
                           att->SetVisibility(1);
                         }
                         );
-      artg4::setVisAtts( supportPostLV, strawg_.displayStationMaterial, strawg_.manifoldColor,
+      artg4::setVisAtts( supportPostLV, strawg_.displayModuleMaterial, strawg_.manifoldColor,
                         [] (G4VisAttributes* att) {
                           att->SetForceSolid(1);
                           att->SetVisibility(1);
                         }
                         );
       
-      stations.push_back(strawStationLV);
+      modules.push_back(strawModuleLV);
       
     }
   }
   
-  return stations;
+  return modules;
   
 }
 
@@ -174,35 +174,35 @@ void gm2ringsim::StrawTracker::getXYCoordinatesForPlacement(double distAlongScal
 // Build the physical volumes
 std::vector<G4VPhysicalVolume *> gm2ringsim::StrawTracker::doPlaceToPVs( std::vector<G4LogicalVolume*> vacs) {
   
-  std::vector<G4VPhysicalVolume*> strawStationPVs;
+  std::vector<G4VPhysicalVolume*> strawModulePVs;
   
   int i = 0;
   int strawTrackerIndex, strawTrackerNumber;
-  int numberOfStationsPerTracker = strawg_.strawStationSize.size();
-  int stationIndex;
+  int numberOfModulesPerTracker = strawg_.strawModuleSize.size();
+  int moduleIndex;
   strawg_.print();
   //loop over the logical volumes
-  for ( auto aStrawStationLV : lvs() ) {
-    // We to name the station including its station number
+  for ( auto aStrawModuleLV : lvs() ) {
+    // We to name the module including its module number
     // g2migtrace used sprintf. Let's use boost::format instead
     // (see http://www.boost.org/doc/libs/1_52_0/libs/format/doc/format.html )
     
-    strawTrackerIndex = i/numberOfStationsPerTracker;
+    strawTrackerIndex = i/numberOfModulesPerTracker;
     strawTrackerNumber = strawg_.whichScallopLocations[strawTrackerIndex];
-    stationIndex = i%numberOfStationsPerTracker;
+    moduleIndex = i%numberOfModulesPerTracker;
 
     
-    std::string strawStationLabel( boost::str( boost::format("strawStationNumber[%d][%d]") %strawTrackerNumber %stationIndex));
+    std::string strawModuleLabel( boost::str( boost::format("strawModuleNumber[%d][%d]") %strawTrackerNumber %moduleIndex));
     
     G4double
     x = vacg_.trackerExtPlacementX,
     y = 0,
-    distAlongScallop = strawg_.strawStationLocation[stationIndex]; 
+    distAlongScallop = strawg_.strawModuleLocation[moduleIndex]; 
     
     int arcPosition = strawTrackerNumber % 2;
     int arcNumber = floor(strawTrackerNumber/2);
     
-    getXYCoordinatesForPlacement(distAlongScallop,strawg_.distShift[stationIndex],x,y);  
+    getXYCoordinatesForPlacement(distAlongScallop,strawg_.distShift[moduleIndex],x,y);  
     
     G4TwoVector fixup(x,y);
         
@@ -210,9 +210,9 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::StrawTracker::doPlaceToPVs( std::ve
     G4Transform3D out_transform(G4RotationMatrix( 0, 0, -vacg_.phi_a -15*degree*arcPosition),
                                     G4ThreeVector(fixup.x(), fixup.y(), 0. ) );
 
-    strawStationPVs.push_back(new G4PVPlacement(out_transform,
-                                         aStrawStationLV,
-                                         strawStationLabel,
+    strawModulePVs.push_back(new G4PVPlacement(out_transform,
+                                         aStrawModuleLV,
+                                         strawModuleLabel,
                                          vacs[ arcNumber ],
                                          false,
                                          0, true
@@ -221,7 +221,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::StrawTracker::doPlaceToPVs( std::ve
     
     i++;
   }
-  return strawStationPVs;
+  return strawModulePVs;
 
 
 }

@@ -6298,9 +6298,9 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
       float py_local = strawhit.py_local;
       float pz_local = strawhit.pz_local;
 
-      float x_station = strawhit.x_station;
-      float y_station = strawhit.y_station;
-      float z_station = strawhit.z_station;
+      float x_station = strawhit.x_module;
+      float y_station = strawhit.y_module;
+      float z_station = strawhit.z_module;
 
       float x_scallop = strawhit.x_scallop;
       float y_scallop = strawhit.y_scallop;
@@ -6312,7 +6312,7 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
       int strawInRow = strawhit.strawInRow;
       int layerNumber = strawhit.layerNumber;
       int viewNumber = strawhit.viewNumber;
-      int stationNumber = strawhit.stationNumber;
+      int stationNumber = strawhit.moduleNumber;
       int strawNumber = strawhit.strawNumber;
       int trackerNumber = strawhit.trackerNumber;
       trackernum = trackerNumber;

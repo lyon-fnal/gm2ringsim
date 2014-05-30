@@ -23,7 +23,7 @@ namespace gm2ringsim {
   class StrawHit : public G4VHit {
   public:
     
-    G4ThreeVector global_position, local_position, station_position, scallop_position;
+    G4ThreeVector global_position, local_position, module_position, scallop_position;
     G4ThreeVector momentum, local_momentum;
     G4double time;
     G4int trackID;
@@ -36,7 +36,7 @@ namespace gm2ringsim {
     G4int strawInRow;
     G4int layerNumber;
     G4int viewNumber;
-    G4int stationNumber;
+    G4int moduleNumber;
     G4int strawNumber;
     G4int trackerNumber;    
     inline void* operator new(size_t);
