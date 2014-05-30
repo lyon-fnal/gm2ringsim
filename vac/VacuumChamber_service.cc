@@ -146,40 +146,43 @@ G4UnionSolid* gm2ringsim::VacuumChamber::buildUnionSolid(VacGeometry::typeToBuil
   bool secondpos = false;
    
   FindScallopPos(arc, firstpos, secondpos); 
+
+  if(firstpos || secondpos){
   
-  G4double
-  x = g.trackerExtPlacementX,
-  y = 0,
-  distShift = 0,
-  distAlongScallop = g.distCenterExtAlongScallop;
+    G4double
+    x = g.trackerExtPlacementX,
+    y = 0,
+    distShift = 0,
+    distAlongScallop = g.distCenterExtAlongScallop;
 
-  if(which == g.wallRegion){
-    distShift = g.trackerExtBuildW[which];
-    getXYCoordinatesForPlacement(distAlongScallop,distShift,x,y);
-  }
+    if(which == g.wallRegion){
+      distShift = g.trackerExtBuildW[which];
+      getXYCoordinatesForPlacement(distAlongScallop,distShift,x,y);
+    }
 
-  if (which == g.vacuumRegion){
-    distShift = g.trackerExtBuildW[g.wallRegion] - (g.trackerExtBuildW[g.vacuumRegion] - g.trackerExtBuildW[g.wallRegion]) -g.trackerExtWallThick;
-    getXYCoordinatesForPlacement(distAlongScallop,distShift,x,y);
-  }
+    if (which == g.vacuumRegion){
+      distShift = g.trackerExtBuildW[g.wallRegion] - (g.trackerExtBuildW[g.vacuumRegion] - g.trackerExtBuildW[g.wallRegion]) -g.trackerExtWallThick;
+      getXYCoordinatesForPlacement(distAlongScallop,distShift,x,y);
+    }
 
- G4Box *scallop_extension = new G4Box("scallop_extension",g.trackerExtBuildW[which],g.trackerExtBuildL[which],g.trackerExtBuildH[which]);
+    G4Box *scallop_extension = new G4Box("scallop_extension",g.trackerExtBuildW[which],g.trackerExtBuildL[which],g.trackerExtBuildH[which]);
 
-  Hep2Vector extensionPlacement(x,y);
+    Hep2Vector extensionPlacement(x,y);
 
-  if(firstpos){
-    G4Transform3D out_transform_scallop_ext_1(G4RotationMatrix( 0., 0, -g.phi_a ),
+    if(firstpos){
+      G4Transform3D out_transform_scallop_ext_1(G4RotationMatrix( 0., 0, -g.phi_a ),
                                             G4ThreeVector( extensionPlacement.x(),extensionPlacement.y(), 0. ) );
-   us = new G4UnionSolid("union1_5",us, scallop_extension,out_transform_scallop_ext_1);
-  }
-  if(secondpos){
-    extensionPlacement.rotate(15.*deg);
-    G4Transform3D out_transform_scallop_ext_2(G4RotationMatrix( 0., 0, -g.phi_a-15*degree),
-                                            G4ThreeVector( extensionPlacement.x(),extensionPlacement.y(), 0. ) );
-    us = new G4UnionSolid("union2_5",us, scallop_extension,out_transform_scallop_ext_2);
- } 
-  //end add in scallop extension for tracker 
+      us = new G4UnionSolid("union1_5",us, scallop_extension,out_transform_scallop_ext_1);
+    }
+    if(secondpos){
+      extensionPlacement.rotate(15.*deg);
+      G4Transform3D out_transform_scallop_ext_2(G4RotationMatrix( 0., 0, -g.phi_a-15*degree),
+          G4ThreeVector( extensionPlacement.x(),extensionPlacement.y(), 0. ) );
+      us = new G4UnionSolid("union2_5",us, scallop_extension,out_transform_scallop_ext_2);
+    } 
+  }  //end add in scallop extension for tracker 
   return us;
+
 }
 void gm2ringsim::VacuumChamber::FindScallopPos(int arcNum, bool &firstpos, bool &secondpos){
   
