@@ -178,7 +178,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::StrawTracker::doPlaceToPVs( std::ve
   
   int i = 0;
   int strawTrackerIndex, strawTrackerNumber;
-  int numberOfModulesPerTracker = strawg_.strawModuleSize.size();
+  int numberOfModulesPerTracker = strawg_.strawModuleType.size();
   int moduleIndex;
   strawg_.print();
   //loop over the logical volumes
