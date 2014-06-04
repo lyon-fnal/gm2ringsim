@@ -120,10 +120,9 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
 					            0
                      );
       double xpospost = strawg_.strawModuleSizeHalf[sc]-strawg_.supportPostRadius;
-      double ypospost = strawg_.supportPostYPosition - strawg_.strawModuleWidthHalf;
 
       new G4PVPlacement(0,
-                      G4ThreeVector(xpospost,ypospost,0),
+                      G4ThreeVector(xpospost,0,0),
                       supportPostLV,
                       "supportPostLV",
                       strawModuleLV,
