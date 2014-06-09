@@ -176,30 +176,30 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::StrawTracker::doPlaceToPVs( std::ve
   std::vector<G4VPhysicalVolume*> strawModulePVs;
   
   int i = 0;
-  int strawTrackerIndex, strawTrackerNumber;
-  int numberOfModulesPerTracker = strawg_.strawModuleType.size();
+  int strawStationIndex, strawStationNumber;
+  int numberOfModulesPerStation = strawg_.strawModuleType.size();
   int moduleIndex;
-  strawg_.print();
+
   //loop over the logical volumes
   for ( auto aStrawModuleLV : lvs() ) {
     // We to name the module including its module number
     // g2migtrace used sprintf. Let's use boost::format instead
     // (see http://www.boost.org/doc/libs/1_52_0/libs/format/doc/format.html )
     
-    strawTrackerIndex = i/numberOfModulesPerTracker;
-    strawTrackerNumber = strawg_.whichScallopLocations[strawTrackerIndex];
-    moduleIndex = i%numberOfModulesPerTracker;
+    strawStationIndex = i/numberOfModulesPerStation;
+    strawStationNumber = strawg_.whichScallopLocations[strawStationIndex];
+    moduleIndex = i%numberOfModulesPerStation;
 
-    
-    std::string strawModuleLabel( boost::str( boost::format("strawModuleNumber[%d][%d]") %strawTrackerNumber %moduleIndex));
+    std::string strawModuleLabel( boost::str( boost::format("strawModuleNumber[%d][%d]") %strawStationNumber %moduleIndex));
+
     
     G4double
     x = vacg_.trackerExtPlacementX,
     y = 0,
     distAlongScallop = strawg_.strawModuleLocation[moduleIndex]; 
     
-    int arcPosition = strawTrackerNumber % 2;
-    int arcNumber = floor(strawTrackerNumber/2);
+    int arcPosition = strawStationNumber % 2;
+    int arcNumber = floor(strawStationNumber/2);
     
     getXYCoordinatesForPlacement(distAlongScallop,strawg_.distShift[moduleIndex],x,y);  
     
