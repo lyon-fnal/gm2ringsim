@@ -35,7 +35,13 @@ namespace gm2ringsim {
       pvhat(0),
       polx(0),
       poly(0),
-      polz(0)
+      polz(0),
+      x(0),
+      y(0),
+      z(0),
+      px(0),
+      py(0),
+      pz(0)
     {}
     
     // Members of this struct are all public, and are modified in the 
@@ -90,6 +96,9 @@ namespace gm2ringsim {
     // Spin "polarization" - again presumably at birth
     // which for muon gas muons is also death
     double polx, poly, polz;
+
+    double x, y, z;
+    double px, py, pz;
   };
 
   // Define a collection of these hits

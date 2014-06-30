@@ -293,6 +293,9 @@ void gm2ringsim::TrackingAction::FillTrackingActionArtRecord(const G4Track * cur
   tr.theta = theta;
   tr.time = currentTrack->GetGlobalTime();
   tr.t0 = currentTrack->GetProperTime();
+  tr.x = pos.x();
+  tr.y = pos.y();
+  tr.z = pos.z();
 
 
   //-------------------
@@ -305,6 +308,9 @@ void gm2ringsim::TrackingAction::FillTrackingActionArtRecord(const G4Track * cur
   tr.prhat = prhat;
   tr.pvhat = pvhat;
   tr.e = currentTrack->GetTotalEnergy();
+  tr.px = mom.x();
+  tr.py = mom.y();
+  tr.pz = mom.z();
 
 
   if ( debug ) { G4cout << "Found track[" << currentTrack->GetParticleDefinition()->GetParticleName() << "] [t=" << currentTrack->GetGlobalTime() << "] [" << currentTrack->GetParentID() << "] : " << status << "\t" << keep_track << "\t" << prhat << "\t" << pvhat << G4endl; }
