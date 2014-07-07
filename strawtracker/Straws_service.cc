@@ -216,7 +216,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Straws::doPlaceToPVs( std::vector<G
     G4RotationMatrix* yRot = new G4RotationMatrix;
 
     double rot = geom_.layerAngle;
-    if( wire.getView() == gm2strawtracker::v_view ) rot = -rot;
+    if( wire.getView() == gm2strawtracker::u_view ) rot = -rot;
     yRot -> rotateY(rot);
     G4ThreeVector placement(x, y, 0);
 
