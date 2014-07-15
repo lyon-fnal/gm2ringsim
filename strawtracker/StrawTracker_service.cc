@@ -66,15 +66,8 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
 
 
       //Build Support post
-      G4VSolid *supportPost = new G4Tubs("supportPost",0, 
-                                                       strawg_.supportPostRadius, 
-																											 strawg_.halfHeightOfTheStraw,
-																											 strawg_.startAngleOfTheStraw,
-																											 strawg_.spanningAngleOfTheStraw
-                                        );
                                                             
       G4Material *moduleMaterial = artg4Materials::Al();
-      G4Material *supportPostMaterial = artg4Materials::C();
     
       G4LogicalVolume* strawModuleLV = new G4LogicalVolume(
                                                             strawModule,
@@ -89,14 +82,6 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
                                                         "moduleManifold",
                                                          0,
                                                          0);
-
-      G4LogicalVolume* supportPostLV = new G4LogicalVolume(
-                                                            supportPost, 
-                                                            supportPostMaterial,
-                                                            "moduleSupportPost",
-                                                            0,
-                                                            0
-                                                          );
 
 
 
@@ -119,16 +104,7 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
 						          0,
 					            0
                      );
-      double xpospost = strawg_.strawModuleSizeHalf[sc]-strawg_.supportPostRadius;
 
-      new G4PVPlacement(0,
-                      G4ThreeVector(xpospost,0,0),
-                      supportPostLV,
-                      "supportPostLV",
-                      strawModuleLV,
-                      0,
-                      0
-                     );
       
       artg4::setVisAtts( strawModuleLV, strawg_.displayModule, strawg_.moduleColor,
                         [] (G4VisAttributes* att) {
@@ -143,13 +119,42 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
                           att->SetVisibility(1);
                         }
                         );
-      artg4::setVisAtts( supportPostLV, strawg_.displayModuleMaterial, strawg_.manifoldColor,
+      
+      //Only build the support post if that request is set to true in the fcl file. 
+      //At the time of this writing it was unsure if the support post was going to be 
+      //needed. Do all the building and placement within this if statement.  
+      if(strawg_.buildSupportPost){
+        G4VSolid *supportPost = new G4Tubs("supportPost",0, 
+                                                       strawg_.supportPostRadius, 
+																											 strawg_.halfHeightOfTheStraw,
+																											 strawg_.startAngleOfTheStraw,
+																											 strawg_.spanningAngleOfTheStraw
+                                        );
+        G4Material *supportPostMaterial = artg4Materials::C();
+        G4LogicalVolume* supportPostLV = new G4LogicalVolume(
+                                                            supportPost, 
+                                                            supportPostMaterial,
+                                                            "moduleSupportPost",
+                                                            0,
+                                                            0
+                                                          );
+        double xpospost = strawg_.strawModuleSizeHalf[sc]-strawg_.supportPostRadius;
+
+        new G4PVPlacement(0,
+                      G4ThreeVector(xpospost,0,0),
+                      supportPostLV,
+                      "supportPostLV",
+                      strawModuleLV,
+                      0,
+                      0
+                     );
+        artg4::setVisAtts( supportPostLV, strawg_.displayModuleMaterial, strawg_.manifoldColor,
                         [] (G4VisAttributes* att) {
                           att->SetForceSolid(1);
                           att->SetVisibility(1);
                         }
                         );
-      
+      }
       modules.push_back(strawModuleLV);
       
     }
