@@ -65,10 +65,6 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
       G4SubtractionSolid *moduleManifold = new G4SubtractionSolid("moduleManifold", outerModuleManifold, innerModuleManifold);
 
 
-      //Build Support post
-                                                            
-      G4Material *moduleMaterial = artg4Materials::Al();
-    
       G4LogicalVolume* strawModuleLV = new G4LogicalVolume(
                                                             strawModule,
                                                             artg4Materials::Vacuum(),
@@ -78,7 +74,7 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
 
       G4LogicalVolume* manifoldLV = new G4LogicalVolume(
                                                         moduleManifold,
-                                                        moduleMaterial,
+                                                        artg4Materials::Al(),
                                                         "moduleManifold",
                                                          0,
                                                          0);
@@ -130,10 +126,10 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
 																											 strawg_.startAngleOfTheStraw,
 																											 strawg_.spanningAngleOfTheStraw
                                         );
-        G4Material *supportPostMaterial = artg4Materials::C();
+
         G4LogicalVolume* supportPostLV = new G4LogicalVolume(
                                                             supportPost, 
-                                                            supportPostMaterial,
+                                                            artg4Materials::C(),
                                                             "moduleSupportPost",
                                                             0,
                                                             0
