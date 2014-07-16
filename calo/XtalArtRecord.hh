@@ -56,9 +56,8 @@ namespace gm2ringsim {
          from the trackRecord. */
         int trackID;
         
-        /** Not direct parent ID, but ID of e+ or e- that originates the cluster.
-         Can be same as trackID.  If pdgID==13 (mu), then parentID is the ID of
-         the electron daughter (if it decays) or ==trackID (if it does not) */
+        /** Not direct parent ID, but ID of calo hit that originates the cluster.
+         Can be same as trackID.  */
         int parentID;
         
         /** Local xtal coordinate, mm; this is the position along the

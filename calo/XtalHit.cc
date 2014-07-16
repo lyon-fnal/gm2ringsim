@@ -32,13 +32,13 @@ namespace gm2ringsim {
 G4Allocator<XtalHit>XtalHitAllocator;
 } // namespace gm2ringsim
 
-gm2ringsim::XtalHit::XtalHit(G4Step *step, G4int trackInitiatingShower ) :
+gm2ringsim::XtalHit::XtalHit(G4Step *step) :
 global_pos(step->GetPreStepPoint()->GetPosition()),
 global_mom(step->GetPreStepPoint()->GetMomentum()),
 time(step->GetPreStepPoint()->GetGlobalTime()),
 turnNum(TurnCounter::getInstance().turns()),
 trackID(step->GetTrack()->GetTrackID()),
-parentID(trackInitiatingShower),
+caloHitID( 0 ),
 caloNum( -1 ),
 xtalNum( -1 ),
 energy( step->GetPreStepPoint()->GetTotalEnergy() ),

@@ -7,13 +7,12 @@
  
     @author Robin Bjorkquist
     @date 2013 port to Art
+    @date 2014
  */
 
 #include "XtalPhotonHit.hh"
 #include "PhotonHitCorrelator.hh"
 
-const int kInitialListSize = 300000;
-const int kSizeIncrement   = 100000;
 
 gm2ringsim::PhotonHitCorrelator * gm2ringsim::PhotonHitCorrelator::instance_ = 0;
 
@@ -33,32 +32,21 @@ gm2ringsim::PhotonHitCorrelator::~PhotonHitCorrelator() {
 
 void
 gm2ringsim::PhotonHitCorrelator::reset() {
-    photonTrackToHit_.clear();
-    photonTrackToHit_.resize(kInitialListSize);
+    photonList_.clear();
 }
 
 void
 gm2ringsim::PhotonHitCorrelator::addTrack( int photonTrackId, XtalPhotonHit* hit ) {
-    increaseListSize(photonTrackId);
-    photonTrackToHit_[photonTrackId] = hit;
+    photonList_[photonTrackId] = hit;
 }
 
 void
 gm2ringsim::PhotonHitCorrelator::registerPhotodetectorTrack( int photonTrackId, bool photoElectron ) {
-    increaseListSize(photonTrackId);
-    if ( photonTrackToHit_[photonTrackId] == 0 ) {
+    if ( photonList_.count(photonTrackId) == 0 ) {
         std::cout << "Warning!  No hit registered with PhotonHitCorrelator for track id " << photonTrackId << std::endl;
         return;
     }
     
-    photonTrackToHit_[photonTrackId]->transmitted = true;
-    photonTrackToHit_[photonTrackId]->detected = photoElectron;
-}
-
-void
-gm2ringsim::PhotonHitCorrelator::increaseListSize(int photonTrackId) {
-    int veclength = photonTrackToHit_.size();
-    if ( photonTrackId >= veclength ) {
-        photonTrackToHit_.resize( photonTrackId + kSizeIncrement );
-    }
+    photonList_[photonTrackId]->transmitted = true;
+    photonList_[photonTrackId]->detected = photoElectron;
 }
