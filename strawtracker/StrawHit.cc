@@ -74,7 +74,7 @@ gm2ringsim::StrawHit::StrawHit(G4Step* step) :
   moduleNumber = wire.getModule();
   // No longer using the overall straw number
   strawNumber = -1;
-  trackerNumber = wire.getTrackerNumber();
+  stationNumber = wire.getStation();
   particle_name = step->GetTrack()->GetParticleDefinition()->GetParticleName();
   parent_ID = step->GetTrack()->GetParentID();
     

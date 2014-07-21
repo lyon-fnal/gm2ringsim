@@ -57,7 +57,7 @@ namespace gm2ringsim {
     int viewNumber;
     int moduleNumber;
     int strawNumber;
-    int trackerNumber;
+    int stationNumber;
 
     std::string particle_name;
     int parent_ID;
@@ -69,7 +69,7 @@ namespace gm2ringsim {
     px_local(0.0),py_local(0.0),pz_local(0.0),
     x_module(0.0), y_module(0.0), z_module(0.0),
     x_scallop(0.0), y_scallop(0.0), z_scallop(0.0),
-    time(0.0), trackID(0),volumeUID(0), strawInRow(0), layerNumber(0), viewNumber(0), moduleNumber(0), strawNumber(0), trackerNumber(0), particle_name(), parent_ID(0) {}
+    time(0.0), trackID(0),volumeUID(0), strawInRow(0), layerNumber(0), viewNumber(0), moduleNumber(0), strawNumber(0), stationNumber(0), particle_name(), parent_ID(0) {}
     virtual ~StrawArtRecord() {}
     
     
@@ -83,7 +83,7 @@ namespace gm2ringsim {
                    float xScallop, float yScallop, float zScallop,
                    float time_input, int trackID_input,
                    int volumeUID_input,
-                   int straw_in_row, int layer_number, int view_number, int module_number, int straw_number, int tracker_number,
+                   int straw_in_row, int layer_number, int view_number, int module_number, int straw_number, int station_number,
                    std::string particleName, int parentID ) :
     
     x_global(xglobal), y_global(yglobal), z_global(zglobal), r_global(rglobal),
@@ -100,7 +100,7 @@ namespace gm2ringsim {
     viewNumber(view_number),
     moduleNumber(module_number),
     strawNumber(straw_number),
-    trackerNumber(tracker_number),
+    stationNumber(station_number),
     particle_name(particleName),
     parent_ID(parentID)
     { }

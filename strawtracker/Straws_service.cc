@@ -62,7 +62,7 @@ std::vector<G4LogicalVolume *> gm2ringsim::Straws::doBuildLVs() {
 
             // Create a WireID to identify this straw
             WireID currentWire;
-            currentWire.setTrackerNumber(geom_.whichScallopLocations[tb]);
+            currentWire.setStation(geom_.whichScallopLocations[tb]);
             currentWire.setModule(sc);
             currentWire.setView( view == 0 ? gm2strawtracker::u_view : 
                 (view == 1 ? gm2strawtracker::v_view : gm2strawtracker::na_view));
@@ -226,7 +226,7 @@ std::vector<G4VPhysicalVolume *> gm2ringsim::Straws::doPlaceToPVs( std::vector<G
       << wire.getLayer() << ", " 
       << wire.getView() << ", " 
       << wire.getModule() << ", " 
-      << wire.getTrackerNumber() << ", "
+      << wire.getStation() << ", "
       << x << ", " 
       << y << ", "
       << trackerLocation.getX() << ", "
@@ -289,7 +289,7 @@ void gm2ringsim::Straws::doFillEventWithArtHits(G4HCofThisEvent * hc) {
           e->time,
           e->trackID,
           e->volumeUID,
-          e->strawInRow, e->layerNumber, e->viewNumber, e->moduleNumber, e->strawNumber, e->trackerNumber,
+          e->strawInRow, e->layerNumber, e->viewNumber, e->moduleNumber, e->strawNumber, e->stationNumber,
           e->particle_name, e->parent_ID);
 
     } //loop over geantHits

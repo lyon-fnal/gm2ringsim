@@ -6210,7 +6210,7 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
   // Straw Hits
   //
   //-------------------
-  int trackernum = -1;
+  int stationnum = -1;
   int nstrawmuhits = 0;
   if ( SaveStrawHits_ ) {
     if ( debug_ ) { cout << "Getting straw hits" << endl; }
@@ -6312,16 +6312,16 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
       int strawInRow = strawhit.strawInRow;
       int layerNumber = strawhit.layerNumber;
       int viewNumber = strawhit.viewNumber;
-      int stationNumber = strawhit.moduleNumber;
+      int moduleNumber = strawhit.moduleNumber;
       int strawNumber = strawhit.strawNumber;
-      int trackerNumber = strawhit.trackerNumber;
-      trackernum = trackerNumber;
-      //cout << "  Got Tnum: " << trackernum << endl;
-      //cout << stationNumber << endl;
+      int stationNumber = strawhit.stationNumber;
+      stationnum = stationNumber;
+      //cout << "  Got Stationnum: " << stationnum << endl;
+      //cout << moduleNumber << endl;
 
-      uv_layers[stationNumber]++;
+      uv_layers[moduleNumber]++;
 
-      if ( debug_ ) { cout << "    " << Nplanes << "\t" << strawNumber << "\t" << stationNumber << "\t" << viewNumber << "\t" << layerNumber << "\t" << strawInRow << endl; }
+      if ( debug_ ) { cout << "    " << Nplanes << "\t" << strawNumber << "\t" << moduleNumber << "\t" << viewNumber << "\t" << layerNumber << "\t" << strawInRow << endl; }
     }
 
     int Nstrawstations = 0;
@@ -6429,7 +6429,7 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
 	      Npart_Time[particle] = time;
 	    }
 
-	    if ( trackernum == konestraw ) {
+	    if ( stationnum == konestraw ) {
 	      particle = truth_particle_nums["GoodOneStrawCaloElectron"];
 	      if ( particle >= 0 ) {
 		FillTruthData(GoodOneStrawCaloElectronData, xe_truth, rhat_truth, y_truth, rprime_truth, yprime_truth, p, x, z, theta, t0, time, tDecay, pol_azimuth_truth, pol_radial_truth, pol_vertical_truth, Polarization, syshits, spinphase);
@@ -6443,7 +6443,7 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
 	      }
 	    }
 
-	    if ( trackernum == konestraw || trackernum == ktwostraw ) {
+	    if ( stationnum == konestraw || stationnum == ktwostraw ) {
 	      particle = truth_particle_nums["GoodTwoStrawCaloElectron"];
 	      if ( particle >= 0 ) {
 		FillTruthData(GoodTwoStrawCaloElectronData, xe_truth, rhat_truth, y_truth, rprime_truth, yprime_truth, p, x, z, theta, t0, time, tDecay, pol_azimuth_truth, pol_radial_truth, pol_vertical_truth, Polarization, syshits, spinphase);
@@ -6741,14 +6741,14 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
   //
   particle = truth_particle_nums["StrawElectron"];
   if ( particle >= 0 ) {
-    calostation = trackernum;
-    //cout << "TrackerNum = " << trackernum << endl;
+    calostation = stationnum;
+    //cout << "TrackerNum = " << stationnum << endl;
     if ( Npart[particle] > 0 ) {
       if ( debug_truthtracker || debug_ ) { cout << "StrawElectron: " << StrawElectronData[kP] << endl; }
       truth_particle_multiplicity[particle]++;
-      FillTruthTracker(kGeneratedDist, particle, trackernum, StrawElectronData, NULL);
-      FillTruthTracker(kRemainingDist, particle, trackernum, BirthElectronData, DecayMuonData);
-      FillTruthTurnTime(particle, trackernum, StrawElectronData);
+      FillTruthTracker(kGeneratedDist, particle, stationnum, StrawElectronData, NULL);
+      FillTruthTracker(kRemainingDist, particle, stationnum, BirthElectronData, DecayMuonData);
+      FillTruthTurnTime(particle, stationnum, StrawElectronData);
     }
   }
 
@@ -6758,14 +6758,14 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
   //
   particle = truth_particle_nums["GoodStrawElectron"];
   if ( particle >= 0 ) {
-    calostation = trackernum;
-    //cout << "TrackerNum = " << trackernum << endl;
+    calostation = stationnum;
+    //cout << "TrackerNum = " << stationnum << endl;
     if ( Npart[particle] > 0 ) {
       if ( debug_truthtracker || debug_ ) { cout << "GoodStrawElectron: " << GoodStrawElectronData[kP] << endl; }
       truth_particle_multiplicity[particle]++;
-      FillTruthTracker(kGeneratedDist, particle, trackernum, GoodStrawElectronData, NULL);
-      FillTruthTracker(kRemainingDist, particle, trackernum, BirthElectronData, DecayMuonData);
-      FillTruthTurnTime(particle, trackernum, GoodStrawElectronData);
+      FillTruthTracker(kGeneratedDist, particle, stationnum, GoodStrawElectronData, NULL);
+      FillTruthTracker(kRemainingDist, particle, stationnum, BirthElectronData, DecayMuonData);
+      FillTruthTurnTime(particle, stationnum, GoodStrawElectronData);
     }
   }
 
@@ -6775,14 +6775,14 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
   //
   particle = truth_particle_nums["StrawCaloElectron"];
   if ( particle >= 0 ) {
-    calostation = trackernum;
-    //cout << "TrackerNum = " << trackernum << endl;
+    calostation = stationnum;
+    //cout << "StationNum = " << stationnum << endl;
     if ( Npart[particle] > 0 ) {
       if ( debug_truthtracker || debug_ ) { cout << "StrawCaloElectron: " << StrawCaloElectronData[kP] << endl; }
       truth_particle_multiplicity[particle]++;
-      FillTruthTracker(kGeneratedDist, particle, trackernum, StrawCaloElectronData, NULL);
-      FillTruthTracker(kRemainingDist, particle, trackernum, BirthElectronData, DecayMuonData);
-      FillTruthTurnTime(particle, trackernum, StrawCaloElectronData);
+      FillTruthTracker(kGeneratedDist, particle, stationnum, StrawCaloElectronData, NULL);
+      FillTruthTracker(kRemainingDist, particle, stationnum, BirthElectronData, DecayMuonData);
+      FillTruthTurnTime(particle, stationnum, StrawCaloElectronData);
     }
   }
 
@@ -6792,14 +6792,14 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
   //
   particle = truth_particle_nums["GoodStrawCaloElectron"];
   if ( particle >= 0 ) {
-    calostation = trackernum;
-    //cout << "TrackerNum = " << trackernum << endl;
+    calostation = stationnum;
+    //cout << "StationNum = " << stationnum << endl;
     if ( Npart[particle] > 0 ) {
       if ( debug_truthtracker || debug_ ) { cout << "GoodStrawCaloElectron: " << GoodStrawCaloElectronData[kP] << endl; }
       truth_particle_multiplicity[particle]++;
-      FillTruthTracker(kGeneratedDist, particle, trackernum, GoodStrawCaloElectronData, NULL);
-      FillTruthTracker(kRemainingDist, particle, trackernum, BirthElectronData, DecayMuonData);
-      FillTruthTurnTime(particle, trackernum, GoodStrawCaloElectronData);
+      FillTruthTracker(kGeneratedDist, particle, stationnum, GoodStrawCaloElectronData, NULL);
+      FillTruthTracker(kRemainingDist, particle, stationnum, BirthElectronData, DecayMuonData);
+      FillTruthTurnTime(particle, stationnum, GoodStrawCaloElectronData);
     }
   }
 
@@ -6809,14 +6809,14 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
   //
   particle = truth_particle_nums["GoodOneStrawCaloElectron"];
   if ( particle >= 0 ) {
-    calostation = trackernum;
-    //cout << "TrackerNum = " << trackernum << endl;
+    calostation = stationnum;
+    //cout << "StationNum = " << stationnum << endl;
     if ( Npart[particle] > 0 ) {
       if ( debug_truthtracker || debug_ ) { cout << "StrawElectron: " << StrawElectronData[kP] << endl; }
       truth_particle_multiplicity[particle]++;
-      FillTruthTracker(kGeneratedDist, particle, trackernum, GoodOneStrawCaloElectronData, NULL);
-      FillTruthTracker(kRemainingDist, particle, trackernum, BirthElectronData, DecayMuonData);
-      FillTruthTurnTime(particle, trackernum, GoodOneStrawCaloElectronData);
+      FillTruthTracker(kGeneratedDist, particle, stationnum, GoodOneStrawCaloElectronData, NULL);
+      FillTruthTracker(kRemainingDist, particle, stationnum, BirthElectronData, DecayMuonData);
+      FillTruthTurnTime(particle, stationnum, GoodOneStrawCaloElectronData);
     }
   }
 
@@ -6826,14 +6826,14 @@ void gm2ringsim::ringTrackerAnalyzer::analyze(art::Event const &e)
   //
   particle = truth_particle_nums["GoodTwoStrawCaloElectron"];
   if ( particle >= 0 ) {
-    calostation = trackernum;
-    //cout << "TrackerNum = " << trackernum << endl;
+    calostation = stationnum;
+    //cout << "StationNum = " << stationnum << endl;
     if ( Npart[particle] > 0 ) {
       if ( debug_truthtracker || debug_ ) { cout << "StrawElectron: " << StrawElectronData[kP] << endl; }
       truth_particle_multiplicity[particle]++;
-      FillTruthTracker(kGeneratedDist, particle, trackernum, GoodTwoStrawCaloElectronData, NULL);
-      FillTruthTracker(kRemainingDist, particle, trackernum, BirthElectronData, DecayMuonData);
-      FillTruthTurnTime(particle, trackernum, GoodTwoStrawCaloElectronData);
+      FillTruthTracker(kGeneratedDist, particle, stationnum, GoodTwoStrawCaloElectronData, NULL);
+      FillTruthTracker(kRemainingDist, particle, stationnum, BirthElectronData, DecayMuonData);
+      FillTruthTurnTime(particle, stationnum, GoodTwoStrawCaloElectronData);
     }
   }
 
