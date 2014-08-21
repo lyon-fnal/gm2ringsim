@@ -59,14 +59,14 @@ cet_report_compiler_flags()
 
 # Locate some UPS areas (the versions are just minimum required) and setup include paths
 # These are needed for Art stuff
-find_ups_product(cetbuildtools v3_07_08)
-find_ups_product(gm2geom v1_00_00)
-find_ups_product(gm2dataproducts v1_00_00)
-find_ups_product(artg4 v1_00_00)
-find_ups_geant4(v4_9_6_p02)
-find_ups_product(art v1_08_10 )
-find_ups_product(fhiclcpp v2_17_12)
-find_ups_product(messagefacility v1_10_26)
+find_ups_product(cetbuildtools v3_13_00)
+find_ups_product(gm2geom v2_00_00)
+find_ups_product(gm2dataproducts v2_00_00)
+find_ups_product(artg4 v2_00_00)
+find_ups_geant4(v4_9_6_p03)
+find_ups_product(art v1_10_00 )
+find_ups_product(fhiclcpp v2_19_05)
+find_ups_product(messagefacility v1_11_10)
 
 # Make sure we have gcc
 cet_check_gcc()
