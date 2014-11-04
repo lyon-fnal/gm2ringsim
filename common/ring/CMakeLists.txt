@@ -2,8 +2,7 @@
 art_make( LIB_LIBRARIES 
 	  artg4_util
 	  artg4_pluginActions_physicalVolumeStore_physicalVolumeStore_service
-	  gm2ringsim_common_ring
-	  ${XERCESCLIB}
+      ${XERCESCLIB}
 	  ${G4_LIB_LIST}
 	)
 

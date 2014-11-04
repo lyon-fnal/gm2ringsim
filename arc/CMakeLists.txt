@@ -2,7 +2,6 @@
 art_make( SERVICE_LIBRARIES
 	  gm2ringsim_arc
 	   LIB_LIBRARIES 
-	  gm2ringsim_arc
 	  gm2geom_arc
 	  gm2ringsim_inflector
 	  gm2ringsim_actions

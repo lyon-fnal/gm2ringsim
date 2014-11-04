@@ -4,7 +4,6 @@ art_make( LIB_LIBRARIES
 	  artg4_material
 	  gm2ringsim_fields
 	  gm2ringsim_common_spin
-	  gm2ringsim_octupole
 	  ${XERCESCLIB}
 	  ${G4_LIB_LIST}
 	)

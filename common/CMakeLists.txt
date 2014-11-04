@@ -1,4 +1,4 @@
-art_make( LIB_LIBRARIES "gm2ringsim_common" )
+art_make(  )
 add_subdirectory( ring )
 add_subdirectory( spin )
 add_subdirectory( virtualringstation )

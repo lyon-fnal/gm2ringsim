@@ -8,7 +8,6 @@ art_make( SERVICE_LIBRARIES
 	  gm2geom_arc
 	  gm2ringsim_fields
 	  gm2ringsim_common_spin
-	  gm2ringsim_kicker
 	  gm2geom_kicker
 	  ${XERCESCLIB}
 	  ${G4_LIB_LIST}

@@ -1,6 +1,5 @@
 # Build the libraries
 art_make( LIB_LIBRARIES 
-	  gm2geom_station
 	  artg4_util
 	  artg4_material
 	  ${XERCESCLIB}

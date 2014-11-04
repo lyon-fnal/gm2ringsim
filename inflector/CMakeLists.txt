@@ -5,7 +5,6 @@
 art_make( LIB_LIBRARIES 
           artg4_pluginActions_physicalVolumeStore_physicalVolumeStore_service
 	  gm2ringsim_fields 
-	  gm2ringsim_inflector
 	  artg4_util   
 	  gm2ringsim_common
 	  gm2ringsim_common_spin   

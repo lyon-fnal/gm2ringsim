@@ -1,6 +1,5 @@
 # Build the libraries
 art_make( LIB_LIBRARIES 
-	  gm2ringsim_calo
 	  gm2geom_calo
 	  gm2geom_station
 	  artg4_material

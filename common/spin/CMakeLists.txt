@@ -1,6 +1,5 @@
 # Build the libraries
 art_make( LIB_LIBRARIES 
-	  gm2ringsim_common_spin
 	  ${XERCESCLIB}
 	  ${G4_LIB_LIST}
 	)

@@ -6,7 +6,6 @@ art_make( SERVICE_LIBRARIES
 	  artg4_util
 	  artg4_material
 	  gm2ringsim_common_spin
-	  gm2ringsim_quad
 	  gm2geom_quad
 	  gm2ringsim_common
 	  gm2ringsim_common_ring

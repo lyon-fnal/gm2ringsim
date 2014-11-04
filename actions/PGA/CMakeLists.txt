@@ -1,7 +1,6 @@
 art_make( SERVICE_LIBRARIES 
 	  gm2ringsim_actions_PGA
           LIB_LIBRARIES 
-	  gm2ringsim_actions_PGA 
 	  gm2ringsim_common
          )
 install_headers()
