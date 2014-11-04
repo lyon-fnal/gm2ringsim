@@ -58,12 +58,16 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
                                                                         strawg_.strawModuleManifoldWidthHalf, 
                                                                         strawg_.strawModuleManifoldHeightHalf);
 
-      G4VSolid *innerModuleManifold = new G4Box("innerManifoldSystem", strawg_.strawModuleSizeHalf[sc] - strawg_.strawModuleManifoldThickness, 
-                                                                        strawg_.strawModuleManifoldWidthHalf-strawg_.strawModuleManifoldThickness, 
-                                                                        strawg_.strawModuleManifoldHeightHalf-strawg_.strawModuleManifoldThickness);
+      double innerManifoldSize_x = strawg_.strawModuleSizeHalf[sc] - strawg_.strawModuleManifoldThickness;
+      double innerManifoldSize_y = strawg_.strawModuleManifoldWidthHalf-strawg_.strawModuleManifoldThickness;
+      double innerManifoldSize_z = strawg_.strawModuleManifoldHeightHalf-strawg_.strawModuleManifoldThickness ;
+  
+
+      G4VSolid *innerModuleManifold = new G4Box("innerManifoldSystem", innerManifoldSize_x, innerManifoldSize_y, innerManifoldSize_z);
       
       G4SubtractionSolid *moduleManifold = new G4SubtractionSolid("moduleManifold", outerModuleManifold, innerModuleManifold);
 
+      G4VSolid *manifoldElectronics = new G4Box("manifoldElectronics",innerManifoldSize_x-1, innerManifoldSize_y-1, innerManifoldSize_z-1);
 
       G4LogicalVolume* strawModuleLV = new G4LogicalVolume(
                                                             strawModule,
@@ -80,6 +84,12 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
                                                          0);
 
 
+      G4LogicalVolume* manifoldElectronicsLV = new G4LogicalVolume(
+                                                        manifoldElectronics,
+                                                        artg4Materials::FakeStrawElectronics(),
+                                                        "manifoldElectronics",
+                                                         0,
+                                                         0);
 
       double manifoldPlacement = strawg_.strawModuleHeightHalf-strawg_.strawModuleManifoldHeightHalf;
 
@@ -102,6 +112,24 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
                      );
 
       
+	    new G4PVPlacement(0,
+					            G4ThreeVector(0,0,-1*manifoldPlacement),
+						          manifoldElectronicsLV,
+					            "manifoldElectronicsLV-top",
+					            strawModuleLV,
+						          0,
+					            0
+                     );
+
+	    new G4PVPlacement(0,
+					            G4ThreeVector(0,0,manifoldPlacement),
+						          manifoldElectronicsLV,
+					            "manifoldElectronicsLV-bottom",
+					            strawModuleLV,
+						          0,
+					            0
+                     );
+
       artg4::setVisAtts( strawModuleLV, strawg_.displayModule, strawg_.moduleColor,
                         [] (G4VisAttributes* att) {
                           att->SetForceSolid(0);
@@ -111,11 +139,17 @@ std::vector<G4LogicalVolume *> gm2ringsim::StrawTracker::doBuildLVs() {
 
       artg4::setVisAtts( manifoldLV, strawg_.displayModuleMaterial, strawg_.manifoldColor,
                         [] (G4VisAttributes* att) {
-                          att->SetForceSolid(1);
+                          att->SetForceSolid(0);
                           att->SetVisibility(1);
                         }
                         );
       
+      artg4::setVisAtts( manifoldElectronicsLV, strawg_.displayModuleMaterial, strawg_.manifoldColor,
+                        [] (G4VisAttributes* att) {
+                          att->SetForceSolid(1);
+                          att->SetVisibility(1);
+                        }
+                        );
       //Only build the support post if that request is set to true in the fcl file. 
       //At the time of this writing it was unsure if the support post was going to be 
       //needed. Do all the building and placement within this if statement.  
